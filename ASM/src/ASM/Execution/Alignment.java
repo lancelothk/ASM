@@ -1,4 +1,7 @@
-package ASM;
+package ASM.Execution;
+
+import ASM.DataType.Read;
+import ASM.DataType.ReadComparator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,10 +21,10 @@ public class Alignment {
 		BufferedReader bufferedReader;
 		try {
 			bufferedReader = new BufferedReader(new FileReader(inputFileName));
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
 				String[] items = line.split("\t");
-				if (!items[1].equals("+") && !items[1].equals("-")){
+				if (!items[1].equals("+") && !items[1].equals("-")) {
 					System.err.println("invalid strand symbol!");
 				}
 				readsList.add(new Read(items[0], items[1].charAt(0), Long.parseLong(items[2]), Long.parseLong(items[3]), items[4], items[5]));
@@ -49,5 +52,5 @@ public class Alignment {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    }
+	}
 }

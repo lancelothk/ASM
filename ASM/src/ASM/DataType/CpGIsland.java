@@ -1,4 +1,4 @@
-package ASM;
+package ASM.DataType;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -121,7 +121,7 @@ public class CpGIsland {
 		this.obsExp = obsExp;
 	}
 
-	public void write(String str) throws IOException{
+	public void write(String str) throws IOException {
 		bufferedWriter.write(str);
 	}
 
