@@ -1,3 +1,5 @@
+package ASM;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class Read {
@@ -66,10 +68,10 @@ public class Read {
 		return stringBuilder.toString();
 	}
 
-	public String toString(long initialPos) throws Exception {
-		if (this.start - initialPos > Integer.MAX_VALUE) {
-			throw new Exception("offset exceed max int!");
-		}
+    public String toString(long initialPos) throws IllegalArgumentException {
+        if (this.start - initialPos > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("offset exceed max int!");
+        }
 		int offset = (int) (this.start - initialPos);
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end,
 				StringUtils.leftPad(this.strand == '+'?this.content:getComplementaryContent(), offset + this.content.length(), "."), this.id);

@@ -1,3 +1,5 @@
+package ASM;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,8 +19,8 @@ public class MatchCpGIsland {
 			cpGIsland.initWriter(outputPath);
 		}
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(mappedReadFileName));
-		String line = null;
-		String[] items;
+        String line;
+        String[] items;
 		long counter = 0;
 		while ((line = bufferedReader.readLine()) != null) {
 			items = line.split("\t");
@@ -46,8 +48,8 @@ public class MatchCpGIsland {
 	public static List<CpGIsland> readCpGIslands(String fileName) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
 		List<CpGIsland> cpgIslandList = new ArrayList<>();
-		String line = null;
-		String[] items;
+        String line;
+        String[] items;
 		while ((line = bufferedReader.readLine()) != null) {
 			items = line.split("\t");
 			cpgIslandList.add(new CpGIsland(items[0], Long.parseLong(items[1]), Long.parseLong(items[2]), String.format("%s-%s", items[0], items[1]), Integer
@@ -60,11 +62,7 @@ public class MatchCpGIsland {
 	}
 
 	public static boolean readInIsland(MappedRead read, CpGIsland island) {
-		if ((read.getStart() <= island.getEnd() && read.getStart() >= island.getStart())
-				|| (read.getEnd() <= island.getEnd() && read.getEnd() >= island.getStart())) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        return (read.getStart() <= island.getEnd() && read.getStart() >= island.getStart())
+                || (read.getEnd() <= island.getEnd() && read.getEnd() >= island.getStart());
+    }
 }

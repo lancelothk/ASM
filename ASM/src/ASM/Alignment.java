@@ -1,8 +1,6 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+package ASM;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +18,8 @@ public class Alignment {
 		BufferedReader bufferedReader;
 		try {
 			bufferedReader = new BufferedReader(new FileReader(inputFileName));
-			String line = null;
-			while ((line = bufferedReader.readLine()) != null) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
 				String[] items = line.split("\t");
 				if (!items[1].equals("+") && !items[1].equals("-")){
 					System.err.println("invalid strand symbol!");
@@ -50,8 +48,6 @@ public class Alignment {
 			bufferedWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-	}
+    }
 }

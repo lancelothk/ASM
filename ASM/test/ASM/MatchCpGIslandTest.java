@@ -1,6 +1,8 @@
-import java.util.List;
+package ASM;
 
 import org.junit.Test;
+
+import java.util.List;
 
 public class MatchCpGIslandTest {
 

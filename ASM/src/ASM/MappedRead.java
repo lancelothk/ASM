@@ -1,3 +1,4 @@
+package ASM;
 
 public class MappedRead {
 	private String chrom;
