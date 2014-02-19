@@ -1,11 +1,8 @@
 package ASM.Execution;
 
-import ASM.DataType.CpGIsland;
 import ASM.DataType.MappedRead;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.BitSet;
 
 /**
@@ -14,13 +11,15 @@ import java.util.BitSet;
 public class CheckInterval {
 	public static final int CHR6SIZE = 170899992;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		BitSet chrBitSet = new BitSet(CHR6SIZE);
-		String mappedReadFileName = "";
+		String chr = "chr6";
+		String mappedReadFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/ASM/reads_bs_i90_r1.mapped_chr6";
+		String outputFileName = "/home/ke/test/checkInterval/" + chr;
+		checkInterval(chrBitSet, chr, mappedReadFileName, outputFileName);
 	}
 
-	public static void checkInterval(String mappedReadFileName, BitSet chrBitSet) throws IOException {
-
+	public static void checkInterval(BitSet chrBitSet, String chr, String mappedReadFileName, String outputFileName) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(mappedReadFileName));
 		String line;
 		String[] items;
@@ -40,12 +39,16 @@ public class CheckInterval {
 		}
 		bufferedReader.close();
 
-		int fromIndex = 1;
-		int clearIndex = 0;
-		while (clearIndex <= chrBitSet.size()) {
-			//TODO use nextClear and nextSet check interval
-			clearIndex = chrBitSet.nextClearBit(fromIndex);
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
+		int clearIndex = 0, setIndex = 0;
+		while (clearIndex <= chrBitSet.size() && setIndex <= chrBitSet.size()) {
+			setIndex = chrBitSet.nextSetBit(clearIndex);
+			if (setIndex < 0){
+				break;
+			}
+			clearIndex = chrBitSet.nextClearBit(setIndex);
+			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\n", chr, setIndex, clearIndex - 1, clearIndex - setIndex));
 		}
-
+		bufferedWriter.close();
 	}
 }
