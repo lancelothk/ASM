@@ -1,5 +1,7 @@
 package ASM.DataType;
 
+import java.util.List;
+
 public class MappedRead {
 	private String chrom;
 	private String strand;
@@ -7,6 +9,7 @@ public class MappedRead {
 	private long end;
 	private String sequence;
 	private long id;
+	private List<CpGSite> cpgList;
 
 	public MappedRead(String chrom, String strand, long start, long end, String sequence, long id) {
 		super();
@@ -64,6 +67,14 @@ public class MappedRead {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public List<CpGSite> getCpgList() {
+		return cpgList;
+	}
+
+	public void setCpgList(List<CpGSite> cpgList) {
+		this.cpgList = cpgList;
 	}
 
 	@Override
