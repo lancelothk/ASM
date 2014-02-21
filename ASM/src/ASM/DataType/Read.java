@@ -1,6 +1,6 @@
 package ASM.DataType;
 
-import org.apache.commons.lang3.StringUtils;
+import com.google.common.base.Strings;
 
 public class Read {
 	private String chr;
@@ -74,7 +74,6 @@ public class Read {
 			throw new IllegalArgumentException("offset exceed max int!");
 		}
 		int offset = (int) (this.start - initialPos);
-		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end,
-				StringUtils.leftPad(this.strand == '+' ? this.content : getComplementaryContent(), offset + this.content.length(), "."), this.id);
+		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end, Strings.padStart(this.strand == '+' ? this.content : getComplementaryContent(), offset + this.content.length(), '.'), this.id);
 	}
 }
