@@ -1,6 +1,9 @@
 package ASM.Execution;
 
 import ASM.DataType.MappedRead;
+import ASM.Utils.IntervalChekingLineProcessor;
+import ASM.Utils.MappedReadFileLineProcessor;
+import com.google.common.io.CharStreams;
 
 import java.io.*;
 import java.util.BitSet;
@@ -12,33 +15,14 @@ public class CheckInterval {
 	public static final int CHR6SIZE = 170899992;
 
 	public static void main(String[] args) throws IOException {
-		BitSet chrBitSet = new BitSet(CHR6SIZE);
 		String chr = "chr6";
 		String mappedReadFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/ASM/reads_bs_i90_r1.mapped_chr6";
 		String outputFileName = "/home/ke/test/checkInterval/" + chr;
-		checkInterval(chrBitSet, chr, mappedReadFileName, outputFileName);
+		checkInterval(CHR6SIZE, chr, mappedReadFileName, outputFileName);
 	}
 
-	public static void checkInterval(BitSet chrBitSet, String chr, String mappedReadFileName, String outputFileName) throws IOException {
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(mappedReadFileName));
-		String line;
-		String[] items;
-		long counter = 0;
-		while ((line = bufferedReader.readLine()) != null) {
-			items = line.split("\t");
-			if (items[0].startsWith("chrom")) {
-				continue;
-			}
-			MappedRead mappedRead = new MappedRead(items[0], items[1], Long.parseLong(items[2]), Long.parseLong(items[3]), items[4],
-					Long.parseLong(items[5]));
-			chrBitSet.set((int)mappedRead.getStart(), (int)mappedRead.getEnd());
-			counter++;
-			if (counter % 1000000 == 0) {
-				System.out.println(counter);
-			}
-		}
-		bufferedReader.close();
-
+	public static void checkInterval(int chrBitSize, String chr, String mappedReadFileName, String outputFileName) throws IOException {
+		BitSet chrBitSet = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
 		int clearIndex = 0, setIndex = 0;
 		while (clearIndex <= chrBitSet.size() && setIndex <= chrBitSet.size()) {
