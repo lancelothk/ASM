@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * Created by ke on 2/21/14.
+ * Implemented LineProcessor for reading MappedRead File
  */
 public class MappedReadFileLineProcessor implements LineProcessor<List<MappedRead>> {
 	List<MappedRead> mappedReadList = new ArrayList<>();
