@@ -10,4 +10,7 @@
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/ASM/lib/commons-lang3-3.2.1.jar!/"/>
 		<relative-module-javadoc project-related="jar://$PROJECT_DIR$/ASM/lib/commons-lang3-3.2.1-javadoc.jar!/"/>
 	</lib>
+	<levels>
+		<level name="guava-16.0.1" value="project"/>
+	</levels>
 </component>

@@ -2,11 +2,10 @@ package ASM.Execution;
 
 import ASM.DataType.CpGSite;
 import ASM.DataType.MappedRead;
-import ASM.Utils.IOUtils;
+import ASM.Utils.MappedReadFileLineProcessor;
+import com.google.common.io.CharStreams;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class FindASM {
 
 	public static void generateCpGView(String reference, String intervalFileName, String outputFileName, long initPos) throws IOException {
 		List<CpGSite> cpgList = extractCpGSite(reference, initPos);
-		List<MappedRead> mappedReadList = IOUtils.readMappedRead(intervalFileName);
+		List<MappedRead> mappedReadList = CharStreams.readLines(new BufferedReader((new FileReader(intervalFileName))), new MappedReadFileLineProcessor());
 		for (MappedRead mappedRead : mappedReadList) {
 			List<CpGSite> readCpGList = new ArrayList<>();
 			for (CpGSite cpg : cpgList) {

@@ -69,6 +69,7 @@ public class Read {
 	}
 
 	public String toString(long initialPos) throws IllegalArgumentException {
+		// TODO replace ledtPad with Guava pad
 		if (this.start - initialPos > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException("offset exceed max int!");
 		}
