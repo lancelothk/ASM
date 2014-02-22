@@ -1,15 +1,17 @@
 package ASM.Execution;
 
-import ASM.DataType.MappedRead;
 import ASM.Utils.IntervalChekingLineProcessor;
 import ASM.Utils.MappedReadFileLineProcessor;
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 
 import java.io.*;
 import java.util.BitSet;
 
 /**
  * Created by lancelothk on 2/17/14.
+ * Check mapped reads interval in Chromosome
  */
 public class CheckInterval {
 	public static final int CHR6SIZE = 170899992;
@@ -18,6 +20,7 @@ public class CheckInterval {
 		String chr = "chr6";
 		String mappedReadFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/ASM/reads_bs_i90_r1.mapped_chr6";
 		String outputFileName = "/home/ke/test/checkInterval/" + chr;
+
 		checkInterval(CHR6SIZE, chr, mappedReadFileName, outputFileName);
 	}
 

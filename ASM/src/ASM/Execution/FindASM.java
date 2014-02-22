@@ -3,9 +3,13 @@ package ASM.Execution;
 import ASM.DataType.CpGSite;
 import ASM.DataType.MappedRead;
 import ASM.Utils.MappedReadFileLineProcessor;
-import com.google.common.io.CharStreams;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +31,7 @@ public class FindASM {
 
 	public static void generateCpGView(String reference, String intervalFileName, String outputFileName, long initPos) throws IOException {
 		List<CpGSite> cpgList = extractCpGSite(reference, initPos);
-		List<MappedRead> mappedReadList = CharStreams.readLines(new BufferedReader((new FileReader(intervalFileName))), new MappedReadFileLineProcessor());
+		List<MappedRead> mappedReadList = Files.asCharSource(new File(intervalFileName), Charsets.UTF_8).readLines(new MappedReadFileLineProcessor());
 		for (MappedRead mappedRead : mappedReadList) {
 			List<CpGSite> readCpGList = new ArrayList<>();
 			for (CpGSite cpg : cpgList) {
