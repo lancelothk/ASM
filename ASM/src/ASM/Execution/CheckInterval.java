@@ -1,13 +1,10 @@
 package ASM.Execution;
 
+import ASM.DataType.ChrCoverageSummary;
 import ASM.Utils.IntervalChekingLineProcessor;
-import ASM.Utils.MappedReadFileLineProcessor;
-import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 
 import java.io.*;
-import java.util.BitSet;
 
 /**
  * Created by lancelothk on 2/17/14.
@@ -25,17 +22,9 @@ public class CheckInterval {
 	}
 
 	public static void checkInterval(int chrBitSize, String chr, String mappedReadFileName, String outputFileName) throws IOException {
-		BitSet chrBitSet = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
+		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-		int clearIndex = 0, setIndex = 0;
-		while (clearIndex <= chrBitSet.size() && setIndex <= chrBitSet.size()) {
-			setIndex = chrBitSet.nextSetBit(clearIndex);
-			if (setIndex < 0){
-				break;
-			}
-			clearIndex = chrBitSet.nextClearBit(setIndex);
-			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\n", chr, setIndex, clearIndex - 1, clearIndex - setIndex));
-		}
+		chrCoverageSummary.writeIntervalCoverageSummary(chr, bufferedWriter);
 		bufferedWriter.close();
 	}
 }
