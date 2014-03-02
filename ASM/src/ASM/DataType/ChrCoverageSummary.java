@@ -17,11 +17,13 @@ import java.util.List;
 public class ChrCoverageSummary {
 	private BitSet chrBitSet;
 	private int[] chrBitCoverage;
+	private String reference;
 
-	public ChrCoverageSummary(int chrSize) {
+	public ChrCoverageSummary(int chrSize, String referenceFileName) throws IOException {
 		// start index is 1. Index range is 1 - chrSize
 		this.chrBitSet = new BitSet(chrSize + 1);
 		this.chrBitCoverage = new int[chrSize + 1];
+		this.reference = readReference(referenceFileName);
 	}
 
 	public void addCoverage(int start, int end) {
@@ -37,8 +39,8 @@ public class ChrCoverageSummary {
 		}
 	}
 
-	public void writeIntervalCoverageSummary(String chr, String referenceFileName, BufferedWriter bufferedWriter) throws IOException {
-		String reference = readReference(referenceFileName);
+	public void writeIntervalCoverageSummary(String chr, BufferedWriter bufferedWriter) throws IOException {
+
 		bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tavgCount\tCpGCount\n");
 		// bit of clearIndex is exclusive to interval
 		int clearIndex = 0, setIndex = 0;
@@ -76,7 +78,7 @@ public class ChrCoverageSummary {
 		// start and end is 1-based.
 		int count = 0;
 		for (int i = start - 1; i <= end - 1; i++) {
-			if (i + 1 < reference.length() && reference.charAt(i) == 'C' && reference.charAt(i + 1) == 'G') { // 'C' is last character in reference
+			if (i + 1 < reference.length() && (reference.charAt(i) == 'c' || reference.charAt(i) == 'C') && (reference.charAt(i + 1) == 'g' || reference.charAt(i + 1) == 'G')) { // 'C' is last character in reference
 				count++;
 			}
 		}

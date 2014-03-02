@@ -16,20 +16,23 @@ public class CheckInterval {
 //	public static final int CHR6SIZE = 170899992;
 
 	public static void main(String[] args) throws IOException {
-		OptionGroup requiredOptionGroup = new OptionGroup();
-		requiredOptionGroup.addOption(new Option("c", true, "chromosome name, like chr6"));
-		requiredOptionGroup.addOption(new Option("s", true, "chromosome size, a number"));
-		requiredOptionGroup.addOption(new Option("r", true, "reference file"));
-		requiredOptionGroup.addOption(new Option("i", true, "input file"));
-		requiredOptionGroup.addOption(new Option("o", true, "output file"));
-		requiredOptionGroup.setRequired(true);
+		// TODO make options required. Check options more carefully.
 		Options options = new Options();
-		options.addOptionGroup(requiredOptionGroup);
+		options.addOption(new Option("c", true, "chromosome name, like chr6"));
+		options.addOption(new Option("s", true, "chromosome size, a number"));
+		options.addOption(new Option("r", true, "reference file"));
+		options.addOption(new Option("i", true, "input file"));
+		options.addOption(new Option("o", true, "output file"));
+
 		CommandLineParser parser = new GnuParser();
 		try {
 			CommandLine cmd = parser.parse(options, args);
 			String chr = cmd.getOptionValue("c");
-			int chrSize = Integer.parseInt(cmd.getOptionValue("s"));
+			String chrSizeStr = cmd.getOptionValue("s");
+			if (chrSizeStr == null) {
+				throw new RuntimeException("chromosome size is null!");
+			}
+			int chrSize = Integer.parseInt(chrSizeStr);
 			String referenceFileName = cmd.getOptionValue("r");
 			String mappedReadFileName = cmd.getOptionValue("i");
 			String outputFileName = cmd.getOptionValue("o");
@@ -48,9 +51,9 @@ public class CheckInterval {
 	}
 
 	public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName, String outputFileName) throws IOException {
-		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
+		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize, referenceFileName));
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-		chrCoverageSummary.writeIntervalCoverageSummary(chr, referenceFileName, bufferedWriter);
+		chrCoverageSummary.writeIntervalCoverageSummary(chr, bufferedWriter);
 		bufferedWriter.close();
 	}
 }

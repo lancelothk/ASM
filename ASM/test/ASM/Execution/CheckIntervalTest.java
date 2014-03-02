@@ -4,6 +4,7 @@ import ASM.DataType.ChrCoverageSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -22,11 +23,11 @@ public class CheckIntervalTest {
 	}
 
 	@Test
-	public void testCpGCount() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+	public void testCpGCount() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
 		Method countCpG = ChrCoverageSummary.class.getDeclaredMethod("countCpG", String.class, Integer.TYPE, Integer.TYPE);
 		countCpG.setAccessible(true);
-		ChrCoverageSummary emptyChrCoverageSummary = new ChrCoverageSummary(0);
-		String reference = "ACGGCTGCGCCCC";
+		ChrCoverageSummary emptyChrCoverageSummary = new ChrCoverageSummary(0, "ASM/testData/interval/testRef");
+		String reference = "acGgCtCggccCc";
 		Assert.assertEquals(1, countCpG.invoke(emptyChrCoverageSummary, reference, 1, 5));
 		Assert.assertEquals(0, countCpG.invoke(emptyChrCoverageSummary, reference, 8, 12));
 		Assert.assertEquals(0, countCpG.invoke(emptyChrCoverageSummary, reference, 8, 13));
