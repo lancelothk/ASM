@@ -19,6 +19,7 @@ public class CheckInterval {
 		OptionGroup requiredOptionGroup = new OptionGroup();
 		requiredOptionGroup.addOption(new Option("c", true, "chromosome name, like chr6"));
 		requiredOptionGroup.addOption(new Option("s", true, "chromosome size, a number"));
+		requiredOptionGroup.addOption(new Option("r", true, "reference file"));
 		requiredOptionGroup.addOption(new Option("i", true, "input file"));
 		requiredOptionGroup.addOption(new Option("o", true, "output file"));
 		requiredOptionGroup.setRequired(true);
@@ -29,6 +30,7 @@ public class CheckInterval {
 			CommandLine cmd = parser.parse(options, args);
 			String chr = cmd.getOptionValue("c");
 			int chrSize = Integer.parseInt(cmd.getOptionValue("s"));
+			String referenceFileName = cmd.getOptionValue("r");
 			String mappedReadFileName = cmd.getOptionValue("i");
 			String outputFileName = cmd.getOptionValue("o");
 			for (String arg : args) {
@@ -38,17 +40,17 @@ public class CheckInterval {
 			Scanner check = new Scanner(System.in);
 			String answer = check.nextLine();
 			if (answer.equals("y")) {
-				checkInterval(chrSize, chr, mappedReadFileName, outputFileName);
+				checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFileName);
 			}
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void checkInterval(int chrBitSize, String chr, String mappedReadFileName, String outputFileName) throws IOException {
+	public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName, String outputFileName) throws IOException {
 		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-		chrCoverageSummary.writeIntervalCoverageSummary(chr, bufferedWriter);
+		chrCoverageSummary.writeIntervalCoverageSummary(chr, referenceFileName, bufferedWriter);
 		bufferedWriter.close();
 	}
 }

@@ -1,8 +1,13 @@
 package ASM.DataType;
 
+import com.google.common.io.CharStreams;
+
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * Created by lancelothk on 2/23/14.
@@ -32,8 +37,9 @@ public class ChrCoverageSummary {
 		}
 	}
 
-	public void writeIntervalCoverageSummary(String chr, BufferedWriter bufferedWriter) throws IOException {
-		bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tavgCount\n");
+	public void writeIntervalCoverageSummary(String chr, String referenceFileName, BufferedWriter bufferedWriter) throws IOException {
+		String reference = readReference(referenceFileName);
+		bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tavgCount\tCpGCount\n");
 		// bit of clearIndex is exclusive to interval
 		int clearIndex = 0, setIndex = 0;
 		while (clearIndex < chrBitSet.size() && setIndex < chrBitSet.size()) {
@@ -51,7 +57,29 @@ public class ChrCoverageSummary {
 				avgCount += chrBitCoverage[i];
 			}
 			avgCount = avgCount / (clearIndex - setIndex);
-			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%f\n", chr, setIndex, clearIndex - 1, clearIndex - setIndex, maxCount, avgCount));
+			int start = setIndex, end = clearIndex - 1;
+			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%f\t%d\n", chr, start, end, clearIndex - setIndex, maxCount, avgCount, countCpG(reference, start, end)));
 		}
+	}
+
+	private String readReference(String fileName) throws IOException {
+		List<String> lines = CharStreams.readLines(new BufferedReader(new FileReader(fileName)));
+		StringBuilder referenceBuilder = new StringBuilder();
+		lines.remove(0); // remove first line, which is chromosome name
+		for (String line : lines) {
+			referenceBuilder.append(line);
+		}
+		return referenceBuilder.toString();
+	}
+
+	private int countCpG(String reference, int start, int end) {
+		// start and end is 1-based.
+		int count = 0;
+		for (int i = start - 1; i <= end - 1; i++) {
+			if (i + 1 < reference.length() && reference.charAt(i) == 'C' && reference.charAt(i + 1) == 'G') { // 'C' is last character in reference
+				count++;
+			}
+		}
+		return count;
 	}
 }
