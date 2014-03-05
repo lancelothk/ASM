@@ -16,8 +16,9 @@ public class IntervalChekingLineProcessor implements LineProcessor<ChrCoverageSu
 	private ChrCoverageSummary chrCoverageSummary;
 	private int counter=0;
 
-	public IntervalChekingLineProcessor(int chrBitSize, String referenceFileName) throws IOException {
-		this.chrCoverageSummary = new ChrCoverageSummary(chrBitSize, referenceFileName);
+	public IntervalChekingLineProcessor(int chrBitSize) throws IOException {
+		System.out.println("start interval checking:");
+		this.chrCoverageSummary = new ChrCoverageSummary(chrBitSize);
 	}
 
 	@Override

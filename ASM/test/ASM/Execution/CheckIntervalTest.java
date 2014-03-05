@@ -26,7 +26,7 @@ public class CheckIntervalTest {
 	public void testCpGCount() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
 		Method countCpG = ChrCoverageSummary.class.getDeclaredMethod("countCpG", String.class, Integer.TYPE, Integer.TYPE);
 		countCpG.setAccessible(true);
-		ChrCoverageSummary emptyChrCoverageSummary = new ChrCoverageSummary(0, "ASM/testData/interval/testRef");
+		ChrCoverageSummary emptyChrCoverageSummary = new ChrCoverageSummary(0);
 		String reference = "acGgCtCggccCc";
 		Assert.assertEquals(1, countCpG.invoke(emptyChrCoverageSummary, reference, 1, 5));
 		Assert.assertEquals(0, countCpG.invoke(emptyChrCoverageSummary, reference, 8, 12));

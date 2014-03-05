@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" build-on-make="true" name="ASM:jar">
-    <output-path>$USER_HOME$</output-path>
+    <output-path>$USER_HOME$/ASM_result</output-path>
     <root id="archive" name="ASM.jar">
       <element id="module-output" name="ASM" />
       <element id="extracted-dir" path="$PROJECT_DIR$/ASM/lib/guava-16.0.1.jar" path-in-jar="/" />

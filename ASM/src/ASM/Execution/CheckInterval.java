@@ -1,11 +1,14 @@
 package ASM.Execution;
 
 import ASM.DataType.ChrCoverageSummary;
+import ASM.DataType.GenomicInterval;
+import ASM.DataType.IntervalMatchingLineProcessor;
 import ASM.Utils.IntervalChekingLineProcessor;
 import com.google.common.io.CharStreams;
 import org.apache.commons.cli.*;
 
 import java.io.*;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -51,9 +54,47 @@ public class CheckInterval {
 	}
 
 	public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName, String outputFileName) throws IOException {
-		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize, referenceFileName));
+		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(
+				new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
+		List<GenomicInterval> intervalList = CharStreams.readLines(
+				new BufferedReader((new FileReader(mappedReadFileName))),
+				new IntervalMatchingLineProcessor(chrCoverageSummary.generateIntervals()));
+		writeIntervalSummary(outputFileName, chr, referenceFileName, intervalList);
+	}
+
+	private static void writeIntervalSummary(String outputFileName, String chr, String referenceFileName, List<GenomicInterval> intervalList) throws IOException {
+		String reference = readReference(referenceFileName);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-		chrCoverageSummary.writeIntervalCoverageSummary(chr, bufferedWriter);
+		bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tmaxCount\tavgCount\tCpGCount\n");
+		for (GenomicInterval genomicInterval : intervalList) {
+			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\t%f\t%d\n", chr, genomicInterval.getStart(),
+					genomicInterval.getEnd(), genomicInterval.getLength(), genomicInterval.getReadCount(),
+					genomicInterval.getMaxCount(), genomicInterval.getAvgCount(),
+					countCpG(reference, genomicInterval.getStart(), genomicInterval.getEnd())));
+		}
 		bufferedWriter.close();
+	}
+
+	private static String readReference(String fileName) throws IOException {
+		List<String> lines = CharStreams.readLines(new BufferedReader(new FileReader(fileName)));
+		StringBuilder referenceBuilder = new StringBuilder();
+		lines.remove(0); // remove first line, which is chromosome name
+		for (String line : lines) {
+			referenceBuilder.append(line);
+		}
+		return referenceBuilder.toString();
+	}
+
+	private static int countCpG(String reference, int start, int end) {
+		// start and end is 1-based.
+		int count = 0;
+		for (int i = start - 1; i <= end - 1; i++) {
+			if (i + 1 < reference.length() && (reference.charAt(i) == 'c' || reference.charAt(
+					i) == 'C') && (reference.charAt(i + 1) == 'g' || reference.charAt(
+					i + 1) == 'G')) { // 'C' is last character in reference
+				count++;
+			}
+		}
+		return count;
 	}
 }
