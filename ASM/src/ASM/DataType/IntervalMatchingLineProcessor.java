@@ -14,10 +14,14 @@ import java.util.List;
 public class IntervalMatchingLineProcessor implements LineProcessor<List<GenomicInterval>> {
 	private List<GenomicInterval> intervalList;
 	private int counter = 0;
+    private long totalReadLength;
+    private long totalReadCount;
+    private int minReadLength = Integer.MAX_VALUE;
+    private int maxReadLength = Integer.MIN_VALUE;
 
-	public IntervalMatchingLineProcessor(List<GenomicInterval> intervalList) {
+	public IntervalMatchingLineProcessor(ChrCoverageSummary chrCoverageSummary) {
 		System.out.println("start interval matching:");
-		this.intervalList = intervalList;
+		this.intervalList = chrCoverageSummary.generateIntervals();
 	}
 
 	@Override
@@ -30,6 +34,16 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
 			List<String> itemList = Lists.newArrayList(Splitter.on('\t').split(line));
 			int start = Integer.parseInt(itemList.get(2));
 			int end = Integer.parseInt(itemList.get(3));
+            int length = end - start + 1;
+            totalReadLength +=length;
+            totalReadCount++;
+            if (length > maxReadLength){
+                maxReadLength = length;
+            }
+            if (length < minReadLength){
+                minReadLength = length;
+            }
+
 			for (GenomicInterval interval : intervalList) {
 				if (start >= interval.getStart() && interval.getEnd() >= end) {
 					interval.incrementReadCount();
@@ -45,6 +59,7 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
 
 	@Override
 	public List<GenomicInterval> getResult() {
-		return this.intervalList;
+        System.out.println(String.format("Average Read Length:%f\nMax Read Length:%d\nMin Read Length:%d",totalReadLength/(double)totalReadCount, maxReadLength, minReadLength));
+        return this.intervalList;
 	}
 }

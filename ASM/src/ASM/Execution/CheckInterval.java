@@ -56,9 +56,9 @@ public class CheckInterval {
 	public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName, String outputFileName) throws IOException {
 		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(
 				new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
-		List<GenomicInterval> intervalList = CharStreams.readLines(
+        List<GenomicInterval> intervalList = CharStreams.readLines(
 				new BufferedReader((new FileReader(mappedReadFileName))),
-				new IntervalMatchingLineProcessor(chrCoverageSummary.generateIntervals()));
+				new IntervalMatchingLineProcessor(chrCoverageSummary));
 		writeIntervalSummary(outputFileName, chr, referenceFileName, intervalList);
 	}
 
