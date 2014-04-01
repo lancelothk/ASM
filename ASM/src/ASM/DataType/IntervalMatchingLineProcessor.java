@@ -31,7 +31,7 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
 			int start = Integer.parseInt(itemList.get(2));
 			int end = Integer.parseInt(itemList.get(3));
 			for (GenomicInterval interval : intervalList) {
-				if (start <= interval.getStart() && interval.getEnd() <= end) {
+				if (start >= interval.getStart() && interval.getEnd() >= end) {
 					interval.incrementReadCount();
 				}
 			}

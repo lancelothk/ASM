@@ -1,13 +1,12 @@
 <component name="ArtifactManager">
   <artifact type="jar" build-on-make="true" name="ASM:jar">
-    <output-path>$USER_HOME$/ASM_result</output-path>
+    <output-path>$PROJECT_DIR$/out/artifact</output-path>
     <root id="archive" name="ASM.jar">
       <element id="module-output" name="ASM" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/ASM/lib/guava-16.0.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/ASM/lib/commons-cli-1.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/ASM/lib/commons-cli-1.2-javadoc.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/ASM/lib/commons-cli-1.2-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$APPLICATION_HOME_DIR$/lib/junit-4.10.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/ASM/lib/guava-16.0.1.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/ASM/lib/commons-cli-1.2.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/ASM/lib/commons-cli-1.2-javadoc.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/ASM/lib/commons-cli-1.2-sources.jar" />
     </root>
   </artifact>
 </component>
