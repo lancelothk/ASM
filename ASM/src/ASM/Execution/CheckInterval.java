@@ -26,6 +26,7 @@ public class CheckInterval {
 		options.addOption(new Option("r", true, "reference file"));
 		options.addOption(new Option("i", true, "input file"));
 		options.addOption(new Option("o", true, "output file"));
+        options.addOption(new Option("y", false, "yes to execute with current parameter"));
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -42,12 +43,16 @@ public class CheckInterval {
 			for (String arg : args) {
 				System.out.print(arg + "\t");
 			}
-			System.out.println("\nArgs corrrect?y/n");
-			Scanner check = new Scanner(System.in);
-			String answer = check.nextLine();
-			if (answer.equals("y")) {
-				checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFileName);
-			}
+            if (cmd.hasOption("y")) {
+                checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFileName);
+            }else{
+                System.out.println("\nArgs corrrect?y/n");
+                Scanner check = new Scanner(System.in);
+                String answer = check.nextLine();
+                if (answer.equals("y")) {
+                    checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFileName);
+                }
+            }
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
