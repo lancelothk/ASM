@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Alignment {
+public class AlignReads {
 	public static void main(String[] args) {
         String targetFileName = args[0];
         if (args.length == 0) {
