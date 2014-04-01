@@ -2,6 +2,8 @@ package ASM.DataType;
 
 /**
  * Created by ke on 3/5/14.
+ * Genome Interval Data Structure
+ * Intervals should not overlap with each other.
  */
 public class GenomicInterval {
 	private int start;
