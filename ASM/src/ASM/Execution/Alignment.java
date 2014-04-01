@@ -10,8 +10,11 @@ import java.util.List;
 
 public class Alignment {
 	public static void main(String[] args) {
-		String targetFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/ASM/CPGI_chr6_cpg35_trimed";
-		String outputFileName = targetFileName + ".aligned";
+        String targetFileName = args[0];
+        if (args.length == 0) {
+            targetFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/ASM/CPGI_chr6_cpg35_trimed";
+        }
+        String outputFileName = targetFileName + ".aligned";
 		List<Read> readsList = readMappedReads(targetFileName);
 		alignReads(readsList, outputFileName);
 	}
