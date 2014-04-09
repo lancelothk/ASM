@@ -17,8 +17,8 @@ public class IntervalChekingLineProcessor implements LineProcessor<ChrCoverageSu
 	private int counter=0;
 
 	public IntervalChekingLineProcessor(int chrBitSize) throws IOException {
-		System.out.println("start interval checking:");
-		this.chrCoverageSummary = new ChrCoverageSummary(chrBitSize);
+        System.out.println("start interval checking:\t" + Utils.getCurrentTime());
+        this.chrCoverageSummary = new ChrCoverageSummary(chrBitSize);
 	}
 
 	@Override
@@ -34,8 +34,8 @@ public class IntervalChekingLineProcessor implements LineProcessor<ChrCoverageSu
 			this.chrCoverageSummary.addCoverage(start, end);
 			counter++;
 			if (counter % 1000000 == 0) {
-				System.out.println(counter);
-			}
+                System.out.printf("%d\t%s%n", counter, Utils.getCurrentTime());
+            }
 			return true;
 		}
 	}

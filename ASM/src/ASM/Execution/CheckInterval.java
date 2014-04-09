@@ -4,6 +4,7 @@ import ASM.DataType.ChrCoverageSummary;
 import ASM.DataType.GenomicInterval;
 import ASM.DataType.IntervalMatchingLineProcessor;
 import ASM.Utils.IntervalChekingLineProcessor;
+import ASM.Utils.Utils;
 import com.google.common.io.CharStreams;
 import org.apache.commons.cli.*;
 
@@ -60,6 +61,7 @@ public class CheckInterval {
 
     public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName,
                                      String outputFolderName) throws IOException {
+        System.out.println("checkInverval starts!\t" + Utils.getCurrentTime());
         ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(
 				new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
         List<GenomicInterval> intervalList = CharStreams.readLines(

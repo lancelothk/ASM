@@ -1,6 +1,6 @@
 package ASM.DataType;
 
-import ASM.Utils.IOUtils;
+import ASM.Utils.Utils;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.LineProcessor;
@@ -59,7 +59,7 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
             }
             counter++;
             if (counter % 1000000 == 0) {
-                System.out.println(counter);
+                System.out.printf("%d\t%s%n", counter, Utils.getCurrentTime());
             }
             return true;
         }
@@ -73,11 +73,13 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
         if (!intervalFolder.exists()) {
             intervalFolder.mkdir();
         }
+        System.out.println("start to write reads for intervals\t" + Utils.getCurrentTime());
         for (GenomicInterval interval : intervalList) {
             try {
-                IOUtils.writeReads(interval.getReadList(),
-                                   String.format("%s/%s-%d-%d.reads", intervalFolderName, chr, interval.getStart(),
-                                                 interval.getEnd()));
+                Utils.writeReads(interval.getReadList(),
+                                 String.format("%s/%s-%d-%d.reads", intervalFolderName, chr, interval.getStart(),
+                                               interval.getEnd())
+                                );
             } catch (IOException e) {
                 e.printStackTrace();
             }
