@@ -25,7 +25,7 @@ public class CheckInterval {
 		options.addOption(new Option("s", true, "chromosome size, a number"));
 		options.addOption(new Option("r", true, "reference file"));
 		options.addOption(new Option("i", true, "input file"));
-		options.addOption(new Option("o", true, "output file"));
+        options.addOption(new Option("o", true, "output folder"));
         options.addOption(new Option("y", false, "yes to execute with current parameter"));
 
 		CommandLineParser parser = new GnuParser();
@@ -39,18 +39,18 @@ public class CheckInterval {
 			int chrSize = Integer.parseInt(chrSizeStr);
 			String referenceFileName = cmd.getOptionValue("r");
 			String mappedReadFileName = cmd.getOptionValue("i");
-			String outputFileName = cmd.getOptionValue("o");
-			for (String arg : args) {
+            String outputFolderName = cmd.getOptionValue("o");
+            for (String arg : args) {
 				System.out.print(arg + "\t");
 			}
             if (cmd.hasOption("y")) {
-                checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFileName);
+                checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFolderName);
             }else{
                 System.out.println("\nArgs corrrect?y/n");
                 Scanner check = new Scanner(System.in);
                 String answer = check.nextLine();
                 if (answer.equals("y")) {
-                    checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFileName);
+                    checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFolderName);
                 }
             }
 		} catch (ParseException e) {
@@ -58,19 +58,22 @@ public class CheckInterval {
 		}
 	}
 
-	public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName, String outputFileName) throws IOException {
-		ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(
+    public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName,
+                                     String outputFolderName) throws IOException {
+        ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(
 				new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
         List<GenomicInterval> intervalList = CharStreams.readLines(
 				new BufferedReader((new FileReader(mappedReadFileName))),
-				new IntervalMatchingLineProcessor(chrCoverageSummary));
-		writeIntervalSummary(outputFileName, chr, referenceFileName, intervalList);
-	}
+                new IntervalMatchingLineProcessor(chrCoverageSummary, outputFolderName, chr));
+        writeIntervalSummary(outputFolderName, chr, referenceFileName, intervalList);
+    }
 
-	private static void writeIntervalSummary(String outputFileName, String chr, String referenceFileName, List<GenomicInterval> intervalList) throws IOException {
-		String reference = readReference(referenceFileName);
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-		bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tmaxCount\tavgCount\tCpGCount\n");
+    private static void writeIntervalSummary(String outputFolderName, String chr, String referenceFileName,
+                                             List<GenomicInterval> intervalList) throws IOException {
+        String reference = readReference(referenceFileName);
+        BufferedWriter bufferedWriter = new BufferedWriter(
+                new FileWriter(String.format("%s/%s.intervalSummary", outputFolderName, chr)));
+        bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tmaxCount\tavgCount\tCpGCount\n");
 		for (GenomicInterval genomicInterval : intervalList) {
 			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\t%f\t%d\n", chr, genomicInterval.getStart(),
 					genomicInterval.getEnd(), genomicInterval.getLength(), genomicInterval.getReadCount(),

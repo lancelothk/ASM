@@ -1,5 +1,9 @@
 package ASM.DataType;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * Created by ke on 3/5/14.
  * Genome Interval Data Structure
@@ -12,6 +16,7 @@ public class GenomicInterval {
 	private double avgCount;
 	private int readCount;
 	private int length;
+    private BufferedWriter intervalWriter;
 
 	public GenomicInterval(int start, int end, int length, int maxCount, double avgCount) {
 		this.start = start;
@@ -20,6 +25,21 @@ public class GenomicInterval {
 		this.avgCount = avgCount;
 		this.length = length;
 	}
+
+    public void initializeWriter(String intervalFolderName, String chr) throws IOException {
+        intervalWriter = new BufferedWriter(
+                new FileWriter(String.format("%s/%s-%d-%d.reads", intervalFolderName, chr, start, end)));
+    }
+
+    public void write(String toWrite) throws IOException {
+        if (intervalWriter != null) {
+            intervalWriter.write(toWrite);
+        }
+    }
+
+    public void closeWriter() throws IOException {
+        intervalWriter.close();
+    }
 
 	public void setReadCount(int readCount) {
 		this.readCount = readCount;
