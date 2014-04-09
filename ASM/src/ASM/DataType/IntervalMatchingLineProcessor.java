@@ -1,5 +1,6 @@
 package ASM.DataType;
 
+import ASM.Utils.IOUtils;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.LineProcessor;
@@ -19,18 +20,15 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
     private long totalReadCount;
     private int minReadLength = Integer.MAX_VALUE;
     private int maxReadLength = Integer.MIN_VALUE;
+    private String chr;
+    private String intervalFolderName;
 
-    public IntervalMatchingLineProcessor(ChrCoverageSummary chrCoverageSummary, String intervalFolerName,
+    public IntervalMatchingLineProcessor(ChrCoverageSummary chrCoverageSummary, String intervalFolderName,
                                          String chr) throws IOException {
         System.out.println("start interval matching:");
         this.intervalList = chrCoverageSummary.generateIntervals();
-        File intervalFolder = new File(intervalFolerName);
-        if (!intervalFolder.exists()) {
-            intervalFolder.mkdir();
-        }
-        for (GenomicInterval genomicInterval : intervalList) {
-            genomicInterval.initializeWriter(intervalFolerName, chr);
-        }
+        this.chr = chr;
+        this.intervalFolderName = intervalFolderName;
     }
 
     @Override
@@ -56,7 +54,7 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
             for (GenomicInterval interval : intervalList) {
                 if (start >= interval.getStart() && interval.getEnd() >= end) {
                     interval.incrementReadCount();
-                    interval.write(line + "\n");
+                    interval.addRead(line);
                 }
             }
             counter++;
@@ -71,9 +69,15 @@ public class IntervalMatchingLineProcessor implements LineProcessor<List<Genomic
     public List<GenomicInterval> getResult() {
         System.out.println(String.format("Average Read Length:%f\nMax Read Length:%d\nMin Read Length:%d",
                                          totalReadLength / (double) totalReadCount, maxReadLength, minReadLength));
-        for (GenomicInterval genomicInterval : intervalList) {
+        File intervalFolder = new File(intervalFolderName);
+        if (!intervalFolder.exists()) {
+            intervalFolder.mkdir();
+        }
+        for (GenomicInterval interval : intervalList) {
             try {
-                genomicInterval.closeWriter();
+                IOUtils.writeReads(interval.getReadList(),
+                                   String.format("%s/%s-%d-%d.reads", intervalFolderName, chr, interval.getStart(),
+                                                 interval.getEnd()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
