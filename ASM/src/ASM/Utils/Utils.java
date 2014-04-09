@@ -16,7 +16,7 @@ public class Utils {
 
     public static void writeReads(List<String> readList, String fileName, String reference) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-        writer.write("ref:\t" + reference);
+        writer.write(String.format("ref:\t%s\n", reference));
         for (String s : readList) {
             writer.write(s + "\n");
         }
