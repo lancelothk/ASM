@@ -66,12 +66,17 @@ public class CheckInterval {
 				new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
         List<GenomicInterval> intervalList = CharStreams.readLines(
 				new BufferedReader((new FileReader(mappedReadFileName))),
-                new IntervalMatchingLineProcessor(chrCoverageSummary, outputFolderName, chr));
-        writeIntervalSummary(outputFolderName, chr, referenceFileName, intervalList);
+                new IntervalMatchingLineProcessor(chrCoverageSummary));
+        writeIntervalResult(outputFolderName, chr, referenceFileName, intervalList);
     }
 
-    private static void writeIntervalSummary(String outputFolderName, String chr, String referenceFileName,
-                                             List<GenomicInterval> intervalList) throws IOException {
+    private static void writeIntervalResult(String outputFolderName, String chr, String referenceFileName,
+                                            List<GenomicInterval> intervalList) throws IOException {
+        File intervalFolder = new File(outputFolderName);
+        if (!intervalFolder.exists()) {
+            intervalFolder.mkdir();
+        }
+        System.out.println("start to write interval result\t" + Utils.getCurrentTime());
         String reference = readReference(referenceFileName);
         BufferedWriter bufferedWriter = new BufferedWriter(
                 new FileWriter(String.format("%s/%s.intervalSummary", outputFolderName, chr)));
@@ -81,7 +86,13 @@ public class CheckInterval {
 					genomicInterval.getEnd(), genomicInterval.getLength(), genomicInterval.getReadCount(),
 					genomicInterval.getMaxCount(), genomicInterval.getAvgCount(),
 					countCpG(reference, genomicInterval.getStart(), genomicInterval.getEnd())));
-		}
+
+            Utils.writeReads(genomicInterval.getReadList(),
+                             String.format("%s/%s-%d-%d.reads", outputFolderName, chr, genomicInterval.getStart(),
+                                           genomicInterval.getEnd()),
+                             reference.substring(genomicInterval.getStart(), genomicInterval.getEnd())
+                            );
+        }
 		bufferedWriter.close();
 	}
 

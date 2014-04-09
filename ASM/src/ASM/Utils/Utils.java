@@ -14,8 +14,9 @@ import java.util.List;
 public class Utils {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    public static void writeReads(List<String> readList, String fileName) throws IOException {
+    public static void writeReads(List<String> readList, String fileName, String reference) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        writer.write("ref:\t" + reference);
         for (String s : readList) {
             writer.write(s + "\n");
         }
