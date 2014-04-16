@@ -16,8 +16,8 @@ public class Read {
 		this.strand = strand;
 		this.start = start;
 		this.end = end;
-		this.content = content;
-		this.id = id;
+        this.content = content.toUpperCase();
+        this.id = id;
 	}
 
 	public String getChr() {
