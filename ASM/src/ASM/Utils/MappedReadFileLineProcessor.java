@@ -18,8 +18,8 @@ public class MappedReadFileLineProcessor implements LineProcessor<List<MappedRea
 
 	@Override
 	public boolean processLine(String line) throws IOException {
-		if (line.startsWith("chr")){
-			return true;
+        if (line.startsWith("chr") || line.startsWith("ref")) {
+            return true;
 		}else if(line.equals("")){
 			return false;
 		}else {

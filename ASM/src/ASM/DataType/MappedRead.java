@@ -1,5 +1,6 @@
 package ASM.DataType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MappedRead {
@@ -10,6 +11,8 @@ public class MappedRead {
 	private String sequence;
 	private long id;
 	private List<CpGSite> cpgList;
+    private CpGSite firstCpG;
+    private CpGSite lastCpG;
 
 	public MappedRead(String chrom, String strand, long start, long end, String sequence, long id) {
 		super();
@@ -17,8 +20,8 @@ public class MappedRead {
 		this.strand = strand;
 		this.start = start;
 		this.end = end;
-		this.sequence = sequence;
-		this.id = id;
+        this.sequence = sequence.toUpperCase();
+        this.id = id;
 	}
 
 	public String getChrom() {
@@ -73,8 +76,33 @@ public class MappedRead {
 		return cpgList;
 	}
 
-	public void setCpgList(List<CpGSite> cpgList) {
-		this.cpgList = cpgList;
+    public void addCpG(CpGSite cpg) {
+        if (cpgList == null) {
+            cpgList = new ArrayList<>();
+            this.cpgList.add(cpg);
+            firstCpG = cpg;
+            lastCpG = cpg;
+        } else {
+            this.cpgList.add(cpg);
+            if (cpg.getPos() < firstCpG.getPos()) {
+                firstCpG = cpg;
+            }
+            if (cpg.getPos() > lastCpG.getPos()) {
+                lastCpG = cpg;
+            }
+        }
+    }
+
+    public CpGSite getFirstCpG() {
+        return firstCpG;
+    }
+
+    public CpGSite getLastCpG() {
+        return lastCpG;
+    }
+
+    public void setCpgList(List<CpGSite> cpgList) {
+        this.cpgList = cpgList;
 	}
 
 	@Override
@@ -86,4 +114,30 @@ public class MappedRead {
 	public String toRead() {
 		return String.format("%s\t%s\t%d\t%d\t%s\t%d\n", chrom, strand, start, end, sequence, id);
 	}
+
+    public boolean getCpGMethylStatus(long pos) {
+        if (strand.equals("+")) {
+            // CG is methylated, TG is non-methylated, others are ignored.
+            if (sequence.charAt((int) (pos - start)) == 'C') {
+                return true;
+            } else if (sequence.charAt((int) (pos - start)) == 'T') {
+                return false;
+            } else {
+                // TODO should ignore non C/T case in CpG list
+                return false;
+            }
+        } else if (strand.equals("-")) {
+            // GC is methylated, GT is non-methylated, others are ignored.
+            if (sequence.charAt((int) (pos - start + 1)) == 'C') {
+                return true;
+            } else if (sequence.charAt((int) (pos - start + 1)) == 'T') {
+                return false;
+            } else {
+                // TODO should ignore non C/T case in CpG list
+                return false;
+            }
+        } else {
+            throw new RuntimeException("illegal strand!");
+        }
+    }
 }
