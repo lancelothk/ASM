@@ -55,7 +55,7 @@ public class AlignReads {
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
             if (ref != null) {
-                bufferedWriter.write(String.format("\t\t\t\t%s\n", ref));
+                bufferedWriter.write(String.format("ref:\t%s\n", ref));
             }
             for (Read read : readsList) {
 				bufferedWriter.write(read.toString(initialPos) + "\n");
