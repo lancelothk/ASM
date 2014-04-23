@@ -90,7 +90,7 @@ public class CheckInterval {
             Utils.writeReads(genomicInterval.getReadList(),
                              String.format("%s/%s-%d-%d.reads", outputFolderName, chr, genomicInterval.getStart(),
                                            genomicInterval.getEnd()),
-                             reference.substring(genomicInterval.getStart(), genomicInterval.getEnd())
+                             reference.substring(genomicInterval.getStart(), genomicInterval.getEnd()).toUpperCase()
                             );
         }
 		bufferedWriter.close();
