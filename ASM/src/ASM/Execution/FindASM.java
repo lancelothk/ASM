@@ -28,7 +28,7 @@ public class FindASM {
 
     public static void main(String[] args) throws IOException {
         FindASM findASM = new FindASM();
-        findASM.execute("/home/ke/ASM_result/chr20-56897421-56898208.reads_shorten", 56897422);
+        findASM.execute("/home/ke/ASM_result/chr20-56897421-56898208.reads", 56897421);
     }
 
     public void execute(String intervalFileName, long initPos) throws IOException {
@@ -46,6 +46,7 @@ public class FindASM {
         constructGraph(mappedReadList);
         List<List<Node>> resultList = detectASM(mappedReadList);
         for (List<Node> nodes : resultList) {
+            System.out.printf("size:\t%d\t->", nodes.size());
             for (Node node : nodes) {
                 System.out.printf("%d\t", mappedReadList.get(node.getIndex()).getId());
             }
