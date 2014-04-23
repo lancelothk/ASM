@@ -28,7 +28,7 @@ public class FindASM {
 
     public static void main(String[] args) throws IOException {
         FindASM findASM = new FindASM();
-        findASM.execute("/home/ke/ASM_result/chr20/chr20-56861267-56862291.reads", 56861267);
+        findASM.execute("/home/ke/ASM_result/chr20-56897421-56898208.reads_shorten", 56897422);
     }
 
     public void execute(String intervalFileName, long initPos) throws IOException {
@@ -44,7 +44,13 @@ public class FindASM {
         }
         Collections.sort(mappedReadList, new MappedReadComparaterByCpG());
         constructGraph(mappedReadList);
-        detectASM(mappedReadList);
+        List<List<Node>> resultList = detectASM(mappedReadList);
+        for (List<Node> nodes : resultList) {
+            for (Node node : nodes) {
+                System.out.printf("%d\t", mappedReadList.get(node.getIndex()).getId());
+            }
+            System.out.println();
+        }
     }
 
     private List<List<Node>> detectASM(List<MappedRead> mappedReadList) {
@@ -55,11 +61,13 @@ public class FindASM {
         }
         while (true) {
             List<Node> result = getGroup(nodeList);
-            if (result.size() == 0) {
+            if (result == null) {
                 break;
             } else {
                 resultList.add(result);
-                nodeList.removeAll(result);
+                for (Node node : result) {
+                    node.setVisited(true);
+                }
             }
         }
         return resultList;
@@ -68,8 +76,20 @@ public class FindASM {
     private List<Node> getGroup(List<Node> nodeList) {
         List<Node> result = new ArrayList<>();
         List<Node> seedList = new ArrayList<>();
-        seedList.add(nodeList.get(0));
-        result.add(nodeList.get(0));
+        Node firstNode = null;
+        for (int i = 0; i < nodeList.size(); i++) {
+            if (!nodeList.get(i).isVisited()) {
+                firstNode = nodeList.get(i);
+                break;
+            }
+        }
+        if (firstNode != null) {
+            seedList.add(firstNode);
+            result.add(firstNode);
+        } else {
+            // all node are visited
+            return null;
+        }
         while (true) {
             if (seedList.size() == 0) {
                 break;
@@ -83,7 +103,8 @@ public class FindASM {
     private void addCandidates(List<Node> nodeList, List<Node> result, List<Node> seedList, Node seed) {
         // check all other reads
         for (int i = 0; i < matrix[seed.getIndex()].length; i++) {
-            if (matrix[seed.getIndex()][i] == Compatibility.COMPATIBLE) {
+            if (!nodeList.get(i).isVisited() && !result.contains(nodeList.get(i)) &&
+                    !seedList.contains(nodeList.get(i)) && matrix[seed.getIndex()][i] == Compatibility.COMPATIBLE) {
                 //if candidate has no contradiction with result member, add to result
                 if (!hasContradiction(result, i)) {
                     seedList.add(nodeList.get(i));
@@ -147,7 +168,7 @@ public class FindASM {
         if (items.length != 2) {
             throw new RuntimeException("invalid reference line in interval read file!");
         } else {
-            return items[1];
+            return items[1].toUpperCase();
         }
     }
 
@@ -208,7 +229,7 @@ public class FindASM {
         reference = reference.replace(" ", "");
         List<CpGSite> cpgList = new ArrayList<>();
         for (int i = 0; i < reference.length() - 1; i++) {
-            if (reference.charAt(i) == 'c' && reference.charAt(i + 1) == 'g') {
+            if (reference.charAt(i) == 'C' && reference.charAt(i + 1) == 'G') {
                 cpgList.add(new CpGSite(initPos + i));
             }
         }

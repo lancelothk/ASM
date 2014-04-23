@@ -118,9 +118,10 @@ public class MappedRead {
     public boolean getCpGMethylStatus(long pos) {
         if (strand.equals("+")) {
             // CG is methylated, TG is non-methylated, others are ignored.
-            if (sequence.charAt((int) (pos - start)) == 'C') {
+            char bp = sequence.charAt((int) (pos - start));
+            if (bp == 'C') {
                 return true;
-            } else if (sequence.charAt((int) (pos - start)) == 'T') {
+            } else if (bp == 'T') {
                 return false;
             } else {
                 // TODO should ignore non C/T case in CpG list
@@ -128,9 +129,10 @@ public class MappedRead {
             }
         } else if (strand.equals("-")) {
             // GC is methylated, GT is non-methylated, others are ignored.
-            if (sequence.charAt((int) (pos - start + 1)) == 'C') {
+            char bp = sequence.charAt((int) (pos - start + 1));
+            if (bp == 'G') {
                 return true;
-            } else if (sequence.charAt((int) (pos - start + 1)) == 'T') {
+            } else if (bp == 'A') {
                 return false;
             } else {
                 // TODO should ignore non C/T case in CpG list
