@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class AlignReads {
+    private static String ref;
+
 	public static void main(String[] args) {
         String targetFileName = args[0];
         if (args.length == 0) {
@@ -26,7 +28,11 @@ public class AlignReads {
 			bufferedReader = new BufferedReader(new FileReader(inputFileName));
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
-				String[] items = line.split("\t");
+                if (line.startsWith("ref")) {
+                    ref = line.split("\t")[1];
+                    continue;
+                }
+                String[] items = line.split("\t");
 				if (!items[1].equals("+") && !items[1].equals("-")) {
 					System.err.println("invalid strand symbol!");
 				}
@@ -48,7 +54,10 @@ public class AlignReads {
 		BufferedWriter bufferedWriter;
 		try {
 			bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-			for (Read read : readsList) {
+            if (ref != null) {
+                bufferedWriter.write(String.format("\t\t\t\t%s\n", ref));
+            }
+            for (Read read : readsList) {
 				bufferedWriter.write(read.toString(initialPos) + "\n");
 			}
 			bufferedWriter.close();
