@@ -40,11 +40,13 @@ public class FindASM {
     }
 
     private void findASM(List<MappedRead> mappedReadList) {
-        boolean[][] matrix = new boolean[mappedReadList.size()][mappedReadList.size()];
+        int[][] matrix = new int[mappedReadList.size()][mappedReadList.size()];
         for (int i = 0; i < mappedReadList.size(); i++) {
             for (int j = 0; j < mappedReadList.size(); j++) {
-                if (i != j && comparable(mappedReadList.get(i), mappedReadList.get(j))) {
-                    matrix[i][j] = true;
+                if (i == j) {
+                    matrix[i][j] = 0;
+                }else {
+                    matrix[i][j] =  comparable(mappedReadList.get(i), mappedReadList.get(j));
                 }
             }
         }
@@ -57,20 +59,20 @@ public class FindASM {
         }
     }
 
-    private boolean comparable(MappedRead readA, MappedRead readB) {
+    private int comparable(MappedRead readA, MappedRead readB) {
         if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
                 readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
             for (CpGSite cpgA : readA.getCpgList()) {
                 for (CpGSite cpgB : readB.getCpgList()) {
                     if (cpgA.getPos() == cpgB.getPos() && cpgA.isMethylated() != cpgB.isMethylated()) {
-                        return false;
+                        return 2;
                     }
                 }
             }
-            return true;
+            return 1;
         } else {
             // don't have overlapped CpG, ignore
-            return false;
+            return 3;
         }
     }
 
