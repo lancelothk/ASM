@@ -90,7 +90,7 @@ public class CheckInterval {
             Utils.writeReads(genomicInterval.getReadList(),
                              String.format("%s/%s-%d-%d.reads", outputFolderName, chr, genomicInterval.getStart(),
                                            genomicInterval.getEnd()),
-                             reference.substring(genomicInterval.getStart(), genomicInterval.getEnd()).toUpperCase()
+                             reference.substring(genomicInterval.getStart(), genomicInterval.getEnd())
                             );
         }
 		bufferedWriter.close();
@@ -101,7 +101,7 @@ public class CheckInterval {
 		StringBuilder referenceBuilder = new StringBuilder();
 		lines.remove(0); // remove first line, which is chromosome name
 		for (String line : lines) {
-			referenceBuilder.append(line);
+			referenceBuilder.append(line.toUpperCase());
 		}
 		return referenceBuilder.toString();
 	}
