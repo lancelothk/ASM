@@ -28,7 +28,7 @@ public class FindASM {
 
     public static void main(String[] args) throws IOException {
         FindASM findASM = new FindASM();
-        findASM.execute("/home/ke/ASM_result/chr20-56897421-56898208.reads", 56897421);
+        findASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
     }
 
     public void execute(String intervalFileName, long initPos) throws IOException {
