@@ -19,34 +19,34 @@ import java.util.Scanner;
 public class CheckInterval {
 //	public static final int CHR6SIZE = 170899992;
 
-	public static void main(String[] args) throws IOException {
-		// TODO make options required. Check options more carefully.
-		Options options = new Options();
-		options.addOption(new Option("c", true, "chromosome name, like chr6"));
-		options.addOption(new Option("s", true, "chromosome size, a number"));
-		options.addOption(new Option("r", true, "reference file"));
-		options.addOption(new Option("i", true, "input file"));
+    public static void main(String[] args) throws IOException {
+        // TODO make options required. Check options more carefully.
+        Options options = new Options();
+        options.addOption(new Option("c", true, "chromosome name, like chr6"));
+        options.addOption(new Option("s", true, "chromosome size, a number"));
+        options.addOption(new Option("r", true, "reference file"));
+        options.addOption(new Option("i", true, "input file"));
         options.addOption(new Option("o", true, "output folder"));
         options.addOption(new Option("y", false, "yes to execute with current parameter"));
 
-		CommandLineParser parser = new GnuParser();
-		try {
-			CommandLine cmd = parser.parse(options, args);
-			String chr = cmd.getOptionValue("c");
-			String chrSizeStr = cmd.getOptionValue("s");
-			if (chrSizeStr == null) {
-				throw new RuntimeException("chromosome size is null!");
-			}
-			int chrSize = Integer.parseInt(chrSizeStr);
-			String referenceFileName = cmd.getOptionValue("r");
-			String mappedReadFileName = cmd.getOptionValue("i");
+        CommandLineParser parser = new GnuParser();
+        try {
+            CommandLine cmd = parser.parse(options, args);
+            String chr = cmd.getOptionValue("c");
+            String chrSizeStr = cmd.getOptionValue("s");
+            if (chrSizeStr == null) {
+                throw new RuntimeException("chromosome size is null!");
+            }
+            int chrSize = Integer.parseInt(chrSizeStr);
+            String referenceFileName = cmd.getOptionValue("r");
+            String mappedReadFileName = cmd.getOptionValue("i");
             String outputFolderName = cmd.getOptionValue("o");
             for (String arg : args) {
-				System.out.print(arg + "\t");
-			}
+                System.out.print(arg + "\t");
+            }
             if (cmd.hasOption("y")) {
                 checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFolderName);
-            }else{
+            } else {
                 System.out.println("\nArgs corrrect?y/n");
                 Scanner check = new Scanner(System.in);
                 String answer = check.nextLine();
@@ -54,18 +54,18 @@ public class CheckInterval {
                     checkInterval(chrSize, chr, referenceFileName, mappedReadFileName, outputFolderName);
                 }
             }
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void checkInterval(int chrBitSize, String chr, String referenceFileName, String mappedReadFileName,
                                      String outputFolderName) throws IOException {
         System.out.println("checkInverval starts!\t" + Utils.getCurrentTime());
         ChrCoverageSummary chrCoverageSummary = CharStreams.readLines(
-				new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
+                new BufferedReader((new FileReader(mappedReadFileName))), new IntervalChekingLineProcessor(chrBitSize));
         List<GenomicInterval> intervalList = CharStreams.readLines(
-				new BufferedReader((new FileReader(mappedReadFileName))),
+                new BufferedReader((new FileReader(mappedReadFileName))),
                 new IntervalMatchingLineProcessor(chrCoverageSummary));
         writeIntervalResult(outputFolderName, chr, referenceFileName, intervalList);
     }
@@ -81,11 +81,13 @@ public class CheckInterval {
         BufferedWriter bufferedWriter = new BufferedWriter(
                 new FileWriter(String.format("%s/%s.intervalSummary", outputFolderName, chr)));
         bufferedWriter.write("chr\tstart\tend\tlength\treadCount\tmaxCount\tavgCount\tCpGCount\n");
-		for (GenomicInterval genomicInterval : intervalList) {
-			bufferedWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\t%f\t%d\n", chr, genomicInterval.getStart(),
-					genomicInterval.getEnd(), genomicInterval.getLength(), genomicInterval.getReadCount(),
-					genomicInterval.getMaxCount(), genomicInterval.getAvgCount(),
-					countCpG(reference, genomicInterval.getStart(), genomicInterval.getEnd())));
+        for (GenomicInterval genomicInterval : intervalList) {
+            bufferedWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\t%f\t%d\n", chr, genomicInterval.getStart(),
+                                               genomicInterval.getEnd(), genomicInterval.getLength(),
+                                               genomicInterval.getReadCount(), genomicInterval.getMaxCount(),
+                                               genomicInterval.getAvgCount(),
+                                               countCpG(reference, genomicInterval.getStart(),
+                                                        genomicInterval.getEnd())));
 
             Utils.writeReads(genomicInterval.getReadList(),
                              String.format("%s/%s-%d-%d.reads", outputFolderName, chr, genomicInterval.getStart(),
@@ -93,29 +95,28 @@ public class CheckInterval {
                              reference.substring(genomicInterval.getStart(), genomicInterval.getEnd())
                             );
         }
-		bufferedWriter.close();
-	}
+        bufferedWriter.close();
+    }
 
-	private static String readReference(String fileName) throws IOException {
-		List<String> lines = CharStreams.readLines(new BufferedReader(new FileReader(fileName)));
-		StringBuilder referenceBuilder = new StringBuilder();
-		lines.remove(0); // remove first line, which is chromosome name
-		for (String line : lines) {
-			referenceBuilder.append(line.toUpperCase());
-		}
-		return referenceBuilder.toString();
-	}
+    private static String readReference(String fileName) throws IOException {
+        List<String> lines = CharStreams.readLines(new BufferedReader(new FileReader(fileName)));
+        StringBuilder referenceBuilder = new StringBuilder();
+        lines.remove(0); // remove first line, which is chromosome name
+        for (String line : lines) {
+            referenceBuilder.append(line.toUpperCase());
+        }
+        return referenceBuilder.toString();
+    }
 
-	private static int countCpG(String reference, int start, int end) {
-		// start and end is 1-based.
-		int count = 0;
-		for (int i = start - 1; i <= end - 1; i++) {
-			if (i + 1 < reference.length() && (reference.charAt(i) == 'c' || reference.charAt(
-					i) == 'C') && (reference.charAt(i + 1) == 'g' || reference.charAt(
-					i + 1) == 'G')) { // 'C' is last character in reference
-				count++;
-			}
-		}
-		return count;
-	}
+    private static int countCpG(String reference, int start, int end) {
+        // mappedReads start coordinates is one bp bigger than ucsc genome browser reference.
+        int count = 0;
+        for (int i = start - 1; i <= end - 2; i++) {
+            if (i + 1 < reference.length() && reference.charAt(i) == 'C' &&
+                    reference.charAt(i + 1) == 'G') { // 'C' is last character in reference
+                count++;
+            }
+        }
+        return count;
+    }
 }
