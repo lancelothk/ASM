@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * Created by ke on 2/19/14.
+ * ASM detection
  */
 public class FindASM {
     private enum Compatibility {
@@ -78,9 +79,9 @@ public class FindASM {
         List<Node> result = new ArrayList<>();
         List<Node> seedList = new ArrayList<>();
         Node firstNode = null;
-        for (int i = 0; i < nodeList.size(); i++) {
-            if (!nodeList.get(i).isVisited()) {
-                firstNode = nodeList.get(i);
+        for (Node aNodeList : nodeList) {
+            if (!aNodeList.isVisited()) {
+                firstNode = aNodeList;
                 break;
             }
         }
@@ -183,48 +184,6 @@ public class FindASM {
             }
         }
     }
-
-//    public void generateCpGView(String reference, String intervalFileName, String outputFileName,
-//                                       long initPos) throws IOException {
-//        List<CpGSite> cpgList = extractCpGSite(reference, initPos);
-//        List<MappedRead> mappedReadList = Files.asCharSource(new File(intervalFileName), Charsets.UTF_8).readLines(
-//                new MappedReadFileLineProcessor());
-//        for (MappedRead mappedRead : mappedReadList) {
-//            List<CpGSite> readCpGList = new ArrayList<>();
-//            for (CpGSite cpg : cpgList) {
-//                if (cpg.getPos() >= mappedRead.getStart() && cpg.getPos() <= mappedRead.getEnd()) {
-//                    if (mappedRead.getSequence().charAt((int) (cpg.getPos() - mappedRead.getStart())) == 'C' &&
-//                            mappedRead.getSequence().charAt((int) (cpg.getPos() - mappedRead.getStart()) + 1) == 'G') {
-//                        readCpGList.add(new CpGSite(cpg.getPos(), true));
-//                    }
-//                }
-//            }
-//            mappedRead.setCpgList(readCpGList);
-//        }
-//        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-//        StringBuilder stringBuilder = new StringBuilder();
-//        for (CpGSite cpGSite : cpgList) {
-//            stringBuilder.append("\t\t");
-//            stringBuilder.append(cpGSite.getPos() - initPos);
-//        }
-//        bufferedWriter.write(stringBuilder.toString() + "\n");
-//        for (MappedRead mappedRead : mappedReadList) {
-//            stringBuilder = new StringBuilder();
-//            stringBuilder.append(mappedRead.getId());
-//            for (CpGSite cpGSite : cpgList) {
-//                for (CpGSite mappedCpGSite : mappedRead.getCpgList()) {
-//                    if (cpGSite.getPos() == mappedCpGSite.getPos()) {
-//                        stringBuilder.append("\t");
-//                        stringBuilder.append(mappedCpGSite.isMethylated() ? '*' : '-');
-//                    } else {
-//                        stringBuilder.append("\t");
-//                    }
-//                }
-//            }
-//            bufferedWriter.write(stringBuilder.toString() + "\n");
-//        }
-//        bufferedWriter.close();
-//    }
 
     private List<CpGSite> extractCpGSite(String reference, long initPos) {
         reference = reference.replace(" ", "");

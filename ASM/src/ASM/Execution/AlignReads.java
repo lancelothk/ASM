@@ -14,7 +14,7 @@ public class AlignReads {
 	public static void main(String[] args) {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/ASM_result/chr20-56897421-56898208.reads";
+            targetFileName = "/home/lancelothk/chr11-2022459-2056084.reads";
         }else {
             targetFileName = args[0];
         }
