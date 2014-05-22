@@ -1,9 +1,6 @@
 package ASM.Execution;
 
-import ASM.DataType.CpGSite;
-import ASM.DataType.MappedRead;
-import ASM.DataType.MappedReadComparaterByCpG;
-import ASM.DataType.Node;
+import ASM.DataType.*;
 import ASM.Utils.MappedReadFileLineProcessor;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -12,13 +9,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by ke on 2/19/14.
  * ASM detection
+ * Note:    1. mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class FindASM {
     private enum Compatibility {
@@ -29,7 +25,8 @@ public class FindASM {
 
     public static void main(String[] args) throws IOException {
         FindASM findASM = new FindASM();
-        findASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
+//        findASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
+        findASM.execute("ASM/testData/FindASM/test.reads", 1);
     }
 
     public void execute(String intervalFileName, long initPos) throws IOException {
@@ -43,16 +40,22 @@ public class FindASM {
                 mappedReadList.remove(i--);
             }
         }
-        Collections.sort(mappedReadList, new MappedReadComparaterByCpG());
-        constructGraph(mappedReadList);
-        List<List<Node>> resultList = detectASM(mappedReadList);
-        for (List<Node> nodes : resultList) {
-            System.out.printf("size:\t%d\t->", nodes.size());
-            for (Node node : nodes) {
-                System.out.printf("%d\t", mappedReadList.get(node.getIndex()).getId());
-            }
-            System.out.println();
-        }
+        //Collections.sort(mappedReadList, new MappedReadComparaterByCpG());
+        Map<Long, Vertex> vertexMap = null;
+        List<Edge> edgeList = null;
+        constructGraph(vertexMap, edgeList, mappedReadList);
+//        List<List<Node>> resultList = detectASM(mappedReadList);
+//        for (List<Node> nodes : resultList) {
+//            System.out.printf("size:\t%d\t->", nodes.size());
+//            for (Node node : nodes) {
+//                System.out.printf("%d\t", mappedReadList.get(node.getIndex()).getId());
+//            }
+//            System.out.println();
+//        }
+    }
+
+    private List<List<Long>> getClusters(Map<Long, Vertex> vertexMap, List<Edge> edgeList){
+
     }
 
     private List<List<Node>> detectASM(List<MappedRead> mappedReadList) {
@@ -126,40 +129,46 @@ public class FindASM {
         return false;
     }
 
-    private void constructGraph(List<MappedRead> mappedReadList) {
-        matrix = new Compatibility[mappedReadList.size()][mappedReadList.size()];
+    private void constructGraph(Map<Long, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
+        vertexMap = new HashMap<>();
+        edgeList = new ArrayList<>();
+        // visit all possible edges once.
         for (int i = 0; i < mappedReadList.size(); i++) {
-            for (int j = 0; j < mappedReadList.size(); j++) {
-                if (i == j) {
-                    matrix[i][j] = Compatibility.SELF;
-                }else {
-                    matrix[i][j] = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
+            for (int j = i+1; j < mappedReadList.size(); j++) {
+                int score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
+                if (score != Integer.MIN_VALUE){
+                    long idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
+                    if (!vertexMap.containsKey(idI)){
+                        vertexMap.put(idI, new Vertex(idI));
+                    }
+                    if (!vertexMap.containsKey(idJ)){
+                        vertexMap.put(idJ, new Vertex(idJ));
+                    }
+                    edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
                 }
             }
-        }
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                System.out.printf("%d-%d-%s\t", mappedReadList.get(i).getId(), mappedReadList.get(j).getId(),
-                                  matrix[i][j]);
-            }
-            System.out.println();
         }
     }
 
-    private Compatibility checkCompatible(MappedRead readA, MappedRead readB) {
+    private int checkCompatible(MappedRead readA, MappedRead readB) {
         if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
                 readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
+            int score = 0;
             for (CpGSite cpgA : readA.getCpgList()) {
                 for (CpGSite cpgB : readB.getCpgList()) {
-                    if (cpgA.getPos() == cpgB.getPos() && cpgA.isMethylated() != cpgB.isMethylated()) {
-                        return Compatibility.NONCOMPATIBLE;
+                    if (cpgA.getPos() == cpgB.getPos()) {
+                        if (cpgA.isMethylated() != cpgB.isMethylated()) {
+                            score--;
+                        } else {
+                            score++;
+                        }
                     }
                 }
             }
-            return Compatibility.COMPATIBLE;
+            return score;
         } else {
-            // don't have overlapped CpG, ignore
-            return Compatibility.NONCONNECTED;
+            // don't have overlapped CpG, non-connected
+            return Integer.MIN_VALUE;
         }
     }
 
