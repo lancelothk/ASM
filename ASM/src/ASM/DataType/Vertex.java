@@ -16,9 +16,30 @@ public class Vertex {
         this.id = id;
         this.adjEdges = new ArrayList<>();
         this.idList = new ArrayList<>();
+		this.idList.add(id);
     }
 
     public void addEdge(Edge edge){
         this.adjEdges.add(edge);
     }
+
+	public void removeEdge(Edge edge){
+		this.adjEdges.remove(edge);
+	}
+
+	public void addIds(List<Long> idList){
+		this.idList.addAll(idList);
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public List<Edge> getAdjEdges() {
+		return adjEdges;
+	}
+
+	public List<Long> getIdList() {
+		return idList;
+	}
 }

@@ -41,9 +41,17 @@ public class FindASM {
             }
         }
         //Collections.sort(mappedReadList, new MappedReadComparaterByCpG());
-        Map<Long, Vertex> vertexMap = null;
-        List<Edge> edgeList = null;
+		Map<Long, Vertex> vertexMap = new HashMap<>();
+		List<Edge> edgeList = new ArrayList<>();
         constructGraph(vertexMap, edgeList, mappedReadList);
+		getClusters(vertexMap, edgeList);
+		for (Vertex vertex : vertexMap.values()) {
+			for (Long id : vertex.getIdList()) {
+				System.out.print(id + ",");
+			}
+			System.out.println("");
+		}
+
 //        List<List<Node>> resultList = detectASM(mappedReadList);
 //        for (List<Node> nodes : resultList) {
 //            System.out.printf("size:\t%d\t->", nodes.size());
@@ -54,9 +62,106 @@ public class FindASM {
 //        }
     }
 
-    private List<List<Long>> getClusters(Map<Long, Vertex> vertexMap, List<Edge> edgeList){
+    private void getClusters(Map<Long, Vertex> vertexMap, List<Edge> edgeList){
+		// count how many tie situation occurs. For analysis use
+		int tieWeightCounter = 0, tieIdCountCounter = 0;
+		// merge vertexes connected by positive weight edge
+		while (true) {
+			// if edgeList is empty
+			if (edgeList.size() == 0){
+				break;
+			}
+			List<Edge> maxEdgeList = getMaxEdge(edgeList);
+			// if max weight <= 0, stop merge.
+			if (maxEdgeList.get(0).getWeight() <= 0) {
+				break;
+			} else if (maxEdgeList.size() == 1) {
+				// unique max weight, merge two vertex on this edge and updating adj edges.
+				Edge edge = maxEdgeList.get(0);
+				mergeVertex(edge, vertexMap, edgeList);
+			} else {
+				// multiple equal max weight edges. First pick edge not connect to two clusters.
+				tieWeightCounter++;
+				// sort edge by id count
+				Collections.sort(maxEdgeList, new Comparator<Edge>() {
+					@Override
+					public int compare(Edge o1, Edge o2) {
+						return o1.getIdCount() - o2.getIdCount();
+					}
+				});
+				// pick min id count edge as merge candidate. i.e. prefer smaller cluster.
+				mergeVertex(maxEdgeList.get(0), vertexMap ,edgeList);
+				// record the frequency of tied id count. Maybe solve by considering inner cluster weight
+				// or some other properties
+				if (maxEdgeList.get(0).getIdCount() == maxEdgeList.get(1).getIdCount()){
+					tieIdCountCounter++;
+				}
+			}
+		}
+		System.out.printf("tie weight counter:%d\n", tieWeightCounter);
+		System.out.printf("tie id counter:%d\n", tieIdCountCounter);
+	}
 
-    }
+	private void mergeVertex(Edge edge, Map<Long, Vertex> vertexMap, List<Edge> edgeList){
+		Vertex left = edge.getLeft();
+		Vertex right = edge.getRight();
+		//remove this edge and right vertex from graph
+		edge.removeFromVertex();
+		edgeList.remove(edge);
+		vertexMap.remove(right.getId());
+		// update right vertex adj edges
+		for (Edge edgeR : right.getAdjEdges()) {
+			// update new vertex
+			if (!edgeR.replaceVertex(right, left)) {
+				throw new RuntimeException("fail to update new vertex in adj edge!");
+			}
+			// update new weight
+			edgeR.setWeight(edgeR.getWeight() + edge.getWeight());
+		}
+		// update edges of vertex which connect both left and right
+		updateAndRemoveDupEdge(edgeList, edge);
+		// merge right to left vertex
+		left.addIds(right.getIdList());
+	}
+
+	private void updateAndRemoveDupEdge(List<Edge> edgeList, Edge targetEdge){
+		Map<String, Edge> edgeMap = new HashMap<>();
+		Iterator<Edge> edgeIterator = edgeList.iterator();
+		while (edgeIterator.hasNext()){
+			Edge edge = edgeIterator.next();
+			// duplicate edge
+			if (edgeMap.containsKey(edge.getUniqueId())){
+				Edge prevEdge = edgeMap.get(edge.getUniqueId());
+				// keep edgeA, remove edgeB. edge.weight should be excluded here.
+				prevEdge.setWeight(prevEdge.getWeight() + edge.getWeight() - targetEdge.getWeight());
+				edge.removeFromVertex();
+				edgeIterator.remove();
+			}else {
+				edgeMap.put(edge.getUniqueId(), edge);
+			}
+		}
+		edgeList = new ArrayList<>(edgeMap.values());
+	}
+
+	/**
+	 * select edge/edges with max weight in the list.
+	 * @param edgeList
+	 * @return	list contains edge/edges with max weight
+	 */
+	private List<Edge> getMaxEdge(List<Edge> edgeList){
+		List<Edge> maxEdgeList = new ArrayList<>();
+		int maxWeight = Integer.MIN_VALUE;
+		for (Edge edge : edgeList) {
+			if (edge.getWeight() > maxWeight){
+				maxEdgeList.clear();
+				maxEdgeList.add(edge);
+				maxWeight = edge.getWeight();
+			}else if (edge.getWeight() == maxWeight){
+				maxEdgeList.add(edge);
+			}
+		}
+		return maxEdgeList;
+	}
 
     private List<List<Node>> detectASM(List<MappedRead> mappedReadList) {
         List<List<Node>> resultList = new ArrayList<>();
@@ -130,8 +235,6 @@ public class FindASM {
     }
 
     private void constructGraph(Map<Long, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
-        vertexMap = new HashMap<>();
-        edgeList = new ArrayList<>();
         // visit all possible edges once.
         for (int i = 0; i < mappedReadList.size(); i++) {
             for (int j = i+1; j < mappedReadList.size(); j++) {
