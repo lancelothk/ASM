@@ -26,7 +26,8 @@ public class FindASM {
     public static void main(String[] args) throws IOException {
         FindASM findASM = new FindASM();
 //        findASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
-        findASM.execute("ASM/testData/FindASM/test.reads", 1);
+//        findASM.execute("ASM/testData/FindASM/test.reads", 1);
+		findASM.execute("/home/lancelothk/chr20-56897421-56898208_short.reads", 56897421);
     }
 
     public void execute(String intervalFileName, long initPos) throws IOException {
@@ -105,6 +106,8 @@ public class FindASM {
 	private void mergeVertex(Edge edge, Map<Long, Vertex> vertexMap, List<Edge> edgeList){
 		Vertex left = edge.getLeft();
 		Vertex right = edge.getRight();
+		// merge right to left vertex
+		left.addIds(right.getIdList());
 		//remove this edge and right vertex from graph
 		edge.removeFromVertex();
 		edgeList.remove(edge);
@@ -113,15 +116,17 @@ public class FindASM {
 		for (Edge edgeR : right.getAdjEdges()) {
 			// update new vertex
 			if (!edgeR.replaceVertex(right, left)) {
-				throw new RuntimeException("fail to update new vertex in adj edge!");
+//				throw new RuntimeException("fail to update new vertex in adj edge!");
+			}else {
+				for (Edge adjEdge : right.getAdjEdges()) {
+					left.addEdge(adjEdge);
+				}
 			}
 			// update new weight
 			edgeR.setWeight(edgeR.getWeight() + edge.getWeight());
 		}
 		// update edges of vertex which connect both left and right
 		updateAndRemoveDupEdge(edgeList, edge);
-		// merge right to left vertex
-		left.addIds(right.getIdList());
 	}
 
 	private void updateAndRemoveDupEdge(List<Edge> edgeList, Edge targetEdge){
