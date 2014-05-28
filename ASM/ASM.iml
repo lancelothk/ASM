@@ -33,6 +33,7 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="guava" level="application" />
   </component>
 </module>
 

@@ -17,17 +17,14 @@ import java.util.*;
  * Note:    1. mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class FindASM {
-    private enum Compatibility {
-        COMPATIBLE, NONCOMPATIBLE, NONCONNECTED, SELF
-    }
-
-    private Compatibility[][] matrix;
+	private List<Edge> edgeList;
+	private Map<Long, Vertex> vertexMap;
 
     public static void main(String[] args) throws IOException {
         FindASM findASM = new FindASM();
 //        findASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
 //        findASM.execute("ASM/testData/FindASM/test.reads", 1);
-		findASM.execute("/home/lancelothk/chr20-56897421-56898208_short.reads", 56897421);
+		findASM.execute("/home/lancelothk/chr20-56897421-56898208.reads", 56897421);
     }
 
     public void execute(String intervalFileName, long initPos) throws IOException {
@@ -42,28 +39,19 @@ public class FindASM {
             }
         }
         //Collections.sort(mappedReadList, new MappedReadComparaterByCpG());
-		Map<Long, Vertex> vertexMap = new HashMap<>();
-		List<Edge> edgeList = new ArrayList<>();
+		vertexMap = new HashMap<>();
+		edgeList = new ArrayList<>();
         constructGraph(vertexMap, edgeList, mappedReadList);
-		getClusters(vertexMap, edgeList);
+		getClusters();
 		for (Vertex vertex : vertexMap.values()) {
 			for (Long id : vertex.getIdList()) {
 				System.out.print(id + ",");
 			}
-			System.out.println("");
+			System.out.println();
 		}
-
-//        List<List<Node>> resultList = detectASM(mappedReadList);
-//        for (List<Node> nodes : resultList) {
-//            System.out.printf("size:\t%d\t->", nodes.size());
-//            for (Node node : nodes) {
-//                System.out.printf("%d\t", mappedReadList.get(node.getIndex()).getId());
-//            }
-//            System.out.println();
-//        }
     }
 
-    private void getClusters(Map<Long, Vertex> vertexMap, List<Edge> edgeList){
+    private void getClusters(){
 		// count how many tie situation occurs. For analysis use
 		int tieWeightCounter = 0, tieIdCountCounter = 0;
 		// merge vertexes connected by positive weight edge
@@ -79,7 +67,7 @@ public class FindASM {
 			} else if (maxEdgeList.size() == 1) {
 				// unique max weight, merge two vertex on this edge and updating adj edges.
 				Edge edge = maxEdgeList.get(0);
-				mergeVertex(edge, vertexMap, edgeList);
+				mergeVertex(edge);
 			} else {
 				// multiple equal max weight edges. First pick edge not connect to two clusters.
 				tieWeightCounter++;
@@ -91,7 +79,7 @@ public class FindASM {
 					}
 				});
 				// pick min id count edge as merge candidate. i.e. prefer smaller cluster.
-				mergeVertex(maxEdgeList.get(0), vertexMap ,edgeList);
+				mergeVertex(maxEdgeList.get(0));
 				// record the frequency of tied id count. Maybe solve by considering inner cluster weight
 				// or some other properties
 				if (maxEdgeList.get(0).getIdCount() == maxEdgeList.get(1).getIdCount()){
@@ -103,11 +91,12 @@ public class FindASM {
 		System.out.printf("tie id counter:%d\n", tieIdCountCounter);
 	}
 
-	private void mergeVertex(Edge edge, Map<Long, Vertex> vertexMap, List<Edge> edgeList){
+	private void mergeVertex(Edge edge){
 		Vertex left = edge.getLeft();
 		Vertex right = edge.getRight();
 		// merge right to left vertex
 		left.addIds(right.getIdList());
+		left.addInnerWeight(edge.getWeight());
 		//remove this edge and right vertex from graph
 		edge.removeFromVertex();
 		edgeList.remove(edge);
@@ -116,33 +105,31 @@ public class FindASM {
 		for (Edge edgeR : right.getAdjEdges()) {
 			// update new vertex
 			if (!edgeR.replaceVertex(right, left)) {
-//				throw new RuntimeException("fail to update new vertex in adj edge!");
-			}else {
-				for (Edge adjEdge : right.getAdjEdges()) {
-					left.addEdge(adjEdge);
-				}
+				throw new RuntimeException("fail to update new vertex in adj edge!");
 			}
-			// update new weight
-			edgeR.setWeight(edgeR.getWeight() + edge.getWeight());
+		}
+		// update left vertex with new edges
+		for (Edge adjEdge : right.getAdjEdges()) {
+			left.addEdge(adjEdge);
 		}
 		// update edges of vertex which connect both left and right
-		updateAndRemoveDupEdge(edgeList, edge);
+		updateAndRemoveDupEdge();
 	}
 
-	private void updateAndRemoveDupEdge(List<Edge> edgeList, Edge targetEdge){
+	private void updateAndRemoveDupEdge(){
 		Map<String, Edge> edgeMap = new HashMap<>();
 		Iterator<Edge> edgeIterator = edgeList.iterator();
 		while (edgeIterator.hasNext()){
-			Edge edge = edgeIterator.next();
+			Edge edgeB = edgeIterator.next();
 			// duplicate edge
-			if (edgeMap.containsKey(edge.getUniqueId())){
-				Edge prevEdge = edgeMap.get(edge.getUniqueId());
-				// keep edgeA, remove edgeB. edge.weight should be excluded here.
-				prevEdge.setWeight(prevEdge.getWeight() + edge.getWeight() - targetEdge.getWeight());
-				edge.removeFromVertex();
-				edgeIterator.remove();
+			if (edgeMap.containsKey(edgeB.getUniqueId())){
+				Edge edgeA = edgeMap.get(edgeB.getUniqueId());
+				// keep edgeA, remove edgeB.
+				edgeA.setWeight(edgeA.getWeight() + edgeB.getWeight());
+				edgeB.removeFromVertex();
+				edgeIterator.remove(); // remove from edgelist
 			}else {
-				edgeMap.put(edge.getUniqueId(), edge);
+				edgeMap.put(edgeB.getUniqueId(), edgeB);
 			}
 		}
 		edgeList = new ArrayList<>(edgeMap.values());
@@ -167,77 +154,6 @@ public class FindASM {
 		}
 		return maxEdgeList;
 	}
-
-    private List<List<Node>> detectASM(List<MappedRead> mappedReadList) {
-        List<List<Node>> resultList = new ArrayList<>();
-        List<Node> nodeList = new ArrayList<>();
-        for (int i = 0; i < mappedReadList.size(); i++) {
-            nodeList.add(new Node(i));
-        }
-        while (true) {
-            List<Node> result = getGroup(nodeList);
-            if (result == null) {
-                break;
-            } else {
-                resultList.add(result);
-                for (Node node : result) {
-                    node.setVisited(true);
-                }
-            }
-        }
-        return resultList;
-    }
-
-    private List<Node> getGroup(List<Node> nodeList) {
-        List<Node> result = new ArrayList<>();
-        List<Node> seedList = new ArrayList<>();
-        Node firstNode = null;
-        for (Node aNodeList : nodeList) {
-            if (!aNodeList.isVisited()) {
-                firstNode = aNodeList;
-                break;
-            }
-        }
-        if (firstNode != null) {
-            seedList.add(firstNode);
-            result.add(firstNode);
-        } else {
-            // all node are visited
-            return null;
-        }
-        while (true) {
-            if (seedList.size() == 0) {
-                break;
-            } else {
-                addCandidates(nodeList, result, seedList, seedList.get(0));
-            }
-        }
-        return result;
-    }
-
-    private void addCandidates(List<Node> nodeList, List<Node> result, List<Node> seedList, Node seed) {
-        // check all other reads
-        for (int i = 0; i < matrix[seed.getIndex()].length; i++) {
-            if (!nodeList.get(i).isVisited() && !result.contains(nodeList.get(i)) &&
-                    !seedList.contains(nodeList.get(i)) && matrix[seed.getIndex()][i] == Compatibility.COMPATIBLE) {
-                //if candidate has no contradiction with result member, add to result
-                if (!hasContradiction(result, i)) {
-                    seedList.add(nodeList.get(i));
-                    result.add(nodeList.get(i));
-                }
-            }
-        }
-        seedList.remove(seed);
-    }
-
-    private boolean hasContradiction(List<Node> result, int candidate) {
-        for (Node member : result) {
-            if (matrix[candidate][member.getIndex()] == Compatibility.NONCOMPATIBLE) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void constructGraph(Map<Long, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
         // visit all possible edges once.

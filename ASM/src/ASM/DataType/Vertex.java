@@ -11,6 +11,7 @@ public class Vertex {
     private long id;
     private List<Edge> adjEdges;
     private List<Long> idList;
+	private int innerWeightSum = 0;
 
     public Vertex(long id) {
         this.id = id;
@@ -33,6 +34,10 @@ public class Vertex {
 
 	public long getId() {
 		return id;
+	}
+
+	public void addInnerWeight(int weight){
+		this.innerWeightSum += weight;
 	}
 
 	public List<Edge> getAdjEdges() {

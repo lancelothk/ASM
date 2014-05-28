@@ -130,9 +130,9 @@ public class MappedRead {
         } else if (strand.equals("-")) {
             // GC is methylated, GT is non-methylated, others are ignored.
             char bp = sequence.charAt((int) (pos - start + 1));
-            if (bp == 'G') {  // for complementary bp, 'G'
+            if (bp == 'C') {  // for complementary bp, 'G'
                 return true;
-            } else if (bp == 'A') { // for complementary bp, 'A'
+            } else if (bp == 'T') { // for complementary bp, 'A'
                 return false;
             } else {
                 // TODO should ignore non C/T case in CpG list

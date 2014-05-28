@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ASM-epi:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ASM_epi_jar</output-path>
+    <root id="archive" name="ASM-epi.jar">
+      <element id="module-output" name="ASM-epi" />
+      <element id="extracted-dir" path="$USER_HOME$/lib/java/guava-17.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
