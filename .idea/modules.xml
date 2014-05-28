@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ASM/ASM.iml" filepath="$PROJECT_DIR$/ASM/ASM.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-epi/ASM-epi.iml" filepath="$PROJECT_DIR$/ASM-epi/ASM-epi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ASM-align/ASM-align.iml" filepath="$PROJECT_DIR$/ASM-align/ASM-align.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ASM-common/ASM-common.iml" filepath="$PROJECT_DIR$/ASM-common/ASM-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ASM-detect/ASM-detect.iml" filepath="$PROJECT_DIR$/ASM-detect/ASM-detect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ASM-split/ASM-split.iml" filepath="$PROJECT_DIR$/ASM-split/ASM-split.iml" />
     </modules>
   </component>
 </project>
