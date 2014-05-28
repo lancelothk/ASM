@@ -15,7 +15,7 @@ import java.util.*;
  * Main entry of the module.
  * Convert mapped reads into epigenome and split regions by continuous CpG coverage.
  */
-public class Preprocessor {
+public class SplitInterval {
 	public static void main(String[] args) throws IOException {
 		splitEpigenome(args[0], args[1], args[2]);
 //		splitEpigenome("/home/lancelothk/chr22.fa", "/home/lancelothk/h1_r1chr22", "/home/lancelothk/test");

@@ -1,5 +1,8 @@
 package edu.cwru.cbc.ASM.align;
 
+import edu.cwru.cbc.ASM.align.DataType.Read;
+import edu.cwru.cbc.ASM.align.DataType.ReadComparator;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;

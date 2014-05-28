@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.align;
+package edu.cwru.cbc.ASM.align.DataType;
 
 import com.google.common.base.Strings;
 

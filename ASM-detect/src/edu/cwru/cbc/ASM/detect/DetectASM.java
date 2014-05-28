@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.Execution;
+package edu.cwru.cbc.ASM.detect;
 
 import edu.cwru.cbc.ASM.detect.DataType.*;
 import edu.cwru.cbc.ASM.detect.Utils.MappedReadFileLineProcessor;
@@ -16,12 +16,12 @@ import java.util.*;
  * ASM detection
  * Note:    1. mapped reads start pos is 1-based, end pos is 0-based.
  */
-public class FindASM {
+public class DetectASM {
 	private List<Edge> edgeList;
 	private Map<Long, Vertex> vertexMap;
 
     public static void main(String[] args) throws IOException {
-        FindASM findASM = new FindASM();
+        DetectASM detectASM = new DetectASM();
 //        findASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
 //        findASM.execute("ASM/testData/FindASM/test.reads", 1);
 //		findASM.execute("/home/lancelothk/chr20-56897421-56898208.reads", 56897421);
@@ -30,7 +30,7 @@ public class FindASM {
 			if (file.isFile() && file.getName().startsWith("chr")){
 				String[] items = file.getName().split("-");
 				System.out.println("File:\t" + file.getName());
-				findASM.execute(file, Long.parseLong(items[1]));
+				detectASM.execute(file, Long.parseLong(items[1]));
 			}
 		}
     }
