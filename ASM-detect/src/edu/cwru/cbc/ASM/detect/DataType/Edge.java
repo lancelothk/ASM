@@ -52,6 +52,7 @@ public class Edge {
     }
 
 	public int getIdCount(){
+//		return Math.min(left.getIdList().size(), right.getIdList().size());
 		return left.getIdList().size() + right.getIdList().size();
 	}
 

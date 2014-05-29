@@ -11,23 +11,40 @@ import java.util.List;
 public class AlignReads {
     private static String ref;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
         String targetFileName;
         if (args.length == 0) {
             targetFileName = "/home/lancelothk/chr11-2022459-2056084.reads";
         }else {
             targetFileName = args[0];
         }
-        String outputFileName = targetFileName + ".aligned";
-		List<Read> readsList = readMappedReads(targetFileName);
-		alignReads(readsList, outputFileName);
+		File targetFile= new File(targetFileName);
+		if (targetFile.isDirectory()){
+			File[] files = targetFile.listFiles();
+			assert  files != null;
+			for (File file : files) {
+				try {
+					if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
+						String outputFileName = file.getAbsolutePath() + ".aligned";
+						List<Read> readsList = readMappedReads(file);
+						alignReads(readsList, outputFileName);
+					}
+				} catch (Exception e){
+					throw new Exception(file.getAbsolutePath(),e);
+				}
+			}
+		}else {
+			String outputFileName = targetFileName + ".aligned";
+			List<Read> readsList = readMappedReads(targetFile);
+			alignReads(readsList, outputFileName);
+		}
 	}
 
-	public static ArrayList<Read> readMappedReads(String inputFileName) {
+	public static ArrayList<Read> readMappedReads(File inputFile) {
 		ArrayList<Read> readsList = new ArrayList<>();
 		BufferedReader bufferedReader;
 		try {
-			bufferedReader = new BufferedReader(new FileReader(inputFileName));
+			bufferedReader = new BufferedReader(new FileReader(inputFile));
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
                 if (line.startsWith("ref")) {

@@ -118,22 +118,24 @@ public class MappedRead {
     public boolean getCpGMethylStatus(long pos) {
         if (strand.equals("+")) {
             // CG is methylated, TG is non-methylated, others are ignored.
-            char bp = sequence.charAt((int) (pos - start));
-            if (bp == 'C') {
+            char cbp = sequence.charAt((int) (pos - start));
+			char gbp = sequence.charAt((int) (pos - start + 1));
+            if (cbp == 'C' && gbp == 'G') {
                 return true;
-            } else if (bp == 'T') {
-                return false;
+//            } else if (bp == 'T') {
+//                return false;
             } else {
                 // TODO should ignore non C/T case in CpG list
                 return false;
             }
         } else if (strand.equals("-")) {
             // GC is methylated, GT is non-methylated, others are ignored.
-            char bp = sequence.charAt((int) (pos - start + 1));
-            if (bp == 'C') {  // for complementary bp, 'G'
+			char cbp = sequence.charAt((int) (pos - start + 1));
+			char gbp = sequence.charAt((int) (pos - start));
+            if (cbp == 'C' && gbp == 'G') {  // for complementary bp, 'G'
                 return true;
-            } else if (bp == 'T') { // for complementary bp, 'A'
-                return false;
+//            } else if (bp == 'T') { // for complementary bp, 'A'
+//                return false;
             } else {
                 // TODO should ignore non C/T case in CpG list
                 return false;

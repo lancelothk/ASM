@@ -1,5 +1,6 @@
-package edu.cwru.cbc.ASM.detect.DataType;
+package edu.cwru.cbc.ASM.align;
 
+import edu.cwru.cbc.ASM.align.DataType.Read;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
