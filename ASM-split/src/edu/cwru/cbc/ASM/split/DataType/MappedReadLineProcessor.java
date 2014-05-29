@@ -32,8 +32,8 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		mappedRead.setStart(Integer.parseInt(items[2]));
 		mappedRead.setEnd(Integer.parseInt(items[3]));
 
-		int start = Integer.parseInt(items[2]) - 1;// mapped read is 1bp right than UCSC ref
-		int end = Integer.parseInt(items[3]) - 1;
+		int start = Integer.parseInt(items[2]);// mapped read is 1bp right than UCSC ref
+		int end = Integer.parseInt(items[3]);
 		for (int i = start; i < end; i++) {
 			if (refMap.containsKey(i)){
 				CpG cpg = new CpG(mappedRead, refMap.get(i));
@@ -48,18 +48,22 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 	}
 
 	private boolean extractMethylStatus(String strand, String sequence) {
-		if (sequence.length() != 2){
+		if (sequence.length() == 1){
+			return false;
+		}
+		else if (sequence.length() > 2){
 			throw new RuntimeException("invalid input cpg sequence:\t" + sequence);
 		}
 		// only consider 'C' position in CpG. Ignore the char in 'G' position
 		switch (strand) {
 			case "+": {
 				// CN is methylated, TN is non-methylated
-				char bp = sequence.charAt(0);
-				if (bp == 'C') {
+				char cbp = sequence.charAt(0);
+				char gbp = sequence.charAt(1);
+				if (cbp == 'C' && gbp == 'G') {
 					return true;
-				} else if (bp == 'T') {
-					return false;
+//				} else if (bp == 'T') {
+//					return false;
 				} else {
 					// TODO should ignore non C/T case in CpG list
 					return false;
@@ -67,11 +71,12 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 			}
 			case "-": {
 				// NC is methylated, NT is non-methylated
-				char bp = sequence.charAt(1);
-				if (bp == 'C') {  // for complementary bp, 'G'
+				char cbp = sequence.charAt(1);
+				char gbp = sequence.charAt(0);
+				if (cbp == 'C' && gbp == 'G') {  // for complementary bp, 'G'
 					return true;
-				} else if (bp == 'T') { // for complementary bp, 'A'
-					return false;
+//				} else if (bp == 'T') { // for complementary bp, 'A'
+//					return false;
 				} else {
 					// TODO should ignore non C/T case in CpG list
 					return false;

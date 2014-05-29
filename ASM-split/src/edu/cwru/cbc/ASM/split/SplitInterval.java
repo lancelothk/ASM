@@ -39,7 +39,7 @@ public class SplitInterval {
 		for (int i = 0; i < refCpGSites.size(); i++) {
 			CpGSite curr = refCpGSites.get(i);
 			CpGSite next = (i+1)<refCpGSites.size()?refCpGSites.get(i+1):null;
-			if (curr.getCoverage() == 0) {
+			if (curr.getCoverage() <= 3) {
 				cont = false;
 			} else {
 				if (!cont) {
@@ -61,26 +61,25 @@ public class SplitInterval {
 					mappedReadSet.add(cpg.getMappedRead());
 				});
 			});
-			int startPos = mappedReadSet.stream().min((r1, r2)->r1.getStart() - r2.getStart()).get().getStart();
-			int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
-			try {
-				intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos,
-														  endPos, mappedReadSet.size(),
-														  list.size()));
-				BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(
-						String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos,
-									  endPos)));
-				mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos+1)));
-				for (MappedRead mappedRead : mappedReadSet) {
-					try {
-						mappedReadWriter.write(mappedRead.toWriteString());
-					} catch (IOException e) {
-						e.printStackTrace();
+			if (mappedReadSet.size() > 0) {
+				int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
+				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
+				try {
+					intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
+															  mappedReadSet.size(), list.size()));
+					BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
+					mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
+					for (MappedRead mappedRead : mappedReadSet) {
+						try {
+							mappedReadWriter.write(mappedRead.toWriteString());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
+					mappedReadWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				mappedReadWriter.close();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		});
 		intervalSummaryWriter.close();
