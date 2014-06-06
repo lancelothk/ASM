@@ -60,7 +60,7 @@ public class SplitInterval {
 					mappedReadSet.add(cpg.getMappedRead());
 				});
 			});
-			if (mappedReadSet.size() > 0) {
+			if (mappedReadSet.size() >= 15) {
 				int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
 				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
 				try {

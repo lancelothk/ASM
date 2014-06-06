@@ -24,18 +24,19 @@ public class DetectASM {
 //        detectASM.execute("ASM/testData/FindASM/test.reads", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
 
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_summary"));
+		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_summary_above15reads_test"));
 		summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
-		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_groups"));
-		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_group2"));
-		File path = new File("/home/lancelothk/lab/ASM/result/h1_r1_chr22_interval");
+		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_groups_above15reads_test"));
+		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_group2_above15reads_test"));
+        group2Writer.write("name\t1stGroupSize\t2ndGroupSize\n");
+		File path = new File("/home/kehu/lab/ASM/result/h1_r1_chr22_interval_above15reads");
 		if (path.isDirectory()) {
 			for (File file : path.listFiles()) {
 				if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
 						!file.getName().endsWith("intervalSummary")) {
 //					if (file.getName().contains("22237970")){
 						String[] items = file.getName().split("-");
-						summaryWriter.write(detectASM.execute(file, Long.parseLong(items[1]), writer, group2Writer) + "\n");
+						summaryWriter.write(detectASM.execute(file, Long.parseLong(items[1]), writer, group2Writer));
 //					}
 				}
 			}
@@ -50,6 +51,7 @@ public class DetectASM {
 	}
 
     public String execute(File intervalFile, long initPos, BufferedWriter writer, BufferedWriter group2Writer) throws IOException {
+        StringBuilder asm_result = new StringBuilder(intervalFile.getName() + "\n");
 		StringBuilder summary = new StringBuilder(intervalFile.getName());
         String reference = readRef(intervalFile);
         List<CpGSite> cpgList = extractCpGSite(reference, initPos);
@@ -60,41 +62,44 @@ public class DetectASM {
 		if (items.length != 3){
 			throw new RuntimeException("interval file name format illegal!");
 		}
-		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1])));
+		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
 		summary.append("\t" + mappedReadList.size());
-		summary.append("\t" + cpgList.size());
 		summary.append("\t" + cpgList.size());
 
 		vertexMap = new HashMap<>();
 		edgeList = new ArrayList<>();
         constructGraph(vertexMap, edgeList, mappedReadList);
-		getClusters(writer);
+		getClusters(asm_result);
 
-		int groupSize = 0;
-		writer.write(intervalFile.getName() + "\n");
+		int groupCount = 0;
 
-		if (vertexMap.values().size() == 2){
-			group2Writer.write(intervalFile.getName() + "\t");
-		}
+        int maxGroupSize = Integer.MIN_VALUE;
 		for (Vertex vertex : vertexMap.values()) {
-			if (vertexMap.values().size() == 2){
-				group2Writer.write(vertex.getIdList().size() + "\t");
-			}
-			groupSize++;
+            maxGroupSize = maxGroupSize < vertex.getIdList().size()? vertex.getIdList().size(): maxGroupSize;
+			groupCount++;
 			for (Long id : vertex.getIdList()) {
-				writer.write(id + ",");
+                asm_result.append(id + ",");
 			}
-			writer.write("\n");
+            asm_result.append("\n");
 		}
-		if (vertexMap.values().size() == 2){
-			group2Writer.write("\n");
-		}
-		writer.write("Number of groups:\t" + groupSize + "\n");
-		summary.append("\t" + groupSize);
-		return summary.toString();
+        asm_result.append("Number of groups:\t" + groupCount + "\n");
+		summary.append("\t" + groupCount + "\n");
+        if (maxGroupSize < 4){
+            return "";
+        }else {
+            if (vertexMap.values().size() == 2){
+                group2Writer.write(intervalFile.getName() + "\t");
+                for (Vertex vertex : vertexMap.values()) {
+                    group2Writer.write(vertex.getIdList().size() + "\t");
+                }
+                group2Writer.write("\n");
+            }
+            writer.write(asm_result.toString());
+            return summary.toString();
+        }
     }
 
-    private void getClusters(BufferedWriter writer) throws IOException {
+    private void getClusters(StringBuilder asm_result) throws IOException {
 		// count how many tie situation occurs. For analysis use
 		int tieWeightCounter = 0, tieIdCountCounter = 0;
 		// merge vertexes connected by positive weight edge
@@ -130,8 +135,8 @@ public class DetectASM {
 				}
 			}
 		}
-		writer.write(String.format("tie weight counter:%d\n", tieWeightCounter));
-		writer.write(String.format("tie id counter:%d\n", tieIdCountCounter));
+        asm_result.append(String.format("tie weight counter:%d\n", tieWeightCounter));
+        asm_result.append(String.format("tie id counter:%d\n", tieIdCountCounter));
 	}
 
 	private void mergeVertex(Edge edge){
