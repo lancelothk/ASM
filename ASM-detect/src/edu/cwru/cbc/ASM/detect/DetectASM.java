@@ -24,10 +24,11 @@ public class DetectASM {
 //        detectASM.execute("ASM/testData/FindASM/test.reads", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
 
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_summary_test"));
-		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_groups_test"));
+		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_summary"));
+		summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
+		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_groups"));
 		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_group2"));
-		File path = new File("/home/lancelothk/chr22_interval");
+		File path = new File("/home/lancelothk/lab/ASM/result/h1_r1_chr22_interval");
 		if (path.isDirectory()) {
 			for (File file : path.listFiles()) {
 				if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
@@ -55,6 +56,13 @@ public class DetectASM {
         List<MappedRead> mappedReadList = Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(
                 new MappedReadFileLineProcessor());
         associateReadWithCpG(cpgList, mappedReadList);
+		String[] items = intervalFile.getName().split("-");
+		if (items.length != 3){
+			throw new RuntimeException("interval file name format illegal!");
+		}
+		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1])));
+		summary.append("\t" + mappedReadList.size());
+		summary.append("\t" + cpgList.size());
 		summary.append("\t" + cpgList.size());
 
 		vertexMap = new HashMap<>();
@@ -69,9 +77,6 @@ public class DetectASM {
 			group2Writer.write(intervalFile.getName() + "\t");
 		}
 		for (Vertex vertex : vertexMap.values()) {
-//			if (vertex.getIdList().size() > 2){
-//				groupSize++;
-//			}
 			if (vertexMap.values().size() == 2){
 				group2Writer.write(vertex.getIdList().size() + "\t");
 			}
@@ -153,17 +158,6 @@ public class DetectASM {
 		// update edges of vertex which connect both left and right
 		updateAndRemoveDupEdge();
 	}
-//
-//	private int getWeightOfEdge(long e1, long e2) {
-//		int weight = -1;
-//		for (Edge edge : edgeList) {
-//			if ((edge.getLeft().getId()==e1 && edge.getRight().getId() == e2) || (edge.getLeft().getId()==e2 && edge.getRight().getId() == e1)){
-//				weight = edge.getWeight();
-//				System.out.println(edge.getUniqueId());
-//			}
-//		}
-//		return weight;
-//	}
 
 	private void updateAndRemoveDupEdge(){
 		Map<String, Edge> edgeMap = new HashMap<>();
