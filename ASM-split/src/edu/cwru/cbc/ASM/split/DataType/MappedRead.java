@@ -71,6 +71,10 @@ public class MappedRead {
 		this.cpgList.add(cpg);
 	}
 
+	public int getCpGCount(){
+		return cpgList.size();
+	}
+
 	public String toWriteString(){
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, end, sequence, id);
 	}

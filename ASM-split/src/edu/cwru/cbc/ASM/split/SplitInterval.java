@@ -27,7 +27,7 @@ public class SplitInterval {
 		RefChr refChr = readReferenceGenome(referenceGenomeFileName);
 		Map<Integer, CpGSite> refMap = extractCpGSite(refChr.getRefString());
 		System.out.println("load refMap complete");
-		List<MappedRead> mappedReadList = readMappedReads(refMap, mappedReadFileName);
+		List<MappedRead> mappedReadList = readMappedReads(refMap, mappedReadFileName, refChr.getRefString().length());
 		System.out.println("load mappedReadList complete");
 
 		// split regions by continuous CpG coverage
@@ -39,7 +39,7 @@ public class SplitInterval {
 		for (int i = 0; i < refCpGSites.size(); i++) {
 			CpGSite curr = refCpGSites.get(i);
 			CpGSite next = (i+1)<refCpGSites.size()?refCpGSites.get(i+1):null;
-			if (curr.getCoverage() <= 3) {
+			if (curr.getCoverage() == 0) {
 				cont = false;
 			} else {
 				if (!cont) {
@@ -50,10 +50,9 @@ public class SplitInterval {
 				cont = hasCommonRead(curr, next);
 			}
 		}
-		System.out.println("Interval count:\t" + cpgSiteIntervalList.size());
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(
 				String.format("%s/%s-intervalSummary", outputPath, refChr.getChr())));
-		intervalSummaryWriter.write("chr\tstart\tend\treadCount\tCpGCount\n");
+		intervalSummaryWriter.write("chr\tstart\tend\tlength\treadCount\tCpGCount\n");
 		cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = new HashSet<MappedRead>();
 			list.forEach((cpGSite) -> {
@@ -65,11 +64,14 @@ public class SplitInterval {
 				int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
 				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
 				try {
-					intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
+					intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos, endPos - startPos + 1,
 															  mappedReadSet.size(), list.size()));
 					BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
 					mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
 					for (MappedRead mappedRead : mappedReadSet) {
+						if (mappedRead.getCpGCount() == 0){
+							throw new RuntimeException("interval read cover no CpG site!");
+						}
 						try {
 							mappedReadWriter.write(mappedRead.toWriteString());
 						} catch (IOException e) {
@@ -83,6 +85,7 @@ public class SplitInterval {
 			}
 		});
 		intervalSummaryWriter.close();
+		System.out.println("Interval count:\t" + cpgSiteIntervalList.size());
 		long end = (System.currentTimeMillis() - start);
 		System.out.println(end + "ms");
 	}
@@ -99,8 +102,8 @@ public class SplitInterval {
 	}
 
 	private static List<MappedRead> readMappedReads(Map<Integer, CpGSite> refMap,
-													String mappedReadFileName) throws IOException {
-		return Files.readLines(new File(mappedReadFileName), Charsets.UTF_8, new MappedReadLineProcessor(refMap));
+													String mappedReadFileName, int refLength) throws IOException {
+		return Files.readLines(new File(mappedReadFileName), Charsets.UTF_8, new MappedReadLineProcessor(refMap, refLength));
 	}
 
 	private static Map<Integer, CpGSite> extractCpGSite(String referenceGenomeString) {

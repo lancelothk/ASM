@@ -24,27 +24,31 @@ public class DetectASM {
 //        detectASM.execute("ASM/testData/FindASM/test.reads", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
 
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_summary_v2"));
-		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_groups_v2"));
-		File path = new File("/home/lancelothk/chr22_interval_v2");
+		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_summary_test"));
+		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_groups_test"));
+		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/lancelothk/ASM_group2"));
+		File path = new File("/home/lancelothk/chr22_interval");
 		if (path.isDirectory()) {
 			for (File file : path.listFiles()) {
 				if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
 						!file.getName().endsWith("intervalSummary")) {
-					String[] items = file.getName().split("-");
-					summaryWriter.write(detectASM.execute(file, Long.parseLong(items[1]), writer) + "\n");
+//					if (file.getName().contains("22237970")){
+						String[] items = file.getName().split("-");
+						summaryWriter.write(detectASM.execute(file, Long.parseLong(items[1]), writer, group2Writer) + "\n");
+//					}
 				}
 			}
 		}else {
 			String[] items = path.getName().split("-");
-			summaryWriter.write(detectASM.execute(path, Long.parseLong(items[1]), writer) + "\n");
+			summaryWriter.write(detectASM.execute(path, Long.parseLong(items[1]), writer, group2Writer) + "\n");
 		}
 		summaryWriter.close();
 		writer.close();
+		group2Writer.close();
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-    public String execute(File intervalFile, long initPos, BufferedWriter writer) throws IOException {
+    public String execute(File intervalFile, long initPos, BufferedWriter writer, BufferedWriter group2Writer) throws IOException {
 		StringBuilder summary = new StringBuilder(intervalFile.getName());
         String reference = readRef(intervalFile);
         List<CpGSite> cpgList = extractCpGSite(reference, initPos);
@@ -59,14 +63,26 @@ public class DetectASM {
 		getClusters(writer);
 
 		int groupSize = 0;
+		writer.write(intervalFile.getName() + "\n");
+
+		if (vertexMap.values().size() == 2){
+			group2Writer.write(intervalFile.getName() + "\t");
+		}
 		for (Vertex vertex : vertexMap.values()) {
-			if (vertex.getIdList().size() > 2){
-				groupSize++;
+//			if (vertex.getIdList().size() > 2){
+//				groupSize++;
+//			}
+			if (vertexMap.values().size() == 2){
+				group2Writer.write(vertex.getIdList().size() + "\t");
 			}
+			groupSize++;
 			for (Long id : vertex.getIdList()) {
 				writer.write(id + ",");
 			}
 			writer.write("\n");
+		}
+		if (vertexMap.values().size() == 2){
+			group2Writer.write("\n");
 		}
 		writer.write("Number of groups:\t" + groupSize + "\n");
 		summary.append("\t" + groupSize);
