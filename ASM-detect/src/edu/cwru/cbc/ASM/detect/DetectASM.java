@@ -110,7 +110,7 @@ public class DetectASM {
 			}
 			List<Edge> maxEdgeList = getMaxEdge(edgeList);
 			// if max weight <= 0, stop merge.
-			if (maxEdgeList.get(0).getWeight() <= 0) {
+			if (maxEdgeList.get(0).getWeight() < 0) {
 				break;
 			} else if (maxEdgeList.size() == 1) {
 				// unique max weight, merge two vertex on this edge and updating adj edges.
