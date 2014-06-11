@@ -65,7 +65,6 @@ public class DetectASM {
 		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
 		summary.append("\t" + mappedReadList.size());
 		summary.append("\t" + cpgList.size());
-		String intervalSummary = summary.toString();
 
 		vertexMap = new HashMap<>();
 		edgeList = new ArrayList<>();
@@ -85,6 +84,7 @@ public class DetectASM {
 		}
         asm_result.append("Number of groups:\t" + groupCount + "\n");
 		summary.append("\t" + groupCount + "\n");
+		String intervalSummary = summary.toString();
 //        if (minGroupSize < 4){
 //            return "";
 //        }else {

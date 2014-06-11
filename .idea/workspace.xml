@@ -49,8 +49,8 @@
       <file leaf-file-name="DetectASM.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.28023952" vertical-offset="54" max-vertical-offset="5040">
-              <caret line="22" column="44" selection-start-line="22" selection-start-column="44" selection-end-line="22" selection-end-column="44" />
+            <state vertical-scroll-proportion="0.6467066" vertical-offset="900" max-vertical-offset="5040">
+              <caret line="86" column="52" selection-start-line="86" selection-start-column="52" selection-end-line="86" selection-end-column="52" />
               <folding>
                 <element signature="e#5374#5375#0" expanded="true" />
                 <element signature="e#5429#5430#0" expanded="true" />
@@ -731,7 +731,8 @@
     <MESSAGE value="use minGroupSize &gt;= 4 as filter&#10;change weight filter back to weight&gt;0" />
     <MESSAGE value="add columns in group2 writer" />
     <MESSAGE value="remove minGroupSize filter" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove minGroupSize filter" />
+    <MESSAGE value="changed result file name to &quot;filtered&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed result file name to &quot;filtered&quot;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1148,8 +1149,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.28023952" vertical-offset="54" max-vertical-offset="5040">
-          <caret line="22" column="44" selection-start-line="22" selection-start-column="44" selection-end-line="22" selection-end-column="44" />
+        <state vertical-scroll-proportion="0.6467066" vertical-offset="900" max-vertical-offset="5040">
+          <caret line="86" column="52" selection-start-line="86" selection-start-column="52" selection-end-line="86" selection-end-column="52" />
           <folding>
             <element signature="e#5374#5375#0" expanded="true" />
             <element signature="e#5429#5430#0" expanded="true" />
