@@ -73,9 +73,9 @@ public class DetectASM {
 
 		int groupCount = 0;
 
-        int maxGroupSize = Integer.MIN_VALUE;
+        int minGroupSize = Integer.MIN_VALUE;
 		for (Vertex vertex : vertexMap.values()) {
-            maxGroupSize = maxGroupSize < vertex.getIdList().size()? vertex.getIdList().size(): maxGroupSize;
+            minGroupSize = minGroupSize > vertex.getIdList().size()? vertex.getIdList().size(): minGroupSize;
 			groupCount++;
 			for (Long id : vertex.getIdList()) {
                 asm_result.append(id + ",");
@@ -84,7 +84,7 @@ public class DetectASM {
 		}
         asm_result.append("Number of groups:\t" + groupCount + "\n");
 		summary.append("\t" + groupCount + "\n");
-        if (maxGroupSize < 4){
+        if (minGroupSize < 4){
             return "";
         }else {
             if (vertexMap.values().size() == 2){
@@ -110,7 +110,7 @@ public class DetectASM {
 			}
 			List<Edge> maxEdgeList = getMaxEdge(edgeList);
 			// if max weight <= 0, stop merge.
-			if (maxEdgeList.get(0).getWeight() < 0) {
+			if (maxEdgeList.get(0).getWeight() <= 0) {
 				break;
 			} else if (maxEdgeList.size() == 1) {
 				// unique max weight, merge two vertex on this edge and updating adj edges.

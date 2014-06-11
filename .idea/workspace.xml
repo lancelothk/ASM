@@ -3,12 +3,14 @@
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
       <artifact name="ASM-align:jar" />
+      <artifact name="ASM-detect:jar" />
+      <artifact name="ASM-split:jar" />
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ASM-detect/src/META-INF/MANIFEST.MF" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ASM-split/src/META-INF/MANIFEST.MF" />
+    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="use minGroupSize &gt;= 4 as filter&#10;change weight filter back to 1">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/artifacts/ASM_detect_jar.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/artifacts/ASM_split_jar.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -51,8 +53,8 @@
       <file leaf-file-name="DetectASM.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.25868264" vertical-offset="1692" max-vertical-offset="4986">
-              <caret line="112" column="48" selection-start-line="112" selection-start-column="48" selection-end-line="112" selection-end-column="48" />
+            <state vertical-scroll-proportion="0.34491017" vertical-offset="1620" max-vertical-offset="4986">
+              <caret line="112" column="49" selection-start-line="112" selection-start-column="49" selection-end-line="112" selection-end-column="49" />
               <folding />
             </state>
           </provider>
@@ -726,7 +728,8 @@
     <MESSAGE value="check result v2" />
     <MESSAGE value="add stat summary in splitInterval" />
     <MESSAGE value="add ASM result summary" />
-    <option name="LAST_COMMIT_MESSAGE" value="add ASM result summary" />
+    <MESSAGE value="merge edges with weight&gt;=0" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge edges with weight&gt;=0" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1119,8 +1122,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25868264" vertical-offset="1692" max-vertical-offset="4986">
-          <caret line="112" column="48" selection-start-line="112" selection-start-column="48" selection-end-line="112" selection-end-column="48" />
+        <state vertical-scroll-proportion="0.34491017" vertical-offset="1620" max-vertical-offset="4986">
+          <caret line="112" column="49" selection-start-line="112" selection-start-column="49" selection-end-line="112" selection-end-column="49" />
           <folding />
         </state>
       </provider>
