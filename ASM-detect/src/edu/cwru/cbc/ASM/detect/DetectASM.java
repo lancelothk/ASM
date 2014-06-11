@@ -74,9 +74,9 @@ public class DetectASM {
 
 		int groupCount = 0;
 
-        int minGroupSize = Integer.MIN_VALUE;
+//        int minGroupSize = Integer.MIN_VALUE;
 		for (Vertex vertex : vertexMap.values()) {
-            minGroupSize = minGroupSize > vertex.getIdList().size()? vertex.getIdList().size(): minGroupSize;
+//            minGroupSize = minGroupSize > vertex.getIdList().size()? vertex.getIdList().size(): minGroupSize;
 			groupCount++;
 			for (Long id : vertex.getIdList()) {
                 asm_result.append(id + ",");
@@ -85,9 +85,9 @@ public class DetectASM {
 		}
         asm_result.append("Number of groups:\t" + groupCount + "\n");
 		summary.append("\t" + groupCount + "\n");
-        if (minGroupSize < 4){
-            return "";
-        }else {
+//        if (minGroupSize < 4){
+//            return "";
+//        }else {
             if (vertexMap.values().size() == 2){
                 group2Writer.write(intervalSummary + "\t");
                 for (Vertex vertex : vertexMap.values()) {
@@ -97,7 +97,7 @@ public class DetectASM {
             }
             writer.write(asm_result.toString());
             return summary.toString();
-        }
+//        }
     }
 
     private void getClusters(StringBuilder asm_result) throws IOException {
