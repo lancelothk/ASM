@@ -8,9 +8,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="use minGroupSize &gt;= 4 as filter&#10;change weight filter back to 1">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/artifacts/ASM_detect_jar.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/artifacts/ASM_split_jar.xml" />
+    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -53,9 +51,12 @@
       <file leaf-file-name="DetectASM.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.34491017" vertical-offset="1620" max-vertical-offset="4986">
-              <caret line="112" column="49" selection-start-line="112" selection-start-column="49" selection-end-line="112" selection-end-column="49" />
-              <folding />
+            <state vertical-scroll-proportion="0.38802394" vertical-offset="108" max-vertical-offset="5040">
+              <caret line="30" column="60" selection-start-line="30" selection-start-column="60" selection-end-line="30" selection-end-column="60" />
+              <folding>
+                <element signature="e#5350#5351#0" expanded="true" />
+                <element signature="e#5405#5406#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -687,7 +688,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32219827" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32925472" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18174475" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18174475" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39804772" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -729,7 +730,8 @@
     <MESSAGE value="add stat summary in splitInterval" />
     <MESSAGE value="add ASM result summary" />
     <MESSAGE value="merge edges with weight&gt;=0" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge edges with weight&gt;=0" />
+    <MESSAGE value="use minGroupSize &gt;= 4 as filter&#10;change weight filter back to weight&gt;0" />
+    <option name="LAST_COMMIT_MESSAGE" value="use minGroupSize &gt;= 4 as filter&#10;change weight filter back to weight&gt;0" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -756,7 +758,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3834">
           <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -788,7 +793,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3834">
           <caret line="43" column="34" selection-start-line="43" selection-start-column="34" selection-end-line="43" selection-end-column="34" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -820,7 +828,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3834">
           <caret line="54" column="5" selection-start-line="54" selection-start-column="5" selection-end-line="54" selection-end-column="5" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -852,7 +863,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="3708">
           <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -888,7 +902,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4410">
           <caret line="107" column="68" selection-start-line="107" selection-start-column="68" selection-end-line="107" selection-end-column="68" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -903,7 +920,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4410">
           <caret line="107" column="68" selection-start-line="107" selection-start-column="68" selection-end-line="107" selection-end-column="68" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -918,7 +938,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4158">
           <caret line="46" column="38" selection-start-line="46" selection-start-column="38" selection-end-line="46" selection-end-column="38" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -926,7 +949,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4158">
           <caret line="46" column="39" selection-start-line="46" selection-start-column="39" selection-end-line="46" selection-end-column="39" />
-          <folding />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1122,9 +1148,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34491017" vertical-offset="1620" max-vertical-offset="4986">
-          <caret line="112" column="49" selection-start-line="112" selection-start-column="49" selection-end-line="112" selection-end-column="49" />
-          <folding />
+        <state vertical-scroll-proportion="0.38802394" vertical-offset="108" max-vertical-offset="5040">
+          <caret line="30" column="60" selection-start-line="30" selection-start-column="60" selection-end-line="30" selection-end-column="60" />
+          <folding>
+            <element signature="e#5350#5351#0" expanded="true" />
+            <element signature="e#5405#5406#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

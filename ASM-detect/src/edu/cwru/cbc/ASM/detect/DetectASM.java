@@ -28,7 +28,7 @@ public class DetectASM {
 		summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
 		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_groups_above15reads_test"));
 		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_group2_above15reads_test"));
-        group2Writer.write("name\t1stGroupSize\t2ndGroupSize\n");
+        group2Writer.write("name\tlength\treadCount\tCpGCount\tGroupCount\t1stGroupSize\t2ndGroupSize\n");
 		File path = new File("/home/kehu/lab/ASM/result/h1_r1_chr22_interval_above15reads");
 		if (path.isDirectory()) {
 			for (File file : path.listFiles()) {
@@ -65,6 +65,7 @@ public class DetectASM {
 		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
 		summary.append("\t" + mappedReadList.size());
 		summary.append("\t" + cpgList.size());
+		String intervalSummary = summary.toString();
 
 		vertexMap = new HashMap<>();
 		edgeList = new ArrayList<>();
@@ -88,7 +89,7 @@ public class DetectASM {
             return "";
         }else {
             if (vertexMap.values().size() == 2){
-                group2Writer.write(intervalFile.getName() + "\t");
+                group2Writer.write(intervalSummary + "\t");
                 for (Vertex vertex : vertexMap.values()) {
                     group2Writer.write(vertex.getIdList().size() + "\t");
                 }
