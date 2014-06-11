@@ -6,7 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="add columns in group2 writer">
+    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -25,7 +25,7 @@
     </SUITE>
   </component>
   <component name="CreatePatchCommitExecutor">
-    <option name="PATCH_PATH" value="" />
+    <option name="PATCH_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="DaemonCodeAnalyzer">
     <disable_hints />
@@ -49,11 +49,11 @@
       <file leaf-file-name="DetectASM.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.40958083" vertical-offset="972" max-vertical-offset="5040">
-              <caret line="79" column="25" selection-start-line="79" selection-start-column="25" selection-end-line="79" selection-end-column="25" />
+            <state vertical-scroll-proportion="0.28023952" vertical-offset="54" max-vertical-offset="5040">
+              <caret line="22" column="44" selection-start-line="22" selection-start-column="44" selection-end-line="22" selection-end-column="44" />
               <folding>
-                <element signature="e#5362#5363#0" expanded="true" />
-                <element signature="e#5417#5418#0" expanded="true" />
+                <element signature="e#5374#5375#0" expanded="true" />
+                <element signature="e#5429#5430#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -730,7 +730,8 @@
     <MESSAGE value="merge edges with weight&gt;=0" />
     <MESSAGE value="use minGroupSize &gt;= 4 as filter&#10;change weight filter back to weight&gt;0" />
     <MESSAGE value="add columns in group2 writer" />
-    <option name="LAST_COMMIT_MESSAGE" value="add columns in group2 writer" />
+    <MESSAGE value="remove minGroupSize filter" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove minGroupSize filter" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -758,8 +759,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3834">
           <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -793,8 +794,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3834">
           <caret line="43" column="34" selection-start-line="43" selection-start-column="34" selection-end-line="43" selection-end-column="34" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -828,8 +829,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3834">
           <caret line="54" column="5" selection-start-line="54" selection-start-column="5" selection-end-line="54" selection-end-column="5" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -863,8 +864,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="3708">
           <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -902,8 +903,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4410">
           <caret line="107" column="68" selection-start-line="107" selection-start-column="68" selection-end-line="107" selection-end-column="68" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -920,8 +921,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4410">
           <caret line="107" column="68" selection-start-line="107" selection-start-column="68" selection-end-line="107" selection-end-column="68" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -938,8 +939,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4158">
           <caret line="46" column="38" selection-start-line="46" selection-start-column="38" selection-end-line="46" selection-end-column="38" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -949,8 +950,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4158">
           <caret line="46" column="39" selection-start-line="46" selection-start-column="39" selection-end-line="46" selection-end-column="39" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1147,11 +1148,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectASM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40958083" vertical-offset="972" max-vertical-offset="5040">
-          <caret line="79" column="25" selection-start-line="79" selection-start-column="25" selection-end-line="79" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.28023952" vertical-offset="54" max-vertical-offset="5040">
+          <caret line="22" column="44" selection-start-line="22" selection-start-column="44" selection-end-line="22" selection-end-column="44" />
           <folding>
-            <element signature="e#5362#5363#0" expanded="true" />
-            <element signature="e#5417#5418#0" expanded="true" />
+            <element signature="e#5374#5375#0" expanded="true" />
+            <element signature="e#5429#5430#0" expanded="true" />
           </folding>
         </state>
       </provider>

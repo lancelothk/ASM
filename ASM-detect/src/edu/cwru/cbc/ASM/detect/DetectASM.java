@@ -24,10 +24,10 @@ public class DetectASM {
 //        detectASM.execute("ASM/testData/FindASM/test.reads", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
 
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_summary_above15reads_test"));
+		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_summary_above15reads_filtered"));
 		summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
-		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_groups_above15reads_test"));
-		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_group2_above15reads_test"));
+		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_groups_above15reads_filtered"));
+		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_group2_above15reads_filtered"));
         group2Writer.write("name\tlength\treadCount\tCpGCount\tGroupCount\t1stGroupSize\t2ndGroupSize\n");
 		File path = new File("/home/kehu/lab/ASM/result/h1_r1_chr22_interval_above15reads");
 		if (path.isDirectory()) {
