@@ -1,8 +1,8 @@
 package edu.cwru.cbc.ASM.split;
 
-import edu.cwru.cbc.ASM.split.DataType.*;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.split.DataType.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,9 +17,10 @@ import java.util.*;
  */
 public class SplitInterval {
 	public static void main(String[] args) throws IOException {
-		splitEpigenome(args[0], args[1], args[2]);
-//		splitEpigenome("/home/lancelothk/chr22.fa", "/home/lancelothk/h1_r1chr22", "/home/lancelothk/test");
-	}
+//		splitEpigenome(args[0], args[1], args[2]);
+        splitEpigenome("/home/kehu/experiments/ASM/data/hg18_chr22.fa", "/home/kehu/experiments/ASM/data/i90_r1_chr22",
+                       "/home/kehu/experiments/ASM/test");
+    }
 
 	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName,
 									  String outputPath) throws IOException {
@@ -60,26 +61,29 @@ public class SplitInterval {
 					mappedReadSet.add(cpg.getMappedRead());
 				});
 			});
-			if (mappedReadSet.size() >= 15) {
-				int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
+            if (mappedReadSet.size() >= 15 && list.size() > 1) {
+                int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
 				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
-				try {
-					intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos, endPos - startPos + 1,
-															  mappedReadSet.size(), list.size()));
-					BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
-					mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
-					for (MappedRead mappedRead : mappedReadSet) {
-						if (mappedRead.getCpGCount() == 0){
-							throw new RuntimeException("interval read cover no CpG site!");
-						}
-						try {
-							mappedReadWriter.write(mappedRead.toWriteString());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					mappedReadWriter.close();
-				} catch (IOException e) {
+                int startCpG = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+                int endCpG = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+                try {
+                    intervalSummaryWriter.write(
+                            String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
+                                          endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpG, endCpG));
+//					BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
+//					mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
+//					for (MappedRead mappedRead : mappedReadSet) {
+//						if (mappedRead.getCpGCount() == 0){
+//							throw new RuntimeException("interval read cover no CpG site!");
+//						}
+//						try {
+//							mappedReadWriter.write(mappedRead.toWriteString());
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//					mappedReadWriter.close();
+                } catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
