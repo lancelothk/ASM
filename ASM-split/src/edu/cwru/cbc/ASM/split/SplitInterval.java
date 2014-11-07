@@ -30,17 +30,21 @@ public class SplitInterval {
         String experimentPath = "/home/kehu/experiments/ASM/";
         splitEpigenome(experimentPath + "/data/" + ref,
                        String.format("%s/data/%s_%s_chr22", experimentPath, cellLine, replicate),
-                       experimentPath + "/test");
+                       String.format("%s/result_%s_%s/intervals", experimentPath, cellLine, replicate));
     }
 
 	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName,
 									  String outputPath) throws IOException {
-		long start = System.currentTimeMillis();
-		RefChr refChr = readReferenceGenome(referenceGenomeFileName);
+        File output = new File(outputPath);
+        output.mkdir();
+        long start = System.currentTimeMillis();
+        RefChr refChr = readReferenceGenome(referenceGenomeFileName);
 		Map<Integer, CpGSite> refMap = extractCpGSite(refChr.getRefString());
 		System.out.println("load refMap complete");
 		List<MappedRead> mappedReadList = readMappedReads(refMap, mappedReadFileName, refChr.getRefString().length());
 		System.out.println("load mappedReadList complete");
+        System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
+        start = System.currentTimeMillis();
 
 		// split regions by continuous CpG coverage
 		List<CpGSite> refCpGSites = new ArrayList<>(refMap.values());
@@ -51,7 +55,7 @@ public class SplitInterval {
 		for (int i = 0; i < refCpGSites.size(); i++) {
 			CpGSite curr = refCpGSites.get(i);
 			CpGSite next = (i+1)<refCpGSites.size()?refCpGSites.get(i+1):null;
-            if (curr.getCoverage() <= MIN_CONT_COVERAGE) {
+            if (curr.getCoverage() <= MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
                 cont = false;
 			} else {
 				if (!cont) {
@@ -106,9 +110,8 @@ public class SplitInterval {
 		intervalSummaryWriter.close();
         System.out.println("Raw Interval count:\t" + cpgSiteIntervalList.size());
         System.out.println("Output Interval count:\t" + outputCount);
-        long end = (System.currentTimeMillis() - start);
-		System.out.println(end + "ms");
-	}
+        System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
+    }
 
 	private static boolean hasCommonRead(CpGSite curr, CpGSite next) {
 		for (CpG cCpg : curr.getCpGList()) {
