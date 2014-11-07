@@ -8,6 +8,7 @@ public class Edge {
     private Vertex left;
     private Vertex right;
     private int weight;
+    private String id = null;
 
     public Edge(Vertex left, Vertex right, int weight) {
 		if (left == right){
@@ -20,24 +21,22 @@ public class Edge {
         this.weight = weight;
     }
 
-	public void setWeight(int weight) {
-		this.weight = weight;
-	}
-
-	public boolean replaceVertex(Vertex o, Vertex n){
-		if (o == n){
-			throw new RuntimeException("old and new vertex are same!");
-		}
-		if (left == o){
-			left = n;
-			return true;
-		}else if (right == o) {
-			right = n;
-			return true;
-		}else {
-			return false;
-		}
-	}
+    public boolean replaceVertex(Vertex o, Vertex n) {
+        if (o == n) {
+            throw new RuntimeException("old and new vertex are same!");
+        }
+        if (left == o) {
+            left = n;
+            calcId();
+            return true;
+        } else if (right == o) {
+            right = n;
+            calcId();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public Vertex getLeft() {
         return left;
@@ -51,6 +50,10 @@ public class Edge {
         return weight;
     }
 
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
 	public int getIdCount(){
 //		return Math.min(left.getIdList().size(), right.getIdList().size());
 		return left.getIdList().size() + right.getIdList().size();
@@ -62,8 +65,13 @@ public class Edge {
 	}
 
 	public String getUniqueId(){
-		// smaller id first
-		return left.getId() > right.getId()? String.format("%d-%d", left.getId(), right.getId())
-				: String.format("%d-%d", right.getId(), left.getId());
-	}
+        return id == null ? calcId() : id;
+    }
+
+    private String calcId() {
+        // smaller id first
+        this.id =
+                left.getId() <= right.getId() ? left.getId() + "-" + right.getId() : right.getId() + "-" + left.getId();
+        return id;
+    }
 }
