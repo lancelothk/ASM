@@ -1,56 +1,98 @@
 package edu.cwru.cbc.ASM.detect;
 
-import edu.cwru.cbc.ASM.detect.DataType.*;
-import edu.cwru.cbc.ASM.detect.Utils.MappedReadFileLineProcessor;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.detect.DataType.CpGSite;
+import edu.cwru.cbc.ASM.detect.DataType.Edge;
+import edu.cwru.cbc.ASM.detect.DataType.MappedRead;
+import edu.cwru.cbc.ASM.detect.DataType.Vertex;
+import edu.cwru.cbc.ASM.detect.Utils.MappedReadFileLineProcessor;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Created by ke on 2/19/14.
  * ASM detection
  * Note:    1. mapped reads start pos is 1-based, end pos is 0-based.
  */
-public class DetectASM {
-	private List<Edge> edgeList;
+public class DetectASM implements Callable<String> {
+    private List<Edge> edgeList;
 	private Map<Long, Vertex> vertexMap;
 
-    public static void main(String[] args) throws IOException {
-		long start = System.currentTimeMillis();
-        DetectASM detectASM = new DetectASM();
+    private File intervalFile;
+    private long initPos;
+    private BufferedWriter writer;
+    private BufferedWriter group2Writer;
+
+    public DetectASM(File intervalFile, long initPos, BufferedWriter writer, BufferedWriter group2Writer) {
+        this.intervalFile = intervalFile;
+        this.initPos = initPos;
+        this.writer = writer;
+        this.group2Writer = group2Writer;
+    }
+
+    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+        long start = System.currentTimeMillis();
+        // call on single file
 //        detectASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
 //        detectASM.execute("ASM/testData/FindASM/test.reads", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
 
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_summary_above15reads_filtered"));
-		summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
-		BufferedWriter writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_groups_above15reads_filtered"));
-		BufferedWriter group2Writer = new BufferedWriter(new FileWriter("/home/kehu/lab/ASM/result/h1_r1_chr22_ASM_group2_above15reads_filtered"));
+        // call on folder
+        // TODO mkdir if not exist
+        String cellLine = "i90";
+        String replicate = "r1";
+        BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(
+                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary", cellLine,
+                              replicate)));
+        summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(
+                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups", cellLine,
+                              replicate)));
+        BufferedWriter group2Writer = new BufferedWriter(new FileWriter(
+                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2", cellLine,
+                              replicate)));
         group2Writer.write("name\tlength\treadCount\tCpGCount\tGroupCount\t1stGroupSize\t2ndGroupSize\n");
-		File path = new File("/home/kehu/lab/ASM/result/h1_r1_chr22_interval_above15reads");
-		if (path.isDirectory()) {
+        File path = new File(String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals", cellLine, replicate));
+
+//        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        List<Future<String>> futureList = new ArrayList<>();
+        if (path.isDirectory()) {
 			for (File file : path.listFiles()) {
 				if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
 						!file.getName().endsWith("intervalSummary")) {
 //					if (file.getName().contains("22237970")){
 						String[] items = file.getName().split("-");
-						summaryWriter.write(detectASM.execute(file, Long.parseLong(items[1]), writer, group2Writer));
+                    Future<String> future = executor.submit(
+                            new DetectASM(file, Long.parseLong(items[1]), writer, group2Writer));
+                    futureList.add(future);
 //					}
 				}
 			}
 		}else {
 			String[] items = path.getName().split("-");
-			summaryWriter.write(detectASM.execute(path, Long.parseLong(items[1]), writer, group2Writer) + "\n");
-		}
+            Future<String> future = executor.submit(
+                    new DetectASM(path, Long.parseLong(items[1]), writer, group2Writer));
+            futureList.add(future);
+        }
+
+        for (Future<String> stringFuture : futureList) {
+            summaryWriter.write(stringFuture.get());
+            System.out.println(stringFuture.get());
+        }
+
 		summaryWriter.close();
 		writer.close();
 		group2Writer.close();
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-    public String execute(File intervalFile, long initPos, BufferedWriter writer, BufferedWriter group2Writer) throws IOException {
+
+    @Override
+    public String call() throws Exception {
         StringBuilder asm_result = new StringBuilder(intervalFile.getName() + "\n");
 		StringBuilder summary = new StringBuilder(intervalFile.getName());
         String reference = readRef(intervalFile);
@@ -60,8 +102,8 @@ public class DetectASM {
         associateReadWithCpG(cpgList, mappedReadList);
 		String[] items = intervalFile.getName().split("-");
 		if (items.length != 3){
-			throw new RuntimeException("interval file name format illegal!");
-		}
+            throw new RuntimeException("illegal interval file name format!");
+        }
 		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
 		summary.append("\t" + mappedReadList.size());
 		summary.append("\t" + cpgList.size());
@@ -101,11 +143,15 @@ public class DetectASM {
     }
 
     private void getClusters(StringBuilder asm_result) throws IOException {
-		// count how many tie situation occurs. For analysis use
+        long start = System.currentTimeMillis();
+        // count how many tie situation occurs. For analysis use
 		int tieWeightCounter = 0, tieIdCountCounter = 0;
 		// merge vertexes connected by positive weight edge
 		while (true) {
-			// if edgeList is empty
+            if ((System.currentTimeMillis() - start) > 30 * 1000) {
+                System.out.println(intervalFile.getName());
+            }
+            // if edgeList is empty
 			if (edgeList.size() == 0){
 				break;
 			}
@@ -186,8 +232,8 @@ public class DetectASM {
 
 	/**
 	 * select edge/edges with max weight in the list.
-	 * @param edgeList
-	 * @return	list contains edge/edges with max weight
+     * @param edgeList list contains edges
+     * @return	list contains edge/edges with max weight
 	 */
 	private List<Edge> getMaxEdge(List<Edge> edgeList){
 		List<Edge> maxEdgeList = new ArrayList<>();
@@ -277,4 +323,5 @@ public class DetectASM {
         }
         return cpgList;
     }
+
 }

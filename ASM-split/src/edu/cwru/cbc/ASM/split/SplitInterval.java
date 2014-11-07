@@ -16,10 +16,21 @@ import java.util.*;
  * Convert mapped reads into epigenome and split regions by continuous CpG coverage.
  */
 public class SplitInterval {
+    public static final int MIN_CONT_COVERAGE = 1;
+    public static final int MIN_INTERVAL_READS = 15;
+    public static final int MIN_INTERVAL_CPG = 5;
+    public static int outputCount = 0;
+
 	public static void main(String[] args) throws IOException {
 //		splitEpigenome(args[0], args[1], args[2]);
-        splitEpigenome("/home/kehu/experiments/ASM/data/hg18_chr22.fa", "/home/kehu/experiments/ASM/data/i90_r1_chr22",
-                       "/home/kehu/experiments/ASM/test");
+
+        String ref = "hg18_chr22.fa";
+        String cellLine = "i90";
+        String replicate = "r1";
+        String experimentPath = "/home/kehu/experiments/ASM/";
+        splitEpigenome(experimentPath + "/data/" + ref,
+                       String.format("%s/data/%s_%s_chr22", experimentPath, cellLine, replicate),
+                       experimentPath + "/test");
     }
 
 	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName,
@@ -40,8 +51,8 @@ public class SplitInterval {
 		for (int i = 0; i < refCpGSites.size(); i++) {
 			CpGSite curr = refCpGSites.get(i);
 			CpGSite next = (i+1)<refCpGSites.size()?refCpGSites.get(i+1):null;
-			if (curr.getCoverage() == 0) {
-				cont = false;
+            if (curr.getCoverage() <= MIN_CONT_COVERAGE) {
+                cont = false;
 			} else {
 				if (!cont) {
 					cpgSiteIntervalList.add(cpGSiteList);
@@ -53,15 +64,17 @@ public class SplitInterval {
 		}
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(
 				String.format("%s/%s-intervalSummary", outputPath, refChr.getChr())));
-		intervalSummaryWriter.write("chr\tstart\tend\tlength\treadCount\tCpGCount\n");
-		cpgSiteIntervalList.forEach((list) -> {
+        intervalSummaryWriter.write("chr\tstart\tend\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
+        cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = new HashSet<MappedRead>();
 			list.forEach((cpGSite) -> {
 				cpGSite.getCpGList().forEach((CpG cpg) -> {
 					mappedReadSet.add(cpg.getMappedRead());
 				});
 			});
-            if (mappedReadSet.size() >= 15 && list.size() > 1) {
+            // only pass high quality result for next step.
+            if (mappedReadSet.size() >= MIN_INTERVAL_READS && list.size() >= MIN_INTERVAL_CPG) {
+                outputCount++;
                 int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
 				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
                 int startCpG = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
@@ -70,27 +83,30 @@ public class SplitInterval {
                     intervalSummaryWriter.write(
                             String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
                                           endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpG, endCpG));
-//					BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
-//					mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
-//					for (MappedRead mappedRead : mappedReadSet) {
-//						if (mappedRead.getCpGCount() == 0){
-//							throw new RuntimeException("interval read cover no CpG site!");
-//						}
-//						try {
-//							mappedReadWriter.write(mappedRead.toWriteString());
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//					mappedReadWriter.close();
+                    BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(
+                            String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
+                    mappedReadWriter.write(
+                            String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
+                    for (MappedRead mappedRead : mappedReadSet) {
+                        if (mappedRead.getCpGCount() == 0) {
+                            throw new RuntimeException("interval read cover no CpG site!");
+                        }
+                        try {
+                            mappedReadWriter.write(mappedRead.toWriteString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    mappedReadWriter.close();
                 } catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		});
 		intervalSummaryWriter.close();
-		System.out.println("Interval count:\t" + cpgSiteIntervalList.size());
-		long end = (System.currentTimeMillis() - start);
+        System.out.println("Raw Interval count:\t" + cpgSiteIntervalList.size());
+        System.out.println("Output Interval count:\t" + outputCount);
+        long end = (System.currentTimeMillis() - start);
 		System.out.println(end + "ms");
 	}
 
