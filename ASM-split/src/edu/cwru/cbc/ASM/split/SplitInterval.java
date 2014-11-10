@@ -30,8 +30,8 @@ public class SplitInterval {
         String experimentPath = "/home/kehu/experiments/ASM/";
         splitEpigenome(experimentPath + "/data/" + ref,
                        String.format("%s/data/%s_%s_chr22", experimentPath, cellLine, replicate),
-                       String.format("%s/result_%s_%s/intervals", experimentPath, cellLine, replicate));
-    }
+					   String.format("%s/result_%s_%s/intervals_atLeastTwo", experimentPath, cellLine, replicate));
+	}
 
 	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName,
 									  String outputPath) throws IOException {

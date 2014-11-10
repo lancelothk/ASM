@@ -18,6 +18,7 @@ import java.util.concurrent.*;
  * Note:    1. mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class DetectASM implements Callable<String> {
+    private static final int MIN_READ_CPG = 2;
     private List<Edge> edgeList;
 	private Map<Long, Vertex> vertexMap;
 
@@ -44,18 +45,20 @@ public class DetectASM implements Callable<String> {
         // TODO mkdir if not exist
         String cellLine = "i90";
         String replicate = "r1";
+        String name = "_atLeastTwo_large";
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(
-                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary", cellLine,
-                              replicate)));
+                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary%3$s", cellLine,
+                              replicate, name)));
         summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
         BufferedWriter writer = new BufferedWriter(new FileWriter(
-                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups", cellLine,
-                              replicate)));
+                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups%3$s", cellLine,
+                              replicate, name)));
         BufferedWriter group2Writer = new BufferedWriter(new FileWriter(
-                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2", cellLine,
-                              replicate)));
+                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2%3$s", cellLine,
+                              replicate, name)));
         group2Writer.write("name\tlength\treadCount\tCpGCount\tGroupCount\t1stGroupSize\t2ndGroupSize\n");
-        File path = new File(String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals", cellLine, replicate));
+        File path = new File(
+                String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals%s", cellLine, replicate, name));
 
 //        ExecutorService executor = Executors.newCachedThreadPool();
         ExecutorService executor = Executors.newFixedThreadPool(4);
@@ -81,7 +84,7 @@ public class DetectASM implements Callable<String> {
 
         for (Future<String> stringFuture : futureList) {
             summaryWriter.write(stringFuture.get());
-            System.out.println(stringFuture.get());
+            //System.out.println(stringFuture.get());
         }
 
 		summaryWriter.close();
@@ -111,7 +114,10 @@ public class DetectASM implements Callable<String> {
 		vertexMap = new HashMap<>();
 		edgeList = new ArrayList<>();
         constructGraph(vertexMap, edgeList, mappedReadList);
-		getClusters(asm_result);
+        System.out.println(
+                intervalFile.getName() + "\t" + "vertex number:" + vertexMap.keySet().size() + "\t" + "edge number:" +
+                        edgeList.size());
+        getClusters(asm_result);
 
 		int groupCount = 0;
 
@@ -148,9 +154,6 @@ public class DetectASM implements Callable<String> {
 		int tieWeightCounter = 0, tieIdCountCounter = 0;
 		// merge vertexes connected by positive weight edge
 		while (true) {
-            if ((System.currentTimeMillis() - start) > 30 * 1000) {
-                System.out.println(intervalFile.getName());
-            }
             // if edgeList is empty
 			if (edgeList.size() == 0){
 				break;
@@ -253,17 +256,20 @@ public class DetectASM implements Callable<String> {
     private void constructGraph(Map<Long, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
         // visit all possible edges once.
         for (int i = 0; i < mappedReadList.size(); i++) {
-            for (int j = i+1; j < mappedReadList.size(); j++) {
-                int score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
-                if (score != Integer.MIN_VALUE){
-                    long idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
-                    if (!vertexMap.containsKey(idI)){
-                        vertexMap.put(idI, new Vertex(idI));
+            // only use reads which contains at least two Cpg sites
+            if (mappedReadList.get(i).getCpgList().size() >= MIN_READ_CPG) {
+                for (int j = i + 1; j < mappedReadList.size(); j++) {
+                    int score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
+                    if (score != Integer.MIN_VALUE) {
+                        long idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
+                        if (!vertexMap.containsKey(idI)) {
+                            vertexMap.put(idI, new Vertex(idI));
+                        }
+                        if (!vertexMap.containsKey(idJ)) {
+                            vertexMap.put(idJ, new Vertex(idJ));
+                        }
+                        edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
                     }
-                    if (!vertexMap.containsKey(idJ)){
-                        vertexMap.put(idJ, new Vertex(idJ));
-                    }
-                    edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
                 }
             }
         }

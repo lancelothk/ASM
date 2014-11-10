@@ -75,6 +75,10 @@ public class MappedRead {
 		return cpgList.size();
 	}
 
+	public List<CpG> getCpgList() {
+		return cpgList;
+	}
+
 	public String toWriteString(){
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, end, sequence, id);
 	}

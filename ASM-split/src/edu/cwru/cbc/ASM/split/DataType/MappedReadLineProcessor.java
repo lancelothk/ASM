@@ -24,6 +24,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 	private int minCpGCount = Integer.MAX_VALUE;
 	private BitSet chrBitSet;
 	private int countCoverCpG = 0;
+	private int filteredReads = 0;
 
 	public MappedReadLineProcessor(Map<Integer, CpGSite> refMap, int refLength) {
 		this.refMap = refMap;
@@ -46,20 +47,30 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 
 		int start = Integer.parseInt(items[2]);// mapped read is 1bp right than UCSC ref
 		int end = Integer.parseInt(items[3]);
+
 		for (int i = start; i < end; i++) {
 			if (refMap.containsKey(i)){
 				CpG cpg = new CpG(mappedRead, refMap.get(i));
 				cpg.setMethylated(extractMethylStatus(items[1], items[4].substring(i - start, i - start + 2)));
 				mappedRead.addCpG(cpg);
-				refMap.get(i).addCpG(cpg);
 				i++;
 			}
 		}
-		mappedReadList.add(mappedRead);
-		//stat variables
-		count++;
+
 		int length = mappedRead.getSequence().length();
 		int cpgCount = mappedRead.getCpGCount();
+
+		// only use the read if contains at least two CpG sites
+		if (cpgCount > 1) {
+			mappedReadList.add(mappedRead);
+			for (CpG cpg : mappedRead.getCpgList()) {
+				refMap.get(cpg.getPos()).addCpG(cpg);
+			}
+			filteredReads++;
+		}
+
+		//stat variables
+		count++;
 		totalLength += length;
 		maxLength = length > maxLength?length:maxLength;
 		minLength = length < minLength?length:minLength;
@@ -127,6 +138,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		System.out.printf("refLength:%d\trefCpgSiteNumber:%d\n", chrBitSet.size(), refMap.size());
 		System.out.printf("readCoverage:%f\tcoveredLength:%d\n",
 						  totalLength / (double) chrBitSet.size(),  chrBitSet.cardinality());
+		System.out.println("FilteredReads:\t" + filteredReads);
 		long totalCpGCountInRefMap = 0;
 		int maxCpGCoverage = Integer.MIN_VALUE;
 		int minCpGCoverage = Integer.MAX_VALUE;
