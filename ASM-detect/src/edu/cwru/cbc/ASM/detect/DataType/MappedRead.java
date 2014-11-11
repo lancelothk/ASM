@@ -13,6 +13,7 @@ public class MappedRead {
 	private List<CpGSite> cpgList;
     private CpGSite firstCpG;
     private CpGSite lastCpG;
+	private int methylPolarity;
 
 	public MappedRead(String chrom, String strand, long start, long end, String sequence, long id) {
 		super();
@@ -76,6 +77,10 @@ public class MappedRead {
 		return cpgList;
 	}
 
+	public void setCpgList(List<CpGSite> cpgList) {
+		this.cpgList = cpgList;
+	}
+
     public void addCpG(CpGSite cpg) {
         if (cpgList == null) {
             cpgList = new ArrayList<>();
@@ -91,7 +96,16 @@ public class MappedRead {
                 lastCpG = cpg;
             }
         }
-    }
+		if (cpg.isMethylated()) {
+			methylPolarity++;
+		} else {
+			methylPolarity--;
+		}
+	}
+
+	public int getMethylPolarity() {
+		return methylPolarity;
+	}
 
     public CpGSite getFirstCpG() {
         return firstCpG;
@@ -100,10 +114,6 @@ public class MappedRead {
     public CpGSite getLastCpG() {
         return lastCpG;
     }
-
-    public void setCpgList(List<CpGSite> cpgList) {
-        this.cpgList = cpgList;
-	}
 
 	@Override
 	public String toString() {

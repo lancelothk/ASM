@@ -11,6 +11,8 @@ import edu.cwru.cbc.ASM.detect.Utils.MappedReadFileLineProcessor;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by ke on 2/19/14.
@@ -19,18 +21,15 @@ import java.util.concurrent.*;
  */
 public class DetectASM implements Callable<String> {
     private static final int MIN_READ_CPG = 2;
-    private List<Edge> edgeList;
-	private Map<Long, Vertex> vertexMap;
-
     private File intervalFile;
     private long initPos;
-    private BufferedWriter writer;
+    private BufferedWriter groupWriter;
     private BufferedWriter group2Writer;
 
     public DetectASM(File intervalFile, long initPos, BufferedWriter writer, BufferedWriter group2Writer) {
         this.intervalFile = intervalFile;
         this.initPos = initPos;
-        this.writer = writer;
+        this.groupWriter = writer;
         this.group2Writer = group2Writer;
     }
 
@@ -38,47 +37,55 @@ public class DetectASM implements Callable<String> {
         long start = System.currentTimeMillis();
         // call on single file
 //        detectASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
-//        detectASM.execute("ASM/testData/FindASM/test.reads", 1);
+//        detectASM.execute("", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
+        // test reads setting
+        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
+        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
+        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
+        String group2ResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.group2Result";
 
-        // call on folder
         // TODO mkdir if not exist
         String cellLine = "i90";
         String replicate = "r1";
         String name = "_atLeastTwo_large";
-        BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(
-                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary%3$s", cellLine,
-                              replicate, name)));
-        summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(
-                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups%3$s", cellLine,
-                              replicate, name)));
-        BufferedWriter group2Writer = new BufferedWriter(new FileWriter(
-                String.format("/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2%3$s", cellLine,
-                              replicate, name)));
-        group2Writer.write("name\tlength\treadCount\tCpGCount\tGroupCount\t1stGroupSize\t2ndGroupSize\n");
-        File path = new File(
-                String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals%s", cellLine, replicate, name));
 
-//        ExecutorService executor = Executors.newCachedThreadPool();
+//        String pathName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals%s", cellLine, replicate,
+//                                        name);
+//
+//        String summaryFileName = String.format(
+//                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary%3$s", cellLine, replicate,
+//                name);
+//        String groupResultFileName = String.format(
+//                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups%3$s", cellLine, replicate,
+//                name);
+//        String group2ResultFileName = String.format(
+//                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2%3$s", cellLine, replicate,
+//                name);
+
+        BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
+        summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\n");
+        BufferedWriter groupWriter = new BufferedWriter(new FileWriter(groupResultFileName));
+        BufferedWriter group2Writer = new BufferedWriter(new FileWriter(group2ResultFileName));
+        group2Writer.write("name\tlength\treadCount\tCpGCount\tGroupCount\t1stGroupSize\t2ndGroupSize\n");
+        File path = new File(pathName);
+
         ExecutorService executor = Executors.newFixedThreadPool(4);
         List<Future<String>> futureList = new ArrayList<>();
         if (path.isDirectory()) {
-			for (File file : path.listFiles()) {
-				if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
-						!file.getName().endsWith("intervalSummary")) {
-//					if (file.getName().contains("22237970")){
-						String[] items = file.getName().split("-");
+            for (File file : path.listFiles()) {
+                if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
+                        !file.getName().endsWith("intervalSummary")) {
+                    String[] items = file.getName().split("-");
                     Future<String> future = executor.submit(
-                            new DetectASM(file, Long.parseLong(items[1]), writer, group2Writer));
+                            new DetectASM(file, Long.parseLong(items[1]), groupWriter, group2Writer));
                     futureList.add(future);
-//					}
-				}
-			}
-		}else {
-			String[] items = path.getName().split("-");
+                }
+            }
+        } else {
+            String[] items = path.getName().split("-");
             Future<String> future = executor.submit(
-                    new DetectASM(path, Long.parseLong(items[1]), writer, group2Writer));
+                    new DetectASM(path, Long.parseLong(items[1]), groupWriter, group2Writer));
             futureList.add(future);
         }
 
@@ -86,172 +93,228 @@ public class DetectASM implements Callable<String> {
             summaryWriter.write(stringFuture.get());
             //System.out.println(stringFuture.get());
         }
+        executor.shutdown();
 
-		summaryWriter.close();
-		writer.close();
-		group2Writer.close();
-		System.out.println(System.currentTimeMillis() - start + "ms");
-	}
+        summaryWriter.close();
+        groupWriter.close();
+        group2Writer.close();
+        System.out.println(System.currentTimeMillis() - start + "ms");
+    }
 
 
     @Override
     public String call() throws Exception {
         StringBuilder asm_result = new StringBuilder(intervalFile.getName() + "\n");
-		StringBuilder summary = new StringBuilder(intervalFile.getName());
+        StringBuilder summary = new StringBuilder(intervalFile.getName());
         String reference = readRef(intervalFile);
         List<CpGSite> cpgList = extractCpGSite(reference, initPos);
         List<MappedRead> mappedReadList = Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(
                 new MappedReadFileLineProcessor());
         associateReadWithCpG(cpgList, mappedReadList);
-		String[] items = intervalFile.getName().split("-");
-		if (items.length != 3){
+        String[] items = intervalFile.getName().split("-");
+        if (items.length != 3) {
             throw new RuntimeException("illegal interval file name format!");
         }
-		summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
-		summary.append("\t" + mappedReadList.size());
-		summary.append("\t" + cpgList.size());
+        summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
+        summary.append("\t" + mappedReadList.size());
+        summary.append("\t" + cpgList.size());
 
-		vertexMap = new HashMap<>();
-		edgeList = new ArrayList<>();
+        List<Edge> edgeList = new ArrayList<>();
+        Map<Long, Vertex> vertexMap = new HashMap<>();
+
         constructGraph(vertexMap, edgeList, mappedReadList);
         System.out.println(
                 intervalFile.getName() + "\t" + "vertex number:" + vertexMap.keySet().size() + "\t" + "edge number:" +
                         edgeList.size());
-        getClusters(asm_result);
+        getClusters(asm_result, edgeList, vertexMap);
 
-		int groupCount = 0;
+        int groupCount = 0;
 
-//        int minGroupSize = Integer.MIN_VALUE;
-		for (Vertex vertex : vertexMap.values()) {
-//            minGroupSize = minGroupSize > vertex.getIdList().size()? vertex.getIdList().size(): minGroupSize;
-			groupCount++;
-			for (Long id : vertex.getIdList()) {
-                asm_result.append(id + ",");
-			}
-            asm_result.append("\n");
-		}
-        asm_result.append("Number of groups:\t" + groupCount + "\n");
-		summary.append("\t" + groupCount + "\n");
-		String intervalSummary = summary.toString();
-//        if (minGroupSize < 4){
-//            return "";
-//        }else {
-            if (vertexMap.values().size() == 2){
-                group2Writer.write(intervalSummary + "\t");
-                for (Vertex vertex : vertexMap.values()) {
-                    group2Writer.write(vertex.getIdList().size() + "\t");
-                }
-                group2Writer.write("\n");
+        for (Vertex vertex : vertexMap.values()) {
+            asm_result.append("group: " + groupCount++ + "\n");
+            Collections.sort(vertex.getMappedReadList(),
+                             (MappedRead read1, MappedRead read2) -> (int) (read1.getStart() - read2.getStart()));
+            for (MappedRead mappedRead : vertex.getMappedReadList()) {
+                asm_result.append(mappedRead.getId() + ",");
             }
-            writer.write(asm_result.toString());
-            return summary.toString();
-//        }
+            asm_result.append("\n");
+            asm_result.append("Covered CpG sites:\n");
+            List<CpGSite> cpGSiteList = new ArrayList<>(vertex.getCoveredCpGSites());
+            Collections.sort(cpGSiteList, (CpGSite c1, CpGSite c2) -> (int) (c1.getPos() - c2.getPos()));
+            for (CpGSite cpGSite : cpGSiteList) {
+                double methylCount = 0, totalCount = 0;
+                for (MappedRead mappedRead : vertex.getMappedReadList()) {
+                    if (mappedRead.getFirstCpG().getPos() <= cpGSite.getPos() &&
+                            mappedRead.getLastCpG().getPos() >= cpGSite.getPos()) {
+                        if (mappedRead.getCpGMethylStatus(cpGSite.getPos())) {
+                            methylCount++;
+                        }
+                        totalCount++;
+                    }
+                }
+                asm_result.append(String.format("%d-%.2f,", cpGSite.getPos(), methylCount / totalCount));
+            }
+            asm_result.append("\n");
+        }
+        asm_result.append("Number of groups:\t" + groupCount + "\n");
+        summary.append("\t" + groupCount + "\n");
+        String intervalSummary = summary.toString();
+        if (vertexMap.values().size() == 2) {
+            group2Writer.write(intervalSummary + "\t");
+            for (Vertex vertex : vertexMap.values()) {
+                group2Writer.write(vertex.getMappedReadList().size() + "\t");
+            }
+            group2Writer.write("\n");
+        }
+        groupWriter.write(asm_result.toString());
+
+        Map<Long, Integer> cpgPosMap = cpgList.stream().collect(Collectors.toMap(CpGSite::getPos, cpgSite -> 0));
+        for (Vertex vertex : vertexMap.values()) {
+            for (CpGSite cpGSite : vertex.getCoveredCpGSites()) {
+                if (cpgPosMap.containsKey(cpGSite.getPos())) {
+                    cpgPosMap.put(cpGSite.getPos(), cpgPosMap.get(cpGSite.getPos()) + 1);
+                }
+            }
+        }
+
+        SortedSet<Long> sortedPosSet = new TreeSet<>(cpgPosMap.keySet());
+        for (Long aLong : sortedPosSet) {
+            groupWriter.write(String.format("pos: %d\tcount: %d\n", aLong, cpgPosMap.get(aLong)));
+        }
+        return summary.toString();
     }
 
-    private void getClusters(StringBuilder asm_result) throws IOException {
+    private void getClusters(StringBuilder asm_result, List<Edge> edgeList,
+                             Map<Long, Vertex> vertexMap) throws IOException {
         long start = System.currentTimeMillis();
         // count how many tie situation occurs. For analysis use
-		int tieWeightCounter = 0, tieIdCountCounter = 0;
-		// merge vertexes connected by positive weight edge
-		while (true) {
+        int tieWeightCounter = 0, tieIdCountCounter = 0, tieMethylPolarity = 0;
+        // merge vertexes connected by positive weight edge
+        while (true) {
             // if edgeList is empty
-			if (edgeList.size() == 0){
-				break;
-			}
-			List<Edge> maxEdgeList = getMaxEdge(edgeList);
-			// if max weight <= 0, stop merge.
-			if (maxEdgeList.get(0).getWeight() <= 0) {
-				break;
-			} else if (maxEdgeList.size() == 1) {
-				// unique max weight, merge two vertex on this edge and updating adj edges.
-				Edge edge = maxEdgeList.get(0);
-				mergeVertex(edge);
-			} else {
-				// multiple equal max weight edges. First pick edge not connect to two clusters.
-				tieWeightCounter++;
-				// sort edge by id count
-				Collections.sort(maxEdgeList, new Comparator<Edge>() {
-					@Override
-					public int compare(Edge o1, Edge o2) {
-						return o1.getIdCount() - o2.getIdCount();
-					}
-				});
-				// pick min id count edge as merge candidate. i.e. prefer smaller cluster.
-				mergeVertex(maxEdgeList.get(0));
-				// record the frequency of tied id count. Maybe solve by considering inner cluster weight
-				// or some other properties
-				if (maxEdgeList.get(0).getIdCount() == maxEdgeList.get(1).getIdCount()){
-					tieIdCountCounter++;
-				}
-			}
-		}
-        asm_result.append(String.format("tie weight counter:%d\n", tieWeightCounter));
-        asm_result.append(String.format("tie id counter:%d\n", tieIdCountCounter));
-	}
+            if (edgeList.size() == 0) {
+                break;
+            }
+            List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
+            // if max weight <= 0, stop merge.
+            if (maxEdgeList.get(0).getWeight() <= 0) {
+                break;
+            } else {
+                // since edgeList is not empty, getMaxFromList always returns at least one element
+                if (maxEdgeList.size() != 1) {
+                    // multiple equal max weight edges.
+                    tieWeightCounter++;
+                    // use methyl polarity to group similar vertex first
+                    // sort edge by abs of methyl polarity. Larger first
+//                    maxEdgeList = getMaxFromList(maxEdgeList, Edge::getMethylPolarityAbs);
+//                    if (maxEdgeList.size() != 1) {
+//                        tieMethylPolarity++;
 
-	private void mergeVertex(Edge edge){
-		Vertex left = edge.getLeft();
-		Vertex right = edge.getRight();
-		// merge right to left vertex
-		left.addIds(right.getIdList());
-		left.addInnerWeight(edge.getWeight());
-		//remove this edge and right vertex from graph
-		edge.removeFromVertex();
-		edgeList.remove(edge);
-		vertexMap.remove(right.getId());
-		// update right vertex adj edges
-		for (Edge edgeR : right.getAdjEdges()) {
-			// update new vertex
-			if (!edgeR.replaceVertex(right, left)) {
-				throw new RuntimeException("fail to update new vertex in adj edge!");
-			}
-		}
-		// update left vertex with new edges
-		for (Edge adjEdge : right.getAdjEdges()) {
-			left.addEdge(adjEdge);
-		}
-		// update edges of vertex which connect both left and right
-		updateAndRemoveDupEdge();
-	}
+                    // First pick edge not connect to two clusters.
+                    // sort edge by id count. Smaller first
+                    maxEdgeList = getMinFromList(maxEdgeList, Edge::getIdCount);
+                    if (maxEdgeList.size() != 1) {
+                        tieIdCountCounter++;
+                    }
+//                    }
+                }
+                mergeVertex(maxEdgeList.get(0), edgeList, vertexMap);
+            }
+        }
+        asm_result.append(String.format("tied weight counter:%d\n", tieWeightCounter));
+        asm_result.append(String.format("tied methyl polarity:%d\n", tieMethylPolarity));
+        asm_result.append(String.format("tied id counter:%d\n", tieIdCountCounter));
+    }
 
-	private void updateAndRemoveDupEdge(){
-		Map<String, Edge> edgeMap = new HashMap<>();
-		Iterator<Edge> edgeIterator = edgeList.iterator();
-		while (edgeIterator.hasNext()){
-			Edge edgeB = edgeIterator.next();
-			// duplicate edge
-			if (edgeMap.containsKey(edgeB.getUniqueId())){
-				Edge edgeA = edgeMap.get(edgeB.getUniqueId());
-				// keep edgeA, remove edgeB.
-				edgeA.setWeight(edgeA.getWeight() + edgeB.getWeight());
-				edgeB.removeFromVertex();
-				edgeIterator.remove(); // remove from edgelist
-			}else {
-				edgeMap.put(edgeB.getUniqueId(), edgeB);
-			}
-		}
-		edgeList = new ArrayList<>(edgeMap.values());
-	}
+    private void mergeVertex(Edge edge, List<Edge> edgeList, Map<Long, Vertex> vertexMap) {
+        Vertex left = edge.getLeft();
+        Vertex right = edge.getRight();
+        // merge right to left vertex
+        left.addMappedRead(right.getMappedReadList());
+        left.addInnerWeight(edge.getWeight());
+        left.addCpGSites(right.getCoveredCpGSites());
+        //remove this edge and right vertex from graph
+        edge.removeFromVertex();
+        edgeList.remove(edge);
+        vertexMap.remove(right.getId());
+        // update right vertex adj edges
+        for (Edge edgeR : right.getAdjEdges()) {
+            // update new vertex
+            if (!edgeR.replaceVertex(right, left)) {
+                throw new RuntimeException("fail to update new vertex in adj edge!");
+            }
+        }
+        // update left vertex with new edges
+        for (Edge adjEdge : right.getAdjEdges()) {
+            left.addEdge(adjEdge);
+        }
+        // update edges of vertex which connect both left and right
+        updateAndRemoveDupEdge(edgeList);
+    }
 
-	/**
-	 * select edge/edges with max weight in the list.
-     * @param edgeList list contains edges
-     * @return	list contains edge/edges with max weight
-	 */
-	private List<Edge> getMaxEdge(List<Edge> edgeList){
-		List<Edge> maxEdgeList = new ArrayList<>();
-		int maxWeight = Integer.MIN_VALUE;
-		for (Edge edge : edgeList) {
-			if (edge.getWeight() > maxWeight){
-				maxEdgeList.clear();
-				maxEdgeList.add(edge);
-				maxWeight = edge.getWeight();
-			}else if (edge.getWeight() == maxWeight){
-				maxEdgeList.add(edge);
-			}
-		}
-		return maxEdgeList;
-	}
+    private void updateAndRemoveDupEdge(List<Edge> edgeList) {
+        Map<String, Edge> edgeMap = new HashMap<>();
+        Iterator<Edge> edgeIterator = edgeList.iterator();
+        while (edgeIterator.hasNext()) {
+            Edge edgeB = edgeIterator.next();
+            // duplicate edge
+            if (edgeMap.containsKey(edgeB.getUniqueId())) {
+                Edge edgeA = edgeMap.get(edgeB.getUniqueId());
+                // keep edgeA, remove edgeB.
+                edgeA.setWeight(edgeA.getWeight() + edgeB.getWeight());
+                edgeB.removeFromVertex();
+                edgeIterator.remove(); // remove from edgelist
+            } else {
+                edgeMap.put(edgeB.getUniqueId(), edgeB);
+            }
+        }
+    }
+
+    /**
+     * select items with max property value in the list.
+     *
+     * @param itemList
+     * @param getProperty
+     * @param <T>
+     * @return list contains items with max weight
+     */
+    private <T> List<T> getMaxFromList(List<T> itemList, Function<T, Integer> getProperty) {
+        List<T> maxItemList = new ArrayList<>();
+        int maxValue = Integer.MIN_VALUE;
+        for (T item : itemList) {
+            if (getProperty.apply(item) > maxValue) {
+                maxItemList.clear();
+                maxItemList.add(item);
+                maxValue = getProperty.apply(item);
+            } else if (getProperty.apply(item) == maxValue) {
+                maxItemList.add(item);
+            }
+        }
+        return maxItemList;
+    }
+
+    /**
+     * select items with min property value in the list.
+     *
+     * @param itemList
+     * @param getProperty
+     * @param <T>
+     * @return list contains items with min weight
+     */
+    private <T> List<T> getMinFromList(List<T> itemList, Function<T, Integer> getProperty) {
+        List<T> minItemList = new ArrayList<>();
+        int minValue = Integer.MAX_VALUE;
+        for (T item : itemList) {
+            if (getProperty.apply(item) < minValue) {
+                minItemList.clear();
+                minItemList.add(item);
+                minValue = getProperty.apply(item);
+            } else if (getProperty.apply(item) == minValue) {
+                minItemList.add(item);
+            }
+        }
+        return minItemList;
+    }
 
     private void constructGraph(Map<Long, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
         // visit all possible edges once.
@@ -263,10 +326,10 @@ public class DetectASM implements Callable<String> {
                     if (score != Integer.MIN_VALUE) {
                         long idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
                         if (!vertexMap.containsKey(idI)) {
-                            vertexMap.put(idI, new Vertex(idI));
+                            vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
                         }
                         if (!vertexMap.containsKey(idJ)) {
-                            vertexMap.put(idJ, new Vertex(idJ));
+                            vertexMap.put(idJ, new Vertex(mappedReadList.get(j)));
                         }
                         edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
                     }

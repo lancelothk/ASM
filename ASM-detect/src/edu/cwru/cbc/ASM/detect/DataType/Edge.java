@@ -1,5 +1,7 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
+import static java.lang.Math.abs;
+
 /**
  * Created by lancelothk on 5/14/14.
  * Edge in graph.
@@ -19,6 +21,7 @@ public class Edge {
         this.left = left;
         this.right = right;
         this.weight = weight;
+        calcId();
     }
 
     public boolean replaceVertex(Vertex o, Vertex n) {
@@ -55,9 +58,12 @@ public class Edge {
     }
 
 	public int getIdCount(){
-//		return Math.min(left.getIdList().size(), right.getIdList().size());
-		return left.getIdList().size() + right.getIdList().size();
-	}
+        return left.getMappedReadList().size() + right.getMappedReadList().size();
+    }
+
+    public int getMethylPolarityAbs() {
+        return abs(left.getMethylPolarity() + right.getMethylPolarity());
+    }
 
 	public void removeFromVertex() {
 		this.left.removeEdge(this);

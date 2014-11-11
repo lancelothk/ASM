@@ -18,7 +18,7 @@ public class AlignReads {
     public static void main(String[] args) throws Exception {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals/chr22-15229947-15235556";
+            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_atLeastTwo_large/chr22-15228700-15229978";
         } else {
             targetFileName = args[0];
         }

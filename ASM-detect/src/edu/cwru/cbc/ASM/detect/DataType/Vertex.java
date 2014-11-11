@@ -1,7 +1,6 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by lancelothk on 5/14/14.
@@ -10,41 +9,63 @@ import java.util.List;
 public class Vertex {
     private long id;
     private List<Edge> adjEdges;
-    private List<Long> idList;
-	private int innerWeightSum = 0;
+    private List<MappedRead> mappedReadList;
+    private Map<Long, CpGSite> cpGSiteMap;
+    private int methylPolarity;
+    private int innerWeightSum;
 
-    public Vertex(long id) {
-        this.id = id;
+    public Vertex(MappedRead mappedRead) {
+        this.id = mappedRead.getId();
         this.adjEdges = new ArrayList<>();
-        this.idList = new ArrayList<>();
-		this.idList.add(id);
+        this.mappedReadList = new ArrayList<>();
+        this.mappedReadList.add(mappedRead);
+        this.cpGSiteMap = new HashMap<>();
+        this.methylPolarity = mappedRead.getMethylPolarity();
+        addCpGSites(mappedRead.getCpgList());
     }
 
-    public void addEdge(Edge edge){
+    public void addCpGSites(Collection<CpGSite> cpGSiteList) {
+        for (CpGSite cpGSite : cpGSiteList) {
+            if (!cpGSiteMap.containsKey(cpGSite.getPos())) {
+                cpGSiteMap.put(cpGSite.getPos(), cpGSite);
+            }
+        }
+    }
+
+    public Collection<CpGSite> getCoveredCpGSites() {
+        return cpGSiteMap.values();
+    }
+
+    public void addEdge(Edge edge) {
         this.adjEdges.add(edge);
     }
 
-	public void removeEdge(Edge edge){
-		this.adjEdges.remove(edge);
-	}
+    public void removeEdge(Edge edge) {
+        this.adjEdges.remove(edge);
+    }
 
-	public void addIds(List<Long> idList){
-		this.idList.addAll(idList);
-	}
+    public void addMappedRead(List<MappedRead> mappedReadList) {
+        mappedReadList.forEach((read) -> methylPolarity += read.getMethylPolarity());
+        this.mappedReadList.addAll(mappedReadList);
+    }
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void addInnerWeight(int weight){
-		this.innerWeightSum += weight;
-	}
+    public void addInnerWeight(int weight) {
+        this.innerWeightSum += weight;
+    }
 
-	public List<Edge> getAdjEdges() {
-		return adjEdges;
-	}
+    public List<Edge> getAdjEdges() {
+        return adjEdges;
+    }
 
-	public List<Long> getIdList() {
-		return idList;
-	}
+    public List<MappedRead> getMappedReadList() {
+        return mappedReadList;
+    }
+
+    public int getMethylPolarity() {
+        return methylPolarity;
+    }
 }
