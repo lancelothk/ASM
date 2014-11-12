@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.split.DataType;
+package edu.cwru.cbc.ASM.CPMR.DataType;
 
 /**
  * Created by lancelothk on 5/27/14.

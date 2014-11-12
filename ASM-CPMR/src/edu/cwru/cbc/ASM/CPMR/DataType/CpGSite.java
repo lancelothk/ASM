@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.split.DataType;
+package edu.cwru.cbc.ASM.CPMR.DataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +9,11 @@ import java.util.List;
  */
 public class CpGSite {
 	private int pos;
-	private int cpgSiteID;
+	private int id;
 	private List<CpG> cpGList;
 
-	public CpGSite(int pos, int cpgSiteID) {
+	public CpGSite(int pos) {
 		this.pos = pos;
-		this.cpgSiteID = cpgSiteID;
 		this.cpGList = new ArrayList<>();
 	}
 
@@ -22,8 +21,12 @@ public class CpGSite {
 		return pos;
 	}
 
-	public int getCpgSiteID() {
-		return cpgSiteID;
+	public void assignId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public void addCpG(CpG cpg){
@@ -37,10 +40,10 @@ public class CpGSite {
     public boolean hasPartialMethyl() {
         int m = 0, n = 0;
         for (CpG cpG : cpGList) {
-            if (cpG.isMethylated()) {
-                m++;
-            } else {
-                n++;
+			if (cpG.getMethylStatus() == MethylStatus.C) {
+				m++;
+			} else if (cpG.getMethylStatus() == MethylStatus.T) {
+				n++;
             }
         }
         return m != 0 && n != 0;

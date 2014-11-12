@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.split.DataType;
+package edu.cwru.cbc.ASM.CPMR.DataType;
 
 /**
  * Created by lancelothk on 5/27/14.
@@ -7,19 +7,19 @@ package edu.cwru.cbc.ASM.split.DataType;
 public class CpG {
 	private MappedRead mappedRead; // link to MappedRead
 	private CpGSite cpGSite; // link to CpGSite
-	private boolean isMethylated;
+	private MethylStatus methylStatus;
 
 	public CpG(MappedRead mappedRead, CpGSite cpGSite) {
 		this.mappedRead = mappedRead;
 		this.cpGSite = cpGSite;
 	}
 
-	public boolean isMethylated() {
-		return isMethylated;
+	public MethylStatus getMethylStatus() {
+		return methylStatus;
 	}
 
-	public void setMethylated(boolean isMethylated) {
-		this.isMethylated = isMethylated;
+	public void setMethylStatus(MethylStatus methylStatus) {
+		this.methylStatus = methylStatus;
 	}
 
 	public MappedRead getMappedRead() {
