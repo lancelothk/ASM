@@ -59,7 +59,7 @@ public class CPMR {
 
         start = System.currentTimeMillis();
         List<MappedRead> mappedReadList = readMappedReads(refMap, mappedReadFileName, refChr.getRefString().length());
-        writeExtEpireadInInterval(outputPath, refChr, 0, 0, mappedReadList);
+//        writeExtEpireadInInterval(outputPath, refChr, 0, 0, mappedReadList);
         System.out.println("load mappedReadList complete");
         System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
@@ -94,14 +94,15 @@ public class CPMR {
                 outputIntervalCount++;
                 int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
 				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
-                int startCpG = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
-                int endCpG = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+                int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+                int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
                 try {
                     intervalSummaryWriter.write(
                             String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
-                                          endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpG, endCpG));
+                                          endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpGPos,
+                                          endCpGPos));
 //                    writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
-//                    writeExtEpireadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
+                    writeExtEpireadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -113,12 +114,14 @@ public class CPMR {
         System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
     }
 
-    private static void writeExtEpireadInInterval(String outputPath, RefChr refChr, int startPos, int endPos,
+    private static void writeExtEpireadInInterval(String outputPath, RefChr refChr, int startCpGPos, int endCpGPos,
                                                   Collection<MappedRead> mappedReadSet) throws IOException {
         BufferedWriter mappedReadWriter = new BufferedWriter(
-                new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
+                new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startCpGPos, endCpGPos)));
         for (MappedRead mappedRead : mappedReadSet) {
-            mappedReadWriter.write(mappedRead.extEpireadFormat());
+            if (mappedRead.getEpiRead() != null) {
+                mappedReadWriter.write(mappedRead.getEpiRead().extEpireadFormat());
+            }
         }
         mappedReadWriter.close();
     }
@@ -158,7 +161,6 @@ public class CPMR {
                 refMap.put(i, new CpGSite(i));
             }
 		}
-
         return refMap;
 	}
 

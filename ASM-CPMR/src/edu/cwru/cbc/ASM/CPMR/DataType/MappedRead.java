@@ -1,5 +1,7 @@
 package edu.cwru.cbc.ASM.CPMR.DataType;
 
+import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ public class MappedRead {
     private int end;
     private List<CpG> cpgList;
     private CpG firstCpG;
+    private EpiRead epiRead;
 
     public MappedRead(String chr, String strand, String id) {
         this.chr = chr;
@@ -67,38 +70,19 @@ public class MappedRead {
         return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, end, sequence, id);
     }
 
+    public EpiRead getEpiRead() {
+        if (epiRead == null && firstCpG != null) {
+            return new EpiRead(chr, firstCpG.getCpGSite().getId(), firstCpG.getPos(), getCpGSeq(), id);
+        } else {
+            return epiRead;
+        }
+    }
+
     private String getCpGSeq() {
         StringBuilder sb = new StringBuilder();
         for (CpG cpG : cpgList) {
             sb.append(cpG.getMethylStatus());
         }
         return sb.toString();
-    }
-
-    public String extEpireadFormat() {
-        if (firstCpG == null) {
-            return "";
-        } else {
-            String cpgSeq = getCpGSeq();
-            if (!cpgSeq.contains("C") && !cpgSeq.contains("T")) {
-                // if only contains N
-                return "";
-            } else {
-                // use StringBuilder here is much faster than String.format
-                StringBuilder sb = new StringBuilder();
-                sb.append(chr);
-                sb.append("\t");
-                sb.append(firstCpG.getCpGSite().getId());
-                sb.append("\t");
-                sb.append(firstCpG.getPos());
-                sb.append("\t");
-                sb.append(getCpGSeq());
-                sb.append("\t");
-                sb.append(id);
-                sb.append("\n");
-                return sb.toString();
-//            return String.format("%s\t%d\t%d\t%s\t%s\n", chr, firstCpG.getCpGSite().getId(), firstCpG.getPos(), getCpGSeq(), id);
-            }
-        }
     }
 }
