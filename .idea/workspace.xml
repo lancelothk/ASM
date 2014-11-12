@@ -6,18 +6,9 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="Add methyl polarity property tie breaker.&#10;changed the tie breaker framework.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MethylStatus.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/ASM-split.iml" afterPath="$PROJECT_DIR$/ASM-CPMR/ASM-CPMR.iml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/ASM-CPMR/src/META-INF/MANIFEST.MF" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/CpG.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/CpG.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/CpGSite.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/CpGSite.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/MappedRead.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedRead.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/MappedReadLineProcessor.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedReadLineProcessor.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/RefChr.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/RefChr.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/SplitInterval.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/ASM_split_jar.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/ASM_split_jar.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+    <list default="true" id="956bf504-53ac-4834-aaad-4c667d6f3d58" name="Default" comment="filtered out reads only contains 'N'">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedRead.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedRead.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ASM.iws" />
@@ -59,8 +50,8 @@
       <file leaf-file-name="CPMR.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="676" max-vertical-offset="3094">
-              <caret line="60" column="39" selection-start-line="60" selection-start-column="25" selection-end-line="60" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1938" max-vertical-offset="3094">
+              <caret line="49" column="80" selection-start-line="49" selection-start-column="80" selection-end-line="49" selection-end-column="80" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -68,11 +59,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MappedReadLineProcessor.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="MappedReadLineProcessor.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedReadLineProcessor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.44674557" vertical-offset="616" max-vertical-offset="2584">
-              <caret line="54" column="20" selection-start-line="54" selection-start-column="20" selection-end-line="54" selection-end-column="20" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="412" max-vertical-offset="2584">
+              <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -96,18 +87,18 @@
             <state vertical-scroll-proportion="0.0" vertical-offset="174" max-vertical-offset="850">
               <caret line="46" column="13" selection-start-line="46" selection-start-column="13" selection-end-line="46" selection-end-column="13" />
               <folding>
-                <element signature="e#431#432#0" expanded="true" />
-                <element signature="e#450#451#0" expanded="true" />
+                <element signature="e#432#433#0" expanded="true" />
+                <element signature="e#451#452#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MappedRead.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MappedRead.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedRead.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="4" max-vertical-offset="1972">
-              <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.5410367" vertical-offset="944" max-vertical-offset="1870">
+              <caret line="85" column="20" selection-start-line="85" selection-start-column="20" selection-end-line="86" selection-end-column="67" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#657#658#0" expanded="true" />
@@ -122,16 +113,10 @@
                 <element signature="e#959#960#0" expanded="true" />
                 <element signature="e#994#995#0" expanded="true" />
                 <element signature="e#1024#1025#0" expanded="true" />
-                <element signature="e#1054#1055#0" expanded="true" />
-                <element signature="e#1080#1081#0" expanded="true" />
-                <element signature="e#1113#1114#0" expanded="true" />
-                <element signature="e#1142#1143#0" expanded="true" />
-                <element signature="e#1171#1172#0" expanded="true" />
-                <element signature="e#1196#1197#0" expanded="true" />
-                <element signature="e#1406#1407#0" expanded="true" />
-                <element signature="e#1443#1444#0" expanded="true" />
-                <element signature="e#1480#1481#0" expanded="true" />
-                <element signature="e#1510#1511#0" expanded="true" />
+                <element signature="e#1234#1235#0" expanded="true" />
+                <element signature="e#1271#1272#0" expanded="true" />
+                <element signature="e#1308#1309#0" expanded="true" />
+                <element signature="e#1338#1339#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -174,7 +159,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/MappedRead.java" />
         <option value="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/DataType/MappedReadLineProcessor.java" />
         <option value="$PROJECT_DIR$/ASM-split/src/edu/cwru/cbc/ASM/split/SplitInterval.java" />
@@ -188,9 +172,10 @@
         <option value="$PROJECT_DIR$/ASM-detect/testData/chrTest2-1-6" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MethylStatus.java" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/CpG.java" />
-        <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedReadLineProcessor.java" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/CpGSite.java" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" />
+        <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedReadLineProcessor.java" />
+        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedRead.java" />
       </list>
     </option>
@@ -764,12 +749,12 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3225131" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879582" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32925472" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879582" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3970742" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31937173" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2617801" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2617801" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3291536" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -806,8 +791,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="clean up commented codes" />
-    <MESSAGE value="vertex merge -- graph construction complete. TODO vertex merge and clustering" />
     <MESSAGE value="vertex merge and clustering complete." />
     <MESSAGE value="vertex merge problem.. need fix" />
     <MESSAGE value="complete first version of ASM-epi" />
@@ -831,7 +814,9 @@
     <MESSAGE value="optimize edge id calculation" />
     <MESSAGE value="add more thresholds to filter low quality data." />
     <MESSAGE value="Add methyl polarity property tie breaker.&#10;changed the tie breaker framework." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add methyl polarity property tie breaker.&#10;changed the tie breaker framework." />
+    <MESSAGE value="add extEpiread output" />
+    <MESSAGE value="filtered out reads only contains 'N'" />
+    <option name="LAST_COMMIT_MESSAGE" value="filtered out reads only contains 'N'" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1011,13 +996,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.018318966" vertical-offset="0" max-vertical-offset="928">
-          <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/SplitFileByChr.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.20118344" vertical-offset="0" max-vertical-offset="850">
@@ -1049,6 +1027,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.02631579" vertical-offset="0" max-vertical-offset="646">
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="29" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1148,6 +1127,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.05029586" vertical-offset="0" max-vertical-offset="676">
           <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1188,30 +1168,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MethylStatus.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="272">
-          <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/RefChr.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.47781065" vertical-offset="0" max-vertical-offset="676">
           <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/CpGSite.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="174" max-vertical-offset="850">
-          <caret line="46" column="13" selection-start-line="46" selection-start-column="13" selection-end-line="46" selection-end-column="13" />
-          <folding>
-            <element signature="e#431#432#0" expanded="true" />
-            <element signature="e#450#451#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1232,20 +1193,57 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MethylStatus.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="676" max-vertical-offset="3094">
-          <caret line="60" column="39" selection-start-line="60" selection-start-column="25" selection-end-line="60" selection-end-column="39" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="272">
+          <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/CpGSite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="174" max-vertical-offset="850">
+          <caret line="46" column="13" selection-start-line="46" selection-start-column="13" selection-end-line="46" selection-end-column="13" />
+          <folding>
+            <element signature="e#432#433#0" expanded="true" />
+            <element signature="e#451#452#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedReadLineProcessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="412" max-vertical-offset="2584">
+          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1938" max-vertical-offset="3094">
+          <caret line="49" column="80" selection-start-line="49" selection-start-column="80" selection-end-line="49" selection-end-column="80" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.02514793" vertical-offset="0" max-vertical-offset="676">
+          <caret line="1" column="39" selection-start-line="1" selection-start-column="39" selection-end-line="1" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedRead.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4" max-vertical-offset="1972">
-          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.5410367" vertical-offset="944" max-vertical-offset="1870">
+          <caret line="85" column="20" selection-start-line="85" selection-start-column="20" selection-end-line="86" selection-end-column="67" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#657#658#0" expanded="true" />
@@ -1260,26 +1258,10 @@
             <element signature="e#959#960#0" expanded="true" />
             <element signature="e#994#995#0" expanded="true" />
             <element signature="e#1024#1025#0" expanded="true" />
-            <element signature="e#1054#1055#0" expanded="true" />
-            <element signature="e#1080#1081#0" expanded="true" />
-            <element signature="e#1113#1114#0" expanded="true" />
-            <element signature="e#1142#1143#0" expanded="true" />
-            <element signature="e#1171#1172#0" expanded="true" />
-            <element signature="e#1196#1197#0" expanded="true" />
-            <element signature="e#1406#1407#0" expanded="true" />
-            <element signature="e#1443#1444#0" expanded="true" />
-            <element signature="e#1480#1481#0" expanded="true" />
-            <element signature="e#1510#1511#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/DataType/MappedReadLineProcessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44674557" vertical-offset="616" max-vertical-offset="2584">
-          <caret line="54" column="20" selection-start-line="54" selection-start-column="20" selection-end-line="54" selection-end-column="20" />
-          <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#1234#1235#0" expanded="true" />
+            <element signature="e#1271#1272#0" expanded="true" />
+            <element signature="e#1308#1309#0" expanded="true" />
+            <element signature="e#1338#1339#0" expanded="true" />
           </folding>
         </state>
       </provider>

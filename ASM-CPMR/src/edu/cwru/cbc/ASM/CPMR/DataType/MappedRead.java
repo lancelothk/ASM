@@ -48,18 +48,6 @@ public class MappedRead {
         this.end = end;
     }
 
-    public String getChr() {
-        return chr;
-    }
-
-    public String getStrand() {
-        return strand;
-    }
-
-    public String getId() {
-        return id;
-    }
-
     public void addCpG(CpG cpg) {
         this.cpgList.add(cpg);
         if (firstCpG == null || cpg.getPos() < firstCpG.getPos()) {
@@ -91,20 +79,26 @@ public class MappedRead {
         if (firstCpG == null) {
             return "";
         } else {
-            // use StringBuilder here is much faster than String.format
-            StringBuilder sb = new StringBuilder();
-            sb.append(chr);
-            sb.append("\t");
-            sb.append(firstCpG.getCpGSite().getId());
-            sb.append("\t");
-            sb.append(firstCpG.getPos());
-            sb.append("\t");
-            sb.append(getCpGSeq());
-            sb.append("\t");
-            sb.append(id);
-            sb.append("\n");
-            return sb.toString();
+            String cpgSeq = getCpGSeq();
+            if (!cpgSeq.contains("C") && !cpgSeq.contains("T")) {
+                // if only contains N
+                return "";
+            } else {
+                // use StringBuilder here is much faster than String.format
+                StringBuilder sb = new StringBuilder();
+                sb.append(chr);
+                sb.append("\t");
+                sb.append(firstCpG.getCpGSite().getId());
+                sb.append("\t");
+                sb.append(firstCpG.getPos());
+                sb.append("\t");
+                sb.append(getCpGSeq());
+                sb.append("\t");
+                sb.append(id);
+                sb.append("\n");
+                return sb.toString();
 //            return String.format("%s\t%d\t%d\t%s\t%s\n", chr, firstCpG.getCpGSite().getId(), firstCpG.getPos(), getCpGSeq(), id);
+            }
         }
     }
 }
