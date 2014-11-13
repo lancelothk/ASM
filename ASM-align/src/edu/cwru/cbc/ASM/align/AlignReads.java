@@ -5,7 +5,6 @@ import edu.cwru.cbc.ASM.commons.DataType.ReadComparator;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ public class AlignReads {
     public static void main(String[] args) throws Exception {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_atLeastTwo_large/chr22-15228700-15229978";
+            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_newParameter_large/chr22-15240456-15242527";
         } else {
             targetFileName = args[0];
         }
@@ -73,7 +72,7 @@ public class AlignReads {
 
     public static void alignReads(List<MappedRead> readsList, String outputFileName) {
         // sort reads first
-        Collections.sort(readsList, new ReadComparator());
+        readsList.sort(new ReadComparator());
         // set initial position
         int initialPos = readsList.get(0).getStart();
         BufferedWriter bufferedWriter;

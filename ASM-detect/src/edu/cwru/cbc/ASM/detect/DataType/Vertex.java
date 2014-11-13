@@ -38,6 +38,10 @@ public class Vertex {
         return cpGMap.values();
     }
 
+    public int getFirstCpGPos() {
+        return cpGMap.values().stream().min((c1, c2) -> c1.getPos() - c2.getPos()).get().getPos();
+    }
+
     public void addEdge(Edge edge) {
         this.adjEdges.add(edge);
     }

@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.detect.WithMappedRead;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
@@ -23,15 +24,12 @@ public class DetectionWihMappedRead extends Detection {
     private File intervalFile;
     private int initPos;
     private BufferedWriter groupWriter;
-    private BufferedWriter group2Writer;
 
 
-    public DetectionWihMappedRead(File intervalFile, int initPos, BufferedWriter summaryWriter,
-                                  BufferedWriter group2Writer) {
+    public DetectionWihMappedRead(File intervalFile, int initPos, BufferedWriter groupWriter) {
         this.intervalFile = intervalFile;
         this.initPos = initPos;
-        this.groupWriter = summaryWriter;
-        this.group2Writer = group2Writer;
+        this.groupWriter = groupWriter;
     }
 
     public String call() throws Exception {
@@ -61,45 +59,42 @@ public class DetectionWihMappedRead extends Detection {
                         edgeList.size());
         getClusters(asm_result, edgeList, vertexMap);
 
-        int groupCount = 0;
-
+        List<List<RefCpG>> groupCpGResults = new ArrayList<>();
         for (Vertex vertex : vertexMap.values()) {
-            asm_result.append("group: ").append(groupCount++).append("\n");
-            Collections.sort(vertex.getMappedReadList(),
-                             (MappedRead read1, MappedRead read2) -> read1.getStart() - read2.getStart());
+            List<RefCpG> refCpGList = new ArrayList<>();
+            asm_result.append("group: ").append(groupCpGResults.size()).append("\t").append(
+                    vertex.getMappedReadList().size()).append("\n");
+            vertex.getMappedReadList().sort(
+                    (MappedRead read1, MappedRead read2) -> read1.getStart() - read2.getStart());
             for (MappedRead mappedRead : vertex.getMappedReadList()) {
                 asm_result.append(mappedRead.getId()).append(",");
             }
             asm_result.append("\n");
             asm_result.append("Covered CpG sites:\n");
             List<CpG> vertexCpGList = new ArrayList<>(vertex.getCoveredCpGSites());
-            Collections.sort(vertexCpGList, (CpG c1, CpG c2) -> c1.getPos() - c2.getPos());
+            vertexCpGList.sort((CpG c1, CpG c2) -> c1.getPos() - c2.getPos());
             for (CpG cpg : vertexCpGList) {
-                double methylCount = 0, totalCount = 0;
+                RefCpG refCpG = new RefCpG(cpg.getPos());
                 for (MappedRead mappedRead : vertex.getMappedReadList()) {
                     if (mappedRead.getFirstCpG().getPos() <= cpg.getPos() &&
                             mappedRead.getLastCpG().getPos() >= cpg.getPos()) {
                         if (mappedRead.getCpGMethylStatus(cpg.getPos()) == MethylStatus.C) {
-                            methylCount++;
+                            refCpG.addMethylCount(1);
+                        } else {
+                            refCpG.addNonMethylCount(1);
                         }
-                        totalCount++;
                     }
                 }
-                asm_result.append(String.format("%d-%.2f,", cpg.getPos(), methylCount / totalCount));
+                asm_result.append(String.format("%d-%.2f,", cpg.getPos(), refCpG.getMethylLevel()));
+                refCpGList.add(refCpG);
             }
             asm_result.append("\n");
+            groupCpGResults.add(refCpGList);
         }
-        asm_result.append("Number of groups:\t").append(groupCount).append("\n");
-        summary.append("\t").append(groupCount).append("\n");
-        String intervalSummary = summary.toString();
-        if (vertexMap.values().size() == 2) {
-            group2Writer.write(intervalSummary + "\t");
-            for (Vertex vertex : vertexMap.values()) {
-                group2Writer.write(vertex.getMappedReadList().size() + "\t");
-            }
-            group2Writer.write("\n");
-        }
+        asm_result.append("Number of groups:\t").append(vertexMap.values().size()).append("\n");
+        summary.append("\t").append(vertexMap.values().size());
         groupWriter.write(asm_result.toString());
+
 
         Map<Integer, Integer> cpgPosMap = cpgList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> 0));
         for (Vertex vertex : vertexMap.values()) {
@@ -110,11 +105,50 @@ public class DetectionWihMappedRead extends Detection {
             }
         }
 
-        SortedSet<Integer> sortedPosSet = new TreeSet<>(cpgPosMap.keySet());
-        for (Integer integer : sortedPosSet) {
+        List<Integer> sortedPosList = new ArrayList<>(cpgPosMap.keySet());
+        sortedPosList.sort(Integer::compareTo);
+        double sum = 0;
+        for (Integer integer : sortedPosList) {
             groupWriter.write(String.format("pos: %d\tcount: %d\n", integer, cpgPosMap.get(integer)));
+            sum += cpgPosMap.get(integer);
         }
+
+        Map<Integer, Integer> refCpGMap = new HashMap<>();
+        for (int i = 0; i < sortedPosList.size(); i++) {
+            // key is pos, value is index
+            refCpGMap.put(sortedPosList.get(i), i);
+        }
+
+        writeAlignedGroupResult(refCpGMap, groupCpGResults, intervalFile);
+
+        summary.append("\t").append(sum / sortedPosList.size()).append("\n");
         return summary.toString();
+    }
+
+    private void writeAlignedGroupResult(Map<Integer, Integer> refCpGMap, List<List<RefCpG>> groupCpGResult,
+                                         File intervalFile) throws IOException {
+        BufferedWriter alignedGroupWriter = new BufferedWriter(
+                new FileWriter(intervalFile.getName() + ".alignedGroups"));
+        // sort the cpg in each list first, then sort group list
+        groupCpGResult.forEach(group -> group.sort(RefCpG::compareTo));
+        groupCpGResult.sort((g1, g2) -> g1.get(0).getPos() - g2.get(0).getPos());
+
+        int startIndex = refCpGMap.get(groupCpGResult.get(0).get(0).getPos());
+        for (int i = 0; i < groupCpGResult.size(); i++) {
+            alignedGroupWriter.write(i + "\t");
+            int currIndex = refCpGMap.get(groupCpGResult.get(i).get(0).getPos());
+            // fill the gap
+            for (int j = 0; j < currIndex - startIndex; j++) {
+                alignedGroupWriter.write(Strings.repeat(".", 20));
+            }
+            for (RefCpG refCpG : groupCpGResult.get(i)) {
+                alignedGroupWriter.write(
+                        Strings.padEnd(String.format("%f(%d)", refCpG.getMethylLevel(), refCpG.getCoveredCount()), 20,
+                                       ' '));
+            }
+            alignedGroupWriter.write("\n");
+        }
+        alignedGroupWriter.close();
     }
 
     private void getClusters(StringBuilder asm_result, List<Edge> edgeList,
@@ -129,7 +163,7 @@ public class DetectionWihMappedRead extends Detection {
             }
             List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
             // if max weight <= 0, stop merge.
-            if (maxEdgeList.get(0).getWeight() <= 0) {
+            if (maxEdgeList.get(0).getWeight() < 0) {
                 break;
             } else {
                 // since edgeList is not empty, getMaxFromList always returns at least one element

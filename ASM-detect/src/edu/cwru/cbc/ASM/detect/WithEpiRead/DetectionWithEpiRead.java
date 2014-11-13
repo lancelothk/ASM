@@ -1,6 +1,8 @@
-package edu.cwru.cbc.ASM.detect;
+package edu.cwru.cbc.ASM.detect.WithEpiRead;
 
 import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
+import edu.cwru.cbc.ASM.commons.Utils;
+import edu.cwru.cbc.ASM.detect.Detection;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,10 +28,7 @@ public class DetectionWithEpiRead extends Detection {
     }
 
     private List<EpiRead> loadInterval() throws IOException {
-        List<EpiRead> epiReadList = new ArrayList<>();
-        Files.lines(intervalFile.toPath()).forEach(line -> epiReadList.add(new EpiRead(line, format)));
-        return epiReadList;
-
+        return Utils.readEpiReadFile(intervalFile, format);
 //        return Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(new LineProcessor<List<EpiRead>>() {
 //            private List<EpiRead> epiReadList = new ArrayList<>();
 //

@@ -20,9 +20,9 @@ import java.util.*;
  * Convert mapped reads into epigenome and split regions by continuous CpG coverage.
  */
 public class CPMR {
-    public static final int MIN_CONT_COVERAGE = 1;
-    public static final int MIN_INTERVAL_READS = 15;
-    public static final int MIN_INTERVAL_CPG = 5;
+    public static final int MIN_CONT_COVERAGE = 4;
+    public static final int MIN_INTERVAL_READS = 6;
+    public static final int MIN_INTERVAL_CPG = 1;
     public static int outputIntervalCount = 0;
 
 	public static void main(String[] args) throws IOException {
@@ -34,7 +34,7 @@ public class CPMR {
         String experimentPath = "/home/kehu/experiments/ASM/";
         splitEpigenome(experimentPath + "/data/ref/" + ref,
                        String.format("%s/data/%s_%s_chr22", experimentPath, cellLine, replicate),
-                       String.format("%s/result_%s_%s/intervals_epiread", experimentPath, cellLine, replicate));
+                       String.format("%s/result_%s_%s/intervals_newParameter", experimentPath, cellLine, replicate));
     }
 
 	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName,
@@ -49,7 +49,7 @@ public class CPMR {
 
         start = System.currentTimeMillis();
         List<RefCpG> refRefCpGs = new ArrayList<>(refMap.values());
-        Collections.sort(refRefCpGs, (RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
+        refRefCpGs.sort((RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
         System.out.println("cpg sorting complete");
         System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
@@ -75,7 +75,7 @@ public class CPMR {
         for (int i = 0; i < refRefCpGs.size(); i++) {
             RefCpG curr = refRefCpGs.get(i);
             RefCpG next = (i + 1) < refRefCpGs.size() ? refRefCpGs.get(i + 1) : null;
-            if (curr.getCoverage() <= MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
+            if (curr.getCoverage() < MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
                 cont = false;
 			} else {
 				if (!cont) {
@@ -105,8 +105,8 @@ public class CPMR {
                             String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
                                           endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpGPos,
                                           endCpGPos));
-//                    writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
-                    writeExtEpireadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);
+                    writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
+//                    writeExtEpireadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
