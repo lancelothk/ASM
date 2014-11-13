@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.align;
 
-import edu.cwru.cbc.ASM.align.DataType.Read;
-import edu.cwru.cbc.ASM.align.DataType.ReadComparator;
+import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.ReadComparator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class AlignReads {
                 try {
                     if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
                         String outputFileName = file.getAbsolutePath() + ".aligned";
-                        List<Read> readsList = readMappedReads(file);
+                        List<MappedRead> readsList = readMappedReads(file);
                         alignReads(readsList, outputFileName);
                     }
                 } catch (Exception e) {
@@ -39,13 +39,13 @@ public class AlignReads {
             }
         } else {
             String outputFileName = targetFileName + ".aligned";
-            List<Read> readsList = readMappedReads(targetFile);
+            List<MappedRead> readsList = readMappedReads(targetFile);
             alignReads(readsList, outputFileName);
         }
     }
 
-    public static ArrayList<Read> readMappedReads(File inputFile) {
-        ArrayList<Read> readsList = new ArrayList<>();
+    public static ArrayList<MappedRead> readMappedReads(File inputFile) {
+        ArrayList<MappedRead> readsList = new ArrayList<>();
         BufferedReader bufferedReader;
         try {
             bufferedReader = new BufferedReader(new FileReader(inputFile));
@@ -59,7 +59,8 @@ public class AlignReads {
                 if (!items[1].equals("+") && !items[1].equals("-")) {
                     System.err.println("invalid strand symbol!");
                 }
-                readsList.add(new Read(items[0], items[1].charAt(0), Long.parseLong(items[2]), Long.parseLong(items[3]),
+                readsList.add(new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
+                                             Integer.parseInt(items[3]),
                                        items[4], items[5]));
             }
             bufferedReader.close();
@@ -70,18 +71,18 @@ public class AlignReads {
         return readsList;
     }
 
-    public static void alignReads(List<Read> readsList, String outputFileName) {
+    public static void alignReads(List<MappedRead> readsList, String outputFileName) {
         // sort reads first
         Collections.sort(readsList, new ReadComparator());
         // set initial position
-        long initialPos = readsList.get(0).getStart();
+        int initialPos = readsList.get(0).getStart();
         BufferedWriter bufferedWriter;
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
             if (ref != null) {
                 bufferedWriter.write(String.format("ref:\t%s\n", ref));
             }
-            for (Read read : readsList) {
+            for (MappedRead read : readsList) {
                 bufferedWriter.write(read.toString(initialPos) + "\n");
             }
             bufferedWriter.close();

@@ -2,7 +2,11 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.CPMR.DataType.*;
+import edu.cwru.cbc.ASM.CPMR.DataType.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.CPMR.DataType.RefChr;
+import edu.cwru.cbc.ASM.commons.DataType.CpG;
+import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,20 +43,20 @@ public class CPMR {
         File output = new File(outputPath);
         output.mkdir();
         RefChr refChr = readReferenceGenome(referenceGenomeFileName);
-		Map<Integer, CpGSite> refMap = extractCpGSite(refChr.getRefString());
+        Map<Integer, RefCpG> refMap = extractCpGSite(refChr.getRefString());
         System.out.println("load refMap complete");
         System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
-        List<CpGSite> refCpGSites = new ArrayList<>(refMap.values());
-        Collections.sort(refCpGSites, (CpGSite c1, CpGSite c2) -> c1.getPos() - c2.getPos());
+        List<RefCpG> refRefCpGs = new ArrayList<>(refMap.values());
+        Collections.sort(refRefCpGs, (RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
         System.out.println("cpg sorting complete");
         System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         // assign cpg id after sorted
-        for (int i = 0; i < refCpGSites.size(); i++) {
-            refCpGSites.get(i).assignId(i);
+        for (int i = 0; i < refRefCpGs.size(); i++) {
+            refRefCpGs.get(i).assignId(i);
         }
         System.out.println("cpg id assignment complete");
         System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
@@ -65,22 +69,22 @@ public class CPMR {
 
         start = System.currentTimeMillis();
         // split regions by continuous CpG coverage
-		List<List<CpGSite>> cpgSiteIntervalList = new ArrayList<>();
-		boolean cont = true;
-		List<CpGSite> cpGSiteList = new ArrayList<>();
-		for (int i = 0; i < refCpGSites.size(); i++) {
-			CpGSite curr = refCpGSites.get(i);
-			CpGSite next = (i+1)<refCpGSites.size()?refCpGSites.get(i+1):null;
+        List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
+        boolean cont = true;
+        List<RefCpG> refCpGList = new ArrayList<>();
+        for (int i = 0; i < refRefCpGs.size(); i++) {
+            RefCpG curr = refRefCpGs.get(i);
+            RefCpG next = (i + 1) < refRefCpGs.size() ? refRefCpGs.get(i + 1) : null;
             if (curr.getCoverage() <= MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
                 cont = false;
 			} else {
 				if (!cont) {
-					cpgSiteIntervalList.add(cpGSiteList);
-					cpGSiteList = new ArrayList<>();
-				}
-				cpGSiteList.add(curr);
-				cont = hasCommonRead(curr, next);
-			}
+                    cpgSiteIntervalList.add(refCpGList);
+                    refCpGList = new ArrayList<>();
+                }
+                refCpGList.add(curr);
+                cont = hasCommonRead(curr, next);
+            }
 		}
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(
 				String.format("%s/%s-intervalSummary", outputPath, refChr.getChr())));
@@ -137,9 +141,9 @@ public class CPMR {
         mappedReadWriter.close();
     }
 
-	private static boolean hasCommonRead(CpGSite curr, CpGSite next) {
-		for (CpG cCpg : curr.getCpGList()) {
-			for (CpG nCpg : next.getCpGList()) {
+    private static boolean hasCommonRead(RefCpG curr, RefCpG next) {
+        for (CpG cCpg : curr.getCpGList()) {
+            for (CpG nCpg : next.getCpGList()) {
 				if (cCpg.getMappedRead() == nCpg.getMappedRead()){
 					return true;
 				}
@@ -148,17 +152,17 @@ public class CPMR {
 		return false;
 	}
 
-	private static List<MappedRead> readMappedReads(Map<Integer, CpGSite> refMap,
-													String mappedReadFileName, int refLength) throws IOException {
-		return Files.readLines(new File(mappedReadFileName), Charsets.UTF_8, new MappedReadLineProcessor(refMap, refLength));
+    private static List<MappedRead> readMappedReads(Map<Integer, RefCpG> refMap, String mappedReadFileName,
+                                                    int refLength) throws IOException {
+        return Files.readLines(new File(mappedReadFileName), Charsets.UTF_8, new MappedReadLineProcessor(refMap, refLength));
 	}
 
-	private static Map<Integer, CpGSite> extractCpGSite(String referenceGenomeString) {
-		// initialize hashmap with 1/1000 of reference size
-		Map<Integer, CpGSite> refMap = new HashMap<>(referenceGenomeString.length() / 1000);
-		for (int i = 0; i < referenceGenomeString.length() - 1; i++) {
-			if (referenceGenomeString.charAt(i) == 'C' && referenceGenomeString.charAt(i + 1) == 'G') {
-                refMap.put(i, new CpGSite(i));
+    private static Map<Integer, RefCpG> extractCpGSite(String referenceGenomeString) {
+        // initialize hashmap with 1/1000 of reference size
+        Map<Integer, RefCpG> refMap = new HashMap<>(referenceGenomeString.length() / 1000);
+        for (int i = 0; i < referenceGenomeString.length() - 1; i++) {
+            if (referenceGenomeString.charAt(i) == 'C' && referenceGenomeString.charAt(i + 1) == 'G') {
+                refMap.put(i, new RefCpG(i));
             }
 		}
         return refMap;

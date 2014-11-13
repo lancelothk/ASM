@@ -1,12 +1,14 @@
-package edu.cwru.cbc.ASM.detect;
+package edu.cwru.cbc.ASM.detect.WithMappedRead;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.detect.DataType.CpGSite;
+import edu.cwru.cbc.ASM.commons.DataType.CpG;
+import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
+import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 import edu.cwru.cbc.ASM.detect.DataType.Edge;
-import edu.cwru.cbc.ASM.detect.DataType.MappedRead;
 import edu.cwru.cbc.ASM.detect.DataType.Vertex;
-import edu.cwru.cbc.ASM.detect.Utils.MappedReadFileLineProcessor;
+import edu.cwru.cbc.ASM.detect.Detection;
 
 import java.io.*;
 import java.util.*;
@@ -19,12 +21,12 @@ import java.util.stream.Collectors;
 public class DetectionWihMappedRead extends Detection {
     private static final int MIN_READ_CPG = 2;
     private File intervalFile;
-    private long initPos;
+    private int initPos;
     private BufferedWriter groupWriter;
     private BufferedWriter group2Writer;
 
 
-    public DetectionWihMappedRead(File intervalFile, long initPos, BufferedWriter summaryWriter,
+    public DetectionWihMappedRead(File intervalFile, int initPos, BufferedWriter summaryWriter,
                                   BufferedWriter group2Writer) {
         this.intervalFile = intervalFile;
         this.initPos = initPos;
@@ -35,7 +37,7 @@ public class DetectionWihMappedRead extends Detection {
     public String call() throws Exception {
         // load input
         String reference = readRef(intervalFile);
-        List<CpGSite> cpgList = extractCpGSite(reference, initPos);
+        List<RefCpG> cpgList = extractCpGSite(reference, initPos);
         List<MappedRead> mappedReadList = Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(
                 new MappedReadFileLineProcessor());
         associateReadWithCpG(cpgList, mappedReadList);
@@ -46,12 +48,12 @@ public class DetectionWihMappedRead extends Detection {
 
         StringBuilder asm_result = new StringBuilder(intervalFile.getName() + "\n");
         StringBuilder summary = new StringBuilder(intervalFile.getName());
-        summary.append("\t" + (Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1));
-        summary.append("\t" + mappedReadList.size());
-        summary.append("\t" + cpgList.size());
+        summary.append("\t").append(Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1);
+        summary.append("\t").append(mappedReadList.size());
+        summary.append("\t").append(cpgList.size());
 
         List<Edge> edgeList = new ArrayList<>();
-        Map<Long, Vertex> vertexMap = new HashMap<>();
+        Map<String, Vertex> vertexMap = new HashMap<>();
 
         constructGraph(vertexMap, edgeList, mappedReadList);
         System.out.println(
@@ -62,33 +64,33 @@ public class DetectionWihMappedRead extends Detection {
         int groupCount = 0;
 
         for (Vertex vertex : vertexMap.values()) {
-            asm_result.append("group: " + groupCount++ + "\n");
+            asm_result.append("group: ").append(groupCount++).append("\n");
             Collections.sort(vertex.getMappedReadList(),
-                             (MappedRead read1, MappedRead read2) -> (int) (read1.getStart() - read2.getStart()));
+                             (MappedRead read1, MappedRead read2) -> read1.getStart() - read2.getStart());
             for (MappedRead mappedRead : vertex.getMappedReadList()) {
-                asm_result.append(mappedRead.getId() + ",");
+                asm_result.append(mappedRead.getId()).append(",");
             }
             asm_result.append("\n");
             asm_result.append("Covered CpG sites:\n");
-            List<CpGSite> cpGSiteList = new ArrayList<>(vertex.getCoveredCpGSites());
-            Collections.sort(cpGSiteList, (CpGSite c1, CpGSite c2) -> (int) (c1.getPos() - c2.getPos()));
-            for (CpGSite cpGSite : cpGSiteList) {
+            List<CpG> vertexCpGList = new ArrayList<>(vertex.getCoveredCpGSites());
+            Collections.sort(vertexCpGList, (CpG c1, CpG c2) -> c1.getPos() - c2.getPos());
+            for (CpG cpg : vertexCpGList) {
                 double methylCount = 0, totalCount = 0;
                 for (MappedRead mappedRead : vertex.getMappedReadList()) {
-                    if (mappedRead.getFirstCpG().getPos() <= cpGSite.getPos() &&
-                            mappedRead.getLastCpG().getPos() >= cpGSite.getPos()) {
-                        if (mappedRead.getCpGMethylStatus(cpGSite.getPos())) {
+                    if (mappedRead.getFirstCpG().getPos() <= cpg.getPos() &&
+                            mappedRead.getLastCpG().getPos() >= cpg.getPos()) {
+                        if (mappedRead.getCpGMethylStatus(cpg.getPos()) == MethylStatus.C) {
                             methylCount++;
                         }
                         totalCount++;
                     }
                 }
-                asm_result.append(String.format("%d-%.2f,", cpGSite.getPos(), methylCount / totalCount));
+                asm_result.append(String.format("%d-%.2f,", cpg.getPos(), methylCount / totalCount));
             }
             asm_result.append("\n");
         }
-        asm_result.append("Number of groups:\t" + groupCount + "\n");
-        summary.append("\t" + groupCount + "\n");
+        asm_result.append("Number of groups:\t").append(groupCount).append("\n");
+        summary.append("\t").append(groupCount).append("\n");
         String intervalSummary = summary.toString();
         if (vertexMap.values().size() == 2) {
             group2Writer.write(intervalSummary + "\t");
@@ -99,25 +101,24 @@ public class DetectionWihMappedRead extends Detection {
         }
         groupWriter.write(asm_result.toString());
 
-        Map<Long, Integer> cpgPosMap = cpgList.stream().collect(Collectors.toMap(CpGSite::getPos, cpgSite -> 0));
+        Map<Integer, Integer> cpgPosMap = cpgList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> 0));
         for (Vertex vertex : vertexMap.values()) {
-            for (CpGSite cpGSite : vertex.getCoveredCpGSites()) {
-                if (cpgPosMap.containsKey(cpGSite.getPos())) {
-                    cpgPosMap.put(cpGSite.getPos(), cpgPosMap.get(cpGSite.getPos()) + 1);
+            for (CpG cpg : vertex.getCoveredCpGSites()) {
+                if (cpgPosMap.containsKey(cpg.getPos())) {
+                    cpgPosMap.put(cpg.getPos(), cpgPosMap.get(cpg.getPos()) + 1);
                 }
             }
         }
 
-        SortedSet<Long> sortedPosSet = new TreeSet<>(cpgPosMap.keySet());
-        for (Long aLong : sortedPosSet) {
-            groupWriter.write(String.format("pos: %d\tcount: %d\n", aLong, cpgPosMap.get(aLong)));
+        SortedSet<Integer> sortedPosSet = new TreeSet<>(cpgPosMap.keySet());
+        for (Integer integer : sortedPosSet) {
+            groupWriter.write(String.format("pos: %d\tcount: %d\n", integer, cpgPosMap.get(integer)));
         }
         return summary.toString();
     }
 
     private void getClusters(StringBuilder asm_result, List<Edge> edgeList,
-                             Map<Long, Vertex> vertexMap) throws IOException {
-        long start = System.currentTimeMillis();
+                             Map<String, Vertex> vertexMap) throws IOException {
         // count how many tie situation occurs. For analysis use
         int tieWeightCounter = 0, tieIdCountCounter = 0, tieMethylPolarity = 0;
         // merge vertexes connected by positive weight edge
@@ -157,13 +158,12 @@ public class DetectionWihMappedRead extends Detection {
         asm_result.append(String.format("tied id counter:%d\n", tieIdCountCounter));
     }
 
-    private void mergeVertex(Edge edge, List<Edge> edgeList, Map<Long, Vertex> vertexMap) {
+    private void mergeVertex(Edge edge, List<Edge> edgeList, Map<String, Vertex> vertexMap) {
         Vertex left = edge.getLeft();
         Vertex right = edge.getRight();
         // merge right to left vertex
         left.addMappedRead(right.getMappedReadList());
-        left.addInnerWeight(edge.getWeight());
-        left.addCpGSites(right.getCoveredCpGSites());
+        left.addCpG(right.getCoveredCpGSites());
         //remove this edge and right vertex from graph
         edge.removeFromVertex();
         edgeList.remove(edge);
@@ -204,9 +204,6 @@ public class DetectionWihMappedRead extends Detection {
     /**
      * select items with max property value in the list.
      *
-     * @param itemList
-     * @param getProperty
-     * @param <T>
      * @return list contains items with max weight
      */
     private <T> List<T> getMaxFromList(List<T> itemList, Function<T, Integer> getProperty) {
@@ -227,9 +224,6 @@ public class DetectionWihMappedRead extends Detection {
     /**
      * select items with min property value in the list.
      *
-     * @param itemList
-     * @param getProperty
-     * @param <T>
      * @return list contains items with min weight
      */
     private <T> List<T> getMinFromList(List<T> itemList, Function<T, Integer> getProperty) {
@@ -247,7 +241,7 @@ public class DetectionWihMappedRead extends Detection {
         return minItemList;
     }
 
-    private void constructGraph(Map<Long, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
+    private void constructGraph(Map<String, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
         // visit all possible edges once.
         for (int i = 0; i < mappedReadList.size(); i++) {
             // only use reads which contains at least two Cpg sites
@@ -255,7 +249,7 @@ public class DetectionWihMappedRead extends Detection {
                 for (int j = i + 1; j < mappedReadList.size(); j++) {
                     int score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
                     if (score != Integer.MIN_VALUE) {
-                        long idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
+                        String idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
                         if (!vertexMap.containsKey(idI)) {
                             vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
                         }
@@ -273,10 +267,10 @@ public class DetectionWihMappedRead extends Detection {
         if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
                 readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
             int score = 0;
-            for (CpGSite cpgA : readA.getCpgList()) {
-                for (CpGSite cpgB : readB.getCpgList()) {
+            for (CpG cpgA : readA.getCpgList()) {
+                for (CpG cpgB : readB.getCpgList()) {
                     if (cpgA.getPos() == cpgB.getPos()) {
-                        if (cpgA.isMethylated() != cpgB.isMethylated()) {
+                        if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
                             score--;
                         } else {
                             score++;
@@ -302,23 +296,22 @@ public class DetectionWihMappedRead extends Detection {
         }
     }
 
-    private void associateReadWithCpG(List<CpGSite> cpgList, List<MappedRead> mappedReadList) {
+    private void associateReadWithCpG(List<RefCpG> cpgList, List<MappedRead> mappedReadList) {
         for (MappedRead read : mappedReadList) {
-            for (CpGSite cpg : cpgList) {
+            for (RefCpG cpg : cpgList) {
                 if (cpg.getPos() >= read.getStart() && cpg.getPos() + 1 <= read.getEnd()) {
-                    cpg.addAssociatedRead(read);
-                    read.addCpG(new CpGSite(cpg.getPos(), read.getCpGMethylStatus(cpg.getPos())));
+                    read.addCpG(new CpG(cpg, read.getCpGMethylStatus(cpg.getPos())));
                 }
             }
         }
     }
 
-    private List<CpGSite> extractCpGSite(String reference, long initPos) {
+    private List<RefCpG> extractCpGSite(String reference, int initPos) {
         reference = reference.replace(" ", "");
-        List<CpGSite> cpgList = new ArrayList<>();
+        List<RefCpG> cpgList = new ArrayList<>();
         for (int i = 0; i < reference.length() - 1; i++) {
             if (reference.charAt(i) == 'C' && reference.charAt(i + 1) == 'G') {
-                cpgList.add(new CpGSite(initPos + i));
+                cpgList.add(new RefCpG(initPos + i));
             }
         }
         return cpgList;

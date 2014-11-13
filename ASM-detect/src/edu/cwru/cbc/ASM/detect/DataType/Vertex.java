@@ -1,5 +1,8 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
+import edu.cwru.cbc.ASM.commons.DataType.CpG;
+import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+
 import java.util.*;
 
 /**
@@ -7,33 +10,32 @@ import java.util.*;
  * Vertex in graph.
  */
 public class Vertex {
-    private long id;
+    private String id;
     private List<Edge> adjEdges;
     private List<MappedRead> mappedReadList;
-    private Map<Long, CpGSite> cpGSiteMap;
+    private Map<Integer, CpG> cpGMap;
     private int methylPolarity;
-    private int innerWeightSum;
 
     public Vertex(MappedRead mappedRead) {
         this.id = mappedRead.getId();
         this.adjEdges = new ArrayList<>();
         this.mappedReadList = new ArrayList<>();
         this.mappedReadList.add(mappedRead);
-        this.cpGSiteMap = new HashMap<>();
+        this.cpGMap = new HashMap<>();
         this.methylPolarity = mappedRead.getMethylPolarity();
-        addCpGSites(mappedRead.getCpgList());
+        addCpG(mappedRead.getCpgList());
     }
 
-    public void addCpGSites(Collection<CpGSite> cpGSiteList) {
-        for (CpGSite cpGSite : cpGSiteList) {
-            if (!cpGSiteMap.containsKey(cpGSite.getPos())) {
-                cpGSiteMap.put(cpGSite.getPos(), cpGSite);
+    public void addCpG(Collection<CpG> cpgList) {
+        for (CpG cpg : cpgList) {
+            if (!cpGMap.containsKey(cpg.getPos())) {
+                cpGMap.put(cpg.getPos(), cpg);
             }
         }
     }
 
-    public Collection<CpGSite> getCoveredCpGSites() {
-        return cpGSiteMap.values();
+    public Collection<CpG> getCoveredCpGSites() {
+        return cpGMap.values();
     }
 
     public void addEdge(Edge edge) {
@@ -49,12 +51,8 @@ public class Vertex {
         this.mappedReadList.addAll(mappedReadList);
     }
 
-    public long getId() {
+    public String getId() {
         return id;
-    }
-
-    public void addInnerWeight(int weight) {
-        this.innerWeightSum += weight;
     }
 
     public List<Edge> getAdjEdges() {

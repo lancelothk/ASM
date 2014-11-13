@@ -20,6 +20,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="guava" level="project" />
+    <orderEntry type="module" module-name="ASM-commons" />
   </component>
 </module>
-

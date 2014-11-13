@@ -1,5 +1,7 @@
 package edu.cwru.cbc.ASM.detect;
 
+import edu.cwru.cbc.ASM.detect.WithMappedRead.DetectionWihMappedRead;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -25,10 +27,10 @@ public class DetectASM {
 //        detectASM.execute("", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
         // test reads setting
-        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
-        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
-        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
-        String group2ResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.group2Result";
+        String pathName = "/home/lancelothk/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
+        String summaryFileName = "/home/lancelothk/IdeaProjects/ASM/ASM-detect/testData/test.summary";
+        String groupResultFileName = "/home/lancelothk/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
+        String group2ResultFileName = "/home/lancelothk/IdeaProjects/ASM/ASM-detect/testData/test.group2Result";
 
         // TODO mkdir if not exist
         String cellLine = "i90";
@@ -63,14 +65,14 @@ public class DetectASM {
                         !file.getName().endsWith("intervalSummary")) {
                     String[] items = file.getName().split("-");
                     Future<String> future = executor.submit(
-                            new DetectionWihMappedRead(file, Long.parseLong(items[1]), groupWriter, group2Writer));
+                            new DetectionWihMappedRead(file, Integer.parseInt(items[1]), groupWriter, group2Writer));
                     futureList.add(future);
                 }
             }
         } else {
             String[] items = path.getName().split("-");
             Future<String> future = executor.submit(
-                    new DetectionWihMappedRead(path, Long.parseLong(items[1]), groupWriter, group2Writer));
+                    new DetectionWihMappedRead(path, Integer.parseInt(items[1]), groupWriter, group2Writer));
             futureList.add(future);
         }
 

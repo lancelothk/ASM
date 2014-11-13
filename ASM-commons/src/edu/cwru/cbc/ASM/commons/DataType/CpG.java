@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.CPMR.DataType;
+package edu.cwru.cbc.ASM.commons.DataType;
 
 /**
  * Created by lancelothk on 5/27/14.
@@ -6,12 +6,17 @@ package edu.cwru.cbc.ASM.CPMR.DataType;
  */
 public class CpG {
 	private MappedRead mappedRead; // link to MappedRead
-	private CpGSite cpGSite; // link to CpGSite
+	private RefCpG refCpG; // link to CpGSite
 	private MethylStatus methylStatus;
 
-	public CpG(MappedRead mappedRead, CpGSite cpGSite) {
+	public CpG(MappedRead mappedRead, RefCpG refCpG) {
 		this.mappedRead = mappedRead;
-		this.cpGSite = cpGSite;
+		this.refCpG = refCpG;
+	}
+
+	public CpG(RefCpG refCpG, MethylStatus methylStatus) {
+		this.refCpG = refCpG;
+		this.methylStatus = methylStatus;
 	}
 
 	public MethylStatus getMethylStatus() {
@@ -26,11 +31,11 @@ public class CpG {
 		return mappedRead;
 	}
 
-	public CpGSite getCpGSite() {
-		return cpGSite;
+	public RefCpG getRefCpG() {
+		return refCpG;
 	}
 
 	public int getPos(){
-		return this.cpGSite.getPos();
+		return this.refCpG.getPos();
 	}
 }

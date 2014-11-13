@@ -1,18 +1,18 @@
-package edu.cwru.cbc.ASM.CPMR.DataType;
+package edu.cwru.cbc.ASM.commons.DataType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by lancelothk on 5/27/14.
- * Store CpG site information in reference genome.
+ * Store reference CpG site information in reference genome.
  */
-public class CpGSite {
+public class RefCpG {
 	private int pos;
 	private int id;
 	private List<CpG> cpGList;
 
-	public CpGSite(int pos) {
+	public RefCpG(int pos) {
 		this.pos = pos;
 		this.cpGList = new ArrayList<>();
 	}

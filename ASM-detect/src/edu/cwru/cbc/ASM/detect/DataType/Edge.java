@@ -76,8 +76,8 @@ public class Edge {
 
     private String calcId() {
         // smaller id first
-        this.id =
-                left.getId() <= right.getId() ? left.getId() + "-" + right.getId() : right.getId() + "-" + left.getId();
+        this.id = left.getId().compareTo(right.getId()) < 0 ?
+                left.getId() + "-" + right.getId() : right.getId() + "-" + left.getId();
         return id;
     }
 }

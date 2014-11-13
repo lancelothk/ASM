@@ -1,6 +1,6 @@
 package edu.cwru.cbc.ASM.align;
 
-import edu.cwru.cbc.ASM.align.DataType.Read;
+import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class ReadTest {
 	@Test
 	public void testToString() throws Exception {
-		Read read = new Read("6", '+',10,20,"1234567890","test");
+		MappedRead read = new MappedRead("6", '+', 10, 20, "1234567890", "test");
 		assertEquals(read.toString(5), "6\t+\t10\t20\t.....1234567890\ttest");
 		System.out.println(read.toString(5));
 	}
