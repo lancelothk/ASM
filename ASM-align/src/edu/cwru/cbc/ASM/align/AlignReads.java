@@ -14,30 +14,30 @@ import java.util.List;
 public class AlignReads {
     private static String ref;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_newParameter_large/chr22-15240456-15242527";
+            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_newParameter/chr22-37232265-37233758";
         } else {
             targetFileName = args[0];
         }
-        File targetFile = new File(targetFileName);
+        AlignReads.align(targetFileName);
+    }
+
+    public static void align(String fileName) {
+        File targetFile = new File(fileName);
         if (targetFile.isDirectory()) {
             File[] files = targetFile.listFiles();
             assert files != null;
             for (File file : files) {
-                try {
-                    if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
-                        String outputFileName = file.getAbsolutePath() + ".aligned";
-                        List<MappedRead> readsList = readMappedReads(file);
-                        alignReads(readsList, outputFileName);
-                    }
-                } catch (Exception e) {
-                    throw new Exception(file.getAbsolutePath(), e);
+                if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
+                    String outputFileName = file.getAbsolutePath() + ".aligned";
+                    List<MappedRead> readsList = readMappedReads(file);
+                    alignReads(readsList, outputFileName);
                 }
             }
         } else {
-            String outputFileName = targetFileName + ".aligned";
+            String outputFileName = fileName + ".aligned";
             List<MappedRead> readsList = readMappedReads(targetFile);
             alignReads(readsList, outputFileName);
         }
@@ -59,8 +59,7 @@ public class AlignReads {
                     System.err.println("invalid strand symbol!");
                 }
                 readsList.add(new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
-                                             Integer.parseInt(items[3]),
-                                       items[4], items[5]));
+                                             Integer.parseInt(items[3]), items[4], items[5]));
             }
             bufferedReader.close();
         } catch (IOException e) {

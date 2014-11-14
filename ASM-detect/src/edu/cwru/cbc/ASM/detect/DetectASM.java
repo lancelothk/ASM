@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.detect;
 
+import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DetectionWihMappedRead;
 
 import java.io.BufferedWriter;
@@ -27,28 +28,29 @@ public class DetectASM {
 //        detectASM.execute("", 1);
 //		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
         // test reads setting
-        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
-        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
-        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
-        String group2ResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.group2Result";
+//        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
+//        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
+//        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
+//        String group2ResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.group2Result";
 
         // TODO mkdir if not exist
         String cellLine = "i90";
         String replicate = "r1";
-        String name = "_newParameter_large";
+        String name = "_chr20";
 
-//        String pathName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals%s/chr22-15240456-15242527", cellLine, replicate,
-//                                        name);
-//
-//        String summaryFileName = String.format(
-//                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary%3$s", cellLine, replicate,
-//                name);
-//        String groupResultFileName = String.format(
-//                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups%3$s", cellLine, replicate,
-//                name);
-//        String group2ResultFileName = String.format(
-//                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2%3$s", cellLine, replicate,
-//                name);
+        String pathName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals%s/chr20-56850168-56850901",
+                                        cellLine, replicate, name);
+        AlignReads.align(pathName);
+
+        String summaryFileName = String.format(
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary%3$s", cellLine, replicate,
+                name);
+        String groupResultFileName = String.format(
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups%3$s", cellLine, replicate,
+                name);
+        String group2ResultFileName = String.format(
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2%3$s", cellLine, replicate,
+                name);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\n");

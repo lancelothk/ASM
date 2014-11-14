@@ -9,11 +9,11 @@ import static java.lang.Math.abs;
 public class Edge {
     private Vertex left;
     private Vertex right;
-    private int weight;
+    private double weight;
     private String id = null;
 
-    public Edge(Vertex left, Vertex right, int weight) {
-		if (left == right){
+    public Edge(Vertex left, Vertex right, double weight) {
+        if (left == right){
 			throw new RuntimeException("same vertex in one edge!");
 		}
         left.addEdge(this);
@@ -49,11 +49,11 @@ public class Edge {
         return right;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 

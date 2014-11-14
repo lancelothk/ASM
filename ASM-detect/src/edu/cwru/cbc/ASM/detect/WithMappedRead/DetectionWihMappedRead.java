@@ -38,6 +38,7 @@ public class DetectionWihMappedRead extends Detection {
         List<RefCpG> cpgList = extractCpGSite(reference, initPos);
         List<MappedRead> mappedReadList = Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(
                 new MappedReadFileLineProcessor());
+        mappedReadList.stream().filter(read -> read.getCpgList().size() >= MIN_READ_CPG);
         associateReadWithCpG(cpgList, mappedReadList);
         String[] items = intervalFile.getName().split("-");
         if (items.length != 3) {
@@ -128,7 +129,7 @@ public class DetectionWihMappedRead extends Detection {
     private void writeAlignedGroupResult(Map<Integer, Integer> refCpGMap, List<List<RefCpG>> groupCpGResult,
                                          File intervalFile) throws IOException {
         BufferedWriter alignedGroupWriter = new BufferedWriter(
-                new FileWriter(intervalFile.getName() + ".alignedGroups"));
+                new FileWriter(intervalFile.getAbsolutePath() + ".alignedGroups"));
         // sort the cpg in each list first, then sort group list
         groupCpGResult.forEach(group -> group.sort(RefCpG::compareTo));
         groupCpGResult.sort((g1, g2) -> g1.get(0).getPos() - g2.get(0).getPos());
@@ -139,11 +140,11 @@ public class DetectionWihMappedRead extends Detection {
             int currIndex = refCpGMap.get(groupCpGResult.get(i).get(0).getPos());
             // fill the gap
             for (int j = 0; j < currIndex - startIndex; j++) {
-                alignedGroupWriter.write(Strings.repeat(".", 20));
+                alignedGroupWriter.write(Strings.repeat(".", 10));
             }
             for (RefCpG refCpG : groupCpGResult.get(i)) {
                 alignedGroupWriter.write(
-                        Strings.padEnd(String.format("%f(%d)", refCpG.getMethylLevel(), refCpG.getCoveredCount()), 20,
+                        Strings.padEnd(String.format("%.2f(%d)", refCpG.getMethylLevel(), refCpG.getCoveredCount()), 10,
                                        ' '));
             }
             alignedGroupWriter.write("\n");
@@ -240,9 +241,9 @@ public class DetectionWihMappedRead extends Detection {
      *
      * @return list contains items with max weight
      */
-    private <T> List<T> getMaxFromList(List<T> itemList, Function<T, Integer> getProperty) {
+    private <T> List<T> getMaxFromList(List<T> itemList, Function<T, Double> getProperty) {
         List<T> maxItemList = new ArrayList<>();
-        int maxValue = Integer.MIN_VALUE;
+        double maxValue = Integer.MIN_VALUE;
         for (T item : itemList) {
             if (getProperty.apply(item) > maxValue) {
                 maxItemList.clear();
@@ -278,29 +279,26 @@ public class DetectionWihMappedRead extends Detection {
     private void constructGraph(Map<String, Vertex> vertexMap, List<Edge> edgeList, List<MappedRead> mappedReadList) {
         // visit all possible edges once.
         for (int i = 0; i < mappedReadList.size(); i++) {
-            // only use reads which contains at least two Cpg sites
-            if (mappedReadList.get(i).getCpgList().size() >= MIN_READ_CPG) {
-                for (int j = i + 1; j < mappedReadList.size(); j++) {
-                    int score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
-                    if (score != Integer.MIN_VALUE) {
-                        String idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
-                        if (!vertexMap.containsKey(idI)) {
-                            vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
-                        }
-                        if (!vertexMap.containsKey(idJ)) {
-                            vertexMap.put(idJ, new Vertex(mappedReadList.get(j)));
-                        }
-                        edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
+            for (int j = i + 1; j < mappedReadList.size(); j++) {
+                double score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
+                if (score != Double.MIN_VALUE) {
+                    String idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
+                    if (!vertexMap.containsKey(idI)) {
+                        vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
                     }
+                    if (!vertexMap.containsKey(idJ)) {
+                        vertexMap.put(idJ, new Vertex(mappedReadList.get(j)));
+                    }
+                    edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
                 }
             }
         }
     }
 
-    private int checkCompatible(MappedRead readA, MappedRead readB) {
+    private double checkCompatible(MappedRead readA, MappedRead readB) {
         if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
                 readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
-            int score = 0;
+            int score = 0, count = 0;
             for (CpG cpgA : readA.getCpgList()) {
                 for (CpG cpgB : readB.getCpgList()) {
                     if (cpgA.getPos() == cpgB.getPos()) {
@@ -309,13 +307,14 @@ public class DetectionWihMappedRead extends Detection {
                         } else {
                             score++;
                         }
+                        count++;
                     }
                 }
             }
-            return score;
+            return score / (double) count;
         } else {
             // don't have overlapped CpG, non-connected
-            return Integer.MIN_VALUE;
+            return Double.MIN_VALUE;
         }
     }
 

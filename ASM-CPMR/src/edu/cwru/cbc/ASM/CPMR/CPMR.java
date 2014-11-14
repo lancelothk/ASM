@@ -28,13 +28,13 @@ public class CPMR {
 	public static void main(String[] args) throws IOException {
 //		splitEpigenome(args[0], args[1], args[2]);
 
-        String ref = "hg18_chr22.fa";
+        String ref = "hg18_chr20.fa";
         String cellLine = "i90";
         String replicate = "r1";
         String experimentPath = "/home/kehu/experiments/ASM/";
         splitEpigenome(experimentPath + "/data/ref/" + ref,
-                       String.format("%s/data/%s_%s_chr22", experimentPath, cellLine, replicate),
-                       String.format("%s/result_%s_%s/intervals_newParameter", experimentPath, cellLine, replicate));
+                       String.format("%s/data/%s_%s_chr20", experimentPath, cellLine, replicate),
+                       String.format("%s/result_%s_%s/intervals_chr20", experimentPath, cellLine, replicate));
     }
 
 	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName,
