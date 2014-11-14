@@ -33,13 +33,17 @@ public class DetectionWihMappedRead extends Detection {
     }
 
     public String call() throws Exception {
+        // align read
+//        AlignReads.align(intervalFile.getAbsolutePath());
+
         // load input
         String reference = readRef(intervalFile);
         List<RefCpG> cpgList = extractCpGSite(reference, initPos);
         List<MappedRead> mappedReadList = Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(
                 new MappedReadFileLineProcessor());
-        mappedReadList.stream().filter(read -> read.getCpgList().size() >= MIN_READ_CPG);
         associateReadWithCpG(cpgList, mappedReadList);
+        mappedReadList = mappedReadList.stream().filter(read -> read.getCpgList().size() >= MIN_READ_CPG).collect(
+                Collectors.toList());
         String[] items = intervalFile.getName().split("-");
         if (items.length != 3) {
             throw new RuntimeException("illegal interval file name format!");
@@ -79,7 +83,7 @@ public class DetectionWihMappedRead extends Detection {
                 for (MappedRead mappedRead : vertex.getMappedReadList()) {
                     if (mappedRead.getFirstCpG().getPos() <= cpg.getPos() &&
                             mappedRead.getLastCpG().getPos() >= cpg.getPos()) {
-                        if (mappedRead.getCpGMethylStatus(cpg.getPos()) == MethylStatus.C) {
+                        if (mappedRead.getMethylStatus(cpg.getPos()) == MethylStatus.C) {
                             refCpG.addMethylCount(1);
                         } else {
                             refCpG.addNonMethylCount(1);
@@ -90,6 +94,7 @@ public class DetectionWihMappedRead extends Detection {
                 refCpGList.add(refCpG);
             }
             asm_result.append("\n");
+            refCpGList.sort(RefCpG::compareTo);
             groupCpGResults.add(refCpGList);
         }
         asm_result.append("Number of groups:\t").append(vertexMap.values().size()).append("\n");
@@ -120,7 +125,7 @@ public class DetectionWihMappedRead extends Detection {
             refCpGMap.put(sortedPosList.get(i), i);
         }
 
-        writeAlignedGroupResult(refCpGMap, groupCpGResults, intervalFile);
+//        writeAlignedGroupResult(refCpGMap, groupCpGResults, intervalFile);
 
         summary.append("\t").append(sum / sortedPosList.size()).append("\n");
         return summary.toString();
@@ -131,12 +136,10 @@ public class DetectionWihMappedRead extends Detection {
         BufferedWriter alignedGroupWriter = new BufferedWriter(
                 new FileWriter(intervalFile.getAbsolutePath() + ".alignedGroups"));
         // sort the cpg in each list first, then sort group list
-        groupCpGResult.forEach(group -> group.sort(RefCpG::compareTo));
         groupCpGResult.sort((g1, g2) -> g1.get(0).getPos() - g2.get(0).getPos());
 
         int startIndex = refCpGMap.get(groupCpGResult.get(0).get(0).getPos());
         for (int i = 0; i < groupCpGResult.size(); i++) {
-            alignedGroupWriter.write(i + "\t");
             int currIndex = refCpGMap.get(groupCpGResult.get(i).get(0).getPos());
             // fill the gap
             for (int j = 0; j < currIndex - startIndex; j++) {
@@ -333,7 +336,11 @@ public class DetectionWihMappedRead extends Detection {
         for (MappedRead read : mappedReadList) {
             for (RefCpG cpg : cpgList) {
                 if (cpg.getPos() >= read.getStart() && cpg.getPos() + 1 <= read.getEnd()) {
-                    read.addCpG(new CpG(cpg, read.getCpGMethylStatus(cpg.getPos())));
+                    // ignore known methyl CpG
+                    MethylStatus methylStatus = read.getMethylStatus(cpg.getPos());
+                    if (methylStatus != MethylStatus.N) {
+                        read.addCpG(new CpG(cpg, methylStatus));
+                    }
                 }
             }
         }

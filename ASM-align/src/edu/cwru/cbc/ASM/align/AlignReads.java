@@ -56,6 +56,7 @@ public class AlignReads {
                 }
                 String[] items = line.split("\t");
                 if (!items[1].equals("+") && !items[1].equals("-")) {
+                    System.err.println(line);
                     System.err.println("invalid strand symbol!");
                 }
                 readsList.add(new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),

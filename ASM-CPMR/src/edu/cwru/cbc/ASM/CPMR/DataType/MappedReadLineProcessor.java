@@ -51,8 +51,11 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		for (int i = start; i < end; i++) {
 			if (refMap.containsKey(i)) {
 				CpG cpg = new CpG(mappedRead, refMap.get(i));
-				cpg.setMethylStatus(extractMethylStatus(items[1], items[4].substring(i - start, i - start + 2)));
-				mappedRead.addCpG(cpg);
+				cpg.setMethylStatus(mappedRead.getMethylStatus(i));
+				// ignore unknown methyl CpG
+				if (cpg.getMethylStatus() != MethylStatus.N) {
+					mappedRead.addCpG(cpg);
+				}
 				i++;
 			}
 		}
@@ -76,43 +79,6 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
 		countCoverCpG += (cpgCount > 0 ? 1 : 0);
 		return true;
-	}
-
-	private MethylStatus extractMethylStatus(String strand, String sequence) {
-		if (sequence.length() == 1) {
-			return MethylStatus.N;
-		} else if (sequence.length() > 2) {
-			throw new RuntimeException("invalid input cpg sequence:\t" + sequence);
-		}
-		// only consider 'C' position in CpG. Ignore the char in 'G' position
-		switch (strand) {
-			case "+": {
-				// CN is methylated, TN is non-methylated
-				char cbp = sequence.charAt(0);
-				char gbp = sequence.charAt(1);
-				if (cbp == 'C') {
-					return MethylStatus.C;
-				} else if (cbp == 'T') {
-					return MethylStatus.T;
-				} else {
-					return MethylStatus.N;
-				}
-			}
-			case "-": {
-				// NC is methylated, NT is non-methylated
-				char cbp = sequence.charAt(1);
-				char gbp = sequence.charAt(0);
-				if (cbp == 'C') {  // for complementary bp, 'G'
-					return MethylStatus.C;
-				} else if (cbp == 'T') { // for complementary bp, 'A'
-					return MethylStatus.T;
-				} else {
-					return MethylStatus.N;
-				}
-			}
-			default:
-				throw new RuntimeException("illegal strand!");
-		}
 	}
 
 	@Override

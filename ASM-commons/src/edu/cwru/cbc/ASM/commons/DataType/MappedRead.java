@@ -58,6 +58,38 @@ public class MappedRead {
         return end;
     }
 
+    public MethylStatus getMethylStatus(int pos) {
+        // only consider 'C' position in CpG. Ignore the char in 'G' position
+        switch (strand) {
+            case '+': {
+                // CN is methylated, TN is non-methylated
+                char cbp = sequence.charAt(pos - start);
+                char gbp = sequence.charAt(pos - start + 1);
+                if (cbp == 'C') {
+                    return MethylStatus.C;
+                } else if (cbp == 'T') {
+                    return MethylStatus.T;
+                } else {
+                    return MethylStatus.N;
+                }
+            }
+            case '-': {
+                // NC is methylated, NT is non-methylated
+                char cbp = sequence.charAt(pos - start + 1);
+                char gbp = sequence.charAt(pos - start);
+                if (cbp == 'C') {  // for complementary bp, 'G'
+                    return MethylStatus.C;
+                } else if (cbp == 'T') { // for complementary bp, 'A'
+                    return MethylStatus.T;
+                } else {
+                    return MethylStatus.N;
+                }
+            }
+            default:
+                throw new RuntimeException("illegal strand!");
+        }
+    }
+
     public String getComplementarySequence() {
         StringBuilder stringBuilder = new StringBuilder();
         for (char c : sequence.toCharArray()) {
@@ -118,34 +150,6 @@ public class MappedRead {
                 break;
             default:
                 throw new RuntimeException("Unknown MethylStatus type!");
-        }
-    }
-
-    public MethylStatus getCpGMethylStatus(int pos) {
-        if (strand == '+') {
-            // CG is methylated, TG is non-methylated, others are ignored.
-            char cbp = sequence.charAt(pos - start);
-            char gbp = sequence.charAt(pos - start + 1);
-            if (cbp == 'C') {
-                return MethylStatus.C;
-            } else if (cbp == 'T') {
-                return MethylStatus.T;
-            } else {
-                return MethylStatus.N;
-            }
-        } else if (strand == '-') {
-            // GC is methylated, GT is non-methylated, others are ignored.
-            char cbp = sequence.charAt(pos - start + 1);
-            char gbp = sequence.charAt(pos - start);
-            if (cbp == 'C') {  // for complementary bp, 'G'
-                return MethylStatus.C;
-            } else if (cbp == 'T') { // for complementary bp, 'A'
-                return MethylStatus.T;
-            } else {
-                return MethylStatus.N;
-            }
-        } else {
-            throw new RuntimeException("illegal strand!");
         }
     }
 

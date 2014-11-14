@@ -21,8 +21,8 @@ import java.util.*;
  */
 public class CPMR {
     public static final int MIN_CONT_COVERAGE = 4;
-    public static final int MIN_INTERVAL_READS = 6;
-    public static final int MIN_INTERVAL_CPG = 1;
+    public static final int MIN_INTERVAL_READS = 10;
+    public static final int MIN_INTERVAL_CPG = 5;
     public static int outputIntervalCount = 0;
 
 	public static void main(String[] args) throws IOException {

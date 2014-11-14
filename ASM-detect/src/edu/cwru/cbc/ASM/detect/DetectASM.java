@@ -1,6 +1,5 @@
 package edu.cwru.cbc.ASM.detect;
 
-import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DetectionWihMappedRead;
 
 import java.io.BufferedWriter;
@@ -23,50 +22,46 @@ public class DetectASM {
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
         long start = System.currentTimeMillis();
-        // call on single file
-//        detectASM.execute("/home/kehu/ASM_result/chr20-56897421-56898208.reads", 56897421);
-//        detectASM.execute("", 1);
-//		detectASM.execute(new File("/home/lancelothk/chr20_test/chr20-56895353-56895567"), 56895353);
         // test reads setting
 //        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
 //        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
 //        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
-//        String group2ResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.group2Result";
 
         // TODO mkdir if not exist
         String cellLine = "i90";
         String replicate = "r1";
-        String name = "_chr20";
+        String name = "chr20";
 
-        String pathName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals%s/chr20-56850168-56850901",
-                                        cellLine, replicate, name);
-        AlignReads.align(pathName);
+//        String fileName = "chr20-29294521-29294805";
+        String fileName = "";
+
+        String pathName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals_%s/%s", cellLine, replicate,
+                                        name, fileName);
 
         String summaryFileName = String.format(
-                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_summary%3$s", cellLine, replicate,
-                name);
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_%3$s_ASM_summary_%4$s", cellLine, replicate,
+                name, fileName);
         String groupResultFileName = String.format(
-                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_groups%3$s", cellLine, replicate,
-                name);
-        String group2ResultFileName = String.format(
-                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_chr22_ASM_group2%3$s", cellLine, replicate,
-                name);
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_%3$s_ASM_groups_%4$s", cellLine, replicate, name,
+                fileName);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\n");
         BufferedWriter groupWriter = new BufferedWriter(new FileWriter(groupResultFileName));
         File path = new File(pathName);
 
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
         List<Future<String>> futureList = new ArrayList<>();
         if (path.isDirectory()) {
             for (File file : path.listFiles()) {
                 if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
-                        !file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~")) {
+                        !file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~") &&
+                        !file.getName().endsWith(".alignedGroups")) {
                     String[] items = file.getName().split("-");
                     Future<String> future = executor.submit(
                             new DetectionWihMappedRead(file, Integer.parseInt(items[1]), groupWriter));
                     futureList.add(future);
+
                 }
             }
         } else {
@@ -78,7 +73,7 @@ public class DetectASM {
 
         for (Future<String> stringFuture : futureList) {
             summaryWriter.write(stringFuture.get());
-            //System.out.println(stringFuture.get());
+//            System.out.println(stringFuture.get());
         }
         executor.shutdown();
 
