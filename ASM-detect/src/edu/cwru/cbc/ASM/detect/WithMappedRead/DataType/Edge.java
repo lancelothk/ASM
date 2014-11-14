@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.DataType;
+package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
 import static java.lang.Math.abs;
 

@@ -17,6 +17,20 @@ public class Utils {
         List<EpiRead> epiReadList = new ArrayList<>();
         Files.lines(inputFile.toPath()).forEach(line -> epiReadList.add(EpiRead.ParseEpiRead(line, format)));
         return epiReadList;
+//        return Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(new LineProcessor<List<EpiRead>>() {
+//            private List<EpiRead> epiReadList = new ArrayList<>();
+//
+//            @Override
+//            public boolean processLine(String s) throws IOException {
+//                epiReadList.add(new EpiRead(s, format));
+//                return true;
+//            }
+//
+//            @Override
+//            public List<EpiRead> getResult() {
+//                return epiReadList;
+//            }
+//        });
     }
 
 }

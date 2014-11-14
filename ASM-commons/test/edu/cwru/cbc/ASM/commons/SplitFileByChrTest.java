@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.DataType;
+package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
 
 import edu.cwru.cbc.ASM.commons.SplitFileByChr;

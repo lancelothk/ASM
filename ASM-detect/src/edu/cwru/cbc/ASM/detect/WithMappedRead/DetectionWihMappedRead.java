@@ -7,9 +7,9 @@ import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
-import edu.cwru.cbc.ASM.detect.DataType.Edge;
-import edu.cwru.cbc.ASM.detect.DataType.Vertex;
 import edu.cwru.cbc.ASM.detect.Detection;
+import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Edge;
+import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
 
 import java.io.*;
 import java.util.*;
