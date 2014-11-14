@@ -3,7 +3,6 @@ package edu.cwru.cbc.ASM.CPMR.DataType;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
-import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.io.IOException;
@@ -53,9 +52,9 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 				CpG cpg = new CpG(mappedRead, refMap.get(i));
 				cpg.setMethylStatus(mappedRead.getMethylStatus(i));
 				// ignore unknown methyl CpG
-				if (cpg.getMethylStatus() != MethylStatus.N) {
+//				if (cpg.getMethylStatus() != MethylStatus.N) {
 					mappedRead.addCpG(cpg);
-				}
+//				}
 				i++;
 			}
 		}

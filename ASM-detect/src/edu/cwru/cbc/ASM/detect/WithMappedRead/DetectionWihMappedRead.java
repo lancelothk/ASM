@@ -59,9 +59,9 @@ public class DetectionWihMappedRead extends Detection {
         Map<String, Vertex> vertexMap = new HashMap<>();
 
         constructGraph(vertexMap, edgeList, mappedReadList);
-        System.out.println(
-                intervalFile.getName() + "\t" + "vertex number:" + vertexMap.keySet().size() + "\t" + "edge number:" +
-                        edgeList.size());
+//        System.out.println(
+//                intervalFile.getName() + "\t" + "vertex number:" + vertexMap.keySet().size() + "\t" + "edge number:" +
+//                        edgeList.size());
         getClusters(asm_result, edgeList, vertexMap);
 
         List<List<RefCpG>> groupCpGResults = new ArrayList<>();
@@ -165,6 +165,12 @@ public class DetectionWihMappedRead extends Detection {
             if (edgeList.size() == 0) {
                 break;
             }
+//            for (Edge edge : edgeList) {
+//                if (edge.getUniqueId().equals("4253115-4253117") || edge.getUniqueId().equals("4253117-4253115")){
+//                    System.out.println(edge.getWeight());
+//                }
+//            }
+
             List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
             // if max weight <= 0, stop merge.
             if (maxEdgeList.get(0).getWeight() < 0) {
@@ -246,7 +252,7 @@ public class DetectionWihMappedRead extends Detection {
      */
     private <T> List<T> getMaxFromList(List<T> itemList, Function<T, Double> getProperty) {
         List<T> maxItemList = new ArrayList<>();
-        double maxValue = Integer.MIN_VALUE;
+        double maxValue = getProperty.apply(itemList.get(0));
         for (T item : itemList) {
             if (getProperty.apply(item) > maxValue) {
                 maxItemList.clear();
@@ -256,8 +262,26 @@ public class DetectionWihMappedRead extends Detection {
                 maxItemList.add(item);
             }
         }
+        if (maxItemList.size() == 0) {
+            throw new RuntimeException(intervalFile.getName());
+        }
         return maxItemList;
     }
+
+//    private List<Edge> getMaxFromList(List<Edge> itemList) {
+//        List<Edge> maxItemList = new ArrayList<>();
+//        double maxValue = Integer.MIN_VALUE;
+//        for (Edge item : itemList) {
+//            if (item.getWeight() > maxValue) {
+//                maxItemList.clear();
+//                maxItemList.add(item);
+//                maxValue = item.getWeight();
+//            } else if (Math.abs(item.getWeight() - maxValue) < 0.00001 ) {
+//                maxItemList.add(item);
+//            }
+//        }
+//        return maxItemList;
+//    }
 
     /**
      * select items with min property value in the list.
@@ -266,7 +290,7 @@ public class DetectionWihMappedRead extends Detection {
      */
     private <T> List<T> getMinFromList(List<T> itemList, Function<T, Integer> getProperty) {
         List<T> minItemList = new ArrayList<>();
-        int minValue = Integer.MAX_VALUE;
+        int minValue = getProperty.apply(itemList.get(0));
         for (T item : itemList) {
             if (getProperty.apply(item) < minValue) {
                 minItemList.clear();
@@ -306,6 +330,9 @@ public class DetectionWihMappedRead extends Detection {
                 for (CpG cpgB : readB.getCpgList()) {
                     if (cpgA.getPos() == cpgB.getPos()) {
                         if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
+                            if (cpgA.getMethylStatus() == MethylStatus.N || cpgB.getMethylStatus() == MethylStatus.N) {
+                                score -= 0.5;
+                            }
                             score--;
                         } else {
                             score++;
@@ -338,9 +365,9 @@ public class DetectionWihMappedRead extends Detection {
                 if (cpg.getPos() >= read.getStart() && cpg.getPos() + 1 <= read.getEnd()) {
                     // ignore known methyl CpG
                     MethylStatus methylStatus = read.getMethylStatus(cpg.getPos());
-                    if (methylStatus != MethylStatus.N) {
+//                    if (methylStatus != MethylStatus.N) {
                         read.addCpG(new CpG(cpg, methylStatus));
-                    }
+//                    }
                 }
             }
         }

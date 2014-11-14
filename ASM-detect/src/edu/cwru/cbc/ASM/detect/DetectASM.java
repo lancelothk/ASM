@@ -50,7 +50,7 @@ public class DetectASM {
         BufferedWriter groupWriter = new BufferedWriter(new FileWriter(groupResultFileName));
         File path = new File(pathName);
 
-        ExecutorService executor = Executors.newFixedThreadPool(1);
+        ExecutorService executor = Executors.newFixedThreadPool(6);
         List<Future<String>> futureList = new ArrayList<>();
         if (path.isDirectory()) {
             for (File file : path.listFiles()) {
