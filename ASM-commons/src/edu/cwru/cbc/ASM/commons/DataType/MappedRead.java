@@ -159,7 +159,7 @@ public class MappedRead {
 
     public EpiRead getEpiRead() {
         if (epiRead == null && firstCpG != null) {
-            return new EpiRead(chr, firstCpG.getRefCpG().getId(), firstCpG.getPos(), getCpGSeq(), id);
+            return new EpiRead(chr, firstCpG.getRefCpG().getOrder(), firstCpG.getPos(), getCpGSeq(), id);
         } else {
             return epiRead;
         }

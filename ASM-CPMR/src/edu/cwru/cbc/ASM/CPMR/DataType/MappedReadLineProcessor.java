@@ -18,15 +18,15 @@ import java.util.Map;
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
 	private Map<Integer, RefCpG> refMap;
 	private List<MappedRead> mappedReadList;
-	private long totalLength = 0;
-	private long count = 0;
+	private long totalLength;
+	private long count;
 	private int maxLength = Integer.MIN_VALUE;
 	private int minLength = Integer.MAX_VALUE;
-	private long totalCpGCount = 0;
+	private long totalCpGCount;
 	private int maxCpGCount = Integer.MIN_VALUE;
 	private int minCpGCount = Integer.MAX_VALUE;
 	private BitSet chrBitSet;
-	private int countCoverCpG = 0;
+	private int countCoverCpG;
 
 	public MappedReadLineProcessor(Map<Integer, RefCpG> refMap, int refLength) {
 		this.refMap = refMap;

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class RefCpG implements Comparable<RefCpG> {
 	private int pos;
-	private int id;
+	private int order;
 	private List<CpG> cpGList;
 	private int methylCount;
 	private int coveredCount;
@@ -23,12 +23,12 @@ public class RefCpG implements Comparable<RefCpG> {
 		return pos;
 	}
 
-	public void assignId(int id) {
-		this.id = id;
+	public void assignOrder(int order) {
+		this.order = order;
 	}
 
-	public int getId() {
-		return id;
+	public int getOrder() {
+		return order;
 	}
 
 	public void addCpG(CpG cpg){
