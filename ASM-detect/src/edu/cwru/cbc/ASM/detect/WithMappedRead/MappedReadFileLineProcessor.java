@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Created by ke on 2/21/14.
  * Implemented LineProcessor for reading MappedRead File
+ * Mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class MappedReadFileLineProcessor implements LineProcessor<List<MappedRead>> {
 	private List<MappedRead> mappedReadList = new ArrayList<>();

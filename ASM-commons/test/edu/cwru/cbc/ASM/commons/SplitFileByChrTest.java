@@ -1,11 +1,10 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.commons;
 
-
-import edu.cwru.cbc.ASM.commons.SplitFileByChr;
 import org.junit.Test;
 
 /**
  * Created by ke on 2/19/14.
+ * Split mapped reads file by chr.
  */
 public class SplitFileByChrTest {
 	@Test

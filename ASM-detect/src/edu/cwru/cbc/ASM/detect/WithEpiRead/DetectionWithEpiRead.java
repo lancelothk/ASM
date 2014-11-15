@@ -5,16 +5,12 @@ import edu.cwru.cbc.ASM.commons.Utils;
 import edu.cwru.cbc.ASM.detect.Detection;
 import edu.cwru.cbc.ASM.detect.WithEpiRead.DataType.Edge;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * Created by kehu on 11/12/14.
@@ -22,46 +18,25 @@ import java.util.concurrent.Future;
  */
 public class DetectionWithEpiRead extends Detection {
     private static final int MIN_READ_CPG = 2;
-    private File intervalFile;
     private EpiRead.EpiReadFormat format;
 
-    public DetectionWithEpiRead(File intervalFile, EpiRead.EpiReadFormat format) {
-        this.intervalFile = intervalFile;
+    public DetectionWithEpiRead(EpiRead.EpiReadFormat format) {
         this.format = format;
     }
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
+        long start = System.currentTimeMillis();
 //        String pathName = "/home/lancelothk/experiment/ASM/epiread/intervals_epiread/chr22-14476217-14476662";
-        String pathName = "/home/lancelothk/IdeaProjects/ASM/ASM-detect/testData/epiTest";
-        File path = new File(pathName);
-
+        String inputName = "/home/lancelothk/IdeaProjects/ASM/ASM-detect/testData/epiTest";
+        int threadNumber = 6;
         EpiRead.EpiReadFormat format = EpiRead.EpiReadFormat.extEpiread;
 
-        ExecutorService executor = Executors.newFixedThreadPool(4);
-        List<Future<String>> futureList = new ArrayList<>();
-        if (path.isDirectory()) {
-            for (File file : path.listFiles()) {
-                if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
-                        !file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~")) {
-                    String[] items = file.getName().split("-");
-                    Future<String> future = executor.submit(new DetectionWithEpiRead(file, format));
-                    futureList.add(future);
-                }
-            }
-        } else {
-            String[] items = path.getName().split("-");
-            Future<String> future = executor.submit(new DetectionWithEpiRead(path, format));
-            futureList.add(future);
-        }
-
-        for (Future<String> stringFuture : futureList) {
-            stringFuture.get();
-        }
-        executor.shutdown();
+        Detection.execute(inputName, threadNumber, new DetectionWithEpiRead(format));
+        System.out.println(System.currentTimeMillis() - start + "ms");
     }
 
     private double[][] buildInputMatrix() throws IOException {
-        List<EpiRead> epireadList = Utils.readEpiReadFile(intervalFile, format);
+        List<EpiRead> epireadList = Utils.readEpiReadFile(inputFile, format);
         Map<Integer, Integer> cpgMap = new HashMap<>();
         epireadList.forEach(epiRead -> {
             int order = epiRead.getCpgOrder();

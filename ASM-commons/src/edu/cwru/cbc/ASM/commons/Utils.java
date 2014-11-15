@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Created by kehu on 11/13/14.
+ * Utils for methods shared by modules under ASM project.
  */
 public class Utils {
 

@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * Created by kehu on 11/13/14.
+ * Align EpiRead to better visualization.
  */
 public class AlignEpiRead {
     public static void main(String[] args) throws IOException {

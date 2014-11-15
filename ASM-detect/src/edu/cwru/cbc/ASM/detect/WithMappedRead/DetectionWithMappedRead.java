@@ -13,44 +13,90 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Created by kehu on 11/12/14.
+ * ASM Detection with whole read info.
  */
-public class DetectionWihMappedRead extends Detection {
+public class DetectionWithMappedRead extends Detection {
     private static final int MIN_READ_CPG = 2;
-    private File intervalFile;
     private int initPos;
     private BufferedWriter groupWriter;
 
-
-    public DetectionWihMappedRead(File intervalFile, int initPos, BufferedWriter groupWriter) {
-        this.intervalFile = intervalFile;
-        this.initPos = initPos;
+    public DetectionWithMappedRead(BufferedWriter groupWriter) {
         this.groupWriter = groupWriter;
     }
 
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+        long start = System.currentTimeMillis();
+        // test reads setting
+//        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
+//        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
+//        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
+
+        String cellLine = "i90";
+        String replicate = "r1";
+        String name = "chr20";
+
+//        String fileName = "chr20-29294521-29294805";
+        String fileName = "";
+
+        String inputName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals_%s/%s", cellLine, replicate,
+                                         name, fileName);
+
+        String summaryFileName = String.format(
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_%3$s_ASM_summary_%4$s", cellLine, replicate,
+                name, fileName);
+        String groupResultFileName = String.format(
+                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_%3$s_ASM_groups_%4$s", cellLine, replicate, name,
+                fileName);
+
+        BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
+        summaryWriter.write("name\tlength\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\n");
+        BufferedWriter groupWriter = new BufferedWriter(new FileWriter(groupResultFileName));
+
+        int threadNumber = 6;
+
+        List<String> resultList = Detection.execute(inputName, threadNumber, new DetectionWithMappedRead(groupWriter));
+
+        for (String result : resultList) {
+            summaryWriter.write(result + "\n");
+
+
+            summaryWriter.close();
+            groupWriter.close();
+            System.out.println(System.currentTimeMillis() - start + "ms");
+        }
+    }
+
     public String call() throws Exception {
+        String[] items = inputFile.getName().split("-");
+        initPos = Integer.parseInt(items[1]);
+
         // align read
 //        AlignReads.align(intervalFile.getAbsolutePath());
 
         // load input
-        String reference = readRef(intervalFile);
+        String reference = readRef(inputFile);
         List<RefCpG> cpgList = extractCpGSite(reference, initPos);
-        List<MappedRead> mappedReadList = Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(
+        List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8).readLines(
                 new MappedReadFileLineProcessor());
+
+        // attach CpG with reads
         associateReadWithCpG(cpgList, mappedReadList);
+
+        // filter out reads which only cover 1 or no CpG sites
         mappedReadList = mappedReadList.stream().filter(read -> read.getCpgList().size() >= MIN_READ_CPG).collect(
                 Collectors.toList());
-        String[] items = intervalFile.getName().split("-");
+
         if (items.length != 3) {
             throw new RuntimeException("illegal interval file name format!");
         }
-
-        StringBuilder asm_result = new StringBuilder(intervalFile.getName() + "\n");
-        StringBuilder summary = new StringBuilder(intervalFile.getName());
+        StringBuilder asm_result = new StringBuilder(inputFile.getName() + "\n");
+        StringBuilder summary = new StringBuilder(inputFile.getName());
         summary.append("\t").append(Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1);
         summary.append("\t").append(mappedReadList.size());
         summary.append("\t").append(cpgList.size());
@@ -60,9 +106,13 @@ public class DetectionWihMappedRead extends Detection {
 
         constructGraph(vertexMap, edgeList, mappedReadList);
 //        System.out.println(
-//                intervalFile.getName() + "\t" + "vertex number:" + vertexMap.keySet().size() + "\t" + "edge number:" +
+//                inputFile.getName() + "\t" + "vertex number:" + vertexMap.keySet().size() + "\t" + "edge number:" +
 //                        edgeList.size());
-        getClusters(asm_result, edgeList, vertexMap);
+        TieCounter tieCounter = getClusters(edgeList, vertexMap);
+
+        asm_result.append(String.format("tied weight counter:%d\n", tieCounter.tieWeightCounter));
+        asm_result.append(String.format("tied methyl polarity:%d\n", tieCounter.tieMethylPolarity));
+        asm_result.append(String.format("tied id counter:%d\n", tieCounter.tieIdCountCounter));
 
         List<List<RefCpG>> groupCpGResults = new ArrayList<>();
         for (Vertex vertex : vertexMap.values()) {
@@ -125,16 +175,16 @@ public class DetectionWihMappedRead extends Detection {
             refCpGMap.put(sortedPosList.get(i), i);
         }
 
-//        writeAlignedGroupResult(refCpGMap, groupCpGResults, intervalFile);
+        writeAlignedGroupResult(refCpGMap, groupCpGResults, inputFile);
 
         summary.append("\t").append(sum / sortedPosList.size()).append("\n");
         return summary.toString();
     }
 
     private void writeAlignedGroupResult(Map<Integer, Integer> refCpGMap, List<List<RefCpG>> groupCpGResult,
-                                         File intervalFile) throws IOException {
+                                         File inputFile) throws IOException {
         BufferedWriter alignedGroupWriter = new BufferedWriter(
-                new FileWriter(intervalFile.getAbsolutePath() + ".alignedGroups"));
+                new FileWriter(inputFile.getAbsolutePath() + ".alignedGroups"));
         // sort the cpg in each list first, then sort group list
         groupCpGResult.sort((g1, g2) -> g1.get(0).getPos() - g2.get(0).getPos());
 
@@ -155,10 +205,10 @@ public class DetectionWihMappedRead extends Detection {
         alignedGroupWriter.close();
     }
 
-    private void getClusters(StringBuilder asm_result, List<Edge> edgeList,
+    private TieCounter getClusters(List<Edge> edgeList,
                              Map<String, Vertex> vertexMap) throws IOException {
         // count how many tie situation occurs. For analysis use
-        int tieWeightCounter = 0, tieIdCountCounter = 0, tieMethylPolarity = 0;
+        TieCounter tieCounter = new TieCounter();
         // merge vertexes connected by positive weight edge
         while (true) {
             // if edgeList is empty
@@ -179,7 +229,7 @@ public class DetectionWihMappedRead extends Detection {
                 // since edgeList is not empty, getMaxFromList always returns at least one element
                 if (maxEdgeList.size() != 1) {
                     // multiple equal max weight edges.
-                    tieWeightCounter++;
+                    tieCounter.tieWeightCounter++;
                     // use methyl polarity to group similar vertex first
                     // sort edge by abs of methyl polarity. Larger first
 //                    maxEdgeList = getMaxFromList(maxEdgeList, Edge::getMethylPolarityAbs);
@@ -190,16 +240,14 @@ public class DetectionWihMappedRead extends Detection {
                     // sort edge by id count. Smaller first
                     maxEdgeList = getMinFromList(maxEdgeList, Edge::getIdCount);
                     if (maxEdgeList.size() != 1) {
-                        tieIdCountCounter++;
+                        tieCounter.tieIdCountCounter++;
                     }
 //                    }
                 }
                 mergeVertex(maxEdgeList.get(0), edgeList, vertexMap);
             }
         }
-        asm_result.append(String.format("tied weight counter:%d\n", tieWeightCounter));
-        asm_result.append(String.format("tied methyl polarity:%d\n", tieMethylPolarity));
-        asm_result.append(String.format("tied id counter:%d\n", tieIdCountCounter));
+        return tieCounter;
     }
 
     private void mergeVertex(Edge edge, List<Edge> edgeList, Map<String, Vertex> vertexMap) {
@@ -263,25 +311,10 @@ public class DetectionWihMappedRead extends Detection {
             }
         }
         if (maxItemList.size() == 0) {
-            throw new RuntimeException(intervalFile.getName());
+            throw new RuntimeException(inputFile.getName());
         }
         return maxItemList;
     }
-
-//    private List<Edge> getMaxFromList(List<Edge> itemList) {
-//        List<Edge> maxItemList = new ArrayList<>();
-//        double maxValue = Integer.MIN_VALUE;
-//        for (Edge item : itemList) {
-//            if (item.getWeight() > maxValue) {
-//                maxItemList.clear();
-//                maxItemList.add(item);
-//                maxValue = item.getWeight();
-//            } else if (Math.abs(item.getWeight() - maxValue) < 0.00001 ) {
-//                maxItemList.add(item);
-//            }
-//        }
-//        return maxItemList;
-//    }
 
     /**
      * select items with min property value in the list.
@@ -348,8 +381,8 @@ public class DetectionWihMappedRead extends Detection {
         }
     }
 
-    private String readRef(File intervalFile) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(intervalFile));
+    private String readRef(File inputFile) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
         String line = bufferedReader.readLine();
         String[] items = line.split("\t");
         if (items.length != 2) {
@@ -382,5 +415,9 @@ public class DetectionWihMappedRead extends Detection {
             }
         }
         return cpgList;
+    }
+
+    private class TieCounter {
+        private int tieWeightCounter, tieIdCountCounter, tieMethylPolarity;
     }
 }

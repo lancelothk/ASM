@@ -43,6 +43,7 @@ public class CPMR {
 		long start = System.currentTimeMillis();
 		File outputFile = new File(outputPath);
 		if (!outputFile.exists()) {
+			//noinspection ResultOfMethodCallIgnored
 			outputFile.mkdirs();
 		}
 

@@ -35,8 +35,6 @@ public class EpiRead implements Comparable<EpiRead> {
 
     /**
      * Read epiread format from raw line
-     * @param line
-     * @param format
      */
     public static EpiRead ParseEpiRead(String line, EpiReadFormat format) {
         String[] items = line.split("\t");
@@ -82,15 +80,7 @@ public class EpiRead implements Comparable<EpiRead> {
             // if only contains N
             return "";
         } else {
-            // use StringBuilder here is much faster than String.format
-            StringBuilder sb = new StringBuilder();
-            sb.append(chr);
-            sb.append("\t");
-            sb.append(cpgOrder);
-            sb.append("\t");
-            sb.append(cpgSeq);
-            sb.append("\n");
-            return sb.toString();
+            return chr + "\t" + cpgOrder + "\t" + cpgSeq + "\n";
         }
     }
 
@@ -100,18 +90,7 @@ public class EpiRead implements Comparable<EpiRead> {
             return "";
         } else {
             // use StringBuilder here is much faster than String.format
-            StringBuilder sb = new StringBuilder();
-            sb.append(chr);
-            sb.append("\t");
-            sb.append(cpgOrder);
-            sb.append("\t");
-            sb.append(cpgPos);
-            sb.append("\t");
-            sb.append(cpgSeq);
-            sb.append("\t");
-            sb.append(id);
-            sb.append("\n");
-            return sb.toString();
+            return chr + "\t" + cpgOrder + "\t" + cpgPos + "\t" + cpgSeq + "\t" + id + "\n";
         }
     }
 
