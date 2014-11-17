@@ -106,8 +106,11 @@ public class MappedRead {
                 case 'G':
                     c = 'C';
                     break;
-                default:
+                case 'N':
+                    c = 'N';
                     break;
+                default:
+                    throw new RuntimeException("invalid character in sequence!");
             }
             stringBuilder.append(c);
         }
@@ -115,7 +118,6 @@ public class MappedRead {
     }
 
     public String toString(int initialPos) throws IllegalArgumentException {
-        // TODO replace ledtPad with Guava pad
         if (this.start - initialPos > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("offset exceed max int!");
         }

@@ -88,7 +88,7 @@ public class CPMR {
 					refCpGList = new ArrayList<>();
 				}
 				refCpGList.add(curr);
-				cont = hasCommonRead(curr, next);
+				cont = curr.hasCommonRead(next);
 			}
 		}
 
@@ -135,20 +135,6 @@ public class CPMR {
 			}
 		});
 		intervalSummaryWriter.close();
-	}
-
-	/**
-	 * check if two RefCpG have shared reads *
-	 */
-	private static boolean hasCommonRead(RefCpG curr, RefCpG next) {
-		for (CpG cCpg : curr.getCpGList()) {
-			for (CpG nCpg : next.getCpGList()) {
-				if (cCpg.getMappedRead() == nCpg.getMappedRead()) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	private enum OutputFormat {
