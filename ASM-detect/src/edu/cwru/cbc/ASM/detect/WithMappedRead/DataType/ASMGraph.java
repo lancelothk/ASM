@@ -175,8 +175,9 @@ public class ASMGraph {
                         if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
                             if (cpgA.getMethylStatus() == MethylStatus.N || cpgB.getMethylStatus() == MethylStatus.N) {
                                 score -= 0.5;
+                            } else {
+                                score--;
                             }
-                            score--;
                         } else {
                             score++;
                         }
@@ -187,7 +188,7 @@ public class ASMGraph {
             return score / (double) count;
         } else {
             // don't have overlapped CpG, non-connected
-            return Double.MIN_VALUE;
+            return 0;
         }
     }
 

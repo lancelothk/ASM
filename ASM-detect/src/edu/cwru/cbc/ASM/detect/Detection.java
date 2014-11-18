@@ -12,8 +12,7 @@ import java.util.concurrent.*;
 public abstract class Detection implements Callable<String> {
 	protected File inputFile;
 
-	public static List<String> execute(String inputName, int threadNumber,
-									   Detection detection) throws ExecutionException, InterruptedException {
+	public List<String> execute(String inputName, int threadNumber) throws ExecutionException, InterruptedException {
 		File inputFile = new File(inputName);
 		List<String> resultList = new ArrayList<>();
 		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
@@ -26,17 +25,17 @@ public abstract class Detection implements Callable<String> {
 				for (File file : files) {
 					if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
 							!file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~") &&
-							!file.getName().endsWith(".alignedGroups")) {
-						detection.setInputFile(file);
-						Future<String> future = executor.submit(detection);
+							!file.getName().endsWith(".group")) {
+						Detection newInsDetection = constructNewInstance();
+						newInsDetection.inputFile = file;
+						Future<String> future = executor.submit(newInsDetection);
 						futureList.add(future);
-
 					}
 				}
 			}
 		} else {
-			detection.setInputFile(inputFile);
-			Future<String> future = executor.submit(detection);
+			this.inputFile = inputFile;
+			Future<String> future = executor.submit(this);
 			futureList.add(future);
 		}
 
@@ -48,7 +47,5 @@ public abstract class Detection implements Callable<String> {
 		return resultList;
 	}
 
-	public void setInputFile(File inputFile) {
-		this.inputFile = inputFile;
-	}
+	abstract protected Detection constructNewInstance();
 }

@@ -31,7 +31,7 @@ public class DetectionWithEpiRead extends Detection {
         int threadNumber = 6;
         EpiRead.EpiReadFormat format = EpiRead.EpiReadFormat.extEpiread;
 
-        Detection.execute(inputName, threadNumber, new DetectionWithEpiRead(format));
+        new DetectionWithEpiRead(format).execute(inputName, threadNumber);
         System.out.println(System.currentTimeMillis() - start + "ms");
     }
 
@@ -177,5 +177,10 @@ public class DetectionWithEpiRead extends Detection {
         partB.forEach((i, j) -> System.out.printf("%d\t", i));
         System.out.println();
         return "";
+    }
+
+    @Override
+    protected Detection constructNewInstance() {
+        return new DetectionWithEpiRead(format);
     }
 }

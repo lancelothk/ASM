@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.detect.WithMappedRead;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
@@ -31,7 +32,8 @@ public class DetectionWithMappedRead extends Detection {
     public DetectionWithMappedRead() {
     }
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+    public static void main(
+            String[] args) throws ExecutionException, InterruptedException, IOException, InstantiationException, IllegalAccessException {
         long start = System.currentTimeMillis();
         // test reads setting
 //        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
@@ -42,8 +44,8 @@ public class DetectionWithMappedRead extends Detection {
         String replicate = "r1";
         String name = "chr20";
 
-//        String fileName = "chr20-29294521-29294805";
-        String fileName = "chr20-56850168-56850901";
+        String fileName = "chr20-19844919-19845304";
+//        String fileName = "";
         String inputName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals_%s/%s", cellLine, replicate,
                                          name, fileName);
         String summaryFileName = String.format(
@@ -56,10 +58,10 @@ public class DetectionWithMappedRead extends Detection {
 
         int threadNumber = 6;
 
-        List<String> resultList = Detection.execute(inputName, threadNumber, new DetectionWithMappedRead());
+        List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
 
         for (String result : resultList) {
-            summaryWriter.write(result + "\n");
+            summaryWriter.write(result);
         }
 
         summaryWriter.close();
@@ -69,12 +71,12 @@ public class DetectionWithMappedRead extends Detection {
     public String call() throws Exception {
         String[] items = inputFile.getName().split("-");
         if (items.length != 3) {
-            throw new RuntimeException("invalid input file name format!");
+            throw new RuntimeException("invalid input file name format!\t" + inputFile.getName());
         }
         int initPos = Integer.parseInt(items[1]);
 
         // align read
-//        AlignReads.align(intervalFile.getAbsolutePath());
+        AlignReads.align(inputFile.getAbsolutePath());
 
         // load input
         String reference = readRef(inputFile);
@@ -89,6 +91,10 @@ public class DetectionWithMappedRead extends Detection {
         // clustering
         graph.getClusters();
 
+        if (graph.getClusterResult().size() == 0) {
+            System.out.printf("");
+        }
+
         double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, inputFile);
 
         return buildSummary(Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1, refCpGList, mappedReadList,
@@ -97,9 +103,15 @@ public class DetectionWithMappedRead extends Detection {
 
     private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
                                 double avgGroupCpGCoverage) {
-        return String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n", inputFile.getName(), graph.getOriginalVertexCount(),
-                             graph.getOriginalEdgeCount(), length, mappedReadList.size(), refCpGList.size(),
-                             graph.getClusterResult().size(), avgGroupCpGCoverage);
+        StringBuilder sb = new StringBuilder(
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t", inputFile.getName(), length,
+                              graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(),
+                              refCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage));
+        for (Vertex vertex : graph.getClusterResult().values()) {
+            sb.append(vertex.getMappedReadList().size() + ",");
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 
     private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
@@ -136,7 +148,7 @@ public class DetectionWithMappedRead extends Detection {
                                 vertexRefCpGMap.get(cpg.getPos()).addMethylCount(1);
                             } else {
                                 vertexRefCpGMap.get(cpg.getPos()).addNonMethylCount(1);
-                    }
+                            }
                         });
             }
             groupResultList.add(new GroupResult(new ArrayList<>(vertexRefCpGMap.values()), vertex.getMappedReadList()));
@@ -185,9 +197,15 @@ public class DetectionWithMappedRead extends Detection {
         String line = bufferedReader.readLine();
         String[] items = line.split("\t");
         if (items.length != 2) {
-            throw new RuntimeException("invalid reference line in interval read file!");
+            throw new RuntimeException(
+                    "invalid reference line in interval read file!\t" + line + "\t" + inputFile.getName());
         } else {
             return items[1].toUpperCase();
         }
+    }
+
+    @Override
+    protected Detection constructNewInstance() {
+        return new DetectionWithMappedRead();
     }
 }
