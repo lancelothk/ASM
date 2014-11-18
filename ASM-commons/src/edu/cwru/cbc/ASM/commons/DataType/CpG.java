@@ -4,27 +4,19 @@ package edu.cwru.cbc.ASM.commons.DataType;
  * Created by lancelothk on 5/27/14.
  * Store methylation information of CpG site in a read
  */
-public class CpG {
+public class CpG implements BaseCpG {
 	private MappedRead mappedRead; // link to MappedRead
 	private RefCpG refCpG; // link to CpGSite
 	private MethylStatus methylStatus;
 
-	public CpG(MappedRead mappedRead, RefCpG refCpG) {
+	public CpG(MappedRead mappedRead, RefCpG refCpG, MethylStatus methylStatus) {
+		this.methylStatus = methylStatus;
 		this.mappedRead = mappedRead;
 		this.refCpG = refCpG;
 	}
 
-	public CpG(RefCpG refCpG, MethylStatus methylStatus) {
-		this.refCpG = refCpG;
-		this.methylStatus = methylStatus;
-	}
-
 	public MethylStatus getMethylStatus() {
 		return methylStatus;
-	}
-
-	public void setMethylStatus(MethylStatus methylStatus) {
-		this.methylStatus = methylStatus;
 	}
 
 	public MappedRead getMappedRead() {

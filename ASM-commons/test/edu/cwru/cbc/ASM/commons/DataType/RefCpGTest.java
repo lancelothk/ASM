@@ -27,27 +27,20 @@ public class RefCpGTest {
         MappedRead mappedRead4 = new MappedRead("test", '+', 2, 4, "CG", "read4");
         MappedRead mappedRead5 = new MappedRead("test", '+', 4, 6, "TG", "read5");
 
-        CpG ca = new CpG(mappedRead1, rc1);
+        CpG ca = new CpG(mappedRead1, rc1, MethylStatus.T);
         rc1.addCpG(ca);
-        ca.setMethylStatus(MethylStatus.T);
-        CpG cb = new CpG(mappedRead2, rc1);
+        CpG cb = new CpG(mappedRead2, rc1, MethylStatus.T);
         rc1.addCpG(cb);
-        cb.setMethylStatus(MethylStatus.T);
-        CpG cc = new CpG(mappedRead3, rc3);
-        cc.setMethylStatus(MethylStatus.N);
+        CpG cc = new CpG(mappedRead3, rc3, MethylStatus.N);
         rc3.addCpG(cc);
-        CpG cd = new CpG(mappedRead4, rc2);
+        CpG cd = new CpG(mappedRead4, rc2, MethylStatus.C);
         rc2.addCpG(cd);
-        cd.setMethylStatus(MethylStatus.C);
-        CpG ce = new CpG(mappedRead3, rc2);
+        CpG ce = new CpG(mappedRead3, rc2, MethylStatus.C);
         rc2.addCpG(ce);
-        ce.setMethylStatus(MethylStatus.C);
-        CpG cf = new CpG(mappedRead2, rc2);
+        CpG cf = new CpG(mappedRead2, rc2, MethylStatus.T);
         rc2.addCpG(cf);
-        cf.setMethylStatus(MethylStatus.T);
-        CpG cg = new CpG(mappedRead5, rc3);
+        CpG cg = new CpG(mappedRead5, rc3, MethylStatus.T);
         rc3.addCpG(cg);
-        cg.setMethylStatus(MethylStatus.T);
     }
 
     @Test

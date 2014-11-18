@@ -2,17 +2,22 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.CPMR.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.CPMR.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessorWithSummary;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
 
 /**
  * Created by lancelothk on 5/26/14.
@@ -26,14 +31,15 @@ public class CPMR {
 	public static int outputIntervalCount = 0;
 
 	public static void main(String[] args) throws IOException {
-		String ref = "hg18_chr22.fa";
+		String chr = "chr20";
+		String ref = "hg18_" + chr + ".fa";
 		String cellLine = "i90";
 		String replicate = "r1";
-		String experimentPath = "/home/lancelothk/experiments/ASM/";
+		String experimentPath = "/home/kehu/experiments/ASM/";
 
 		String referenceGenomeFileName = experimentPath + "/data/" + ref;
-		String mappedReadFileName = String.format("%s/data/%s_%s_chr22", experimentPath, cellLine, replicate);
-		String outputPath = String.format("%s/result_%s_%s/intervals_chr22", experimentPath, cellLine, replicate);
+		String mappedReadFileName = String.format("%s/data/%s_%s_%s", experimentPath, cellLine, replicate, chr);
+		String outputPath = String.format("%s/result_%s_%s/intervals_%s", experimentPath, cellLine, replicate, chr);
 
 		splitEpigenome(referenceGenomeFileName, mappedReadFileName, outputPath, OutputFormat.MappredRead);
 	}
@@ -48,27 +54,26 @@ public class CPMR {
 		}
 
 		RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
-		Map<Integer, RefCpG> refMap = Utils.extractCpGSite(refChr.getRefString());
+		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
 		System.out.println("load refMap complete");
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
-		List<RefCpG> refRefCpGs = new ArrayList<>(refMap.values());
-		refRefCpGs.sort((RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
+		refCpGList.sort((RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
 		System.out.println("cpg sorting complete");
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
 		// assign cpg id after sorted
-		for (int i = 0; i < refRefCpGs.size(); i++) {
-			refRefCpGs.get(i).assignOrder(i);
+		for (int i = 0; i < refCpGList.size(); i++) {
+			refCpGList.get(i).assignIndex(i);
 		}
 		System.out.println("cpg id assignment complete");
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
 		Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-						new MappedReadLineProcessor(refMap, refChr.getRefString().length()));
+						new MappedReadLineProcessorWithSummary(refCpGList, null, refChr.getRefString().length()));
 		System.out.println("load mappedReadList complete");
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
@@ -76,18 +81,18 @@ public class CPMR {
 		// split regions by continuous CpG coverage
 		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
 		boolean cont = true;
-		List<RefCpG> refCpGList = new ArrayList<>();
-		for (int i = 0; i < refRefCpGs.size(); i++) {
-			RefCpG curr = refRefCpGs.get(i);
-			RefCpG next = (i + 1) < refRefCpGs.size() ? refRefCpGs.get(i + 1) : null;
+		List<RefCpG> resultRefCpGList = new ArrayList<>();
+		for (int i = 0; i < refCpGList.size(); i++) {
+			RefCpG curr = refCpGList.get(i);
+			RefCpG next = (i + 1) < refCpGList.size() ? refCpGList.get(i + 1) : null;
 			if (curr.getCoverage() < MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
 				cont = false;
 			} else {
 				if (!cont) {
-					cpgSiteIntervalList.add(refCpGList);
-					refCpGList = new ArrayList<>();
+					cpgSiteIntervalList.add(resultRefCpGList);
+					resultRefCpGList = new ArrayList<>();
 				}
-				refCpGList.add(curr);
+				resultRefCpGList.add(curr);
 				cont = curr.hasCommonRead(next);
 			}
 		}

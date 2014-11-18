@@ -161,7 +161,7 @@ public class MappedRead {
 
     public EpiRead getEpiRead() {
         if (epiRead == null && firstCpG != null) {
-            return new EpiRead(chr, firstCpG.getRefCpG().getOrder(), firstCpG.getPos(), getCpGSeq(), id);
+            return new EpiRead(chr, firstCpG.getRefCpG().getIndex(), firstCpG.getPos(), getCpGSeq(), id);
         } else {
             return epiRead;
         }
@@ -173,10 +173,6 @@ public class MappedRead {
             sb.append(cpG.getMethylStatus());
         }
         return sb.toString();
-    }
-
-    public int getCpGCount() {
-        return cpgList.size();
     }
 
     public List<CpG> getCpgList() {

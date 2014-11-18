@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.commons;
 
 import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
+import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,20 +19,25 @@ public class Utils {
         List<EpiRead> epiReadList = new ArrayList<>();
         Files.lines(inputFile.toPath()).forEach(line -> epiReadList.add(EpiRead.ParseEpiRead(line, format)));
         return epiReadList;
-//        return Files.asCharSource(intervalFile, Charsets.UTF_8).readLines(new LineProcessor<List<EpiRead>>() {
-//            private List<EpiRead> epiReadList = new ArrayList<>();
-//
-//            @Override
-//            public boolean processLine(String s) throws IOException {
-//                epiReadList.add(new EpiRead(s, format));
-//                return true;
-//            }
-//
-//            @Override
-//            public List<EpiRead> getResult() {
-//                return epiReadList;
-//            }
-//        });
+    }
+
+    /**
+     * Extract reference CpG from reference string.
+     *
+     * @return returned List is sorted by position.
+     */
+    public static List<RefCpG> extractCpGSite(String reference, int initPos) {
+        reference = reference.replaceAll(" ", "");
+        reference = reference.toUpperCase();
+        // initialize refCpGList with 1/20 of reference size, since the probability of CG occurrence should be 1/16.
+        // Actual probability is higher than 1/16 from current observation. In CPG dense region, it should be much higher.
+        List<RefCpG> reFCpGList = new ArrayList<>(reference.length() / 20);
+        for (int i = 0; i < reference.length() - 1; i++) {
+            if (reference.charAt(i) == 'C' && reference.charAt(i + 1) == 'G') {
+                reFCpGList.add(new RefCpG(i + initPos));
+            }
+        }
+        return reFCpGList;
     }
 
 }

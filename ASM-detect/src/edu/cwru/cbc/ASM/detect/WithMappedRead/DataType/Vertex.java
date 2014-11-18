@@ -1,7 +1,8 @@
 package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
-import edu.cwru.cbc.ASM.commons.DataType.CpG;
+import edu.cwru.cbc.ASM.commons.DataType.BaseCpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class Vertex {
     private String id;
     private List<Edge> adjEdges;
     private List<MappedRead> mappedReadList;
-    private Map<Integer, CpG> cpGMap;
+    private Map<Integer, RefCpG> refCpGMap; // position-RefCpG
     private int methylPolarity;
 
     public Vertex(MappedRead mappedRead) {
@@ -21,25 +22,22 @@ public class Vertex {
         this.adjEdges = new ArrayList<>();
         this.mappedReadList = new ArrayList<>();
         this.mappedReadList.add(mappedRead);
-        this.cpGMap = new HashMap<>();
+        this.refCpGMap = new HashMap<>();
         this.methylPolarity = mappedRead.getMethylPolarity();
-        addCpG(mappedRead.getCpgList());
+        this.addCpG(mappedRead.getCpgList());
     }
 
-    public void addCpG(Collection<CpG> cpgList) {
-        for (CpG cpg : cpgList) {
-            if (!cpGMap.containsKey(cpg.getPos())) {
-                cpGMap.put(cpg.getPos(), cpg);
-            }
-        }
+    public void addCpG(Collection<? extends BaseCpG> cpgList) {
+        cpgList.stream().filter(cpg -> !refCpGMap.containsKey(cpg.getPos())).forEach(
+                cpg -> refCpGMap.put(cpg.getPos(), new RefCpG(cpg.getPos())));
     }
 
-    public Collection<CpG> getCoveredCpGSites() {
-        return cpGMap.values();
+    public Map<Integer, RefCpG> getRefCpGMap() {
+        return refCpGMap;
     }
 
     public int getFirstCpGPos() {
-        return cpGMap.values().stream().min((c1, c2) -> c1.getPos() - c2.getPos()).get().getPos();
+        return refCpGMap.values().stream().min((c1, c2) -> c1.getPos() - c2.getPos()).get().getPos();
     }
 
     public void addEdge(Edge edge) {

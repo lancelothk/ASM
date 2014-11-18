@@ -7,9 +7,9 @@ import java.util.List;
  * Created by lancelothk on 5/27/14.
  * Store reference CpG site information in reference genome.
  */
-public class RefCpG implements Comparable<RefCpG> {
+public class RefCpG implements BaseCpG, Comparable<RefCpG> {
 	private int pos;
-	private int order;
+	private int index;
 	private List<CpG> cpGList;
 	private int methylCount;
 	private int coveredCount;
@@ -37,12 +37,12 @@ public class RefCpG implements Comparable<RefCpG> {
 		return pos;
 	}
 
-	public void assignOrder(int order) {
-		this.order = order;
+	public void assignIndex(int order) {
+		this.index = order;
 	}
 
-	public int getOrder() {
-		return order;
+	public int getIndex() {
+		return index;
 	}
 
 	public void addCpG(CpG cpg){
