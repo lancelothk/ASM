@@ -171,19 +171,23 @@ public class ASMGraph {
             int score = 0, count = 0;
             for (CpG cpgA : readA.getCpgList()) {
                 for (CpG cpgB : readB.getCpgList()) {
+                    count++;
                     if (cpgA.getPos() == cpgB.getPos()) {
                         if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
                             if (cpgA.getMethylStatus() == MethylStatus.N || cpgB.getMethylStatus() == MethylStatus.N) {
-                                score -= 0.5;
+                                score -= 0;
                             } else {
                                 score--;
                             }
                         } else {
                             score++;
                         }
-                        count++;
+                        count--;
                     }
                 }
+            }
+            if (readA.getId().equals("11222058") || readB.getId().equals("11222058")) {
+                System.out.println();
             }
             return score / (double) count;
         } else {

@@ -75,15 +75,15 @@ public class DetectionWithMappedRead extends Detection {
         }
         int initPos = Integer.parseInt(items[1]);
 
-        // align read
-        AlignReads.align(inputFile.getAbsolutePath());
-
         // load input
         String reference = readRef(inputFile);
         List<RefCpG> refCpGList = extractCpGSite(reference, initPos);
         // filter out reads which only cover 1 or no CpG sites
         List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8).readLines(
                 new MappedReadLineProcessor(refCpGList, read -> read.getCpgList().size() >= MIN_READ_CPG));
+
+        // align read
+        AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
 
         // construct graph
         ASMGraph graph = new ASMGraph(mappedReadList);
@@ -108,7 +108,7 @@ public class DetectionWithMappedRead extends Detection {
                               graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(),
                               refCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage));
         for (Vertex vertex : graph.getClusterResult().values()) {
-            sb.append(vertex.getMappedReadList().size() + ",");
+            sb.append(vertex.getMappedReadList().size()).append(",");
         }
         sb.append("\n");
         return sb.toString();

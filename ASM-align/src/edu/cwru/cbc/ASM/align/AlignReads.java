@@ -33,13 +33,13 @@ public class AlignReads {
                 if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
                     String outputFileName = file.getAbsolutePath() + ".aligned";
                     List<MappedRead> readsList = readMappedReads(file);
-                    alignReads(readsList, outputFileName);
+                    alignReads(readsList, ref, outputFileName);
                 }
             }
         } else {
             String outputFileName = fileName + ".aligned";
             List<MappedRead> readsList = readMappedReads(targetFile);
-            alignReads(readsList, outputFileName);
+            alignReads(readsList, ref, outputFileName);
         }
     }
 
@@ -70,7 +70,7 @@ public class AlignReads {
         return readsList;
     }
 
-    public static void alignReads(List<MappedRead> readsList, String outputFileName) {
+    public static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) {
         // sort reads first
         readsList.sort(new ReadComparator());
         // set initial position
