@@ -85,15 +85,13 @@ public class Vertex {
 		double mec = 0;
 		for (MappedRead mappedRead : mappedReadList) {
 			for (CpG cpG : mappedRead.getCpgList()) {
-				// exclude N case first
-				if (cpG.getMethylStatus() != MethylStatus.N) {
 					MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
+				// TODO double check the N in calculation of MEC
 					if (refMethylStatus == MethylStatus.N) {
 						mec += 0.5;
-					} else if (cpG.getMethylStatus() != refMethylStatus) {
+					} else if (cpG.getMethylStatus() != refMethylStatus && cpG.getMethylStatus() != MethylStatus.N) {
 						mec++;
 					}
-				}
 			}
 		}
 		return mec;
