@@ -6,7 +6,6 @@ import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
-import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 import edu.cwru.cbc.ASM.detect.Detection;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
@@ -43,13 +42,16 @@ public class DetectionWithMappedRead extends Detection {
         String cellLine = "i90";
         String replicate = "r1";
         String name = "chr20";
+        String homeDirectory = System.getProperty("user.home");
 
-        String fileName = "chr20-19844919-19845304";
+        String fileName = "";
 //        String fileName = "";
-        String inputName = String.format("/home/kehu/experiments/ASM/result_%s_%s/intervals_%s/%s", cellLine, replicate,
+        String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s/%s", homeDirectory, cellLine,
+                                         replicate,
                                          name, fileName);
         String summaryFileName = String.format(
-                "/home/kehu/experiments/ASM/result_%1$s_%2$s/%1$s_%2$s_%3$s_ASM_summary_%4$s", cellLine, replicate,
+                "%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_test", homeDirectory, cellLine,
+                replicate,
                 name, fileName);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
@@ -115,7 +117,8 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
-        BufferedWriter groupResultWriter = new BufferedWriter(new FileWriter(inputFile.getAbsolutePath() + ".group"));
+        BufferedWriter groupResultWriter = new BufferedWriter(
+                new FileWriter(inputFile.getAbsolutePath() + ".group_new"));
 
         groupResultWriter.write(inputFile.getName() + "\n");
         groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
@@ -137,23 +140,9 @@ public class DetectionWithMappedRead extends Detection {
             }
         }
 
-        // fill RefCpG's read count
-        List<GroupResult> groupResultList = new ArrayList<>();
-        for (Vertex vertex : graph.getClusterResult().values()) {
-            Map<Integer, RefCpG> vertexRefCpGMap = vertex.getRefCpGMap();//position-RefCpG
-            for (MappedRead mappedRead : vertex.getMappedReadList()) {
-                mappedRead.getCpgList().stream().filter(cpg -> vertexRefCpGMap.containsKey(cpg.getPos())).forEach(
-                        cpg -> {
-                            if (mappedRead.getMethylStatus(cpg.getPos()) == MethylStatus.C) {
-                                vertexRefCpGMap.get(cpg.getPos()).addMethylCount(1);
-                            } else {
-                                vertexRefCpGMap.get(cpg.getPos()).addNonMethylCount(1);
-                            }
-                        });
-            }
-            groupResultList.add(new GroupResult(new ArrayList<>(vertexRefCpGMap.values()), vertex.getMappedReadList()));
-        }
-
+        List<GroupResult> groupResultList = graph.getClusterResult().values().stream().map(
+                vertex -> new GroupResult(new ArrayList<>(vertex.getRefCpGMap().values()),
+                                          vertex.getMappedReadList())).collect(Collectors.toList());
 
         // start to write aligned result
         groupResultWriter.write("Aligned result:\n");

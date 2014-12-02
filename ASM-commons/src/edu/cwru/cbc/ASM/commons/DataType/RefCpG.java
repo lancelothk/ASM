@@ -7,7 +7,7 @@ import java.util.List;
  * Created by lancelothk on 5/27/14.
  * Store reference CpG site information in reference genome.
  */
-public class RefCpG implements BaseCpG, Comparable<RefCpG> {
+public class RefCpG implements Comparable<RefCpG> {
 	private int pos;
 	private int index;
 	private List<CpG> cpGList;
@@ -17,6 +17,17 @@ public class RefCpG implements BaseCpG, Comparable<RefCpG> {
 	public RefCpG(int pos) {
 		this.pos = pos;
 		this.cpGList = new ArrayList<>();
+	}
+
+	public RefCpG(int pos, MethylStatus methylStatus) {
+		this.pos = pos;
+		this.cpGList = new ArrayList<>();
+		if (methylStatus == MethylStatus.C) {
+			methylCount++;
+			coveredCount++;
+		} else {
+			coveredCount++;
+		}
 	}
 
 	/**
@@ -45,25 +56,25 @@ public class RefCpG implements BaseCpG, Comparable<RefCpG> {
 		return index;
 	}
 
-	public void addCpG(CpG cpg){
+	public void addCpG(CpG cpg) {
 		this.cpGList.add(cpg);
 	}
 
-	public int getCoverage(){
+	public int getCoverage() {
 		return cpGList.size();
 	}
 
-    public boolean hasPartialMethyl() {
-        int m = 0, n = 0;
-        for (CpG cpG : cpGList) {
+	public boolean hasPartialMethyl() {
+		int m = 0, n = 0;
+		for (CpG cpG : cpGList) {
 			if (cpG.getMethylStatus() == MethylStatus.C) {
 				m++;
 			} else if (cpG.getMethylStatus() == MethylStatus.T) {
 				n++;
-            }
-        }
-        return m != 0 && n != 0;
-    }
+			}
+		}
+		return m != 0 && n != 0;
+	}
 
 	public List<CpG> getCpGList() {
 		return cpGList;
@@ -88,6 +99,17 @@ public class RefCpG implements BaseCpG, Comparable<RefCpG> {
 
 	public int getMethylCount() {
 		return methylCount;
+	}
+
+	public MethylStatus getMajorMethylStatus() {
+		if (methylCount > coveredCount / 2.0) {
+			return MethylStatus.C;
+		} else if (methylCount < coveredCount / 2.0) {
+			return MethylStatus.T;
+		} else {
+			// if methylCount == nonMethylCount, return unknown
+			return MethylStatus.N;
+		}
 	}
 
 	@Override

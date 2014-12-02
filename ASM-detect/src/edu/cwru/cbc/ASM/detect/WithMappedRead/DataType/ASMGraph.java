@@ -86,7 +86,7 @@ public class ASMGraph {
         Vertex right = edge.getRight();
         // merge right to left vertex
         left.addMappedRead(right.getMappedReadList());
-        left.addCpG(right.getRefCpGMap().values());
+        left.addRefCpG(right.getRefCpGMap().values());
         //remove this edge and right vertex from graph
         edge.removeFromVertex();
         edgeList.remove(edge);

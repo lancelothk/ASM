@@ -4,7 +4,7 @@ package edu.cwru.cbc.ASM.commons.DataType;
  * Created by lancelothk on 5/27/14.
  * Store methylation information of CpG site in a read
  */
-public class CpG implements BaseCpG {
+public class CpG {
 	private MappedRead mappedRead; // link to MappedRead
 	private RefCpG refCpG; // link to CpGSite
 	private MethylStatus methylStatus;

@@ -35,7 +35,8 @@ public class CPMR {
 		String ref = "hg18_" + chr + ".fa";
 		String cellLine = "i90";
 		String replicate = "r1";
-		String experimentPath = "/home/kehu/experiments/ASM/";
+		String homeDirectory = System.getProperty("user.home");
+		String experimentPath = String.format("%s/experiments/ASM/", homeDirectory);
 
 		String referenceGenomeFileName = experimentPath + "/data/" + ref;
 		String mappedReadFileName = String.format("%s/data/%s_%s_%s", experimentPath, cellLine, replicate, chr);
