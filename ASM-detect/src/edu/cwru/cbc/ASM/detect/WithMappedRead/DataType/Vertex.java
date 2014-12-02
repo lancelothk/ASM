@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.util.*;
@@ -78,5 +79,31 @@ public class Vertex {
 
 	public int getMethylPolarity() {
 		return methylPolarity;
+	}
+
+	public double getMECScore() {
+		double mec = 0;
+		for (MappedRead mappedRead : mappedReadList) {
+			for (CpG cpG : mappedRead.getCpgList()) {
+				// exclude N case first
+				if (cpG.getMethylStatus() != MethylStatus.N) {
+					MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
+					if (refMethylStatus == MethylStatus.N) {
+						mec += 0.5;
+					} else if (cpG.getMethylStatus() != refMethylStatus) {
+						mec++;
+					}
+				}
+			}
+		}
+		return mec;
+	}
+
+	public int getCpGSum() {
+		int cpgSum = 0;
+		for (MappedRead mappedRead : mappedReadList) {
+			cpgSum += mappedRead.getCpgList().size();
+		}
+		return cpgSum;
 	}
 }

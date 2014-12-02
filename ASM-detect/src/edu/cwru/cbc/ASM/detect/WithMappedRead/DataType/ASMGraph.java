@@ -236,4 +236,20 @@ public class ASMGraph {
     public int getOriginalEdgeCount() {
         return originalEdgeCount;
     }
+
+    public double getMECSum() {
+        double mecSum = 0;
+        for (Vertex vertex : clusterResult.values()) {
+            mecSum += vertex.getMECScore();
+        }
+        return mecSum;
+    }
+
+    public int getCpGSum() {
+        int cpgSum = 0;
+        for (Vertex vertex : clusterResult.values()) {
+            cpgSum += vertex.getCpGSum();
+        }
+        return cpgSum;
+    }
 }
