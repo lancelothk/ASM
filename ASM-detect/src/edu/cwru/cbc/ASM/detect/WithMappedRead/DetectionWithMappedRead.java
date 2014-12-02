@@ -49,12 +49,12 @@ public class DetectionWithMappedRead extends Detection {
 		String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s/%s", homeDirectory, cellLine,
 										 replicate, name, fileName);
 		String summaryFileName = String.format(
-				"%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_test", homeDirectory, cellLine,
+				"%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_mec", homeDirectory, cellLine,
 				replicate, name, fileName);
 
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		summaryWriter.write(
-				"name\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tgroupSizes\n");
+				"name\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tgroupSizes\n");
 
 		int threadNumber = 6;
 
@@ -104,10 +104,10 @@ public class DetectionWithMappedRead extends Detection {
 	private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
 								double avgGroupCpGCoverage) {
 		StringBuilder sb = new StringBuilder(
-				String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t", inputFile.getName(), length,
+				String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t", inputFile.getName(), length,
 							  graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(),
 							  refCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage,
-							  graph.getMECSum(), graph.getCpGSum()));
+							  graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum()));
 		for (Vertex vertex : graph.getClusterResult().values()) {
 			sb.append(vertex.getMappedReadList().size()).append(",");
 		}
@@ -117,7 +117,7 @@ public class DetectionWithMappedRead extends Detection {
 
 	private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
 		BufferedWriter groupResultWriter = new BufferedWriter(
-				new FileWriter(inputFile.getAbsolutePath() + ".new_group"));
+				new FileWriter(inputFile.getAbsolutePath() + ".mecgroup"));
 
 		groupResultWriter.write(inputFile.getName() + "\n");
 		groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));

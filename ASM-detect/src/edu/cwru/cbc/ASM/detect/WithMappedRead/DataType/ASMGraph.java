@@ -77,6 +77,43 @@ public class ASMGraph {
                 mergeVertex(maxEdgeList.get(0));
             }
         }
+
+        if (vertexMap.values().size() > 2) {
+            // merge vertexes connected by positive weight edge
+            while (true) {
+                // if edgeList is empty
+                if (edgeList.size() == 0) {
+                    break;
+                }
+
+                List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
+                // if max weight <= 0, stop merge.
+                if (vertexMap.values().size() == 2) {
+                    break;
+                } else {
+                    // since edgeList is not empty, getMaxFromList always returns at least one element
+                    if (maxEdgeList.size() != 1) {
+                        // multiple equal max weight edges.
+                        tieWeightCounter++;
+                        // use methyl polarity to group similar vertex first
+                        // sort edge by abs of methyl polarity. Larger first
+//                    maxEdgeList = getMaxFromList(maxEdgeList, Edge::getMethylPolarityAbs);
+//                    if (maxEdgeList.size() != 1) {
+//                        tieMethylPolarity++;
+
+                        // First pick edge not connect to two clusters.
+                        // sort edge by id count. Smaller first
+                        maxEdgeList = getMinFromList(maxEdgeList, Edge::getIdCount);
+                        if (maxEdgeList.size() != 1) {
+                            tieIdCountCounter++;
+                        }
+//                    }
+                    }
+                    mergeVertex(maxEdgeList.get(0));
+                }
+            }
+        }
+
         this.clusterResult = vertexMap;
         setCoveredCpGMap();
     }
@@ -186,9 +223,6 @@ public class ASMGraph {
                     }
                 }
             }
-            if (readA.getId().equals("11222058") || readB.getId().equals("11222058")) {
-                System.out.println();
-            }
             return score / (double) count;
         } else {
             // don't have overlapped CpG, non-connected
@@ -251,5 +285,9 @@ public class ASMGraph {
             cpgSum += vertex.getCpGSum();
         }
         return cpgSum;
+    }
+
+    public double getNormMECSum() {
+        return getMECSum() / getCpGSum();
     }
 }
