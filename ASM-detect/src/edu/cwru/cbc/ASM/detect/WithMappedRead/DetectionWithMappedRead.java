@@ -3,7 +3,6 @@ package edu.cwru.cbc.ASM.detect.WithMappedRead;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
@@ -11,6 +10,7 @@ import edu.cwru.cbc.ASM.detect.Detection;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
+import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class DetectionWithMappedRead extends Detection {
 
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		summaryWriter.write(
-				"name\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tgroupSizes\n");
+				"name\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmmwScore\tmmwTest\tgroupSizes\n");
 
 		int threadNumber = 6;
 
@@ -83,7 +83,7 @@ public class DetectionWithMappedRead extends Detection {
 				new MappedReadLineProcessor(refCpGList, read -> read.getCpgList().size() >= MIN_READ_CPG));
 
 		// align read
-		AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
+//		AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
 
 		// construct graph
 		ASMGraph graph = new ASMGraph(mappedReadList);
@@ -91,23 +91,59 @@ public class DetectionWithMappedRead extends Detection {
 		// clustering
 		graph.getClusters();
 
-		if (graph.getClusterResult().size() == 0) {
-			System.out.printf("");
-		}
-
 		double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, inputFile);
 
 		return buildSummary(Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1, refCpGList, mappedReadList,
 							graph, avgGroupCpGCoverage);
 	}
 
+	private MMW calculateMMW(List<RefCpG> refCpGList, ASMGraph graph) {
+		List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
+		for (RefCpG refCpG : refCpGList) {
+			if (graph.getCoveredCpGMap().containsKey(refCpG.getPos())) {
+				if (graph.getCoveredCpGMap().get(refCpG.getPos()) == 2) {
+					twoClusterRefCpGList.add(refCpG);
+				}
+			}
+		}
+
+		MMW mmw = new MMW();
+
+		if (twoClusterRefCpGList.size() != 0 && graph.getClusterResult().size() == 2) {
+			if (twoClusterRefCpGList.size() < 5) {
+				mmw.mmwScore = -2;
+				mmw.mmwPvalue = -2;
+			} else {
+				MannWhitneyUTest test = new MannWhitneyUTest();
+
+				double[][] mmwMatrix = new double[2][twoClusterRefCpGList.size()];
+
+				for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
+					int j = 0;
+					for (Vertex vertex : graph.getClusterResult().values()) {
+						mmwMatrix[j][i] = vertex.getRefCpGMap().get(
+								twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
+						j++;
+					}
+				}
+
+				mmw.mmwScore = test.mannWhitneyU(mmwMatrix[0], mmwMatrix[1]);
+				mmw.mmwPvalue = test.mannWhitneyUTest(mmwMatrix[0], mmwMatrix[1]);
+			}
+		}
+		return mmw;
+	}
+
 	private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
 								double avgGroupCpGCoverage) {
+		MMW mmw = calculateMMW(refCpGList, graph);
+
 		StringBuilder sb = new StringBuilder(
-				String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t", inputFile.getName(), length,
+				String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t", inputFile.getName(), length,
 							  graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(),
 							  refCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage,
-							  graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum()));
+							  graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(), mmw.mmwScore,
+							  mmw.mmwPvalue));
 		for (Vertex vertex : graph.getClusterResult().values()) {
 			sb.append(vertex.getMappedReadList().size()).append(",");
 		}
@@ -196,5 +232,9 @@ public class DetectionWithMappedRead extends Detection {
 	@Override
 	protected Detection constructNewInstance() {
 		return new DetectionWithMappedRead();
+	}
+
+	private class MMW {
+		public double mmwScore = -1, mmwPvalue = -1;
 	}
 }

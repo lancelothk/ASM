@@ -86,6 +86,7 @@ public class CPMR {
 		for (int i = 0; i < refCpGList.size(); i++) {
 			RefCpG curr = refCpGList.get(i);
 			RefCpG next = (i + 1) < refCpGList.size() ? refCpGList.get(i + 1) : null;
+			// TODO check coverage and partial methylation of NEXT????
 			if (curr.getCoverage() < MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
 				cont = false;
 			} else {

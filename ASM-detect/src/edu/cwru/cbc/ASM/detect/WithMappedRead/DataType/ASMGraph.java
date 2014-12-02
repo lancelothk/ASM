@@ -78,6 +78,13 @@ public class ASMGraph {
             }
         }
 
+        refineClusterResult();
+
+        this.clusterResult = vertexMap;
+        setCoveredCpGMap();
+    }
+
+    private void refineClusterResult() {
         if (vertexMap.values().size() > 2) {
             // merge vertexes connected by positive weight edge
             while (true) {
@@ -113,9 +120,6 @@ public class ASMGraph {
                 }
             }
         }
-
-        this.clusterResult = vertexMap;
-        setCoveredCpGMap();
     }
 
     private void mergeVertex(Edge edge) {

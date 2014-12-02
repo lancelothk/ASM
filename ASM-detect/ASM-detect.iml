@@ -10,5 +10,6 @@
     <orderEntry type="module" module-name="ASM-commons" />
     <orderEntry type="library" name="guava" level="project" />
     <orderEntry type="module" module-name="ASM-align" />
+    <orderEntry type="library" name="commons-math3-3.3" level="project" />
   </component>
 </module>
