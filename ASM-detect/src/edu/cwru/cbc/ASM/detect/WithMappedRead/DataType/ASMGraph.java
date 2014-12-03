@@ -78,14 +78,13 @@ public class ASMGraph {
             }
         }
 
-        refineClusterResult();
-
-        this.clusterResult = vertexMap;
         setCoveredCpGMap();
+        refineClusterResult();
+        this.clusterResult = vertexMap;
     }
 
     private void refineClusterResult() {
-        if (vertexMap.values().size() > 2) {
+        if (maxCpGGroupCoverage() > 2) {
             // merge vertexes connected by positive weight edge
             while (true) {
                 // if edgeList is empty
@@ -95,7 +94,7 @@ public class ASMGraph {
 
                 List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
                 // if max weight <= 0, stop merge.
-                if (vertexMap.values().size() == 2) {
+                if (maxCpGGroupCoverage() == 2) {
                     break;
                 } else {
                     // since edgeList is not empty, getMaxFromList always returns at least one element
@@ -117,9 +116,14 @@ public class ASMGraph {
 //                    }
                     }
                     mergeVertex(maxEdgeList.get(0));
+                    setCoveredCpGMap();
                 }
             }
         }
+    }
+
+    private int maxCpGGroupCoverage() {
+        return coveredCpGMap.values().stream().max(Integer::compareTo).get();
     }
 
     private void mergeVertex(Edge edge) {

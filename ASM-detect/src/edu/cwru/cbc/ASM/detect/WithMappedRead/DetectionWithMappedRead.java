@@ -49,7 +49,7 @@ public class DetectionWithMappedRead extends Detection {
 		String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s/%s", homeDirectory, cellLine,
 										 replicate, name, fileName);
 		String summaryFileName = String.format(
-				"%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_mec", homeDirectory, cellLine,
+				"%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_2group", homeDirectory, cellLine,
 				replicate, name, fileName);
 
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
@@ -152,8 +152,7 @@ public class DetectionWithMappedRead extends Detection {
 	}
 
 	private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
-		BufferedWriter groupResultWriter = new BufferedWriter(
-				new FileWriter(inputFile.getAbsolutePath() + ".mecgroup"));
+		BufferedWriter groupResultWriter = new BufferedWriter(new FileWriter(inputFile.getAbsolutePath() + ".2group"));
 
 		groupResultWriter.write(inputFile.getName() + "\n");
 		groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));

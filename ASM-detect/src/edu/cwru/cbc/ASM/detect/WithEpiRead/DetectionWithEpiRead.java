@@ -47,7 +47,7 @@ public class DetectionWithEpiRead extends Detection {
             }
         });
         List<Integer> cpgs = new ArrayList<>(cpgMap.keySet());
-        cpgs.sort(Integer::compare);
+        cpgs.sort(Integer::compareTo);
         double[][] inputMatrix = new double[epireadList.size()][cpgs.size()];
         for (int i = 0; i < inputMatrix.length; i++) {
             EpiRead epiread = epireadList.get(i);
