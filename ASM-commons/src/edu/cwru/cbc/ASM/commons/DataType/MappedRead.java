@@ -155,8 +155,11 @@ public class MappedRead {
         }
     }
 
-    public String outputString() {
-        return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, end, sequence, id);
+    public String outputString(int leftBound, int rightBound) {
+        int leftOffset = start < leftBound ? leftBound - start : 0;
+        int rightOffset = end > rightBound ? end - rightBound : 0;
+        return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start + leftOffset, end - rightOffset,
+                             sequence.substring(leftOffset, sequence.length() - rightOffset), id);
     }
 
     public EpiRead getEpiRead() {

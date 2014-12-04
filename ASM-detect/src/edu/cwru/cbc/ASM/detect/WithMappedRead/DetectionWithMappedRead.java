@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.detect.WithMappedRead;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
@@ -26,7 +27,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  * ASM Detection with whole read info.
  */
 public class DetectionWithMappedRead extends Detection {
-    private static final String EXPERIMENTNAME = "2_test_group";
+    private static final String EXPERIMENTNAME = "2group";
 
 
     public DetectionWithMappedRead() {
@@ -46,7 +47,6 @@ public class DetectionWithMappedRead extends Detection {
         String homeDirectory = System.getProperty("user.home");
 
         String fileName = "";
-//        String fileName = "";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s/%s", homeDirectory, cellLine,
                                          replicate, name, fileName);
         String summaryFileName = String.format(
@@ -84,7 +84,7 @@ public class DetectionWithMappedRead extends Detection {
                 new MappedReadLineProcessor(refCpGList));
 
         // align read
-//        AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
+        AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
 
         // construct graph
         ASMGraph graph = new ASMGraph(mappedReadList);
@@ -122,9 +122,11 @@ public class DetectionWithMappedRead extends Detection {
                 for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
                     int j = 0;
                     for (Vertex vertex : graph.getClusterResult().values()) {
-                        mmwMatrix[j][i] = vertex.getRefCpGMap().get(
-                                twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
-                        j++;
+                        if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
+                            mmwMatrix[j][i] = vertex.getRefCpGMap().get(
+                                    twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
+                            j++;
+                        }
                     }
                 }
                 mmw.mmwScore = test.mannWhitneyU(mmwMatrix[0], mmwMatrix[1]);
@@ -195,7 +197,7 @@ public class DetectionWithMappedRead extends Detection {
                                           refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' '));
                 } else {
                     // fill the gap
-                    groupResultWriter.write(Strings.repeat(".", 10));
+                    groupResultWriter.write(Strings.repeat(" ", 10));
                 }
             }
             groupResultWriter.write("\n");

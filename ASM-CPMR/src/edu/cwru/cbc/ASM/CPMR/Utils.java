@@ -53,7 +53,7 @@ public class Utils {
 				new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos)));
 		mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
 		for (MappedRead mappedRead : mappedReadSet) {
-			mappedReadWriter.write(mappedRead.outputString());
+			mappedReadWriter.write(mappedRead.outputString(startPos, endPos));
 		}
 		mappedReadWriter.close();
 	}

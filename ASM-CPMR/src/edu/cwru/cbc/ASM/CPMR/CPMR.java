@@ -109,7 +109,7 @@ public class CPMR {
 											 OutputFormat outputFormat) throws IOException {
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(
 				new FileWriter(String.format("%s/%s-intervalSummary", outputPath, refChr.getChr())));
-		intervalSummaryWriter.write("chr\tstart\tend\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
+		intervalSummaryWriter.write("chr\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
 		cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = new HashSet<>();
 			list.forEach(
@@ -122,13 +122,12 @@ public class CPMR {
 				int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
 				int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
 				try {
-					intervalSummaryWriter.write(
-							String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), startPos, endPos,
+					intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(),
 										  endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpGPos,
 										  endCpGPos));
 					switch (outputFormat) {
 						case MappredRead:
-							Utils.writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
+							Utils.writeMappedReadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);
 							break;
 						case ExtEpiRead:
 							Utils.writeExtEpireadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);

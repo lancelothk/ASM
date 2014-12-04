@@ -24,16 +24,20 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 
     @Override
     public boolean processLine(String line) throws IOException {
-        if (line.startsWith("chr") || line.startsWith("ref")) {
-            return true;
-        } else if (line.equals("")) {
-            return false;
-        } else {
-            MappedRead mappedRead = processRead(line);
-            if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
-                mappedReadList.add(mappedRead);
+        try {
+            if (line.startsWith("chr") || line.startsWith("ref")) {
+                return true;
+            } else if (line.equals("")) {
+                return false;
+            } else {
+                MappedRead mappedRead = processRead(line);
+                if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
+                    mappedReadList.add(mappedRead);
+                }
+                return true;
             }
-            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Problem line: " + line + "\n", e);
         }
     }
 

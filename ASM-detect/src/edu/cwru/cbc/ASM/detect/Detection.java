@@ -10,42 +10,50 @@ import java.util.concurrent.*;
  * Super Class different detection methods.
  */
 public abstract class Detection implements Callable<String> {
-	protected File inputFile;
+    protected File inputFile;
 
-	public List<String> execute(String inputName, int threadNumber) throws ExecutionException, InterruptedException {
-		File inputFile = new File(inputName);
-		List<String> resultList = new ArrayList<>();
-		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
-		List<Future<String>> futureList = new ArrayList<>();
-		if (inputFile.isDirectory()) {
-			File[] files = inputFile.listFiles();
-			if (files == null) {
-				throw new RuntimeException("Empty folder!");
-			} else {
-				for (File file : files) {
-					if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
-							!file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~") &&
-							!file.getName().endsWith("group")) {
-						Detection newInsDetection = constructNewInstance();
-						newInsDetection.inputFile = file;
-						Future<String> future = executor.submit(newInsDetection);
-						futureList.add(future);
-					}
-				}
-			}
-		} else {
-			this.inputFile = inputFile;
-			Future<String> future = executor.submit(this);
-			futureList.add(future);
-		}
+    public List<String> execute(String inputName, int threadNumber) throws ExecutionException, InterruptedException {
+        File inputFile = new File(inputName);
+        List<String> resultList = new ArrayList<>();
+        ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
+        List<Future<String>> futureList = new ArrayList<>();
+        if (inputFile.isDirectory()) {
+            File[] files = inputFile.listFiles();
+            if (files == null) {
+                throw new RuntimeException("Empty folder!");
+            } else {
+                for (File file : files) {
+                    try {
+                        if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
+                                !file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~") &&
+                                !file.getName().endsWith("group")) {
+                            Detection newInsDetection = constructNewInstance();
+                            newInsDetection.inputFile = file;
+                            Future<String> future = executor.submit(newInsDetection);
+                            futureList.add(future);
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
+                    }
+                }
+            }
+        } else {
+            try {
+                this.inputFile = inputFile;
+                Future<String> future = executor.submit(this);
+                futureList.add(future);
+            } catch (Exception e) {
+                throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
+            }
+        }
 
-		for (Future<String> stringFuture : futureList) {
-			resultList.add(stringFuture.get());
-		}
-		executor.shutdown();
+        for (Future<String> stringFuture : futureList) {
+            resultList.add(stringFuture.get());
+        }
+        executor.shutdown();
 
-		return resultList;
-	}
+        return resultList;
+    }
 
-	abstract protected Detection constructNewInstance();
+    abstract protected Detection constructNewInstance();
 }

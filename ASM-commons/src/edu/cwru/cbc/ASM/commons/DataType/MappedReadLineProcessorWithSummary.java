@@ -19,31 +19,35 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private BitSet chrBitSet;
     private int countCoverCpG;
 
-    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList,
-                                              int refLength) {
+    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int refLength) {
         super(refCpGList);
         this.chrBitSet = new BitSet(refLength);
     }
 
     @Override
     public boolean processLine(String s) throws IOException {
-        MappedRead mappedRead = processRead(s);
-        mappedReadList.add(mappedRead);
+        try {
+            MappedRead mappedRead = processRead(s);
+            mappedReadList.add(mappedRead);
 
-        int length = mappedRead.getSequence().length();
-        int cpgCount = mappedRead.getCpgList().size();
+            int length = mappedRead.getSequence().length();
+            int cpgCount = mappedRead.getCpgList().size();
 
-        //stat variables
-        count++;
-        totalLength += length;
-        maxLength = length > maxLength ? length : maxLength;
-        minLength = length < minLength ? length : minLength;
-        totalCpGCount += cpgCount;
-        maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
-        minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
-        chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
-        countCoverCpG += (cpgCount > 0 ? 1 : 0);
-        return true;
+            //stat variables
+            count++;
+            totalLength += length;
+            maxLength = length > maxLength ? length : maxLength;
+            minLength = length < minLength ? length : minLength;
+            totalCpGCount += cpgCount;
+            maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
+            minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
+            chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
+            countCoverCpG += (cpgCount > 0 ? 1 : 0);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Problem line: " + s + "\n", e);
+        }
+
     }
 
     @Override
