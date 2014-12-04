@@ -41,7 +41,7 @@ public class ConvertToEpiRead {
         RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
         List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-                                                          new MappedReadLineProcessorWithSummary(refCpGList, null,
+                                                          new MappedReadLineProcessorWithSummary(refCpGList,
                                                                                                  refChr.getRefString().length()));
         Utils.writeExtEpireadInInterval(outputPath, refChr, 0, 0, mappedReadList);
     }

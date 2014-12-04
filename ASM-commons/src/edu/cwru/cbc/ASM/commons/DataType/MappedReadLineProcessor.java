@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -15,12 +14,11 @@ import java.util.stream.Collectors;
  * Mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
+    private static final int MIN_READ_CPG = 2;
     protected List<MappedRead> mappedReadList = new ArrayList<>();
     protected Map<Integer, RefCpG> refMap;
-    protected Predicate<MappedRead> mappedReadFilter;
 
-    public MappedReadLineProcessor(List<RefCpG> refCpGList, Predicate<MappedRead> mappedReadFilter) {
-        this.mappedReadFilter = mappedReadFilter;
+    public MappedReadLineProcessor(List<RefCpG> refCpGList) {
         this.refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
     }
 
@@ -32,7 +30,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
             return false;
         } else {
             MappedRead mappedRead = processRead(line);
-            if (mappedReadFilter == null || mappedReadFilter.test(mappedRead)) {
+            if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
                 mappedReadList.add(mappedRead);
             }
             return true;

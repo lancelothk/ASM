@@ -74,7 +74,7 @@ public class CPMR {
 
 		start = System.currentTimeMillis();
 		Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-						new MappedReadLineProcessorWithSummary(refCpGList, null, refChr.getRefString().length()));
+						new MappedReadLineProcessorWithSummary(refCpGList, refChr.getRefString().length()));
 		System.out.println("load mappedReadList complete");
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 

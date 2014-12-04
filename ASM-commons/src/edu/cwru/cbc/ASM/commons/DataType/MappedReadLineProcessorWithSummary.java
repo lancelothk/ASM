@@ -3,7 +3,6 @@ package edu.cwru.cbc.ASM.commons.DataType;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Created by lancelothk on 5/27/14.
@@ -20,9 +19,9 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private BitSet chrBitSet;
     private int countCoverCpG;
 
-    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, Predicate<MappedRead> mappedReadFilter,
+    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList,
                                               int refLength) {
-        super(refCpGList, mappedReadFilter);
+        super(refCpGList);
         this.chrBitSet = new BitSet(refLength);
     }
 
