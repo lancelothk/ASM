@@ -3,7 +3,6 @@ package edu.cwru.cbc.ASM.detect.WithMappedRead;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.align.AlignReads;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
@@ -27,6 +26,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  * ASM Detection with whole read info.
  */
 public class DetectionWithMappedRead extends Detection {
+    private static final String EXPERIMENTNAME = "2_test_group";
 
 
     public DetectionWithMappedRead() {
@@ -50,8 +50,8 @@ public class DetectionWithMappedRead extends Detection {
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s/%s", homeDirectory, cellLine,
                                          replicate, name, fileName);
         String summaryFileName = String.format(
-                "%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_2group", homeDirectory, cellLine,
-                replicate, name, fileName);
+                "%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_%6$s", homeDirectory, cellLine,
+                replicate, name, fileName, EXPERIMENTNAME);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
@@ -84,7 +84,7 @@ public class DetectionWithMappedRead extends Detection {
                 new MappedReadLineProcessor(refCpGList));
 
         // align read
-        AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
+//        AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
 
         // construct graph
         ASMGraph graph = new ASMGraph(mappedReadList);
@@ -99,24 +99,24 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     private MMW calculateMMW(List<RefCpG> refCpGList, ASMGraph graph) {
-        List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
-        for (RefCpG refCpG : refCpGList) {
-            if (graph.getCoveredCpGMap().containsKey(refCpG.getPos())) {
-                if (graph.getCoveredCpGMap().get(refCpG.getPos()) == 2) {
-                    twoClusterRefCpGList.add(refCpG);
+        MMW mmw = new MMW();
+        if (graph.getClusterResult().size() == 1) {
+            mmw.mmwScore = -1; // 1 cluster interval
+            mmw.mmwPvalue = -1;
+        } else { // cluster size == 2 or 3
+            List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
+            for (RefCpG refCpG : refCpGList) {
+                if (graph.getCoveredCpGMap().containsKey(refCpG.getPos())) {
+                    if (graph.getCoveredCpGMap().get(refCpG.getPos()) == 2) {
+                        twoClusterRefCpGList.add(refCpG);
+                    }
                 }
             }
-        }
-
-        MMW mmw = new MMW();
-
-        if (twoClusterRefCpGList.size() != 0 && graph.getClusterResult().size() == 2) {
             if (twoClusterRefCpGList.size() < 5) {
-                mmw.mmwScore = -2;
+                mmw.mmwScore = -2;  // overlapped CpG < 5
                 mmw.mmwPvalue = -2;
             } else {
                 MannWhitneyUTest test = new MannWhitneyUTest();
-
                 double[][] mmwMatrix = new double[2][twoClusterRefCpGList.size()];
 
                 for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
@@ -127,12 +127,12 @@ public class DetectionWithMappedRead extends Detection {
                         j++;
                     }
                 }
-
                 mmw.mmwScore = test.mannWhitneyU(mmwMatrix[0], mmwMatrix[1]);
                 mmw.mmwPvalue = test.mannWhitneyUTest(mmwMatrix[0], mmwMatrix[1]);
             }
         }
         return mmw;
+
     }
 
     private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
@@ -153,7 +153,8 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
-        BufferedWriter groupResultWriter = new BufferedWriter(new FileWriter(inputFile.getAbsolutePath() + ".2group"));
+        BufferedWriter groupResultWriter = new BufferedWriter(
+                new FileWriter(inputFile.getAbsolutePath() + "." + EXPERIMENTNAME));
 
         groupResultWriter.write(inputFile.getName() + "\n");
         groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
@@ -234,6 +235,6 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     private class MMW {
-        public double mmwScore = -1, mmwPvalue = -1;
+        public double mmwScore = -1010, mmwPvalue = -1010;
     }
 }
