@@ -29,7 +29,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  */
 public class DetectionWithMappedRead extends Detection {
     private static final Logger logger = Logger.getLogger(DetectionWithMappedRead.class.getName());
-    private static final String EXPERIMENT_NAME = "2group";
+    private static final String EXPERIMENT_NAME = "test";
 
     public DetectionWithMappedRead() {
     }
@@ -51,7 +51,7 @@ public class DetectionWithMappedRead extends Detection {
         final int MIN_INTERVAL_READS = 10;
         final int MIN_INTERVAL_CPG = 5;
 
-        String fileName = "";
+        String fileName = "chr20-42479747-42479895";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
                                          cellLine, replicate, name, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
                                          MIN_INTERVAL_READS, fileName);

@@ -234,7 +234,7 @@ public class ASMGraph {
             return score / (double) count;
         } else {
             // don't have overlapped CpG, non-connected
-            return 0;
+            return Double.MIN_VALUE;
         }
     }
 
