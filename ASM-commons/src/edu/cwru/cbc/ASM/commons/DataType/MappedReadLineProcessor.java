@@ -30,10 +30,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
             } else if (line.equals("")) {
                 return false;
             } else {
-                MappedRead mappedRead = processRead(line);
-                if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
-                    mappedReadList.add(mappedRead);
-                }
+                processRead(line);
                 return true;
             }
         } catch (Exception e) {
@@ -64,6 +61,9 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 //	    			}
                 i++;
             }
+        }
+        if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
+            mappedReadList.add(mappedRead);
         }
         return mappedRead;
     }

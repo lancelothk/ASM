@@ -28,8 +28,6 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     public boolean processLine(String s) throws IOException {
         try {
             MappedRead mappedRead = processRead(s);
-            mappedReadList.add(mappedRead);
-
             int length = mappedRead.getSequence().length();
             int cpgCount = mappedRead.getCpgList().size();
 

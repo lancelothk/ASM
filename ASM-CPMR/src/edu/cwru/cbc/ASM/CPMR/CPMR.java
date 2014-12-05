@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
 
 /**
  * Created by lancelothk on 5/26/14.
+ * CPMR stands for Continuous partial methylated region.
  * Main entry of the module.
  * Convert mapped reads into epigenome and split regions by continuous CpG coverage.
  */
@@ -79,58 +81,65 @@ public class CPMR {
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
-		// split regions by continuous CpG coverage
-		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
-		boolean cont = true;
-		List<RefCpG> resultRefCpGList = new ArrayList<>();
-		for (int i = 0; i < refCpGList.size(); i++) {
-			RefCpG curr = refCpGList.get(i);
-			RefCpG next = (i + 1) < refCpGList.size() ? refCpGList.get(i + 1) : null;
-			// TODO check coverage and partial methylation of NEXT????
-			if (curr.getCoverage() < MIN_CONT_COVERAGE && !curr.hasPartialMethyl()) {
-				cont = false;
-			} else {
-				if (!cont) {
-					cpgSiteIntervalList.add(resultRefCpGList);
-					resultRefCpGList = new ArrayList<>();
-				}
-				resultRefCpGList.add(curr);
-				cont = curr.hasCommonRead(next);
-			}
-		}
+		List<List<RefCpG>> cpgSiteIntervalList = getIntervals(refCpGList);
 
-		writeIntervalSummary(outputPath, refChr, cpgSiteIntervalList, outputFormat);
+		writeIntervals(outputPath, refChr, cpgSiteIntervalList, outputFormat);
 		System.out.println("Raw Interval count:\t" + cpgSiteIntervalList.size());
 		System.out.println("Output Interval count:\t" + outputIntervalCount);
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 	}
 
-	private static void writeIntervalSummary(String outputPath, RefChr refChr, List<List<RefCpG>> cpgSiteIntervalList,
-											 OutputFormat outputFormat) throws IOException {
+	private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList) {
+		// filter refCpG by coverage and partial methylation
+		List<RefCpG> filteredRefCpG = refCpGList.stream().filter(
+				refCpG -> refCpG.getCoverage() > MIN_CONT_COVERAGE && refCpG.hasPartialMethyl()).collect(
+				Collectors.toList());
+
+		// split regions by continuous CpG coverage
+		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
+		boolean cont = true;
+		List<RefCpG> resultRefCpGList = new ArrayList<>();
+		for (int i = 0; i < filteredRefCpG.size() - 1; i++) {
+			RefCpG curr = filteredRefCpG.get(i);
+			if (!cont && resultRefCpGList.size() > 0) {
+				cpgSiteIntervalList.add(resultRefCpGList);
+				resultRefCpGList = new ArrayList<>();
+			}
+			resultRefCpGList.add(curr);
+			RefCpG next = filteredRefCpG.get(i + 1);
+			cont = curr.hasCommonRead(next);
+		}
+		return cpgSiteIntervalList;
+	}
+
+	private static void writeIntervals(String outputPath, RefChr refChr, List<List<RefCpG>> cpgSiteIntervalList,
+									   OutputFormat outputFormat) throws IOException {
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(
 				new FileWriter(String.format("%s/%s-intervalSummary", outputPath, refChr.getChr())));
 		intervalSummaryWriter.write("chr\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
 		cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = new HashSet<>();
-			list.forEach(
-					(cpGSite) -> cpGSite.getCpGList().forEach((CpG cpg) -> mappedReadSet.add(cpg.getMappedRead())));
+			list.forEach((refCpG) -> {
+				refCpG.getCpGList().forEach((CpG cpg) -> mappedReadSet.add(cpg.getMappedRead()));
+				assert refCpG.getCpGList().size() >= MIN_CONT_COVERAGE; // make sure coverage is correct
+			});
 			// only pass high quality result for next step.
 			if (mappedReadSet.size() >= MIN_INTERVAL_READS && list.size() >= MIN_INTERVAL_CPG) {
 				outputIntervalCount++;
-				int startPos = mappedReadSet.stream().min((r1, r2) -> r1.getStart() - r2.getStart()).get().getStart();
-				int endPos = mappedReadSet.stream().max((r1, r2) -> r1.getStart() - r2.getStart()).get().getEnd();
 				int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
 				int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+				int startPos = startCpGPos;
+				int endPos = endCpGPos + 1;
 				try {
-					intervalSummaryWriter.write(String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(),
-										  endPos - startPos + 1, mappedReadSet.size(), list.size(), startCpGPos,
-										  endCpGPos));
+					intervalSummaryWriter.write(
+							String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), endPos - startPos + 1,
+										  mappedReadSet.size(), list.size(), startCpGPos, endCpGPos));
 					switch (outputFormat) {
 						case MappredRead:
-							Utils.writeMappedReadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);
+							Utils.writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
 							break;
 						case ExtEpiRead:
-							Utils.writeExtEpireadInInterval(outputPath, refChr, startCpGPos, endCpGPos, mappedReadSet);
+							Utils.writeExtEpireadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
 							break;
 						default:
 							throw new RuntimeException("invalid output format");
@@ -143,7 +152,7 @@ public class CPMR {
 		intervalSummaryWriter.close();
 	}
 
-	private enum OutputFormat {
+	public enum OutputFormat {
 		MappredRead, ExtEpiRead
 	}
 }

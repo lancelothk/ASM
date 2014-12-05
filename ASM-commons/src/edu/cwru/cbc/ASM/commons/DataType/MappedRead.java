@@ -162,18 +162,21 @@ public class MappedRead {
                              sequence.substring(leftOffset, sequence.length() - rightOffset), id);
     }
 
-    public EpiRead getEpiRead() {
+    public EpiRead getEpiRead(int startCpGPos, int endCpGPos) {
         if (epiRead == null && firstCpG != null) {
-            return new EpiRead(chr, firstCpG.getRefCpG().getIndex(), firstCpG.getPos(), getCpGSeq(), id);
+            return new EpiRead(chr, firstCpG.getRefCpG().getIndex(), firstCpG.getPos(),
+                               getCpGSeq(startCpGPos, endCpGPos), id);
         } else {
             return epiRead;
         }
     }
 
-    private String getCpGSeq() {
+    private String getCpGSeq(int startCpGPos, int endCpGPos) {
         StringBuilder sb = new StringBuilder();
         for (CpG cpG : cpgList) {
-            sb.append(cpG.getMethylStatus());
+            if (cpG.getPos() >= startCpGPos && cpG.getPos() <= endCpGPos) {
+                sb.append(cpG.getMethylStatus());
+            }
         }
         return sb.toString();
     }
