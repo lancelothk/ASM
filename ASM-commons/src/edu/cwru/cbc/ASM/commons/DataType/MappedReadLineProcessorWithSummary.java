@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.commons.DataType;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
@@ -18,18 +19,18 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private int minCpGCount = Integer.MAX_VALUE;
     private BitSet chrBitSet;
     private int countCoverCpG;
+    private BufferedWriter reportWriter;
 
-    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int refLength) {
+    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, BufferedWriter reportWriter, int refLength) {
         super(refCpGList);
         this.chrBitSet = new BitSet(refLength);
+        this.reportWriter = reportWriter;
     }
 
     @Override
     public boolean processLine(String s) throws IOException {
         try {
             MappedRead mappedRead = processRead(s);
-            mappedReadList.add(mappedRead);
-
             int length = mappedRead.getSequence().length();
             int cpgCount = mappedRead.getCpgList().size();
 
@@ -52,20 +53,25 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
 
     @Override
     public List<MappedRead> getResult() {
-        printSummary();
+        try {
+            printSummary();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return this.mappedReadList;
     }
 
-    private void printSummary() {
-        System.out.println("Reference and Mapped Reads summary:");
-        System.out.printf("totalReadCount:%d\tcountCoverAtLeastOneCpG:%d\n", count, countCoverCpG);
-        System.out.printf("totalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n", totalLength,
-                          totalLength / (double) count, maxLength, minLength);
-        System.out.printf("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,
-                          totalCpGCount / (double) count, maxCpGCount, minCpGCount);
-        System.out.printf("refLength:%d\trefCpgSiteNumber:%d\n", chrBitSet.size(), refMap.size());
-        System.out.printf("readCoverage:%f\tcoveredLength:%d\n", totalLength / (double) chrBitSet.size(),
-                          chrBitSet.cardinality());
+    private void printSummary() throws IOException {
+        printTermAndFile("Reference and Mapped Reads summary:\n");
+        printTermAndFile(String.format("totalReadCount:%d\tcountCoverAtLeastOneCpG:%d\n", count, countCoverCpG));
+        printTermAndFile(String.format("totalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n", totalLength,
+                                       totalLength / (double) count, maxLength, minLength));
+        printTermAndFile(
+                String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,
+                              totalCpGCount / (double) count, maxCpGCount, minCpGCount));
+        printTermAndFile(String.format("refLength:%d\trefCpgSiteNumber:%d\n", chrBitSet.size(), refMap.size()));
+        printTermAndFile(String.format("readCoverage:%f\tcoveredLength:%d\n", totalLength / (double) chrBitSet.size(),
+                                       chrBitSet.cardinality()));
         long totalCpGCountInRefMap = 0;
         int maxCpGCoverage = Integer.MIN_VALUE;
         int minCpGCoverage = Integer.MAX_VALUE;
@@ -75,8 +81,13 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
             maxCpGCoverage = coverage > maxCpGCoverage ? coverage : maxCpGCoverage;
             minCpGCoverage = coverage < minCpGCoverage ? coverage : minCpGCoverage;
         }
-        System.out.printf("totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
-                          totalCpGCountInRefMap, totalCpGCountInRefMap / (double) refMap.size(), maxCpGCoverage,
-                          minCpGCoverage);
+        printTermAndFile(String.format(
+                "totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
+                totalCpGCountInRefMap, totalCpGCountInRefMap / (double) refMap.size(), maxCpGCoverage, minCpGCoverage));
+    }
+
+    private void printTermAndFile(String s) throws IOException {
+        reportWriter.write(s);
+        System.out.printf(s);
     }
 }

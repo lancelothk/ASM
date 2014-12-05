@@ -30,10 +30,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
             } else if (line.equals("")) {
                 return false;
             } else {
-                MappedRead mappedRead = processRead(line);
-                if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
-                    mappedReadList.add(mappedRead);
-                }
+                processRead(line);
                 return true;
             }
         } catch (Exception e) {
@@ -54,18 +51,33 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 
         MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
                                                Integer.parseInt(items[3]), items[4], items[5]);
+
+        if (countCpGInRead(start, end) >= MIN_READ_CPG) {
+            for (int i = start; i < end; i++) {
+                if (refMap.containsKey(i)) {
+                    CpG cpg = new CpG(mappedRead, refMap.get(i), mappedRead.getMethylStatus(i));
+                    refMap.get(i).addCpG(cpg);
+                    // ignore unknown methyl CpG
+//  				if (cpg.getMethylStatus() != MethylStatusq.N) {
+                    mappedRead.addCpG(cpg);
+//	    			}
+                    i++;
+                }
+            }
+            mappedReadList.add(mappedRead);
+        }
+        return mappedRead;
+    }
+
+    private int countCpGInRead(int start, int end) {
+        int count = 0;
         for (int i = start; i < end; i++) {
             if (refMap.containsKey(i)) {
-                CpG cpg = new CpG(mappedRead, refMap.get(i), mappedRead.getMethylStatus(i));
-                refMap.get(i).addCpG(cpg);
-                // ignore unknown methyl CpG
-//  				if (cpg.getMethylStatus() != MethylStatusq.N) {
-                mappedRead.addCpG(cpg);
-//	    			}
+                count++;
                 i++;
             }
         }
-        return mappedRead;
+        return count;
     }
 
     @Override

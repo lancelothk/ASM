@@ -32,13 +32,13 @@ public class Utils {
 	/**
 	 * write single interval output in ExtEpiRead format *
 	 */
-	public static void writeExtEpireadInInterval(String outputPath, RefChr refChr, int startCpGPos, int endCpGPos,
+	public static void writeExtEpireadInInterval(String outputPath, RefChr refChr, int startPos, int endPos,
 												 Collection<MappedRead> mappedReadSet) throws IOException {
 		BufferedWriter mappedReadWriter = new BufferedWriter(
-				new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startCpGPos, endCpGPos)));
+				new FileWriter(String.format("%s/%s-%d-%d", outputPath, refChr.getChr(), startPos, endPos + 1)));
 		for (MappedRead mappedRead : mappedReadSet) {
-			if (mappedRead.getEpiRead() != null) {
-				mappedReadWriter.write(mappedRead.getEpiRead().extEpireadFormat());
+			if (mappedRead.getEpiRead(startPos, endPos) != null) {
+				mappedReadWriter.write(mappedRead.getEpiRead(startPos, endPos).extEpireadFormat());
 			}
 		}
 		mappedReadWriter.close();
