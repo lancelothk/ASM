@@ -1,12 +1,15 @@
 package edu.cwru.cbc.ASM.commons;
 
 import java.io.*;
+import java.util.logging.Logger;
 
 /**
  * Created by ke on 2/19/14.
  * Split original downloaded whole file into chromosomes.
  */
 public class SplitFileByChr {
+    private static final Logger logger = Logger.getLogger(SplitFileByChr.class.getName());
+
     public static void main(String[] args) throws IOException {
         String inputFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/reads_bs_i90_r1.mapped";
         String outputFilePath = "/media/ke/win-data/Dataset/WholeGenomeMethylation/i90_r1/";
@@ -25,7 +28,7 @@ public class SplitFileByChr {
             items = line.split("\t");
             if (!chr.equals(items[0])) {
                 if (bufferedWriter != null) {
-                    System.out.printf("%s\tfinished%n", chr);
+                    logger.info(chr + "\tfinished");
                     bufferedWriter.close();
                 }
                 chr = items[0];

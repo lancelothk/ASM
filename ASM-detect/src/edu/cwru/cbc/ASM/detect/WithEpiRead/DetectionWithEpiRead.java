@@ -11,13 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
 /**
  * Created by kehu on 11/12/14.
  * Implementation of ASM detection with using EpiRead
  */
 public class DetectionWithEpiRead extends Detection {
-    private static final int MIN_READ_CPG = 2;
+    private static final Logger logger = Logger.getLogger(DetectionWithEpiRead.class.getName());
     private EpiRead.EpiReadFormat format;
 
     public DetectionWithEpiRead(EpiRead.EpiReadFormat format) {
@@ -32,7 +33,7 @@ public class DetectionWithEpiRead extends Detection {
         EpiRead.EpiReadFormat format = EpiRead.EpiReadFormat.extEpiread;
 
         new DetectionWithEpiRead(format).execute(inputName, threadNumber);
-        System.out.println(System.currentTimeMillis() - start + "ms");
+        logger.info(System.currentTimeMillis() - start + "ms");
     }
 
     private double[][] buildInputMatrix() throws IOException {
@@ -169,13 +170,15 @@ public class DetectionWithEpiRead extends Detection {
                 }
             }
         }
-        System.out.println("PartA");
-        partA.forEach((i, j) -> System.out.printf("%d\t", i));
-        System.out.println();
+        StringBuilder sb = new StringBuilder();
+        sb.append("PartA\n");
+        partA.forEach((i, j) -> sb.append(i).append("\t"));
+        sb.append("\n");
 
-        System.out.println("PartB");
-        partB.forEach((i, j) -> System.out.printf("%d\t", i));
-        System.out.println();
+        sb.append("PartB\n");
+        partB.forEach((i, j) -> sb.append(i).append("\t"));
+        sb.append("\n");
+        logger.info(sb.toString());
         return "";
     }
 

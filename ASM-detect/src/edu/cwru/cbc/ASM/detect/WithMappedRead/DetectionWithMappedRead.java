@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
@@ -27,8 +28,8 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  * ASM Detection with whole read info.
  */
 public class DetectionWithMappedRead extends Detection {
-    private static final String EXPERIMENTNAME = "2group";
-
+    private static final Logger logger = Logger.getLogger(DetectionWithMappedRead.class.getName());
+    private static final String EXPERIMENT_NAME = "2group";
 
     public DetectionWithMappedRead() {
     }
@@ -46,12 +47,18 @@ public class DetectionWithMappedRead extends Detection {
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
 
+        final int MIN_CONT_COVERAGE = 4;
+        final int MIN_INTERVAL_READS = 10;
+        final int MIN_INTERVAL_CPG = 5;
+
         String fileName = "";
-        String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s/%s", homeDirectory, cellLine,
-                                         replicate, name, fileName);
+        String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
+                                         cellLine, replicate, name, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
+                                         MIN_INTERVAL_READS, fileName);
         String summaryFileName = String.format(
-                "%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_%6$s", homeDirectory, cellLine,
-                replicate, name, fileName, EXPERIMENTNAME);
+                "%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_%6$s_%7$d_%8$d_%9$d",
+                homeDirectory, cellLine, replicate, name, fileName, EXPERIMENT_NAME, MIN_CONT_COVERAGE,
+                MIN_INTERVAL_CPG, MIN_INTERVAL_READS);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
@@ -66,7 +73,7 @@ public class DetectionWithMappedRead extends Detection {
         }
 
         summaryWriter.close();
-        System.out.println(System.currentTimeMillis() - start + "ms");
+        logger.info(System.currentTimeMillis() - start + "ms");
     }
 
     public String call() throws Exception {
@@ -156,7 +163,7 @@ public class DetectionWithMappedRead extends Detection {
 
     private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
         BufferedWriter groupResultWriter = new BufferedWriter(
-                new FileWriter(inputFile.getAbsolutePath() + "." + EXPERIMENTNAME));
+                new FileWriter(inputFile.getAbsolutePath() + "." + EXPERIMENT_NAME));
 
         groupResultWriter.write(inputFile.getName() + "\n");
         groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));

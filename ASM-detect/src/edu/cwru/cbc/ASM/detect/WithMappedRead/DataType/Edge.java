@@ -14,8 +14,8 @@ public class Edge {
 
     public Edge(Vertex left, Vertex right, double weight) {
         if (left == right){
-			throw new RuntimeException("same vertex in one edge!");
-		}
+            throw new RuntimeException("same vertex in one edge!" + left.getId());
+        }
         left.addEdge(this);
         right.addEdge(this);
         this.left = left;
@@ -26,7 +26,7 @@ public class Edge {
 
     public boolean replaceVertex(Vertex o, Vertex n) {
         if (o == n) {
-            throw new RuntimeException("old and new vertex are same!");
+            throw new RuntimeException("old and new vertex are same!" + o.getId());
         }
         if (left == o) {
             left = n;
