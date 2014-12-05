@@ -66,6 +66,9 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
             }
             mappedReadList.add(mappedRead);
         }
+        if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
+            mappedReadList.add(mappedRead);
+        }
         return mappedRead;
     }
 
