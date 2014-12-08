@@ -11,6 +11,9 @@ import java.util.concurrent.*;
  */
 public abstract class Detection implements Callable<String> {
     protected File inputFile;
+    protected String chr;
+    protected int startPos;
+    protected int endPos;
 
     public List<String> execute(String inputName, int threadNumber) throws ExecutionException, InterruptedException {
         File inputFile = new File(inputName);
@@ -53,6 +56,16 @@ public abstract class Detection implements Callable<String> {
         executor.shutdown();
 
         return resultList;
+    }
+
+    protected void extractIntervalPosition(File inputFile) {
+        String[] items = inputFile.getName().split("-");
+        if (items.length != 3) {
+            throw new RuntimeException("invalid input file name format!\t" + inputFile.getName());
+        }
+        chr = items[0];
+        startPos = Integer.parseInt(items[1]);
+        endPos = Integer.parseInt(items[2]);
     }
 
     abstract protected Detection constructNewInstance();

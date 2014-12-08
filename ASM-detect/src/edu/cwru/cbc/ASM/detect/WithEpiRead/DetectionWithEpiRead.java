@@ -84,6 +84,8 @@ public class DetectionWithEpiRead extends Detection {
 
     @Override
     public String call() throws Exception {
+        extractIntervalPosition(inputFile);
+
         Map<Integer, Integer> p = new HashMap<>();
         Map<Integer, Integer> partA = new HashMap<>();
         Map<Integer, Integer> partB = new HashMap<>();

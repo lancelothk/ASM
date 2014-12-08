@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
+import com.google.common.collect.Sets;
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
@@ -8,15 +9,18 @@ import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by kehu on 11/17/14.
  * Graph for detecting ASM.
  */
 public class ASMGraph {
+    private static final Logger logger = Logger.getLogger(ASMGraph.class.getName());
     private List<Edge> edgeList = new ArrayList<>();
     private Map<String, Vertex> vertexMap = new HashMap<>();
-    private Map<Integer, Integer> coveredCpGMap; // pos <--> count
+    private Map<Integer, ClusterRefCpG> clusterRefCpGMap; // pos <--> count
     private Map<String, Vertex> clusterResult;
     // count how many tie situation occurs. For analysis use
     private int tieWeightCounter, tieIdCountCounter, tieMethylPolarity;
@@ -33,6 +37,7 @@ public class ASMGraph {
                         vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
                     }
                     if (!vertexMap.containsKey(idJ)) {
+
                         vertexMap.put(idJ, new Vertex(mappedReadList.get(j)));
                     }
                     edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
@@ -80,9 +85,47 @@ public class ASMGraph {
 
         setCoveredCpGMap();
         refineClusterResult();
+        mergeNonoverlappedClusters();
         this.clusterResult = vertexMap;
     }
 
+    private void mergeNonoverlappedClusters() {
+        int defaultCaseCount = 0;
+        while (true) {
+            int prevSize = vertexMap.size();
+            Set<Vertex> curr, next;
+            List<ClusterRefCpG> clusterRefCpGList = clusterRefCpGMap.values().stream().filter(
+                    c -> c.getClusterCount() >= 2).collect(Collectors.toList());
+            clusterRefCpGList.sort(ClusterRefCpG::compareTo);
+            for (int i = 0; i < clusterRefCpGList.size() - 1; i++) {
+                curr = clusterRefCpGList.get(i).getClusterSet();
+                next = clusterRefCpGList.get(i + 1).getClusterSet();
+                Set<Vertex> diff = Sets.symmetricDifference(curr, next);
+                if (diff.size() == 2) {
+                    // merge two diff vertexes
+                    Vertex[] diffArray = diff.toArray(new Vertex[2]);
+                    mergeVertex(diffArray[0], diffArray[1]);
+                    break;
+                } else if (diff.size() > 2) {
+                    // more than 2 diff vertexes
+                    // TODO how to merge?
+                    defaultCaseCount++;
+                }
+                // else:
+                // same set, do nothing
+                // or
+                // one set with 2 vertexes, one set with 1 vertex, do nothing
+            }
+            setCoveredCpGMap();
+            // break loop when no more vertex can be merged.
+            if (prevSize == vertexMap.size()) {
+                break;
+            }
+        }
+//        logger.info("default case count:\t" + defaultCaseCount);
+    }
+
+    // merge until max cpg group coverage = 2
     private void refineClusterResult() {
         if (maxCpGGroupCoverage() > 2) {
             // merge vertexes connected by positive weight edge
@@ -123,7 +166,8 @@ public class ASMGraph {
     }
 
     private int maxCpGGroupCoverage() {
-        return coveredCpGMap.values().stream().max(Integer::compareTo).get();
+        return clusterRefCpGMap.values().stream().max(
+                (c1, c2) -> c1.getClusterCount() - c2.getClusterCount()).get().getClusterCount();
     }
 
     private void mergeVertex(Edge edge) {
@@ -147,6 +191,15 @@ public class ASMGraph {
         right.getAdjEdges().forEach(left::addEdge);
         // update edges of vertex which connect both left and right
         updateAndRemoveDupEdge(edgeList);
+    }
+
+    private void mergeVertex(Vertex a, Vertex b) {
+        // merge b to a
+        a.addMappedRead(b.getMappedReadList());
+        a.addRefCpG(b.getRefCpGMap().values());
+        vertexMap.remove(b.getId());
+
+        // since only called in final merging, don't need to update edges.
     }
 
     private void updateAndRemoveDupEdge(List<Edge> edgeList) {
@@ -239,20 +292,20 @@ public class ASMGraph {
     }
 
     private void setCoveredCpGMap() {
-        coveredCpGMap = new HashMap<>();
+        clusterRefCpGMap = new HashMap<>();
         for (Vertex vertex : vertexMap.values()) {
             for (RefCpG refCpG : vertex.getRefCpGMap().values()) {
-                if (!coveredCpGMap.containsKey(refCpG.getPos())) {
-                    coveredCpGMap.put(refCpG.getPos(), 1);
+                if (!clusterRefCpGMap.containsKey(refCpG.getPos())) {
+                    clusterRefCpGMap.put(refCpG.getPos(), new ClusterRefCpG(refCpG.getPos(), vertex));
                 } else {
-                    coveredCpGMap.put(refCpG.getPos(), coveredCpGMap.get(refCpG.getPos()) + 1);
+                    clusterRefCpGMap.get(refCpG.getPos()).addVertex(vertex);
                 }
             }
         }
     }
 
-    public Map<Integer, Integer> getCoveredCpGMap() {
-        return coveredCpGMap;
+    public Map<Integer, ClusterRefCpG> getClusterRefCpGMap() {
+        return clusterRefCpGMap;
     }
 
     public Map<String, Vertex> getClusterResult() {

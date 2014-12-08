@@ -29,7 +29,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  */
 public class DetectionWithMappedRead extends Detection {
     private static final Logger logger = Logger.getLogger(DetectionWithMappedRead.class.getName());
-    private static final String EXPERIMENT_NAME = "test";
+    private static final String EXPERIMENT_NAME = "2group";
 
     public DetectionWithMappedRead() {
     }
@@ -51,7 +51,7 @@ public class DetectionWithMappedRead extends Detection {
         final int MIN_INTERVAL_READS = 10;
         final int MIN_INTERVAL_CPG = 5;
 
-        String fileName = "chr20-42479747-42479895";
+        String fileName = "";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
                                          cellLine, replicate, name, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
                                          MIN_INTERVAL_READS, fileName);
@@ -62,7 +62,7 @@ public class DetectionWithMappedRead extends Detection {
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
-                "name\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmmwScore\tmmwTest\tgroupSizes\n");
+                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmmwScore\tmmwTest\tgroupSizes\n");
 
         int threadNumber = 6;
 
@@ -77,15 +77,11 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     public String call() throws Exception {
-        String[] items = inputFile.getName().split("-");
-        if (items.length != 3) {
-            throw new RuntimeException("invalid input file name format!\t" + inputFile.getName());
-        }
-        int initPos = Integer.parseInt(items[1]);
+        extractIntervalPosition(inputFile);
 
         // load input
         String reference = readRef(inputFile);
-        List<RefCpG> refCpGList = extractCpGSite(reference, initPos);
+        List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
         // filter out reads which only cover 1 or no CpG sites
         List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8).readLines(
                 new MappedReadLineProcessor(refCpGList));
@@ -101,7 +97,7 @@ public class DetectionWithMappedRead extends Detection {
 
         double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, inputFile);
 
-        return buildSummary(Integer.parseInt(items[2]) - Integer.parseInt(items[1]) + 1, refCpGList, mappedReadList,
+        return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList,
                             graph, avgGroupCpGCoverage);
     }
 
@@ -113,8 +109,8 @@ public class DetectionWithMappedRead extends Detection {
         } else { // cluster size == 2 or 3
             List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
             for (RefCpG refCpG : refCpGList) {
-                if (graph.getCoveredCpGMap().containsKey(refCpG.getPos())) {
-                    if (graph.getCoveredCpGMap().get(refCpG.getPos()) == 2) {
+                if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
+                    if (graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount() == 2) {
                         twoClusterRefCpGList.add(refCpG);
                     }
                 }
@@ -149,7 +145,8 @@ public class DetectionWithMappedRead extends Detection {
         MMW mmw = calculateMMW(refCpGList, graph);
 
         StringBuilder sb = new StringBuilder(
-                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t", inputFile.getName(), length,
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t", chr, startPos, endPos,
+                              length,
                               graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(),
                               refCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage,
                               graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(), mmw.mmwScore,
@@ -178,10 +175,11 @@ public class DetectionWithMappedRead extends Detection {
         // print refCpG's group coverage
         double sum = 0;
         for (RefCpG refCpG : refCpGList) {
-            if (graph.getCoveredCpGMap().containsKey(refCpG.getPos())) {
+            if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
                 groupResultWriter.write(String.format("pos: %d\tcount: %d\n", refCpG.getPos(),
-                                                      graph.getCoveredCpGMap().get(refCpG.getPos())));
-                sum += graph.getCoveredCpGMap().get(refCpG.getPos());
+                                                      graph.getClusterRefCpGMap().get(
+                                                              refCpG.getPos()).getClusterCount()));
+                sum += graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount();
             }
         }
 
@@ -223,7 +221,7 @@ public class DetectionWithMappedRead extends Detection {
         }
 
         groupResultWriter.close();
-        return sum / graph.getCoveredCpGMap().size();
+        return sum / graph.getClusterRefCpGMap().size();
     }
 
     private String readRef(File inputFile) throws IOException {
