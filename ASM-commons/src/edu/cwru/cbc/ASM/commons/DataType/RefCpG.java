@@ -108,7 +108,7 @@ public class RefCpG implements Comparable<RefCpG> {
 			return MethylStatus.T;
 		} else {
 			// if methylCount == nonMethylCount, return unknown
-			return MethylStatus.N;
+			return MethylStatus.E;
 		}
 	}
 

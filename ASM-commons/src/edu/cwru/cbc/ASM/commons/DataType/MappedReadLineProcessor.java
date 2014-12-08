@@ -58,9 +58,9 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
                     CpG cpg = new CpG(mappedRead, refMap.get(i), mappedRead.getMethylStatus(i));
                     refMap.get(i).addCpG(cpg);
                     // ignore unknown methyl CpG
-//  				if (cpg.getMethylStatus() != MethylStatusq.N) {
-                    mappedRead.addCpG(cpg);
-//	    			}
+                    if (cpg.getMethylStatus() != MethylStatus.N) {
+                        mappedRead.addCpG(cpg);
+                    }
                     i++;
                 }
             }

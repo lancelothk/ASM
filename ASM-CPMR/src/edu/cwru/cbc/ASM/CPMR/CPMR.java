@@ -31,7 +31,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  * Convert mapped reads into epigenome and split regions by continuous CpG coverage.
  */
 public class CPMR {
-    public static final int MIN_CONT_COVERAGE = 3;
+    public static final int MIN_CONT_COVERAGE = 4;
     public static final int MIN_INTERVAL_READS = 10;
     public static final int MIN_INTERVAL_CPG = 5;
     private static final Logger logger = Logger.getLogger(CPMR.class.getName());

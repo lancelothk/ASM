@@ -164,7 +164,6 @@ public class DetectionWithMappedRead extends Detection {
 
         groupResultWriter.write(inputFile.getName() + "\n");
         groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
-        groupResultWriter.write(String.format("tied methyl polarity:%d\n", graph.getTieMethylPolarity()));
         groupResultWriter.write(String.format("tied id counter:%d\n", graph.getTieIdCountCounter()));
 
         // assign index of cpg

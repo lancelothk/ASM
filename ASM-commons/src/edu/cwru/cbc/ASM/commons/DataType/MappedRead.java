@@ -20,7 +20,6 @@ public class MappedRead {
     private CpG firstCpG;
     private CpG lastCpG;
     private EpiRead epiRead;
-    private int methylPolarity;
 
     public MappedRead(String chr, char strand, int start, int end, String sequence, String id) {
         super();
@@ -141,18 +140,6 @@ public class MappedRead {
                 lastCpG = cpg;
             }
         }
-        switch (cpg.getMethylStatus()) {
-            case C:
-                methylPolarity++;
-                break;
-            case T:
-                methylPolarity--;
-                break;
-            case N:
-                break;
-            default:
-                throw new RuntimeException("Unknown MethylStatus type!");
-        }
     }
 
     public String outputString(int leftBound, int rightBound) {
@@ -193,7 +180,4 @@ public class MappedRead {
         return lastCpG;
     }
 
-    public int getMethylPolarity() {
-        return methylPolarity;
-    }
 }

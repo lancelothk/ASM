@@ -23,7 +23,7 @@ public class ASMGraph {
     private Map<Integer, ClusterRefCpG> clusterRefCpGMap; // pos <--> count
     private Map<String, Vertex> clusterResult;
     // count how many tie situation occurs. For analysis use
-    private int tieWeightCounter, tieIdCountCounter, tieMethylPolarity;
+    private int tieWeightCounter, tieIdCountCounter;
     private int originalVertexCount, originalEdgeCount;
 
     public ASMGraph(List<MappedRead> mappedReadList) {
@@ -65,11 +65,6 @@ public class ASMGraph {
                 if (maxEdgeList.size() != 1) {
                     // multiple equal max weight edges.
                     tieWeightCounter++;
-                    // use methyl polarity to group similar vertex first
-                    // sort edge by abs of methyl polarity. Larger first
-//                    maxEdgeList = getMaxFromList(maxEdgeList, Edge::getMethylPolarityAbs);
-//                    if (maxEdgeList.size() != 1) {
-//                        tieMethylPolarity++;
 
                     // First pick edge not connect to two clusters.
                     // sort edge by id count. Smaller first
@@ -144,11 +139,6 @@ public class ASMGraph {
                     if (maxEdgeList.size() != 1) {
                         // multiple equal max weight edges.
                         tieWeightCounter++;
-                        // use methyl polarity to group similar vertex first
-                        // sort edge by abs of methyl polarity. Larger first
-//                    maxEdgeList = getMaxFromList(maxEdgeList, Edge::getMethylPolarityAbs);
-//                    if (maxEdgeList.size() != 1) {
-//                        tieMethylPolarity++;
 
                         // First pick edge not connect to two clusters.
                         // sort edge by id count. Smaller first
@@ -272,11 +262,9 @@ public class ASMGraph {
                     count++;
                     if (cpgA.getPos() == cpgB.getPos()) {
                         if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
-                            if (cpgA.getMethylStatus() == MethylStatus.N || cpgB.getMethylStatus() == MethylStatus.N) {
-                                score -= 0;
-                            } else {
-                                score--;
-                            }
+                            assert cpgA.getMethylStatus() != MethylStatus.N;
+                            assert cpgB.getMethylStatus() != MethylStatus.N;
+                            score--;
                         } else {
                             score++;
                         }
@@ -318,10 +306,6 @@ public class ASMGraph {
 
     public int getTieIdCountCounter() {
         return tieIdCountCounter;
-    }
-
-    public int getTieMethylPolarity() {
-        return tieMethylPolarity;
     }
 
     public int getOriginalVertexCount() {

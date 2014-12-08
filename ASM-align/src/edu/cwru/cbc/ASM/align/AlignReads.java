@@ -28,7 +28,6 @@ public class AlignReads {
         File targetFile = new File(fileName);
         if (targetFile.isDirectory()) {
             File[] files = targetFile.listFiles();
-            assert files != null;
             for (File file : files) {
                 if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
                     String outputFileName = file.getAbsolutePath() + ".aligned";

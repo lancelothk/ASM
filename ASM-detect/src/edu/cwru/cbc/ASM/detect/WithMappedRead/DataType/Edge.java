@@ -1,7 +1,5 @@
 package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
-import static java.lang.Math.abs;
-
 /**
  * Created by lancelothk on 5/14/14.
  * Edge in graph.
@@ -13,7 +11,7 @@ public class Edge {
     private String id = null;
 
     public Edge(Vertex left, Vertex right, double weight) {
-        if (left == right){
+        if (left == right) {
             throw new RuntimeException("same vertex in one edge!" + left.getId());
         }
         left.addEdge(this);
@@ -57,20 +55,16 @@ public class Edge {
         this.weight = weight;
     }
 
-	public int getIdCount(){
+    public int getIdCount() {
         return left.getMappedReadList().size() + right.getMappedReadList().size();
     }
 
-    public int getMethylPolarityAbs() {
-        return abs(left.getMethylPolarity() + right.getMethylPolarity());
+    public void removeFromVertex() {
+        this.left.removeEdge(this);
+        this.right.removeEdge(this);
     }
 
-	public void removeFromVertex() {
-		this.left.removeEdge(this);
-		this.right.removeEdge(this);
-	}
-
-	public String getUniqueId(){
+    public String getUniqueId() {
         return id == null ? calcId() : id;
     }
 
