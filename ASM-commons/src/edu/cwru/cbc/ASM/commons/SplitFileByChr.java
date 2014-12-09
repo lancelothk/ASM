@@ -16,6 +16,7 @@ public class SplitFileByChr {
         split(inputFileName, outputFilePath);
     }
 
+    // TODO add unit test if this is used again
     public static void split(String inputFileName, String outputFilePath) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFileName));
         BufferedWriter bufferedWriter = null;

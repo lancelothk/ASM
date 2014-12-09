@@ -8,6 +8,9 @@ public class RefChr {
 	private String chr;
 	private String ref;
 
+	/**
+	 * @param refString should be upperCase string and without space in it.
+	 */
 	public RefChr(String chr, String refString) {
 		this.chr = chr;
 		this.ref = refString;

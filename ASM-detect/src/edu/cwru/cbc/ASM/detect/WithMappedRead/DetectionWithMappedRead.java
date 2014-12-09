@@ -11,6 +11,7 @@ import edu.cwru.cbc.ASM.detect.Detection;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 
 import java.io.*;
@@ -231,7 +232,10 @@ public class DetectionWithMappedRead extends Detection {
             throw new RuntimeException(
                     "invalid reference line in interval read file!\t" + line + "\t" + inputFile.getName());
         } else {
-            return items[1].toUpperCase();
+            // item[1](reference string) should be in uppercase and without space
+            assert StringUtils.isAllUpperCase(items[1]);
+            assert !items[1].contains(" ");
+            return items[1];
         }
     }
 

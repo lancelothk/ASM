@@ -36,6 +36,7 @@ public class EpiRead implements Comparable<EpiRead> {
     /**
      * Read epiread format from raw line
      */
+    // TODO add unit test if use EpiRead
     public static EpiRead ParseEpiRead(String line, EpiReadFormat format) {
         String[] items = line.split("\t");
         switch (format) {

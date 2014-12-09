@@ -14,17 +14,17 @@ import java.util.List;
 public class AlignReads {
     private static String ref;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_chr20/chr20-20819510-20819616";
+            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_chr20_4_5_10/chr20-17207805-17207887";
         } else {
             targetFileName = args[0];
         }
         AlignReads.align(targetFileName);
     }
 
-    public static void align(String fileName) {
+    public static void align(String fileName) throws IOException {
         File targetFile = new File(fileName);
         if (targetFile.isDirectory()) {
             File[] files = targetFile.listFiles();
@@ -42,50 +42,42 @@ public class AlignReads {
         }
     }
 
-    public static ArrayList<MappedRead> readMappedReads(File inputFile) {
+    public static ArrayList<MappedRead> readMappedReads(File inputFile) throws IOException {
         ArrayList<MappedRead> readsList = new ArrayList<>();
         BufferedReader bufferedReader;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(inputFile));
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.startsWith("ref")) {
-                    ref = line.split("\t")[1];
-                    continue;
-                }
-                String[] items = line.split("\t");
-                if (!items[1].equals("+") && !items[1].equals("-")) {
-                    System.err.println(line);
-                    System.err.println("invalid strand symbol!");
-                }
-                readsList.add(new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
-                                             Integer.parseInt(items[3]), items[4], items[5]));
+        bufferedReader = new BufferedReader(new FileReader(inputFile));
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            if (line.startsWith("ref")) {
+                ref = line.split("\t")[1];
+                continue;
             }
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(0);
+            String[] items = line.split("\t");
+            if (!items[1].equals("+") && !items[1].equals("-")) {
+                System.err.println(line);
+                System.err.println("invalid strand symbol!");
+            }
+            readsList.add(
+                    new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]), Integer.parseInt(items[3]),
+                                   items[4], items[5]));
         }
+        bufferedReader.close();
         return readsList;
     }
 
-    public static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) {
+    public static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) throws IOException {
         // sort reads first
         readsList.sort(new ReadComparator());
         // set initial position
         int initialPos = readsList.get(0).getStart();
         BufferedWriter bufferedWriter;
-        try {
-            bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
-            if (ref != null) {
-                bufferedWriter.write(String.format("ref:\t%s\n", ref));
-            }
-            for (MappedRead read : readsList) {
-                bufferedWriter.write(read.toString(initialPos) + "\n");
-            }
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
+        if (ref != null) {
+            bufferedWriter.write(String.format("ref:\t%s\n", ref));
         }
+        for (MappedRead read : readsList) {
+            bufferedWriter.write(read.toString(initialPos) + "\n");
+        }
+        bufferedWriter.close();
     }
 }
