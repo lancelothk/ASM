@@ -16,10 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
@@ -31,10 +28,10 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  * Convert mapped reads into epigenome and split regions by continuous CpG coverage.
  */
 public class CPMR {
-    public static final int MIN_CONT_COVERAGE = 4;
-    public static final int MIN_INTERVAL_READS = 10;
-    public static final int MIN_INTERVAL_CPG = 5;
     private static final Logger logger = Logger.getLogger(CPMR.class.getName());
+    public static int MIN_CONT_COVERAGE = 3;
+    public static int MIN_INTERVAL_READS = 10;
+    public static int MIN_INTERVAL_CPG = 5;
     public static int outputIntervalCount = 0;
 
     public static void main(String[] args) throws IOException {
@@ -52,14 +49,14 @@ public class CPMR {
                                           chr, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG, MIN_INTERVAL_READS);
 
         setUpLogging(String.format("%s/%s-intervals_%d_%d_%d.log", reportPath, chr, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
-                                   MIN_INTERVAL_READS));
+                                   MIN_INTERVAL_READS), Level.FINEST, new SimpleFormatter());
         splitEpigenome(referenceGenomeFileName, mappedReadFileName, outputPath, reportPath, OutputFormat.MappredRead);
     }
 
-    private static void setUpLogging(String logFileName) throws IOException {
+    private static void setUpLogging(String logFileName, Level level, Formatter formatter) throws IOException {
         FileHandler outputFileHandler = new FileHandler(logFileName);
-        outputFileHandler.setLevel(Level.INFO);
-        outputFileHandler.setFormatter(new SimpleFormatter());
+        outputFileHandler.setLevel(level);
+        outputFileHandler.setFormatter(formatter);
         Logger.getLogger("").addHandler(outputFileHandler);
     }
 
@@ -74,23 +71,25 @@ public class CPMR {
 
         RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
-        logger.info("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.finest("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         refCpGList.sort((RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
-        logger.info("cpg sorting complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.finest("cpg sorting complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         // assign cpg id after sorted
         for (int i = 0; i < refCpGList.size(); i++) {
             refCpGList.get(i).assignIndex(i);
         }
-        logger.info("cpg id assignment complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.finest("cpg id assignment complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
-        Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-                        new MappedReadLineProcessorWithSummary(refCpGList, refChr.getRefString().length()));
-        logger.info("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
+                                                          new MappedReadLineProcessorWithSummary(refCpGList,
+                                                                                                 refChr.getRefString().length()));
+        Utils.writeMappedReadInInterval("testData/", refChr, 225501, 225799, mappedReadList);
+        logger.finest("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         List<List<RefCpG>> cpgSiteIntervalList = getIntervals(refCpGList);
@@ -98,13 +97,13 @@ public class CPMR {
         writeIntervals(outputPath, reportPath, refChr, cpgSiteIntervalList, outputFormat);
         logger.info("Raw Interval count:\t" + cpgSiteIntervalList.size() + "");
         logger.info("Output Interval count:\t" + outputIntervalCount + "");
-        logger.info((System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.finest((System.currentTimeMillis() - start) / 1000.0 + "s");
     }
 
     private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList) {
         // filter refCpG by coverage and partial methylation
         List<RefCpG> filteredRefCpG = refCpGList.stream().filter(
-                refCpG -> refCpG.getCoverage() > MIN_CONT_COVERAGE && refCpG.hasPartialMethyl()).collect(
+                refCpG -> refCpG.getCoverage() >= MIN_CONT_COVERAGE && refCpG.hasPartialMethyl()).collect(
                 Collectors.toList());
 
         // split regions by continuous CpG coverage
@@ -120,6 +119,10 @@ public class CPMR {
             resultRefCpGList.add(curr);
             RefCpG next = filteredRefCpG.get(i + 1);
             cont = curr.hasCommonRead(next);
+        }
+        if (cont && resultRefCpGList.size() > 0) {
+            resultRefCpGList.add(resultRefCpGList.get(resultRefCpGList.size() - 1));
+            cpgSiteIntervalList.add(resultRefCpGList);
         }
         return cpgSiteIntervalList;
     }
@@ -139,6 +142,9 @@ public class CPMR {
             });
             // only pass high quality result for next step.
             if (mappedReadSet.size() >= MIN_INTERVAL_READS && list.size() >= MIN_INTERVAL_CPG) {
+                List<MappedRead> mappedReadList = mappedReadSet.stream().sorted(
+                        (m1, m2) -> m1.getId().compareTo(m2.getId())).sorted(
+                        (m1, m2) -> m1.getStart() - m2.getStart()).collect(Collectors.toList());
                 outputIntervalCount++;
                 int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
                 int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
@@ -148,13 +154,13 @@ public class CPMR {
                 try {
                     intervalSummaryWriter.write(
                             String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), endPos - startPos + 1,
-                                          mappedReadSet.size(), list.size(), startCpGPos, endCpGPos));
+                                          mappedReadList.size(), list.size(), startCpGPos, endCpGPos));
                     switch (outputFormat) {
                         case MappredRead:
-                            Utils.writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
+                            Utils.writeMappedReadInInterval(outputPath, refChr, startPos, endPos, mappedReadList);
                             break;
                         case ExtEpiRead:
-                            Utils.writeExtEpireadInInterval(outputPath, refChr, startPos, endPos, mappedReadSet);
+                            Utils.writeExtEpireadInInterval(outputPath, refChr, startPos, endPos, mappedReadList);
                             break;
                         default:
                             throw new RuntimeException("invalid output format");

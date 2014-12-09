@@ -33,7 +33,7 @@ public class DetectionWithEpiRead extends Detection {
         EpiRead.EpiReadFormat format = EpiRead.EpiReadFormat.extEpiread;
 
         new DetectionWithEpiRead(format).execute(inputName, threadNumber);
-        logger.info(System.currentTimeMillis() - start + "ms");
+        logger.finest(System.currentTimeMillis() - start + "ms");
     }
 
     private double[][] buildInputMatrix() throws IOException {

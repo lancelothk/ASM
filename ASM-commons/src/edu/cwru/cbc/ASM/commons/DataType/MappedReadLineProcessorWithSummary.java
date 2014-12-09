@@ -63,7 +63,8 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private void printSummary() throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append("Reference and Mapped Reads summary:\n");
-        sb.append(String.format("totalReadCount:%d\tcountCoverAtLeastOneCpG:%d\n", count, countCoverCpG));
+        sb.append(String.format("totalReadCount:%d\tcountCoverAtLeastOneCpG:%d\tQualifiedReadCount:%d\n", count,
+                                countCoverCpG, mappedReadList.size()));
         sb.append(String.format("totalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n", totalLength,
                                 totalLength / (double) count, maxLength, minLength));
         sb.append(String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,

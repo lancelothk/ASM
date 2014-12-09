@@ -1,0 +1,10 @@
+Reference and Mapped Reads summary:
+totalReadCount:86	countCoverAtLeastOneCpG:77	QualifiedReadCount:77
+totalLength:6636	avgLength:77.162791	maxLength:87	minLength:29
+totalCpGCount:245	avgCpgCount:2.848837	maxCpgCount:5	minCpgCount:0
+refLength:225920	refCpgSiteNumber:1893
+readCoverage:0.029373	coveredLength:298
+totalCpGCountInRefMap:245	avg cpgSite coverage:0.129424	maxCpGCoverage:42	minCpGCoverage:0
+
+Raw Interval count:	2
+Output Interval count:	2

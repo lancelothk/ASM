@@ -17,7 +17,7 @@ public class AlignReads {
     public static void main(String[] args) throws IOException {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/result_i90_r1/intervals_chr20_4_5_10/chr20-17207805-17207887";
+            targetFileName = "/home/kehu/IdeaProjects/ASM/ASM-CPMR/testData/chr20_225400_225900-225501-225799";
         } else {
             targetFileName = args[0];
         }

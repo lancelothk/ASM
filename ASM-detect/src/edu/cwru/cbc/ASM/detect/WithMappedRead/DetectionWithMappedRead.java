@@ -48,7 +48,7 @@ public class DetectionWithMappedRead extends Detection {
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
 
-        final int MIN_CONT_COVERAGE = 4;
+        final int MIN_CONT_COVERAGE = 3;
         final int MIN_INTERVAL_READS = 10;
         final int MIN_INTERVAL_CPG = 5;
 
@@ -74,7 +74,7 @@ public class DetectionWithMappedRead extends Detection {
         }
 
         summaryWriter.close();
-        logger.info(System.currentTimeMillis() - start + "ms");
+        logger.finest(System.currentTimeMillis() - start + "ms");
     }
 
     public String call() throws Exception {
