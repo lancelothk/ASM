@@ -33,7 +33,7 @@ public class DetectionWithEpiRead extends Detection {
         EpiRead.EpiReadFormat format = EpiRead.EpiReadFormat.extEpiread;
 
         new DetectionWithEpiRead(format).execute(inputName, threadNumber);
-        logger.finest(System.currentTimeMillis() - start + "ms");
+        logger.info(System.currentTimeMillis() - start + "ms");
     }
 
     private double[][] buildInputMatrix() throws IOException {
@@ -180,7 +180,7 @@ public class DetectionWithEpiRead extends Detection {
         sb.append("PartB\n");
         partB.forEach((i, j) -> sb.append(i).append("\t"));
         sb.append("\n");
-        logger.info(sb.toString());
+        logger.warning(sb.toString());
         return "";
     }
 

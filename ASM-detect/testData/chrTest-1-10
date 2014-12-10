@@ -1,6 +1,0 @@
-ref:	CGCGCGCGCG
-test	+	1	6	CGCGCG	1
-test	+	1	8	TGTGTGTG	2
-test	+	5	10	CGTGTG	3
-test	+	5	10	CGCGCG	4
-test	+	7	10	TGTG	5

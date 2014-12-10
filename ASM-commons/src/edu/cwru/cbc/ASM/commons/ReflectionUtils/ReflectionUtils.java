@@ -10,7 +10,7 @@ import java.lang.reflect.Modifier;
  * Utils for using reflection
  */
 public class ReflectionUtils {
-    public static void setFinalStatic(Field field, Object newValue) throws Exception {
+    public static void setFinalStaticField(Field field, Object newValue) throws Exception {
         field.setAccessible(true);
 
         Field modifiersField = Field.class.getDeclaredField("modifiers");
@@ -18,6 +18,16 @@ public class ReflectionUtils {
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
         field.set(null, newValue);
+    }
+
+    public static void setPrivateField(Field field, Object obj, Object newValue) throws IllegalAccessException {
+        field.setAccessible(true);
+        field.set(obj, newValue);
+    }
+
+    public static Object getPrivateField(Field field, Object obj) throws IllegalAccessException {
+        field.setAccessible(true);
+        return field.get(obj);
     }
 
     public static void invokePrivateMethod(Method method, Object obj,

@@ -1,8 +1,10 @@
 package edu.cwru.cbc.ASM.commons.DataType;
 
+import edu.cwru.cbc.ASM.commons.ReflectionUtils.ReflectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class RefCpGTest {
@@ -55,5 +57,19 @@ public class RefCpGTest {
         assertTrue(!rc1.hasPartialMethyl());
         assertTrue(rc2.hasPartialMethyl());
         assertTrue(!rc3.hasPartialMethyl());
+    }
+
+    @Test
+    public void testGetMajorMethylStatus() throws Exception {
+        RefCpG rfCpG = new RefCpG(1);
+        ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), rfCpG, 4);
+        ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), rfCpG, 8);
+        assertEquals("incorrect MajorMethylStatus!", MethylStatus.E, rfCpG.getMajorMethylStatus());
+        ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), rfCpG, 1);
+        ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), rfCpG, 8);
+        assertEquals("incorrect MajorMethylStatus!", MethylStatus.T, rfCpG.getMajorMethylStatus());
+        ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), rfCpG, 7);
+        ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), rfCpG, 8);
+        assertEquals("incorrect MajorMethylStatus!", MethylStatus.C, rfCpG.getMajorMethylStatus());
     }
 }

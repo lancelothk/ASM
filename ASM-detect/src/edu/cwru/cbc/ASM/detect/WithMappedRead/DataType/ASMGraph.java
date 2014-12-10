@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
  */
 public class ASMGraph {
     private static final Logger logger = Logger.getLogger(ASMGraph.class.getName());
-    private List<Edge> edgeList = new ArrayList<>();
-    private Map<String, Vertex> vertexMap = new HashMap<>();
+    private List<Edge> edgeList;
+    private Map<String, Vertex> vertexMap;
     private Map<Integer, ClusterRefCpG> clusterRefCpGMap; // pos <--> count
     private Map<String, Vertex> clusterResult;
     // count how many tie situation occurs. For analysis use
@@ -27,6 +27,8 @@ public class ASMGraph {
     private int originalVertexCount, originalEdgeCount;
 
     public ASMGraph(List<MappedRead> mappedReadList) {
+        this.edgeList = new ArrayList<>();
+        this.vertexMap = new HashMap<>();
         // visit all possible edges once.
         for (int i = 0; i < mappedReadList.size(); i++) {
             for (int j = i + 1; j < mappedReadList.size(); j++) {
@@ -48,7 +50,7 @@ public class ASMGraph {
         this.originalEdgeCount = edgeList.size();
     }
 
-    public void getClusters() throws IOException {
+    public void cluster() throws IOException {
         // merge vertexes connected by positive weight edge
         while (true) {
             // if edgeList is empty
@@ -173,9 +175,7 @@ public class ASMGraph {
         // update right vertex adj edges
         for (Edge edgeR : right.getAdjEdges()) {
             // update new vertex
-            if (!edgeR.replaceVertex(right, left)) {
-                throw new RuntimeException("fail to update new vertex in adj edge!");
-            }
+            edgeR.replaceVertex(right, left);
         }
         // update left vertex with new edges
         right.getAdjEdges().forEach(left::addEdge);
@@ -256,10 +256,9 @@ public class ASMGraph {
     private double checkCompatible(MappedRead readA, MappedRead readB) {
         if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
                 readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
-            int score = 0, count = 0;
+            int score = 0;
             for (CpG cpgA : readA.getCpgList()) {
                 for (CpG cpgB : readB.getCpgList()) {
-                    count++;
                     if (cpgA.getPos() == cpgB.getPos()) {
                         if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
                             assert cpgA.getMethylStatus() != MethylStatus.N;
@@ -268,11 +267,10 @@ public class ASMGraph {
                         } else {
                             score++;
                         }
-                        count--;
                     }
                 }
             }
-            return score / (double) count;
+            return score;
         } else {
             // don't have overlapped CpG, non-connected
             return Double.MIN_VALUE;

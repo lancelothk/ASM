@@ -12,13 +12,13 @@ public class CPMRTest {
 
     @Test
     public void testSplitEpigenome() throws Exception {
-        ReflectionUtils.setFinalStatic(CPMR.class.getField("MIN_CONT_COVERAGE"), 4);
-        ReflectionUtils.setFinalStatic(CPMR.class.getField("MIN_INTERVAL_READS"), 5);
-        ReflectionUtils.setFinalStatic(CPMR.class.getField("MIN_INTERVAL_CPG"), 2);
+        ReflectionUtils.setFinalStaticField(CPMR.class.getField("MIN_CONT_COVERAGE"), 4);
+        ReflectionUtils.setFinalStaticField(CPMR.class.getField("MIN_INTERVAL_READS"), 5);
+        ReflectionUtils.setFinalStaticField(CPMR.class.getField("MIN_INTERVAL_CPG"), 2);
 
         ReflectionUtils.invokePrivateMethod(
                 CPMR.class.getDeclaredMethod("setUpLogging", String.class, Level.class, Formatter.class), CPMR.class,
-                "testData/test.log", Level.INFO, new Formatter() {
+                "testData/test.log", Level.WARNING, new Formatter() {
                     @Override
                     public String format(LogRecord record) {
                         return record.getMessage() + "\n";

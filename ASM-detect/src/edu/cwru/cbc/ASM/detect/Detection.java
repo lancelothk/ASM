@@ -28,7 +28,7 @@ public abstract class Detection implements Callable<String> {
                 for (File file : files) {
                     try {
                         if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
-                                !file.getName().endsWith("intervalSummary") && !file.getName().endsWith("~") &&
+                                !file.getName().endsWith("test") && !file.getName().endsWith("~") &&
                                 !file.getName().endsWith("group")) {
                             Detection newInsDetection = constructNewInstance();
                             newInsDetection.inputFile = file;

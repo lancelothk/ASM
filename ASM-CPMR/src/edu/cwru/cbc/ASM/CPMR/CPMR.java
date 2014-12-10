@@ -49,7 +49,7 @@ public class CPMR {
                                           chr, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG, MIN_INTERVAL_READS);
 
         setUpLogging(String.format("%s/%s-intervals_%d_%d_%d.log", reportPath, chr, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
-                                   MIN_INTERVAL_READS), Level.FINEST, new SimpleFormatter());
+                                   MIN_INTERVAL_READS), Level.INFO, new SimpleFormatter());
         splitEpigenome(referenceGenomeFileName, mappedReadFileName, outputPath, reportPath, OutputFormat.MappredRead);
     }
 
@@ -71,33 +71,32 @@ public class CPMR {
 
         RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
-        logger.finest("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.info("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         refCpGList.sort((RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
-        logger.finest("cpg sorting complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.info("cpg sorting complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         // assign cpg id after sorted
         for (int i = 0; i < refCpGList.size(); i++) {
             refCpGList.get(i).assignIndex(i);
         }
-        logger.finest("cpg id assignment complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.info("cpg id assignment complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
                                                           new MappedReadLineProcessorWithSummary(refCpGList,
                                                                                                  refChr.getRefString().length()));
-        Utils.writeMappedReadInInterval("testData/", refChr, 225501, 225799, mappedReadList);
-        logger.finest("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.info("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
         List<List<RefCpG>> cpgSiteIntervalList = getIntervals(refCpGList);
 
         writeIntervals(outputPath, reportPath, refChr, cpgSiteIntervalList, outputFormat);
-        logger.info("Raw Interval count:\t" + cpgSiteIntervalList.size() + "");
-        logger.info("Output Interval count:\t" + outputIntervalCount + "");
-        logger.finest((System.currentTimeMillis() - start) / 1000.0 + "s");
+        logger.warning("Raw Interval count:\t" + cpgSiteIntervalList.size() + "");
+        logger.warning("Output Interval count:\t" + outputIntervalCount + "");
+        logger.info((System.currentTimeMillis() - start) / 1000.0 + "s");
     }
 
     private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList) {
