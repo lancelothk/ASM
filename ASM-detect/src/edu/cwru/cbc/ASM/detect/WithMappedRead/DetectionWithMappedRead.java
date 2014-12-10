@@ -11,10 +11,12 @@ import edu.cwru.cbc.ASM.detect.Detection;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
 public class DetectionWithMappedRead extends Detection {
     private static final Logger logger = Logger.getLogger(DetectionWithMappedRead.class.getName());
     private static final String EXPERIMENT_NAME = "2group";
+    private static int countOfCpGLessThanFive = 0;
 
     public DetectionWithMappedRead() {
     }
@@ -42,13 +45,12 @@ public class DetectionWithMappedRead extends Detection {
 //        String pathName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/chrTest2-1-6";
 //        String summaryFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.summary";
 //        String groupResultFileName = "/home/kehu/IdeaProjects/ASM/ASM-detect/testData/test.groupResult";
-
         String cellLine = "i90";
         String replicate = "r1";
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
 
-        final int MIN_CONT_COVERAGE = 3;
+        final int MIN_CONT_COVERAGE = 4;
         final int MIN_INTERVAL_READS = 10;
         final int MIN_INTERVAL_CPG = 5;
 
@@ -63,7 +65,7 @@ public class DetectionWithMappedRead extends Detection {
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
-                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmmwScore\tmmwTest\tgroupSizes\n");
+                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\tavgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmwwScore\tmwwTest\tgroupSizes\n");
 
         int threadNumber = 6;
 
@@ -74,14 +76,15 @@ public class DetectionWithMappedRead extends Detection {
         }
 
         summaryWriter.close();
-        logger.finest(System.currentTimeMillis() - start + "ms");
+        logger.info("count of intervals with overlappedCpG < 5\t" + countOfCpGLessThanFive);
+        logger.info(System.currentTimeMillis() - start + "ms");
     }
 
     public String call() throws Exception {
         extractIntervalPosition(inputFile);
 
         // load input
-        String reference = readRef(inputFile);
+        String reference = Utils.readRefFromIntervalFile(inputFile);
         List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
         // filter out reads which only cover 1 or no CpG sites
         List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8).readLines(
@@ -94,19 +97,18 @@ public class DetectionWithMappedRead extends Detection {
         ASMGraph graph = new ASMGraph(mappedReadList);
 
         // clustering
-        graph.getClusters();
+        graph.cluster();
 
         double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, inputFile);
 
-        return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList,
-                            graph, avgGroupCpGCoverage);
+        return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList, graph, avgGroupCpGCoverage);
     }
 
-    private MMW calculateMMW(List<RefCpG> refCpGList, ASMGraph graph) {
-        MMW mmw = new MMW();
+    private MWW calculateMWW(List<RefCpG> refCpGList, ASMGraph graph) {
+        MWW MWW = new MWW();
         if (graph.getClusterResult().size() == 1) {
-            mmw.mmwScore = -1; // 1 cluster interval
-            mmw.mmwPvalue = -1;
+            MWW.mwwScore = -1; // 1 cluster interval
+            MWW.mwwPvalue = -1;
         } else { // cluster size == 2 or 3
             List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
             for (RefCpG refCpG : refCpGList) {
@@ -116,42 +118,40 @@ public class DetectionWithMappedRead extends Detection {
                     }
                 }
             }
+            // overlapped CpG < 5
             if (twoClusterRefCpGList.size() < 5) {
-                mmw.mmwScore = -2;  // overlapped CpG < 5
-                mmw.mmwPvalue = -2;
-            } else {
-                MannWhitneyUTest test = new MannWhitneyUTest();
-                double[][] mmwMatrix = new double[2][twoClusterRefCpGList.size()];
+                countOfCpGLessThanFive++;
+            }
+            MannWhitneyUTest test = new MannWhitneyUTest();
+            double[][] mwwMatrix = new double[2][twoClusterRefCpGList.size()];
 
-                for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
-                    int j = 0;
-                    for (Vertex vertex : graph.getClusterResult().values()) {
-                        if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
-                            mmwMatrix[j][i] = vertex.getRefCpGMap().get(
-                                    twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
-                            j++;
-                        }
+            for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
+                int j = 0;
+                for (Vertex vertex : graph.getClusterResult().values()) {
+                    if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
+                        mwwMatrix[j][i] = vertex.getRefCpGMap().get(
+                                twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
+                        j++;
                     }
                 }
-                mmw.mmwScore = test.mannWhitneyU(mmwMatrix[0], mmwMatrix[1]);
-                mmw.mmwPvalue = test.mannWhitneyUTest(mmwMatrix[0], mmwMatrix[1]);
             }
+            MWW.mwwScore = test.mannWhitneyU(mwwMatrix[0], mwwMatrix[1]);
+            MWW.mwwPvalue = test.mannWhitneyUTest(mwwMatrix[0], mwwMatrix[1]);
         }
-        return mmw;
+        return MWW;
 
     }
 
     private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
                                 double avgGroupCpGCoverage) {
-        MMW mmw = calculateMMW(refCpGList, graph);
+        MWW MWW = calculateMWW(refCpGList, graph);
 
         StringBuilder sb = new StringBuilder(
                 String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t", chr, startPos, endPos,
-                              length,
-                              graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(),
-                              refCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage,
-                              graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(), mmw.mmwScore,
-                              mmw.mmwPvalue));
+                              length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
+                              mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
+                              avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
+                              MWW.mwwScore, MWW.mwwPvalue));
         for (Vertex vertex : graph.getClusterResult().values()) {
             sb.append(vertex.getMappedReadList().size()).append(",");
         }
@@ -224,27 +224,12 @@ public class DetectionWithMappedRead extends Detection {
         return sum / graph.getClusterRefCpGMap().size();
     }
 
-    private String readRef(File inputFile) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
-        String line = bufferedReader.readLine();
-        String[] items = line.split("\t");
-        if (items.length != 2) {
-            throw new RuntimeException(
-                    "invalid reference line in interval read file!\t" + line + "\t" + inputFile.getName());
-        } else {
-            // item[1](reference string) should be in uppercase and without space
-            assert StringUtils.isAllUpperCase(items[1]);
-            assert !items[1].contains(" ");
-            return items[1];
-        }
-    }
-
     @Override
     protected Detection constructNewInstance() {
         return new DetectionWithMappedRead();
     }
 
-    private class MMW {
-        public double mmwScore = -1010, mmwPvalue = -1010;
+    private class MWW {
+        public double mwwScore = -1010, mwwPvalue = -1010;
     }
 }

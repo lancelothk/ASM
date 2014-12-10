@@ -85,6 +85,6 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
                 "totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
                 totalCpGCountInRefMap, totalCpGCountInRefMap / (double) refMap.size(), maxCpGCoverage, minCpGCoverage));
 
-        logger.info(sb.toString());
+        logger.warning(sb.toString());
     }
 }

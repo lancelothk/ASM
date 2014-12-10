@@ -29,7 +29,7 @@ public class SplitFileByChr {
             items = line.split("\t");
             if (!chr.equals(items[0])) {
                 if (bufferedWriter != null) {
-                    logger.finest(chr + "\tfinished");
+                    logger.info(chr + "\tfinished");
                     bufferedWriter.close();
                 }
                 chr = items[0];

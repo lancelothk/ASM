@@ -8,7 +8,7 @@ public class Edge {
     private Vertex left;
     private Vertex right;
     private double weight;
-    private String id = null;
+    private String id;
 
     public Edge(Vertex left, Vertex right, double weight) {
         if (left == right) {
@@ -22,20 +22,18 @@ public class Edge {
         calcId();
     }
 
-    public boolean replaceVertex(Vertex o, Vertex n) {
-        if (o == n) {
-            throw new RuntimeException("old and new vertex are same!" + o.getId());
+    public void replaceVertex(Vertex oldVertex, Vertex newVertex) {
+        if (oldVertex == newVertex) {
+            throw new RuntimeException("oldVertex and new vertex are same!" + oldVertex.getId());
         }
-        if (left == o) {
-            left = n;
+        if (left == oldVertex) {
+            left = newVertex;
             calcId();
-            return true;
-        } else if (right == o) {
-            right = n;
+        } else if (right == oldVertex) {
+            right = newVertex;
             calcId();
-            return true;
         } else {
-            return false;
+            throw new RuntimeException("This edge do not contain oldVertex!\t" + oldVertex.getId());
         }
     }
 
