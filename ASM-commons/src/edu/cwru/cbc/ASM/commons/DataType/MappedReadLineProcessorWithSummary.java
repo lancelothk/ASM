@@ -76,7 +76,7 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
         int maxCpGCoverage = Integer.MIN_VALUE;
         int minCpGCoverage = Integer.MAX_VALUE;
         for (RefCpG refCpG : refMap.values()) {
-            int coverage = refCpG.getCoverage();
+            int coverage = refCpG.getCpGCoverage();
             totalCpGCountInRefMap += coverage;
             maxCpGCoverage = coverage > maxCpGCoverage ? coverage : maxCpGCoverage;
             minCpGCoverage = coverage < minCpGCoverage ? coverage : minCpGCoverage;

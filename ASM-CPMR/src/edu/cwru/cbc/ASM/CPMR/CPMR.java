@@ -29,7 +29,7 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  */
 public class CPMR {
     private static final Logger logger = Logger.getLogger(CPMR.class.getName());
-    public static int MIN_CONT_COVERAGE = 3;
+    public static int MIN_CONT_COVERAGE = 4;
     public static int MIN_INTERVAL_READS = 10;
     public static int MIN_INTERVAL_CPG = 5;
     public static int outputIntervalCount = 0;
@@ -102,7 +102,7 @@ public class CPMR {
     private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList) {
         // filter refCpG by coverage and partial methylation
         List<RefCpG> filteredRefCpG = refCpGList.stream().filter(
-                refCpG -> refCpG.getCoverage() >= MIN_CONT_COVERAGE && refCpG.hasPartialMethyl()).collect(
+                refCpG -> refCpG.getCpGCoverage() >= MIN_CONT_COVERAGE && refCpG.hasPartialMethyl()).collect(
                 Collectors.toList());
 
         // split regions by continuous CpG coverage

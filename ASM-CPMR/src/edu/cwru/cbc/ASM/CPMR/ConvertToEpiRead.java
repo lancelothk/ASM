@@ -23,7 +23,8 @@ public class ConvertToEpiRead {
         String ref = "hg18_chr20.fa";
         String cellLine = "i90";
         String replicate = "r1";
-        String experimentPath = "/home/kehu/experiments/ASM/";
+        String homeDirectory = System.getProperty("user.home");
+        String experimentPath = homeDirectory + "/experiments/ASM/";
 
         String referenceGenomeFileName = experimentPath + "/data/ref/" + ref;
         String mappedReadFileName = String.format("%s/data/%s_%s_chr20", experimentPath, cellLine, replicate);

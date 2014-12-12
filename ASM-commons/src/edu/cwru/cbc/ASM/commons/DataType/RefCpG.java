@@ -60,7 +60,7 @@ public class RefCpG implements Comparable<RefCpG> {
 		this.cpGList.add(cpg);
 	}
 
-	public int getCoverage() {
+	public int getCpGCoverage() {
 		return cpGList.size();
 	}
 
@@ -99,6 +99,10 @@ public class RefCpG implements Comparable<RefCpG> {
 
 	public int getMethylCount() {
 		return methylCount;
+	}
+
+	public int getNonMethylCount() {
+		return coveredCount - methylCount;
 	}
 
 	public MethylStatus getMajorMethylStatus() {
