@@ -52,7 +52,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
         MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
                                                Integer.parseInt(items[3]), items[4], items[5]);
 
-        if (countCpGInRead(start, end) >= MIN_READ_CPG) {
+        if (countCpGInRead(start, end, mappedRead) >= MIN_READ_CPG) {
             for (int i = start; i < end; i++) {
                 if (refMap.containsKey(i)) {
                     CpG cpg = new CpG(mappedRead, refMap.get(i), mappedRead.getMethylStatus(i));
@@ -69,12 +69,14 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
         return mappedRead;
     }
 
-    private int countCpGInRead(int start, int end) {
+    private int countCpGInRead(int start, int end, MappedRead mappedRead) {
         int count = 0;
         for (int i = start; i < end; i++) {
             if (refMap.containsKey(i)) {
-                count++;
-                i++;
+                if (mappedRead.getMethylStatus(i) != MethylStatus.N) {
+                    count++;
+                    i++;
+                }
             }
         }
         return count;

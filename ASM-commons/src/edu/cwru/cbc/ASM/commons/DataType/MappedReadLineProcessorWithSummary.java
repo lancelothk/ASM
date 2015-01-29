@@ -19,7 +19,6 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private int maxCpGCount = Integer.MIN_VALUE;
     private int minCpGCount = Integer.MAX_VALUE;
     private BitSet chrBitSet;
-    private int countCoverCpG;
 
     public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int refLength) throws IOException {
         super(refCpGList);
@@ -42,7 +41,6 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
             maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
             minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
             chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
-            countCoverCpG += (cpgCount > 0 ? 1 : 0);
             return true;
         } catch (Exception e) {
             throw new RuntimeException("Problem line: " + s + "\n", e);
@@ -63,8 +61,7 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private void printSummary() throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append("Reference and Mapped Reads summary:\n");
-        sb.append(String.format("totalReadCount:%d\tcountCoverAtLeastOneCpG:%d\tQualifiedReadCount:%d\n", count,
-                                countCoverCpG, mappedReadList.size()));
+        sb.append(String.format("totalReadCount:%d\tQualifiedReadCount:%d\n", count, mappedReadList.size()));
         sb.append(String.format("totalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n", totalLength,
                                 totalLength / (double) count, maxLength, minLength));
         sb.append(String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,
