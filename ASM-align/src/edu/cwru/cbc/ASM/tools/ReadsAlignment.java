@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.align;
+package edu.cwru.cbc.ASM.tools;
 
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.ReadComparator;
@@ -11,7 +11,7 @@ import java.util.List;
  * Align reads to readable format with padding.
  */
 
-public class AlignReads {
+public class ReadsAlignment {
     private static String ref;
 
     public static void main(String[] args) throws IOException {
@@ -21,7 +21,7 @@ public class AlignReads {
         } else {
             targetFileName = args[0];
         }
-        AlignReads.align(targetFileName);
+        ReadsAlignment.align(targetFileName);
     }
 
     public static void align(String fileName) throws IOException {

@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.align;
+package edu.cwru.cbc.ASM.tools;
 
 import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
 import edu.cwru.cbc.ASM.commons.Utils;
@@ -13,8 +13,8 @@ import java.util.List;
  * Created by kehu on 11/13/14.
  * Align EpiRead to better visualization.
  */
-public class AlignEpiRead {
-	public static void main(String[] args) throws IOException {
+public class EpiReadAlignment {
+    public static void main(String[] args) throws IOException {
 		String homeDirectory = System.getProperty("user.home");
 		File inputFile = new File(
 				homeDirectory + "/experiments/ASM/result_i90_r1/intervals_epiread_large/chr22-15240531-15242472");
