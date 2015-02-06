@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.commons.DataType;
 import com.google.common.base.Strings;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -126,6 +127,13 @@ public class MappedRead {
                                               offset + this.sequence.length(), '.'), this.id);
     }
 
+    public String toMRString(int mismatch, char qualityChar) {
+        char[] qualityStrArray = new char[this.sequence.length()];
+        Arrays.fill(qualityStrArray, qualityChar);
+        return String.format("%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s", this.chr, this.start, this.end, this.id, mismatch,
+                             this.strand, this.sequence, new String(qualityStrArray));
+    }
+
     public void addCpG(CpG cpg) {
         if (cpgList.size() == 0) {
             this.cpgList.add(cpg);
@@ -140,6 +148,10 @@ public class MappedRead {
                 lastCpG = cpg;
             }
         }
+    }
+
+    public String outputString() {
+        return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, end, sequence, id);
     }
 
     public String outputString(int leftBound, int rightBound) {

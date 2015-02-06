@@ -3,10 +3,7 @@ package edu.cwru.cbc.ASM.CPMR;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.CPMR.DataType.RefChr;
-import edu.cwru.cbc.ASM.commons.DataType.CpG;
-import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
-import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessorWithSummary;
-import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
+import edu.cwru.cbc.ASM.commons.DataType.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,9 +26,6 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
  */
 public class CPMR {
     private static final Logger logger = Logger.getLogger(CPMR.class.getName());
-    public static int MIN_CONT_COVERAGE = 4;
-    public static int MIN_INTERVAL_READS = 10;
-    public static int MIN_INTERVAL_CPG = 5;
     public static int outputIntervalCount = 0;
 
     public static void main(String[] args) throws IOException {
@@ -46,10 +40,16 @@ public class CPMR {
         String mappedReadFileName = String.format("%s/data/%s_%s_%s", experimentPath, cellLine, replicate, chr);
         String reportPath = String.format("%s/result_%s_%s", experimentPath, cellLine, replicate);
         String outputPath = String.format("%s/result_%s_%s/intervals_%s_%d_%d_%d", experimentPath, cellLine, replicate,
-                                          chr, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG, MIN_INTERVAL_READS);
+                                          chr, GlobalParameter.MIN_CONT_COVERAGE, GlobalParameter.MIN_INTERVAL_CPG,
+                                          GlobalParameter.MIN_INTERVAL_READS);
 
-        setUpLogging(String.format("%s/%s-intervals_%d_%d_%d.log", reportPath, chr, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
-                                   MIN_INTERVAL_READS), Level.INFO, new SimpleFormatter());
+        mappedReadFileName = "/home/kehu/experiments/ASM/amrfinder/simulation/i90_r1_chr20_sim";
+        reportPath = "/home/kehu/experiments/ASM/amrfinder/simulation/";
+        outputPath = "/home/kehu/experiments/ASM/amrfinder/simulation/intervals_i90_r1_chr20_sim/";
+
+        setUpLogging(String.format("%s/%s-intervals_%d_%d_%d.log", reportPath, chr, GlobalParameter.MIN_CONT_COVERAGE,
+                                   GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS), Level.INFO,
+                     new SimpleFormatter());
         splitEpigenome(referenceGenomeFileName, mappedReadFileName, outputPath, reportPath, OutputFormat.MappredRead);
     }
 
@@ -102,7 +102,8 @@ public class CPMR {
     private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList) {
         // filter refCpG by coverage and partial methylation
         List<RefCpG> filteredRefCpG = refCpGList.stream().filter(
-                refCpG -> refCpG.getCpGCoverage() >= MIN_CONT_COVERAGE && refCpG.hasPartialMethyl()).collect(
+                refCpG -> refCpG.getCpGCoverage() >= GlobalParameter.MIN_CONT_COVERAGE &&
+                        refCpG.hasPartialMethyl()).collect(
                 Collectors.toList());
 
         // split regions by continuous CpG coverage
@@ -130,17 +131,19 @@ public class CPMR {
                                        List<List<RefCpG>> cpgSiteIntervalList,
                                        OutputFormat outputFormat) throws IOException {
         BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(
-                String.format("%s/%s-intervalSummary_%d_%d_%d", reportPath, refChr.getChr(), MIN_CONT_COVERAGE,
-                              MIN_INTERVAL_CPG, MIN_INTERVAL_READS)));
+                String.format("%s/%s-intervalSummary_%d_%d_%d", reportPath, refChr.getChr(),
+                              GlobalParameter.MIN_CONT_COVERAGE, GlobalParameter.MIN_INTERVAL_CPG,
+                              GlobalParameter.MIN_INTERVAL_READS)));
         intervalSummaryWriter.write("chr\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
         cpgSiteIntervalList.forEach((list) -> {
             Set<MappedRead> mappedReadSet = new HashSet<>();
             list.forEach((refCpG) -> {
                 refCpG.getCpGList().forEach((CpG cpg) -> mappedReadSet.add(cpg.getMappedRead()));
-                assert refCpG.getCpGList().size() >= MIN_CONT_COVERAGE; // make sure coverage is correct
+                assert refCpG.getCpGList().size() >= GlobalParameter.MIN_CONT_COVERAGE; // make sure coverage is correct
             });
             // only pass high quality result for next step.
-            if (mappedReadSet.size() >= MIN_INTERVAL_READS && list.size() >= MIN_INTERVAL_CPG) {
+            if (mappedReadSet.size() >= GlobalParameter.MIN_INTERVAL_READS &&
+                    list.size() >= GlobalParameter.MIN_INTERVAL_CPG) {
                 List<MappedRead> mappedReadList = mappedReadSet.stream().sorted(
                         (m1, m2) -> m1.getId().compareTo(m2.getId())).sorted(
                         (m1, m2) -> m1.getStart() - m2.getStart()).collect(Collectors.toList());

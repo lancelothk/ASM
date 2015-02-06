@@ -3,7 +3,7 @@ package edu.cwru.cbc.ASM.detect.WithMappedRead;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.align.AlignReads;
+import edu.cwru.cbc.ASM.commons.DataType.GlobalParameter;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
@@ -12,6 +12,7 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ClusterRefCpG;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
+import edu.cwru.cbc.ASM.tools.ReadsAlignment;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
@@ -50,27 +51,28 @@ public class DetectionWithMappedRead extends Detection {
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
 
-        final int MIN_CONT_COVERAGE = 4;
-        final int MIN_INTERVAL_READS = 10;
-        final int MIN_INTERVAL_CPG = 5;
-
         String fileName = "";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
-                                         cellLine, replicate, name, MIN_CONT_COVERAGE, MIN_INTERVAL_CPG,
-                                         MIN_INTERVAL_READS, fileName);
+                                         cellLine, replicate, name, GlobalParameter.MIN_CONT_COVERAGE,
+                                         GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS,
+                                         fileName);
         String summaryFileName = String.format(
                 "%1$s/experiments/ASM/result_%2$s_%3$s/%2$s_%3$s_%4$s_ASM_summary_%5$s_%6$s_%7$d_%8$d_%9$d",
-                homeDirectory, cellLine, replicate, name, fileName, EXPERIMENT_NAME, MIN_CONT_COVERAGE,
-                MIN_INTERVAL_CPG, MIN_INTERVAL_READS);
+                homeDirectory, cellLine, replicate, name, fileName, EXPERIMENT_NAME, GlobalParameter.MIN_CONT_COVERAGE,
+                GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS);
+
+        int threadNumber = 6;
+
+
+        summaryFileName = "/home/kehu/experiments/ASM/amrfinder/simulation/i90_r1_chr20_sim_detection_summary";
+        inputName = "/home/kehu/experiments/ASM/amrfinder/simulation/intervals_i90_r1_chr20_sim/";
+
+        List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
                 "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\t" +
                         "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmwwScore\tmwwTest\terrorProbability\tgroupSizes\n");
-
-        int threadNumber = 6;
-
-        List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
 
         for (String result : resultList) {
             summaryWriter.write(result);
@@ -92,7 +94,7 @@ public class DetectionWithMappedRead extends Detection {
                 new MappedReadLineProcessor(refCpGList));
 
         // align read
-        AlignReads.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
+        ReadsAlignment.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
 
         // construct graph
         ASMGraph graph = new ASMGraph(mappedReadList);
@@ -128,11 +130,11 @@ public class DetectionWithMappedRead extends Detection {
                     }
                 }
 
-                // overlapped CpG < 5
-                if (twoClusterRefCpGList.size() < 5) {
+                // overlapped CpG < GlobalParameter.MIN_INTERVAL_CPG
+                if (twoClusterRefCpGList.size() < GlobalParameter.MIN_INTERVAL_CPG) {
                     p = -3;
                 } else {
-                    p = EPCaluculation_product_combine(minorityCluster, majorityCluster, twoClusterRefCpGList);
+                    p = EPCaluculation_average_combine(minorityCluster, majorityCluster, twoClusterRefCpGList);
                 }
                 break;
             default:
