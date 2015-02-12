@@ -3,8 +3,8 @@ package edu.cwru.cbc.ASM.commons;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.DataType.BedRegion;
 import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
+import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
 import edu.cwru.cbc.ASM.commons.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
@@ -60,12 +60,12 @@ public class Utils {
      * @return list of bed regions
      * @throws IOException
      */
-    public static List<BedRegion> readBedRegions(String bedFileName) throws IOException {
+    public static List<GenomicRegion> readBedRegions(String bedFileName) throws IOException {
         if (!bedFileName.endsWith(".bed")) {
             throw new RuntimeException("the input should be bed format file with .bed extension!");
         }
-        return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<BedRegion>>() {
-            private List<BedRegion> bedRegionList = new ArrayList<>();
+        return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<GenomicRegion>>() {
+            private List<GenomicRegion> genomicRegionList = new ArrayList<>();
 
             @Override
             public boolean processLine(String line) throws IOException {
@@ -73,14 +73,16 @@ public class Utils {
                 if (items.length < 4) {
                     throw new RuntimeException("invalid bed format:" + line);
                 }
-                bedRegionList.add(
-                        new BedRegion(items[0], Long.parseLong(items[1]), Long.parseLong(items[2]), items[3]));
+                genomicRegionList.add(
+                        new GenomicRegion(items[0], Long.parseLong(items[1]), Long.parseLong(items[2]), items[3]));
+                // TODO make sure there is no overlapped regions.
+                // TODO make sure all regions are from same chromosome
                 return true;
             }
 
             @Override
-            public List<BedRegion> getResult() {
-                return bedRegionList;
+            public List<GenomicRegion> getResult() {
+                return genomicRegionList;
             }
         });
     }
