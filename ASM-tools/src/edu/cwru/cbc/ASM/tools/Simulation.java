@@ -1,14 +1,15 @@
 package edu.cwru.cbc.ASM.tools;
 
-import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
-import edu.cwru.cbc.ASM.commons.DataType.RefChr;
-import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.DataType.*;
 import edu.cwru.cbc.ASM.commons.Utils;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
 import static edu.cwru.cbc.ASM.commons.Utils.readBedRegions;
@@ -32,23 +33,83 @@ public class Simulation {
 
         // read target regions
         List<GenomicRegion> targetRegionList = readBedRegions(targetRegionFileName);
-        targetRegionList.sort(new Comparator<GenomicRegion>() {
-            @Override
-            public int compare(GenomicRegion o1, GenomicRegion o2) {
-                int startCompare = Long.compare(o1.getStart(), o2.getStart());
-                int endCompare = Long.compare(o1.getEnd(), o2.getEnd());
-                return startCompare == 0 ? endCompare : startCompare;
-            }
-        });
+        Collections.sort(targetRegionList);
 
         // generate non-ASM regions
         List<GenomicRegion> nonASMRegions = generateNonASMRegions(refChr, targetRegionList);
 
-
         // attach refCpG to regions
         attachRefCpGToRegions(refCpGList, targetRegionList, nonASMRegions);
 
+        // read input sequences
+        List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8).readLines(
+                new MappedReadLineProcessor(refCpGList));
 
+        // assign methyl status
+        assignMethylStatusForNonASMRegion(nonASMRegions);
+        assignMethylStatusForASMRegion(targetRegionList);
+
+        // write out result
+        BufferedWriter writer = new BufferedWriter(new FileWriter(""));
+        for (MappedRead mappedRead : mappedReadList) {
+            writer.write(mappedRead.toSimulationString());
+        }
+        writer.close();
+    }
+
+    private static void assignMethylStatusForASMRegion(List<GenomicRegion> targetRegionList) {
+        // each refCpG is attached to a region, each CpG in read belongs to a refCpG.
+        // ASM region
+        for (GenomicRegion targetRegion : targetRegionList) {
+            Set<MappedRead> mappedReadSet = new HashSet<>();
+            for (int i = 0; i < targetRegion.getRefCpGList().size(); i++) {
+                RefCpG refCpG = targetRegion.getRefCpGList().get(i);
+                refCpG.assignIndex(i);
+                for (CpG cpg : refCpG.getCpGList()) {
+                    mappedReadSet.add(cpg.getMappedRead());
+                }
+            }
+
+            // randomly assign read to each allele
+            Random rand = new Random();
+            for (MappedRead mappedRead : mappedReadSet) {
+                if (rand.nextBoolean()) {
+                    // allele 1
+                    for (CpG cpg : mappedRead.getCpgList()) {
+                        if (targetRegion.getRefMethylStatus(cpg.getRefCpG().getIndex())) {
+                            cpg.setMethylStatus(MethylStatus.C);
+                        } else {
+                            cpg.setMethylStatus(MethylStatus.T);
+                        }
+                    }
+                } else {
+                    // allele 2 : conterpart of allele 1
+                    for (CpG cpg : mappedRead.getCpgList()) {
+                        if (targetRegion.getRefMethylStatus(cpg.getRefCpG().getIndex())) {
+                            cpg.setMethylStatus(MethylStatus.T); // opposite to allele 1
+                        } else {
+                            cpg.setMethylStatus(MethylStatus.C); // opposite to allele 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void assignMethylStatusForNonASMRegion(List<GenomicRegion> nonASMRegions) {
+        // each refCpG is attached to a region, each CpG in read belongs to a refCpG.
+        // Non ASM region
+        for (GenomicRegion nonASMRegion : nonASMRegions) {
+            for (int i = 0; i < nonASMRegion.getRefCpGList().size(); i++) {
+                for (CpG cpg : nonASMRegion.getRefCpGList().get(i).getCpGList()) {
+                    if (nonASMRegion.getRefMethylStatus(i)) {
+                        cpg.setMethylStatus(MethylStatus.C);
+                    } else {
+                        cpg.setMethylStatus(MethylStatus.T);
+                    }
+                }
+            }
+        }
     }
 
     private static void attachRefCpGToRegions(List<RefCpG> refCpGList, List<GenomicRegion> targetRegionList,
@@ -73,7 +134,7 @@ public class Simulation {
      */
     private static List<GenomicRegion> generateNonASMRegions(RefChr refChr, List<GenomicRegion> targetRegionList) {
         List<GenomicRegion> nonASMRegions = new ArrayList<>();
-        long lastEnd = -1;
+        int lastEnd = -1;
         for (int i = 0; i <= targetRegionList.size(); i++) {
             if (i == 0) {
                 nonASMRegions.add(

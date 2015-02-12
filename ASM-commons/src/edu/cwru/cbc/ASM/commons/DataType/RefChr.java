@@ -24,11 +24,11 @@ public class RefChr {
         return ref;
     }
 
-    public long getStart() {
+    public int getStart() {
         return 0;
     }
 
-    public long getEnd() {
+    public int getEnd() {
         return ref.length() - 1;
     }
 }

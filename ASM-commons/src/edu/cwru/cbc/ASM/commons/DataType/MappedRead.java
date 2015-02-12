@@ -127,7 +127,24 @@ public class MappedRead {
                                               offset + this.sequence.length(), '.'), this.id);
     }
 
-    public String toMRString(int mismatch, char qualityChar) {
+    public String toSimulationString() {
+        char[] strArray = sequence.toCharArray();
+        for (CpG cpG : cpgList) {
+            if (cpG.getMethylStatus() == MethylStatus.C) {
+                strArray[cpG.getPos() - this.start] = 'C';
+                strArray[cpG.getPos() - this.start + 1] = 'G';
+            }
+            if (cpG.getMethylStatus() == MethylStatus.T) {
+                strArray[cpG.getPos() - this.start] = 'T';
+                strArray[cpG.getPos() - this.start + 1] = 'T';
+            }
+        }
+        return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end,
+                             new String(strArray), this.id);
+    }
+
+    // convert to MR format sequence
+    public String toMRFormatString(int mismatch, char qualityChar) {
         char[] qualityStrArray = new char[this.sequence.length()];
         Arrays.fill(qualityStrArray, qualityChar);
         return String.format("%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s", this.chr, this.start, this.end, this.id, mismatch,
