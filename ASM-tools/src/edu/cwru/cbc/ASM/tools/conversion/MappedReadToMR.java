@@ -70,7 +70,7 @@ public class MappedReadToMR {
         BufferedWriter writer = new BufferedWriter(new FileWriter(output));
         for (MappedRead mappedRead : mappedReadList) {
             // '~' is highest quality score.
-            writer.write(mappedRead.toMRString(0, '~') + "\n");
+            writer.write(mappedRead.toMRFormatString(0, '~') + "\n");
         }
         writer.close();
 

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
-    public static final int MIN_READ_CPG = 2;
+    public static final int MIN_READ_CPG = 0;
     protected List<MappedRead> mappedReadList = new ArrayList<>();
     protected Map<Integer, RefCpG> refMap;
 

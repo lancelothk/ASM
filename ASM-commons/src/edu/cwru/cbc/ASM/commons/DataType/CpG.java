@@ -19,6 +19,10 @@ public class CpG {
 		return methylStatus;
 	}
 
+    public void setMethylStatus(MethylStatus methylStatus) {
+        this.methylStatus = methylStatus;
+    }
+
 	public MappedRead getMappedRead() {
 		return mappedRead;
 	}

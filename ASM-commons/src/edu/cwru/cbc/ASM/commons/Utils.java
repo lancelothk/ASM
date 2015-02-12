@@ -74,7 +74,7 @@ public class Utils {
                     throw new RuntimeException("invalid bed format:" + line);
                 }
                 genomicRegionList.add(
-                        new GenomicRegion(items[0], Long.parseLong(items[1]), Long.parseLong(items[2]), items[3]));
+                        new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]), items[3]));
                 // TODO make sure there is no overlapped regions.
                 // TODO make sure all regions are from same chromosome
                 return true;

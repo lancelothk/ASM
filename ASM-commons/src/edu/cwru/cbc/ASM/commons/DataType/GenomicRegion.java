@@ -8,16 +8,16 @@ import java.util.Random;
  * Created by kehu on 2/12/15.
  * Genomic Region in bed format.
  */
-public class GenomicRegion {
+public class GenomicRegion implements Comparable<GenomicRegion> {
     private String chr;
-    private long start;
-    private long end;
+    private int start;
+    private int end;
     private String name;
     private List<RefCpG> refCpGList;
     private boolean[] allelePattern;
 
 
-    public GenomicRegion(String chr, long start, long end, String name) {
+    public GenomicRegion(String chr, int start, int end, String name) {
         this.chr = chr;
         this.start = start;
         this.end = end;
@@ -29,11 +29,11 @@ public class GenomicRegion {
         return chr;
     }
 
-    public long getStart() {
+    public int getStart() {
         return start;
     }
 
-    public long getEnd() {
+    public int getEnd() {
         return end;
     }
 
@@ -55,6 +55,16 @@ public class GenomicRegion {
         for (int i = 0; i < allelePattern.length; i++) {
             allelePattern[i] = rand.nextBoolean();
         }
+    }
 
+    public boolean getRefMethylStatus(int index) {
+        return allelePattern[index];
+    }
+
+    @Override
+    public int compareTo(GenomicRegion o) {
+        int startDiff = this.getStart() - o.getStart();
+        int endDiff = this.getEnd() - o.getEnd();
+        return startDiff == 0 ? endDiff : startDiff;
     }
 }

@@ -17,7 +17,7 @@ public class ReadsVisualization {
     public static void main(String[] args) throws IOException {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/IdeaProjects/ASM/ASM-CPMR/testData/chr20_225400_225900-225501-225799";
+            targetFileName = "/home/kehu/experiments/ASM/simulation/i90_r1_chr20.first_100.sim";
         } else {
             targetFileName = args[0];
         }
