@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.tools;
+package edu.cwru.cbc.ASM.tools.visulization;
 
 import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
 import edu.cwru.cbc.ASM.commons.Utils;
@@ -13,7 +13,7 @@ import java.util.List;
  * Created by kehu on 11/13/14.
  * Align EpiRead to better visualization.
  */
-public class EpiReadAlignment {
+public class EpiReadVisualization {
     public static void main(String[] args) throws IOException {
 		String homeDirectory = System.getProperty("user.home");
 		File inputFile = new File(

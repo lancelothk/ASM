@@ -2,7 +2,6 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.CPMR.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.*;
 
 import java.io.BufferedWriter;
@@ -69,7 +68,7 @@ public class CPMR {
             outputFile.mkdirs();
         }
 
-        RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
+        RefChr refChr = edu.cwru.cbc.ASM.commons.Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
         logger.info("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 

@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.tools;
+package edu.cwru.cbc.ASM.tools.conversion;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

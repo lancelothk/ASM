@@ -1,32 +1,18 @@
 package edu.cwru.cbc.ASM.CPMR;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.CPMR.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.DataType.RefChr;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by lancelothk on 11/14/14.
  * Utils for CPMR
  */
 public class Utils {
-
-    public static RefChr readReferenceGenome(String inputFileName) throws IOException {
-        List<String> lines = Files.readLines(new File(inputFileName), Charsets.UTF_8);
-        StringBuilder referenceBuilder = new StringBuilder();
-        // parse and remove first line, which is chromosome name
-        String chr = lines.get(0).replace(">", "");
-        lines.remove(0);
-        lines.forEach(line -> referenceBuilder.append(line.replaceAll(" ", "").toUpperCase()));
-        return new RefChr(chr, referenceBuilder.toString());
-    }
 
 
     /**

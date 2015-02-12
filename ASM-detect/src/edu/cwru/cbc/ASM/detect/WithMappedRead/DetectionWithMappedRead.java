@@ -12,7 +12,7 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ClusterRefCpG;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
-import edu.cwru.cbc.ASM.tools.ReadsAlignment;
+import edu.cwru.cbc.ASM.tools.visulization.ReadsVisualization;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
@@ -51,7 +51,7 @@ public class DetectionWithMappedRead extends Detection {
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
 
-        String fileName = "";
+        String fileName = "chr20-60234499-60234606";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
                                          cellLine, replicate, name, GlobalParameter.MIN_CONT_COVERAGE,
                                          GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS,
@@ -94,7 +94,7 @@ public class DetectionWithMappedRead extends Detection {
                 new MappedReadLineProcessor(refCpGList));
 
         // align read
-        ReadsAlignment.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
+        ReadsVisualization.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
 
         // construct graph
         ASMGraph graph = new ASMGraph(mappedReadList);

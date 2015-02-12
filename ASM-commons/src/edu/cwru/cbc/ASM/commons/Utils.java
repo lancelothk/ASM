@@ -1,11 +1,15 @@
 package edu.cwru.cbc.ASM.commons;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
+import edu.cwru.cbc.ASM.commons.DataType.BedRegion;
 import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
+import edu.cwru.cbc.ASM.commons.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +21,8 @@ public class Utils {
 
     public static List<EpiRead> readEpiReadFile(File inputFile, EpiRead.EpiReadFormat format) throws IOException {
         List<EpiRead> epiReadList = new ArrayList<>();
-        Files.lines(inputFile.toPath()).forEach(line -> epiReadList.add(EpiRead.ParseEpiRead(line, format)));
+        java.nio.file.Files.lines(inputFile.toPath()).forEach(
+                line -> epiReadList.add(EpiRead.ParseEpiRead(line, format)));
         return epiReadList;
     }
 
@@ -38,4 +43,45 @@ public class Utils {
         return reFCpGList;
     }
 
+    public static RefChr readReferenceGenome(String inputFileName) throws IOException {
+        List<String> lines = Files.readLines(new File(inputFileName), Charsets.UTF_8);
+        StringBuilder referenceBuilder = new StringBuilder();
+        // parse and remove first line, which is chromosome name
+        String chr = lines.get(0).replace(">", "");
+        lines.remove(0);
+        lines.forEach(line -> referenceBuilder.append(line.replaceAll(" ", "").toUpperCase()));
+        return new RefChr(chr, referenceBuilder.toString());
+    }
+
+    /**
+     * read bed format regions
+     *
+     * @param bedFileName name of the input file
+     * @return list of bed regions
+     * @throws IOException
+     */
+    public static List<BedRegion> readBedRegions(String bedFileName) throws IOException {
+        if (!bedFileName.endsWith(".bed")) {
+            throw new RuntimeException("the input should be bed format file with .bed extension!");
+        }
+        return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<BedRegion>>() {
+            private List<BedRegion> bedRegionList = new ArrayList<>();
+
+            @Override
+            public boolean processLine(String line) throws IOException {
+                String[] items = line.split("\t");
+                if (items.length < 4) {
+                    throw new RuntimeException("invalid bed format:" + line);
+                }
+                bedRegionList.add(
+                        new BedRegion(items[0], Long.parseLong(items[1]), Long.parseLong(items[2]), items[3]));
+                return true;
+            }
+
+            @Override
+            public List<BedRegion> getResult() {
+                return bedRegionList;
+            }
+        });
+    }
 }

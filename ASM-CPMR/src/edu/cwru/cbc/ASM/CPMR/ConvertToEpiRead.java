@@ -2,9 +2,9 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.CPMR.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessorWithSummary;
+import edu.cwru.cbc.ASM.commons.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
 import java.io.File;
@@ -39,7 +39,7 @@ public class ConvertToEpiRead {
         if (!outputFile.exists()) {
             outputFile.mkdirs();
         }
-        RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
+        RefChr refChr = edu.cwru.cbc.ASM.commons.Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
         List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
                                                           new MappedReadLineProcessorWithSummary(refCpGList,
