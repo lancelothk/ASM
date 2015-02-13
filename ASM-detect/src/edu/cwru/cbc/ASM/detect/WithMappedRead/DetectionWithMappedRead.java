@@ -64,8 +64,8 @@ public class DetectionWithMappedRead extends Detection {
         int threadNumber = 6;
 
 
-        summaryFileName = "/home/kehu/experiments/ASM/amrfinder/simulation/i90_r1_chr20_sim_detection_summary";
-        inputName = "/home/kehu/experiments/ASM/amrfinder/simulation/intervals_i90_r1_chr20_sim/";
+        summaryFileName = "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_sim_rand_0.6_0.05_detection_summary";
+        inputName = "/home/kehu/experiments/ASM/simulation/intervals_i90_r1_chr20_rand_0.6_0.05.sim/";
 
         List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
 

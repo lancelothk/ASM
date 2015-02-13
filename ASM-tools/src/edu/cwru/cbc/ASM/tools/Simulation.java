@@ -21,26 +21,28 @@ import static edu.cwru.cbc.ASM.commons.Utils.readBedRegions;
 public class Simulation {
     public static void main(String[] args) throws IOException {
         executeSimulation("/home/kehu/experiments/ASM/data/hg18_chr20.fa",
-                          "/home/kehu/experiments/ASM/simulation/i90_r1_chr20.first_100",
-                          "/home/kehu/experiments/ASM/simulation/simu.bed", 0, 0);
+                          "/home/kehu/experiments/ASM/data/i90_r1_chr20",
+                          "/home/kehu/experiments/ASM/simulation/simu_randPick.bed",
+                          "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_rand_0.6_0.05.sim", 0.6, 0.05);
     }
 
     public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
-                                         String targetRegionFileName, double alpha, double beta) throws IOException {
+                                         String targetRegionFileName, String outputFileName, double alpha,
+                                         double beta) throws IOException {
         // read reference and refCpGs
         RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
 
 
         // read target regions
-        List<GenomicRegion> targetRegionList = readBedRegions(targetRegionFileName);
-        Collections.sort(targetRegionList);
+        List<GenomicRegion> targetRegions = readBedRegions(targetRegionFileName);
+        Collections.sort(targetRegions);
 
         // generate non-ASM regions
-        List<GenomicRegion> nonASMRegions = generateNonASMRegions(refChr, targetRegionList);
+        List<GenomicRegion> nonASMRegions = generateNonASMRegions(refChr, targetRegions);
 
         // attach refCpG to regions
-        attachRefCpGToRegions(refCpGList, targetRegionList, nonASMRegions);
+        attachRefCpGToRegions(refCpGList, targetRegions, nonASMRegions);
 
         // read input sequences
         List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8).readLines(
@@ -48,29 +50,44 @@ public class Simulation {
 
         // assign methyl status
         assignMethylStatusForNonASMRegion(nonASMRegions);
-        assignMethylStatusForASMRegion(targetRegionList);
+        assignMethylStatusForASMRegion(targetRegions);
+
+        // add randomness
+        addRandomnessToReads(nonASMRegions, alpha, beta);
+        addRandomnessToReads(targetRegions, alpha, beta);
 
         // write out result
-        BufferedWriter writer = new BufferedWriter(
-                new FileWriter("/home/kehu/experiments/ASM/simulation/i90_r1_chr20.first_100.sim"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
         for (MappedRead mappedRead : mappedReadList) {
             writer.write(mappedRead.toSimulationString() + "\n");
         }
         writer.close();
     }
 
+    private static void addRandomnessToReads(List<GenomicRegion> regions, double alpha, double beta) {
+        for (GenomicRegion region : regions) {
+            Set<MappedRead> readsInRegion = getReadsInRegion(region);
+            for (MappedRead read : readsInRegion) {
+                Random rand = new Random();
+                if (rand.nextDouble() > alpha) {
+                    // add randomness
+                    for (CpG cpG : read.getCpgList()) {
+                        if (rand.nextDouble() < beta) {
+                            // add randomness. Flip methyl status
+                            cpG.setMethylStatus(
+                                    cpG.getMethylStatus() == MethylStatus.C ? MethylStatus.T : MethylStatus.C);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static void assignMethylStatusForASMRegion(List<GenomicRegion> targetRegionList) {
         // each refCpG is attached to a region, each CpG in read belongs to a refCpG.
         // ASM region
         for (GenomicRegion targetRegion : targetRegionList) {
-            Set<MappedRead> mappedReadSet = new HashSet<>();
-            for (int i = 0; i < targetRegion.getRefCpGList().size(); i++) {
-                RefCpG refCpG = targetRegion.getRefCpGList().get(i);
-                refCpG.assignIndex(i);
-                for (CpG cpg : refCpG.getCpGList()) {
-                    mappedReadSet.add(cpg.getMappedRead());
-                }
-            }
+            Set<MappedRead> mappedReadSet = getReadsInRegion(targetRegion);
 
             // randomly assign read to each allele
             Random rand = new Random();
@@ -96,6 +113,18 @@ public class Simulation {
                 }
             }
         }
+    }
+
+    private static Set<MappedRead> getReadsInRegion(GenomicRegion region) {
+        Set<MappedRead> mappedReadSet = new HashSet<>();
+        for (int i = 0; i < region.getRefCpGList().size(); i++) {
+            RefCpG refCpG = region.getRefCpGList().get(i);
+            refCpG.assignIndex(i);
+            for (CpG cpg : refCpG.getCpGList()) {
+                mappedReadSet.add(cpg.getMappedRead());
+            }
+        }
+        return mappedReadSet;
     }
 
     private static void assignMethylStatusForNonASMRegion(List<GenomicRegion> nonASMRegions) {

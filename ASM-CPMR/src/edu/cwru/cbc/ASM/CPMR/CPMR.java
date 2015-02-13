@@ -42,9 +42,9 @@ public class CPMR {
                                           chr, GlobalParameter.MIN_CONT_COVERAGE, GlobalParameter.MIN_INTERVAL_CPG,
                                           GlobalParameter.MIN_INTERVAL_READS);
 
-        mappedReadFileName = "/home/kehu/experiments/ASM/amrfinder/simulation/i90_r1_chr20_sim";
-        reportPath = "/home/kehu/experiments/ASM/amrfinder/simulation/";
-        outputPath = "/home/kehu/experiments/ASM/amrfinder/simulation/intervals_i90_r1_chr20_sim/";
+        mappedReadFileName = "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_rand_0.6_0.05.sim";
+        reportPath = "/home/kehu/experiments/ASM/simulation/";
+        outputPath = "/home/kehu/experiments/ASM/simulation/intervals_i90_r1_chr20_rand_0.6_0.05.sim/";
 
         setUpLogging(String.format("%s/%s-intervals_%d_%d_%d.log", reportPath, chr, GlobalParameter.MIN_CONT_COVERAGE,
                                    GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS), Level.INFO,
