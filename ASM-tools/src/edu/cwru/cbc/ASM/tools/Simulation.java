@@ -22,10 +22,17 @@ public class Simulation {
     public static void main(String[] args) throws IOException {
         executeSimulation("/home/kehu/experiments/ASM/data/hg18_chr20.fa",
                           "/home/kehu/experiments/ASM/data/i90_r1_chr20",
-                          "/home/kehu/experiments/ASM/simulation/simu_randPick.bed",
-                          "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_rand_0.6_0.05.sim", 0.6, 0.05);
+                          "/home/kehu/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20.bed",
+                          "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_CPGI_0.8_0.05.sim", 0.8, 0.05);
     }
 
+    /**
+     * execute data simulation
+     *
+     * @param alpha read will keep same pattern with chosen allele with probability alpha.
+     * @param beta  methyl status of CpG will flip with probability beta
+     * @throws IOException
+     */
     public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
                                          String targetRegionFileName, String outputFileName, double alpha,
                                          double beta) throws IOException {

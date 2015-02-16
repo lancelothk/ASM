@@ -70,9 +70,7 @@ public class Utils {
             @Override
             public boolean processLine(String line) throws IOException {
                 String[] items = line.split("\t");
-                if (items.length < 4) {
-                    throw new RuntimeException("invalid bed format:" + line);
-                }
+                // 0: chr 1: start 2: end
                 genomicRegionList.add(
                         new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]), items[3]));
                 // TODO make sure there is no overlapped regions.
