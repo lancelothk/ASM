@@ -16,13 +16,16 @@ import static edu.cwru.cbc.ASM.commons.Utils.readBedRegions;
 public class IntersectRegions {
     public static void main(String[] args) throws IOException {
         String currUserHome = System.getProperty("user.home");
+        double alpha = 0.8, beta = 0.2;
         List<GenomicRegion> targetRegions = readBedRegions(currUserHome +
                                                                    "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2_selection.bed");
         List<GenomicRegion> resultRegions = readBedRegions(
-                currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI_1.0_0.0_detection_summary");
+                String.format("%s/experiments/ASM/simulation/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
+                              currUserHome, alpha, beta));
 
-        BufferedWriter writer = new BufferedWriter(
-                new FileWriter(currUserHome + "/experiments/ASM/simulation/intersections_CPGI_1_0_4_5_10"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(
+                String.format("%s/experiments/ASM/simulation/intersections_CPGI_%.1f_%.1f_4_5_10", currUserHome, alpha,
+                              beta)));
 
         for (GenomicRegion targetRegion : targetRegions) {
             for (GenomicRegion resultRegion : resultRegions) {

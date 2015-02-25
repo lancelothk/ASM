@@ -73,7 +73,7 @@ public class MappedRead {
                     return MethylStatus.N;
                 }
             }
-            case '-': {
+            case '-': { // here the - strand is origianl one. Not the complementary one.
                 // NC is methylated, NT is non-methylated
                 char cbp = sequence.charAt(pos - start + 1);
                 char gbp = sequence.charAt(pos - start);
@@ -117,7 +117,7 @@ public class MappedRead {
         return stringBuilder.toString();
     }
 
-    public String toString(int initialPos) throws IllegalArgumentException {
+    public String toVisualizationString(int initialPos) throws IllegalArgumentException {
         if (this.start - initialPos > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("offset exceed max int!");
         }
@@ -127,16 +127,30 @@ public class MappedRead {
                                               offset + this.sequence.length(), '.'), this.id);
     }
 
+
+    // + strand     CG  TG
+    // - strand     GC  AC  GT
+    // - comp       CG  TG  CA
     public String toSimulationString() {
         char[] strArray = sequence.toCharArray();
         for (CpG cpG : cpgList) {
             if (cpG.getMethylStatus() == MethylStatus.C) {
-                strArray[cpG.getPos() - this.start] = 'C';
-                strArray[cpG.getPos() - this.start + 1] = 'G';
+                if (strand == '+') {
+                    strArray[cpG.getPos() - this.start] = 'C';
+                    strArray[cpG.getPos() - this.start + 1] = 'G';
+                } else {
+                    strArray[cpG.getPos() - this.start + 1] = 'C';
+                    strArray[cpG.getPos() - this.start] = 'G';
+                }
             }
             if (cpG.getMethylStatus() == MethylStatus.T) {
-                strArray[cpG.getPos() - this.start] = 'T';
-                strArray[cpG.getPos() - this.start + 1] = 'G';
+                if (strand == '+') {
+                    strArray[cpG.getPos() - this.start] = 'T';
+                    strArray[cpG.getPos() - this.start + 1] = 'G';
+                } else {
+                    strArray[cpG.getPos() - this.start + 1] = 'T';
+                    strArray[cpG.getPos() - this.start] = 'G';
+                }
             }
         }
         return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end,

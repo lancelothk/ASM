@@ -42,7 +42,7 @@ public class CPMR {
                                           chr, GlobalParameter.MIN_CONT_COVERAGE, GlobalParameter.MIN_INTERVAL_CPG,
                                           GlobalParameter.MIN_INTERVAL_READS);
 
-		double alpha=1, beta=0;
+        double alpha = 0.8, beta = 0.2;
         mappedReadFileName = String.format("%s/experiments/ASM/simulation/i90_r1_chr20_CPGI_%.1f_%.1f.sim", homeDirectory,
 										   alpha, beta);
         reportPath = homeDirectory + "/experiments/ASM/simulation/";

@@ -17,7 +17,7 @@ public class ReadsVisualization {
     public static void main(String[] args) throws IOException {
         String targetFileName;
         if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/simulation/i90_r1_chr20.first_100.sim";
+            targetFileName = "/home/kehu/experiments/ASM/simulation/207789.reads";
         } else {
             targetFileName = args[0];
         }
@@ -79,7 +79,7 @@ public class ReadsVisualization {
             bufferedWriter.write(String.format("ref:\t%s\n", ref));
         }
         for (MappedRead read : readsList) {
-            bufferedWriter.write(read.toString(initialPos) + "\n");
+            bufferedWriter.write(read.toVisualizationString(initialPos) + "\n");
         }
         bufferedWriter.close();
     }

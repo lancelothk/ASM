@@ -25,7 +25,7 @@ public class Simulation {
         executeSimulation(currUserHome + "/experiments/ASM/data/hg18_chr20.fa",
                           currUserHome + "/experiments/ASM/data/i90_r1_chr20", currUserHome +
                 "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2_selection.bed",
-                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 0.7, 0.3);
+                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 0.8, 0.2);
         System.out.println((System.currentTimeMillis() - start)/1000.0 + "s");
 	}
 
@@ -119,19 +119,23 @@ public class Simulation {
                 if (rand.nextBoolean()) {
                     // allele 1
                     for (CpG cpg : mappedRead.getCpgList()) {
-                        if (targetRegion.getRefMethylStatus(cpg.getRefCpG().getIndex())) {
-                            cpg.setMethylStatus(MethylStatus.C);
-                        } else {
-                            cpg.setMethylStatus(MethylStatus.T);
+                        if (targetRegion.getRefCpGList().contains(cpg.getRefCpG())) {
+                            if (targetRegion.getRefMethylStatus(cpg.getRefCpG().getIndex())) {
+                                cpg.setMethylStatus(MethylStatus.C);
+                            } else {
+                                cpg.setMethylStatus(MethylStatus.T);
+                            }
                         }
                     }
                 } else {
                     // allele 2 : conterpart of allele 1
                     for (CpG cpg : mappedRead.getCpgList()) {
-                        if (targetRegion.getRefMethylStatus(cpg.getRefCpG().getIndex())) {
-                            cpg.setMethylStatus(MethylStatus.T); // opposite to allele 1
-                        } else {
-                            cpg.setMethylStatus(MethylStatus.C); // opposite to allele 1
+                        if (targetRegion.getRefCpGList().contains(cpg.getRefCpG())) {
+                            if (targetRegion.getRefMethylStatus(cpg.getRefCpG().getIndex())) {
+                                cpg.setMethylStatus(MethylStatus.T); // opposite to allele 1
+                            } else {
+                                cpg.setMethylStatus(MethylStatus.C); // opposite to allele 1
+                            }
                         }
                     }
                 }

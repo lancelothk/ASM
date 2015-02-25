@@ -45,12 +45,13 @@ public class DetectionWithMappedRead extends Detection {
 
     public static void main(
             String[] args) throws ExecutionException, InterruptedException, IOException, InstantiationException, IllegalAccessException {
+
         long start = System.currentTimeMillis();
         String cellLine = "i90";
         String replicate = "r1";
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
-		int threadNumber = 6;
+        int threadNumber = 6;
 
         String fileName = "chr20-60234499-60234606";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
@@ -63,18 +64,21 @@ public class DetectionWithMappedRead extends Detection {
                 GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS);
 
 
-		double alpha=1, beta=0;
-        summaryFileName = String.format("%s/experiments/ASM/simulation/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
-                                        homeDirectory, alpha, beta);
-        inputName = String.format("%s/experiments/ASM/simulation/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
-								  homeDirectory, alpha, beta);
+        double alpha = 1, beta = 0;
+        summaryFileName = String.format(
+                "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
+                homeDirectory, alpha, beta, alpha, beta);
+        inputName = String.format(
+                "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
+                homeDirectory, alpha, beta, alpha, beta);
 
         List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
                 "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\t" +
-                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmwwScore\tmwwTest\terrorProbability\tgroupSizes\n");
+                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmwwScore\tmwwTest\terrorProbability\t#CpGwith2FoldDiff\t#CpGwithFisherP<=" +
+                        GlobalParameter.fisher_P_threshold + "\tpassFoldAndFisher\tgroupSizes\n");
 
         for (String result : resultList) {
             summaryWriter.write(result);
@@ -236,14 +240,78 @@ public class DetectionWithMappedRead extends Detection {
                                 double avgGroupCpGCoverage) {
         MWW MWW = calculateMWW(refCpGList, graph);
 
+        int foldCount = 0, testCount = 0, passFoldAndTestCount = 0;
+        if (graph.getClusterResult().size() == 1) {
+            foldCount = -1;// 1 cluster interval
+            testCount = -1;
+        } else { // cluster size == 2 or more
+            List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
+            for (RefCpG refCpG : refCpGList) {
+                if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
+                    if (graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount() == 2) {
+                        twoClusterRefCpGList.add(refCpG);
+                    }
+                }
+            }
+
+            for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
+                assert twoClusterRefCpGList.get(i).getCpGCoverage() == 2;
+                int j = 0;
+                double[] m = new double[2];
+                int[][] matrix = new int[2][2];
+                boolean passFold = false, passTest = false;
+                for (Vertex vertex : graph.getClusterResult().values()) {
+                    if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
+                        matrix[j][0] = vertex.getRefCpGMap().get(twoClusterRefCpGList.get(i).getPos()).getMethylCount();
+                        matrix[j][1] = vertex.getRefCpGMap().get(
+                                twoClusterRefCpGList.get(i).getPos()).getNonMethylCount();
+                        m[j] = vertex.getRefCpGMap().get(twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
+                        j++;
+                    }
+                }
+                if (m[0] != 0 && m[1] != 0) {
+                    if ((m[0] / m[1] >= 2 || m[1] / m[0] >= 2)) {
+                        passFold = true;
+                    }
+                } else if (m[0] == 0) {
+                    if (m[1] >= 0.2) {
+                        passFold = true;
+                    }
+                } else {
+                    if (m[0] >= 0.2) {
+                        passFold = true;
+                    }
+                }
+
+                try {
+                    if (FisherExact.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1])[0] <=
+                            GlobalParameter.fisher_P_threshold) {
+                        passTest = true;
+                    }
+                } catch (Exception e) {
+                    System.out.println(matrix[0][0] + "\t" + matrix[0][1] + "\t" + matrix[1][0] + "\t" + matrix[1][1]);
+                }
+                if (passFold) {
+                    foldCount++;
+                }
+                if (passTest) {
+                    testCount++;
+                }
+                if (passFold && passTest) {
+                    passFoldAndTestCount++;
+                }
+            }
+        }
+
         StringBuilder sb = new StringBuilder(
-                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t%f\t", chr, startPos, endPos,
-                              length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t%f\t%d\t%d\t%d\t", chr,
+                              startPos, endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
                               mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
                               avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
                               MWW.mwwScore, MWW.mwwPvalue,
                               calcErrorProbability(refCpGList, graph.getClusterResult().values(),
-                                                   graph.getClusterRefCpGMap())));
+                                                   graph.getClusterRefCpGMap()), foldCount, testCount,
+                              passFoldAndTestCount));
         for (Vertex vertex : graph.getClusterResult().values()) {
             sb.append(vertex.getMappedReadList().size()).append(",");
         }
