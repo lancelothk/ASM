@@ -16,14 +16,17 @@ import java.util.Random;
  */
 public class RandomRegions {
 	public static void main(String[] args) throws IOException {
-		String inputFile = "/home/lancelothk/experiments/ASM/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength0.6.bed";
+		String inputFile = "/home/lancelothk/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength0.6.bed";
 
 		Random rand = new Random();
 		List<GenomicRegion> regionList = Utils.readBedRegions(inputFile);
 		int numberOfSelection = 100;
 		List<GenomicRegion> selection = new ArrayList<>();
-		for (int i = 0; i < numberOfSelection; i++) {
-			selection.add(regionList.get(rand.nextInt(regionList.size())));
+		for (int i = 0; selection.size() != numberOfSelection; i++) {
+			GenomicRegion genomicRegion = regionList.get(rand.nextInt(regionList.size()));
+			if (!selection.contains(genomicRegion)) {
+				selection.add(genomicRegion);
+			}
 		}
 
 

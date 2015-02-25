@@ -20,12 +20,14 @@ import static edu.cwru.cbc.ASM.commons.Utils.readBedRegions;
  */
 public class Simulation {
     public static void main(String[] args) throws IOException {
+		long start = System.currentTimeMillis();
       	String currUserHome = System.getProperty("user.home");
         executeSimulation(currUserHome + "/experiments/ASM/data/hg18_chr20.fa",
                           currUserHome + "/experiments/ASM/data/i90_r1_chr20",
-                          currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20.bed",
-                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 0.8, 0.05);
-    }
+                          currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength0.6_selection.bed",
+                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 1, 0);
+		System.out.println((System.currentTimeMillis() - start)/1000.0 + "s");
+	}
 
     /**
      * execute data simulation
@@ -38,7 +40,7 @@ public class Simulation {
                                          String targetRegionFileName, String outputFileName, double alpha,
                                          double beta) throws IOException {
 
-		outputFileName = String.format("%s_%f_%f.sim", outputFileName, alpha, beta);
+		outputFileName = String.format("%s_%.1f_%.1f.sim", outputFileName, alpha, beta);
         // read reference and refCpGs
         RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);

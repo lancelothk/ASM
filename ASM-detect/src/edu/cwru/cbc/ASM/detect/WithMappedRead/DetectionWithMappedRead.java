@@ -50,6 +50,7 @@ public class DetectionWithMappedRead extends Detection {
         String replicate = "r1";
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
+		int threadNumber = 6;
 
         String fileName = "chr20-60234499-60234606";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
@@ -61,11 +62,12 @@ public class DetectionWithMappedRead extends Detection {
                 homeDirectory, cellLine, replicate, name, fileName, EXPERIMENT_NAME, GlobalParameter.MIN_CONT_COVERAGE,
                 GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS);
 
-        int threadNumber = 6;
 
-
-        summaryFileName = "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_sim_rand_0.6_0.05_detection_summary";
-        inputName = "/home/kehu/experiments/ASM/simulation/intervals_i90_r1_chr20_rand_0.6_0.05.sim/";
+		double alpha=1, beta=0;
+        summaryFileName = String.format(
+				"%s/experiments/ASM/simulation/i90_r1_chr20_CPGI_%.1f_%.1f_detection_summary", homeDirectory, alpha, beta);
+        inputName = String.format("%s/experiments/ASM/simulation/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
+								  homeDirectory, alpha, beta);
 
         List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
 

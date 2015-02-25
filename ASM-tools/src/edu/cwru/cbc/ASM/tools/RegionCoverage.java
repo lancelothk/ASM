@@ -12,7 +12,7 @@ import java.io.IOException;
 public class RegionCoverage {
 	public static void main(String[] args) throws IOException {
 		String currUserHome = System.getProperty("user.home");
-		String inputFolderName = currUserHome + "/experiments/ASM/CpGIslandsRegions/";
+		String inputFolderName = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/";
 		String prefix = "i90_r1_chr20_";
 
 		File inputFolder = new File(inputFolderName);
