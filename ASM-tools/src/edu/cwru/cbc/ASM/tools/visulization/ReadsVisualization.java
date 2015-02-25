@@ -53,6 +53,9 @@ public class ReadsVisualization {
                 continue;
             }
             String[] items = line.split("\t");
+            if (items.length < 2) {
+                System.out.println(line);
+            }
             if (!items[1].equals("+") && !items[1].equals("-")) {
                 System.err.println(line);
                 System.err.println("invalid strand symbol!");

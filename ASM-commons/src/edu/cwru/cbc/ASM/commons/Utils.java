@@ -61,15 +61,16 @@ public class Utils {
      * @throws IOException
      */
     public static List<GenomicRegion> readBedRegions(String bedFileName) throws IOException {
-        if (!bedFileName.endsWith(".bed")) {
-            throw new RuntimeException("the input should be bed format file with .bed extension!");
-        }
         return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<GenomicRegion>>() {
             private List<GenomicRegion> genomicRegionList = new ArrayList<>();
 
             @Override
             public boolean processLine(String line) throws IOException {
                 String[] items = line.split("\t");
+                if (items[0].equals("chr")) {
+                    // skip column name
+                    return true;
+                }
                 // 0: chr 1: start 2: end
                 genomicRegionList.add(
                         new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]), items[3]));
