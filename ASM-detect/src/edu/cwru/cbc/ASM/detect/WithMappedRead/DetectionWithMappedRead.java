@@ -13,11 +13,11 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ClusterRefCpG;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
 import edu.cwru.cbc.ASM.tools.visulization.ReadsVisualization;
+import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
 public class DetectionWithMappedRead extends Detection {
     private static final Logger logger = Logger.getLogger(DetectionWithMappedRead.class.getName());
     private static final String EXPERIMENT_NAME = "2group";
-    private static int countOfCpGLessThanFive = 0;
 
     public DetectionWithMappedRead() {
     }
@@ -63,7 +62,7 @@ public class DetectionWithMappedRead extends Detection {
                 GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS);
 
 
-        double alpha = 1, beta = 0;
+        double alpha = 0.8, beta = 0.2;
         summaryFileName = String.format(
                 "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
                 homeDirectory, alpha, beta, alpha, beta);
@@ -75,16 +74,15 @@ public class DetectionWithMappedRead extends Detection {
 
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
-                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\t" +
-                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwith2FoldDiff\t#CpGwithFisherP<=" +
-                        GlobalParameter.fisher_P_threshold + "\tpassFoldAndFisher\tgroupSizes\n");
+                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGSiteCount\tGroupCount\t" +
+                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwithFisherP<=" +
+                        GlobalParameter.fisher_P_threshold + "\tregionPvalue\tgroupSizes\n");
 
         for (String result : resultList) {
             summaryWriter.write(result);
         }
 
         summaryWriter.close();
-        logger.info("count of intervals with overlappedCpG < 5\t" + countOfCpGLessThanFive);
         logger.info(System.currentTimeMillis() - start + "ms");
     }
 
@@ -107,9 +105,165 @@ public class DetectionWithMappedRead extends Detection {
         // clustering
         graph.cluster();
 
-        double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, inputFile);
 
-        return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList, graph, avgGroupCpGCoverage);
+        // get fisher test P values for each refCpG in clusters.
+        double[] pArray = fisherTest(refCpGList, graph);
+
+        // give -1 if only one cluster
+        double regionP = pArray.length == 0 ? -1 : 1 - Math.pow(1 - StatUtils.min(pArray), pArray.length);
+
+        double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, pArray);
+
+        return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList, graph, avgGroupCpGCoverage,
+                            getFisherTestCount(pArray), regionP);
+    }
+
+    private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, double[] pArray) throws IOException {
+        BufferedWriter groupResultWriter = new BufferedWriter(
+                new FileWriter(inputFile.getAbsolutePath() + "." + EXPERIMENT_NAME));
+
+        groupResultWriter.write(inputFile.getName() + "\n");
+        groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
+        groupResultWriter.write(String.format("tied id counter:%d\n", graph.getTieIdCountCounter()));
+
+        double sum = printRefCpGGroupCoverage(refCpGList, graph, groupResultWriter);
+
+        List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, groupResultWriter);
+
+        writePvalues(pArray, groupResultWriter);
+
+        writeGroupReadList(groupResultWriter, groupResultList);
+
+        groupResultWriter.close();
+
+        return sum / graph.getClusterRefCpGMap().size();
+    }
+
+    private double printRefCpGGroupCoverage(List<RefCpG> refCpGList, ASMGraph graph,
+                                            BufferedWriter groupResultWriter) throws IOException {
+        // print refCpG's group coverage
+        double sum = 0;
+        for (RefCpG refCpG : refCpGList) {
+            if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
+                groupResultWriter.write(String.format("pos: %d\tcount: %d\n", refCpG.getPos(),
+                                                      graph.getClusterRefCpGMap().get(
+                                                              refCpG.getPos()).getClusterCount()));
+                sum += graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount();
+            }
+        }
+        return sum;
+    }
+
+    private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph,
+                                                 BufferedWriter groupResultWriter) throws IOException {
+        List<GroupResult> groupResultList = graph.getClusterResult().values().stream().map(
+                vertex -> new GroupResult(new ArrayList<>(vertex.getRefCpGMap().values()), vertex.getMappedReadList(),
+                                          vertex.getMECScore())).collect(Collectors.toList());
+
+        // start to write aligned result
+        groupResultWriter.write("Aligned result:\n");
+        groupResultList.sort(GroupResult::compareTo);
+
+        for (int i = 0; i < groupResultList.size(); i++) {
+            groupResultWriter.write(i + ":\t");
+            for (RefCpG refCpG : refCpGList) {
+                Map<Integer, RefCpG> refCpGMap = groupResultList.get(i).getRefCpGList().stream().collect(
+                        Collectors.toMap(RefCpG::getPos, r -> r));
+                if (refCpGMap.containsKey(refCpG.getPos())) {
+                    groupResultWriter.write(Strings.padEnd(
+                            String.format("%.2f(%d)", refCpGMap.get(refCpG.getPos()).getMethylLevel(),
+                                          refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' '));
+                } else {
+                    // fill the gap
+                    groupResultWriter.write(Strings.repeat(" ", 10));
+                }
+            }
+            groupResultWriter.write("\n");
+        }
+        return groupResultList;
+    }
+
+    private void writePvalues(double[] pArray, BufferedWriter groupResultWriter) throws IOException {
+        groupResultWriter.write("P:\t");
+        for (double v : pArray) {
+            groupResultWriter.write(Strings.padEnd(String.format("%.3f", v), 10, ' '));
+        }
+        groupResultWriter.write("\n");
+    }
+
+    private void writeGroupReadList(BufferedWriter groupResultWriter,
+                                    List<GroupResult> groupResultList) throws IOException {
+        groupResultWriter.write("Group's read list:\n");
+        for (int i = 0; i < groupResultList.size(); i++) {
+            groupResultWriter.write(
+                    "Group:" + i + "\t" + "size:" + groupResultList.get(i).getMappedReadList().size() + "\tMEC:" +
+                            groupResultList.get(i).getMec() + "\n");
+            for (MappedRead mappedRead : groupResultList.get(i).getMappedReadList()) {
+                groupResultWriter.write(mappedRead.getId() + ",");
+            }
+            groupResultWriter.write("\n");
+        }
+    }
+
+    private int getFisherTestCount(double[] pArray) {
+        int testCount = 0;
+        for (double v : pArray) {
+            if (v <= GlobalParameter.fisher_P_threshold) {
+                testCount++;
+            }
+        }
+        return testCount;
+    }
+
+    private double[] fisherTest(List<RefCpG> refCpGList, ASMGraph graph) {
+        double[] pArray = null;
+        if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
+            List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
+            for (RefCpG refCpG : refCpGList) {
+                if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
+                    if (graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount() == 2) {
+                        twoClusterRefCpGList.add(refCpG);
+                    }
+                }
+            }
+
+            pArray = new double[twoClusterRefCpGList.size()];
+            for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
+                assert twoClusterRefCpGList.get(i).getCpGCoverage() == 2;
+                int j = 0;
+                int[][] matrix = new int[2][2];
+                for (Vertex vertex : graph.getClusterResult().values()) {
+                    if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
+                        matrix[j][0] = vertex.getRefCpGMap().get(twoClusterRefCpGList.get(i).getPos()).getMethylCount();
+                        matrix[j][1] = vertex.getRefCpGMap().get(
+                                twoClusterRefCpGList.get(i).getPos()).getNonMethylCount();
+                        j++;
+                    }
+                }
+
+                pArray[i] = FisherExact.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
+                                                         matrix[1][1])[0];  // [0] is two tail test.
+            }
+        } else {
+            pArray = new double[0];
+        }
+        return pArray;
+    }
+
+    private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
+                                double avgGroupCpGCoverage, int testCount, double regionP) {
+        StringBuilder sb = new StringBuilder(
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%d\t%.5f\t", chr, startPos,
+                              endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
+                              mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
+                              avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
+                              calcErrorProbability(refCpGList, graph.getClusterResult().values(),
+                                                   graph.getClusterRefCpGMap()), testCount, regionP));
+        for (Vertex vertex : graph.getClusterResult().values()) {
+            sb.append(vertex.getMappedReadList().size()).append(",");
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 
     private double calcErrorProbability(List<RefCpG> refCpGList, Collection<Vertex> clusterResult,
@@ -166,157 +320,8 @@ public class DetectionWithMappedRead extends Detection {
         return p;
     }
 
-    private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
-                                double avgGroupCpGCoverage) {
-        int foldCount = 0, testCount = 0, passFoldAndTestCount = 0;
-        if (graph.getClusterResult().size() == 1) {
-            foldCount = -1;// 1 cluster interval
-            testCount = -1;
-        } else { // cluster size == 2 or more
-            List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
-            for (RefCpG refCpG : refCpGList) {
-                if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
-                    if (graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount() == 2) {
-                        twoClusterRefCpGList.add(refCpG);
-                    }
-                }
-            }
-
-            for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
-                assert twoClusterRefCpGList.get(i).getCpGCoverage() == 2;
-                int j = 0;
-                double[] m = new double[2];
-                int[][] matrix = new int[2][2];
-                boolean passFold = false, passTest = false;
-                for (Vertex vertex : graph.getClusterResult().values()) {
-                    if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
-                        matrix[j][0] = vertex.getRefCpGMap().get(twoClusterRefCpGList.get(i).getPos()).getMethylCount();
-                        matrix[j][1] = vertex.getRefCpGMap().get(
-                                twoClusterRefCpGList.get(i).getPos()).getNonMethylCount();
-                        m[j] = vertex.getRefCpGMap().get(twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
-                        j++;
-                    }
-                }
-                if (m[0] != 0 && m[1] != 0) {
-                    if ((m[0] / m[1] >= 2 || m[1] / m[0] >= 2)) {
-                        passFold = true;
-                    }
-                } else if (m[0] == 0) {
-                    if (m[1] >= 0.2) {
-                        passFold = true;
-                    }
-                } else {
-                    if (m[0] >= 0.2) {
-                        passFold = true;
-                    }
-                }
-
-                try {
-                    if (FisherExact.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1])[0] <=
-                            GlobalParameter.fisher_P_threshold) {
-                        passTest = true;
-                    }
-                } catch (Exception e) {
-                    System.out.println(matrix[0][0] + "\t" + matrix[0][1] + "\t" + matrix[1][0] + "\t" + matrix[1][1]);
-                }
-                if (passFold) {
-                    foldCount++;
-                }
-                if (passTest) {
-                    testCount++;
-                }
-                if (passFold && passTest) {
-                    passFoldAndTestCount++;
-                }
-            }
-        }
-
-        StringBuilder sb = new StringBuilder(
-                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%d\t%d\t%d\t", chr,
-                              startPos, endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
-                              mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
-                              avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
-                              calcErrorProbability(refCpGList, graph.getClusterResult().values(),
-                                                   graph.getClusterRefCpGMap()), foldCount, testCount,
-                              passFoldAndTestCount));
-        for (Vertex vertex : graph.getClusterResult().values()) {
-            sb.append(vertex.getMappedReadList().size()).append(",");
-        }
-        sb.append("\n");
-        return sb.toString();
-    }
-
-    private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, File inputFile) throws IOException {
-        BufferedWriter groupResultWriter = new BufferedWriter(
-                new FileWriter(inputFile.getAbsolutePath() + "." + EXPERIMENT_NAME));
-
-        groupResultWriter.write(inputFile.getName() + "\n");
-        groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
-        groupResultWriter.write(String.format("tied id counter:%d\n", graph.getTieIdCountCounter()));
-
-        // assign index of cpg
-        for (int i = 0; i < refCpGList.size(); i++) {
-            refCpGList.get(i).assignIndex(i);
-        }
-
-        // print refCpG's group coverage
-        double sum = 0;
-        for (RefCpG refCpG : refCpGList) {
-            if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
-                groupResultWriter.write(String.format("pos: %d\tcount: %d\n", refCpG.getPos(),
-                                                      graph.getClusterRefCpGMap().get(
-                                                              refCpG.getPos()).getClusterCount()));
-                sum += graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount();
-            }
-        }
-
-        List<GroupResult> groupResultList = graph.getClusterResult().values().stream().map(
-                vertex -> new GroupResult(new ArrayList<>(vertex.getRefCpGMap().values()), vertex.getMappedReadList(),
-                                          vertex.getMECScore())).collect(Collectors.toList());
-
-        // start to write aligned result
-        groupResultWriter.write("Aligned result:\n");
-        groupResultList.sort(GroupResult::compareTo);
-
-        for (int i = 0; i < groupResultList.size(); i++) {
-            groupResultWriter.write(i + "\t");
-            for (RefCpG refCpG : refCpGList) {
-                Map<Integer, RefCpG> refCpGMap = groupResultList.get(i).getRefCpGList().stream().collect(
-                        Collectors.toMap(RefCpG::getPos, r -> r));
-                if (refCpGMap.containsKey(refCpG.getPos())) {
-                    groupResultWriter.write(Strings.padEnd(
-                            String.format("%.2f(%d)", refCpGMap.get(refCpG.getPos()).getMethylLevel(),
-                                          refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' '));
-                } else {
-                    // fill the gap
-                    groupResultWriter.write(Strings.repeat(" ", 10));
-                }
-            }
-            groupResultWriter.write("\n");
-        }
-
-
-        groupResultWriter.write("Group's read list:\n");
-        for (int i = 0; i < groupResultList.size(); i++) {
-            groupResultWriter.write(
-                    "Group:" + i + "\t" + "size:" + groupResultList.get(i).getMappedReadList().size() + "\tMEC:" +
-                            groupResultList.get(i).getMec() + "\n");
-            for (MappedRead mappedRead : groupResultList.get(i).getMappedReadList()) {
-                groupResultWriter.write(mappedRead.getId() + ",");
-            }
-            groupResultWriter.write("\n");
-        }
-
-        groupResultWriter.close();
-        return sum / graph.getClusterRefCpGMap().size();
-    }
-
     @Override
     protected Detection constructNewInstance() {
         return new DetectionWithMappedRead();
-    }
-
-    private class MWW {
-        public double mwwScore = -1010, mwwPvalue = -1010;
     }
 }
