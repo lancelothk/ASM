@@ -20,7 +20,8 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="guava" level="project" />
-    <orderEntry type="library" name="commons-math3-3.3" level="project" />
     <orderEntry type="library" scope="TEST" name="junit-addons-1.4" level="project" />
+    <orderEntry type="library" name="guava" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
