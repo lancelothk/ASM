@@ -58,8 +58,8 @@ public class RegionCoverage {
 		int count = 0;
 		for (int i : coverage) {
 			//System.out.print(i + "\t");
-			if (i >= 6) {
-				count++;
+            if (i >= 8) {
+                count++;
 			}
 		}
 		//System.out.println();

@@ -16,7 +16,9 @@ import java.util.Random;
  */
 public class RandomRegions {
 	public static void main(String[] args) throws IOException {
-		String inputFile = "/home/lancelothk/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength0.6.bed";
+        String currUserHome = System.getProperty("user.home");
+        String inputFile = currUserHome +
+                "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.bed";
 
 		Random rand = new Random();
 		List<GenomicRegion> regionList = Utils.readBedRegions(inputFile);

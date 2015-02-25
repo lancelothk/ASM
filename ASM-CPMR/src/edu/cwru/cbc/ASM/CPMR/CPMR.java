@@ -87,7 +87,7 @@ public class CPMR {
         logger.info("cpg id assignment complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
         start = System.currentTimeMillis();
-        List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
+        Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
                                                           new MappedReadLineProcessorWithSummary(refCpGList,
                                                                                                  refChr.getRefString().length()));
         logger.info("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");

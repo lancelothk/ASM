@@ -64,8 +64,8 @@ public class DetectionWithMappedRead extends Detection {
 
 
 		double alpha=1, beta=0;
-        summaryFileName = String.format(
-				"%s/experiments/ASM/simulation/i90_r1_chr20_CPGI_%.1f_%.1f_detection_summary", homeDirectory, alpha, beta);
+        summaryFileName = String.format("%s/experiments/ASM/simulation/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
+                                        homeDirectory, alpha, beta);
         inputName = String.format("%s/experiments/ASM/simulation/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
 								  homeDirectory, alpha, beta);
 

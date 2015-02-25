@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.commons.DataType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -15,7 +16,7 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
     private String name;
     private List<RefCpG> refCpGList;
     private boolean[] allelePattern;
-
+    private boolean isIntersected;
 
     public GenomicRegion(String chr, int start, int end, String name) {
         this.chr = chr;
@@ -23,6 +24,14 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         this.end = end;
         this.name = name;
         this.refCpGList = new ArrayList<>();
+    }
+
+    public boolean isIntersected() {
+        return isIntersected;
+    }
+
+    public void setIntersected(boolean isIntersected) {
+        this.isIntersected = isIntersected;
     }
 
     public String getChr() {
@@ -61,8 +70,22 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         return allelePattern[index];
     }
 
-	public String toBedString(){
-		return String.format("%s\t%d\t%d\t%s", this.chr, this.start, this.end, this.name);
+    @Override
+    public String toString() {
+        return "GenomicRegion{" +
+                "chr='" + chr + '\'' +
+                ", start=" + start +
+                ", end=" + end +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
+    public String toPatternString() {
+        return String.format("%d\t%d\t%s", start, end, Arrays.toString(allelePattern));
+    }
+
+    public String toBedString() {
+        return String.format("%s\t%d\t%d\t%s", this.chr, this.start, this.end, this.name);
 	}
 
     @Override

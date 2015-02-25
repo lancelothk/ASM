@@ -23,10 +23,10 @@ public class Simulation {
 		long start = System.currentTimeMillis();
       	String currUserHome = System.getProperty("user.home");
         executeSimulation(currUserHome + "/experiments/ASM/data/hg18_chr20.fa",
-                          currUserHome + "/experiments/ASM/data/i90_r1_chr20",
-                          currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength0.6_selection.bed",
-                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 1, 0);
-		System.out.println((System.currentTimeMillis() - start)/1000.0 + "s");
+                          currUserHome + "/experiments/ASM/data/i90_r1_chr20", currUserHome +
+                "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2_selection.bed",
+                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 0.7, 0.3);
+        System.out.println((System.currentTimeMillis() - start)/1000.0 + "s");
 	}
 
     /**
@@ -74,6 +74,18 @@ public class Simulation {
             writer.write(mappedRead.toSimulationString() + "\n");
         }
         writer.close();
+
+        BufferedWriter asmWriter = new BufferedWriter(new FileWriter(outputFileName + ".asmPattern"));
+        BufferedWriter nonasmWriter = new BufferedWriter(new FileWriter(outputFileName + ".nonasmPattern"));
+        for (GenomicRegion targetRegion : targetRegions) {
+            asmWriter.write("ASM\t" + targetRegion.toPatternString() + "\n");
+        }
+        for (GenomicRegion nonASMRegion : nonASMRegions) {
+            nonasmWriter.write("nonASM\t" + nonASMRegion.toPatternString() + "\n");
+
+        }
+        asmWriter.close();
+        nonasmWriter.close();
     }
 
     private static void addRandomnessToReads(List<GenomicRegion> regions, double alpha, double beta) {
