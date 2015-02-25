@@ -20,11 +20,14 @@ import static edu.cwru.cbc.ASM.commons.Utils.readBedRegions;
  */
 public class Simulation {
     public static void main(String[] args) throws IOException {
-        executeSimulation("/home/kehu/experiments/ASM/data/hg18_chr20.fa",
-                          "/home/kehu/experiments/ASM/data/i90_r1_chr20",
-                          "/home/kehu/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20.bed",
-                          "/home/kehu/experiments/ASM/simulation/i90_r1_chr20_CPGI_0.8_0.05.sim", 0.8, 0.05);
-    }
+		long start = System.currentTimeMillis();
+      	String currUserHome = System.getProperty("user.home");
+        executeSimulation(currUserHome + "/experiments/ASM/data/hg18_chr20.fa",
+                          currUserHome + "/experiments/ASM/data/i90_r1_chr20",
+                          currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength0.6_selection.bed",
+                          currUserHome + "/experiments/ASM/simulation/i90_r1_chr20_CPGI", 1, 0);
+		System.out.println((System.currentTimeMillis() - start)/1000.0 + "s");
+	}
 
     /**
      * execute data simulation
@@ -36,6 +39,8 @@ public class Simulation {
     public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
                                          String targetRegionFileName, String outputFileName, double alpha,
                                          double beta) throws IOException {
+
+		outputFileName = String.format("%s_%.1f_%.1f.sim", outputFileName, alpha, beta);
         // read reference and refCpGs
         RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);

@@ -61,6 +61,10 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         return allelePattern[index];
     }
 
+	public String toBedString(){
+		return String.format("%s\t%d\t%d\t%s", this.chr, this.start, this.end, this.name);
+	}
+
     @Override
     public int compareTo(GenomicRegion o) {
         int startDiff = this.getStart() - o.getStart();
