@@ -13,7 +13,6 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ClusterRefCpG;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
 import edu.cwru.cbc.ASM.tools.visulization.ReadsVisualization;
-import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
 
@@ -77,7 +76,7 @@ public class DetectionWithMappedRead extends Detection {
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
                 "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGCount\tGroupCount\t" +
-                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\tmwwScore\tmwwTest\terrorProbability\t#CpGwith2FoldDiff\t#CpGwithFisherP<=" +
+                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwith2FoldDiff\t#CpGwithFisherP<=" +
                         GlobalParameter.fisher_P_threshold + "\tpassFoldAndFisher\tgroupSizes\n");
 
         for (String result : resultList) {
@@ -149,23 +148,6 @@ public class DetectionWithMappedRead extends Detection {
         return p;
     }
 
-    private double EPCaluculation_product_combine(Vertex minorityCluster, Vertex majorityCluster,
-                                                  List<RefCpG> twoClusterRefCpGList) {
-        double p = 1;
-        for (RefCpG refCpG : twoClusterRefCpGList) {
-            double majorMethylLevel = majorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylLevel();
-            long comb = CombinatoricsUtils.binomialCoefficient(
-                    minorityCluster.getRefCpGMap().get(refCpG.getPos()).getCoveredCount(),
-                    minorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylCount());
-            p *= comb *
-                    FastMath.pow(majorMethylLevel,
-                                 minorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylCount()) *
-                    FastMath.pow(1 - majorMethylLevel,
-                                 minorityCluster.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount());
-        }
-        return p;
-    }
-
     private double EPCaluculation_average_combine(Vertex minorityCluster, Vertex majorityCluster,
                                                   List<RefCpG> twoClusterRefCpGList) {
         double p = 0;
@@ -184,62 +166,8 @@ public class DetectionWithMappedRead extends Detection {
         return p;
     }
 
-    private double EPCaluculation_average(Vertex minorityCluster, Vertex majorityCluster,
-                                          List<RefCpG> twoClusterRefCpGList) {
-        double p = 0;
-        for (RefCpG refCpG : twoClusterRefCpGList) {
-            double majorMethylLevel = majorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylLevel();
-            p += FastMath.pow(majorMethylLevel, minorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylCount()) *
-                    FastMath.pow(1 - majorMethylLevel,
-                                 minorityCluster.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount());
-        }
-        p /= twoClusterRefCpGList.size();
-        return p;
-    }
-
-    private MWW calculateMWW(List<RefCpG> refCpGList, ASMGraph graph) {
-        MWW MWW = new MWW();
-        if (graph.getClusterResult().size() == 1) {
-            MWW.mwwScore = -1; // 1 cluster interval
-            MWW.mwwPvalue = -1;
-        } else { // cluster size == 2 or more
-            List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
-            for (RefCpG refCpG : refCpGList) {
-                if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
-                    if (graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount() == 2) {
-                        twoClusterRefCpGList.add(refCpG);
-                    }
-                }
-            }
-            // overlapped CpG < 5
-            if (twoClusterRefCpGList.size() < 5) {
-                countOfCpGLessThanFive++;
-            }
-            MannWhitneyUTest test = new MannWhitneyUTest();
-            double[][] mwwMatrix = new double[2][twoClusterRefCpGList.size()];
-
-            for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
-                assert twoClusterRefCpGList.get(i).getCpGCoverage() == 2;
-                int j = 0;
-                for (Vertex vertex : graph.getClusterResult().values()) {
-                    if (vertex.getRefCpGMap().containsKey(twoClusterRefCpGList.get(i).getPos())) {
-                        mwwMatrix[j][i] = vertex.getRefCpGMap().get(
-                                twoClusterRefCpGList.get(i).getPos()).getMethylLevel();
-                        j++;
-                    }
-                }
-            }
-            MWW.mwwScore = test.mannWhitneyU(mwwMatrix[0], mwwMatrix[1]);
-            MWW.mwwPvalue = test.mannWhitneyUTest(mwwMatrix[0], mwwMatrix[1]);
-        }
-        return MWW;
-
-    }
-
     private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
                                 double avgGroupCpGCoverage) {
-        MWW MWW = calculateMWW(refCpGList, graph);
-
         int foldCount = 0, testCount = 0, passFoldAndTestCount = 0;
         if (graph.getClusterResult().size() == 1) {
             foldCount = -1;// 1 cluster interval
@@ -304,11 +232,10 @@ public class DetectionWithMappedRead extends Detection {
         }
 
         StringBuilder sb = new StringBuilder(
-                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%f\t%f\t%d\t%d\t%d\t", chr,
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%d\t%d\t%d\t", chr,
                               startPos, endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
                               mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
                               avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
-                              MWW.mwwScore, MWW.mwwPvalue,
                               calcErrorProbability(refCpGList, graph.getClusterResult().values(),
                                                    graph.getClusterRefCpGMap()), foldCount, testCount,
                               passFoldAndTestCount));
