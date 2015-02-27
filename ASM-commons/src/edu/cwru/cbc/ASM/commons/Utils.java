@@ -53,14 +53,19 @@ public class Utils {
         return new RefChr(chr, referenceBuilder.toString());
     }
 
+    public static List<GenomicRegion> readBedRegions(String bedFileName) throws IOException {
+        return readBedRegions(bedFileName, false);
+    }
+
     /**
      * read bed format regions
      *
      * @param bedFileName name of the input file
+     * @param readLabel if read the label of the region
      * @return list of bed regions
      * @throws IOException
      */
-    public static List<GenomicRegion> readBedRegions(String bedFileName) throws IOException {
+    public static List<GenomicRegion> readBedRegions(String bedFileName, boolean readLabel) throws IOException {
         return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<GenomicRegion>>() {
             private List<GenomicRegion> genomicRegionList = new ArrayList<>();
 
@@ -71,9 +76,28 @@ public class Utils {
                     // skip column name
                     return true;
                 }
-                // 0: chr 1: start 2: end
-                genomicRegionList.add(
-                        new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]), items[3]));
+                if (readLabel) {
+                    boolean isPositive;
+                    switch (line.charAt(line.length() - 1)) {
+                        case '+':
+                            isPositive = true;
+                            break;
+                        case '-':
+                            isPositive = false;
+                            break;
+                        default:
+                            throw new RuntimeException("invalid label!");
+                    }
+                    // 0: chr 1: start 2: end
+                    genomicRegionList.add(
+                            new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
+                                              items[3], isPositive));
+                } else {
+                    // 0: chr 1: start 2: end
+                    genomicRegionList.add(
+                            new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
+                                              items[3]));
+                }
                 // TODO make sure there is no overlapped regions.
                 // TODO make sure all regions are from same chromosome
                 return true;

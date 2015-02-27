@@ -17,6 +17,7 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
     private List<RefCpG> refCpGList;
     private boolean[] allelePattern;
     private boolean isIntersected;
+    private boolean isPositive;
 
     public GenomicRegion(String chr, int start, int end, String name) {
         this.chr = chr;
@@ -24,6 +25,22 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         this.end = end;
         this.name = name;
         this.refCpGList = new ArrayList<>();
+    }
+
+    public GenomicRegion(String chr, int start, int end, String name, boolean isPositive) {
+        this.chr = chr;
+        this.start = start;
+        this.end = end;
+        this.name = name;
+        this.isPositive = isPositive;
+    }
+
+    public boolean isPositive() {
+        return isPositive;
+    }
+
+    public void setPositive(boolean isPositive) {
+        this.isPositive = isPositive;
     }
 
     public boolean isIntersected() {
@@ -68,16 +85,6 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
 
     public boolean getRefMethylStatus(int index) {
         return allelePattern[index];
-    }
-
-    @Override
-    public String toString() {
-        return "GenomicRegion{" +
-                "chr='" + chr + '\'' +
-                ", start=" + start +
-                ", end=" + end +
-                ", name='" + name + '\'' +
-                '}';
     }
 
     public String toPatternString() {

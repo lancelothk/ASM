@@ -43,13 +43,33 @@ public class DetectionWithMappedRead extends Detection {
 
     public static void main(
             String[] args) throws ExecutionException, InterruptedException, IOException, InstantiationException, IllegalAccessException {
-
         long start = System.currentTimeMillis();
+        simulationData(1, 0);
+        simulationData(0.8, 0.2);
+        simulationData(0.7, 0.3);
+        logger.info(System.currentTimeMillis() - start + "ms");
+    }
+
+    public static void simulationData(double alpha,
+                                      double beta) throws IOException, ExecutionException, InterruptedException {
+        String homeDirectory = System.getProperty("user.home");
+
+        String summaryFileName = String.format(
+                "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
+                homeDirectory, alpha, beta, alpha, beta);
+        String inputName = String.format(
+                "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
+                homeDirectory, alpha, beta, alpha, beta);
+
+        execution(inputName, summaryFileName);
+    }
+
+    public static void realData() throws ExecutionException, InterruptedException, IOException {
         String cellLine = "i90";
         String replicate = "r1";
         String name = "chr20";
         String homeDirectory = System.getProperty("user.home");
-        int threadNumber = 6;
+
 
         String fileName = "chr20-60234499-60234606";
         String inputName = String.format("%s/experiments/ASM/result_%s_%s/intervals_%s_%d_%d_%d/%s", homeDirectory,
@@ -61,29 +81,25 @@ public class DetectionWithMappedRead extends Detection {
                 homeDirectory, cellLine, replicate, name, fileName, EXPERIMENT_NAME, GlobalParameter.MIN_CONT_COVERAGE,
                 GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS);
 
+        execution(inputName, summaryFileName);
+    }
 
-        double alpha = 0.8, beta = 0.2;
-        summaryFileName = String.format(
-                "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/detection_summary_i90_r1_chr20_CPGI_%.1f_%.1f",
-                homeDirectory, alpha, beta, alpha, beta);
-        inputName = String.format(
-                "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
-                homeDirectory, alpha, beta, alpha, beta);
-
+    private static void execution(String inputName,
+                                  String summaryFileName) throws ExecutionException, InterruptedException, IOException {
+        int threadNumber = 6;
         List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
-
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
                 "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGSiteCount\tGroupCount\t" +
                         "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwithFisherP<=" +
-                        GlobalParameter.fisher_P_threshold + "\tregionPvalue\tgroupSizes\n");
+                        GlobalParameter.fisher_P_threshold + "\tP_percent>=" +
+                        GlobalParameter.REGION_PERCENT_THRESHOLD + "\tregionPvalue<=" +
+                        GlobalParameter.REGION_P_THRESHOLD + "\tgroup1\tgroup2\tlabel\n");
 
         for (String result : resultList) {
             summaryWriter.write(result);
         }
-
         summaryWriter.close();
-        logger.info(System.currentTimeMillis() - start + "ms");
     }
 
     public String call() throws Exception {
@@ -128,9 +144,7 @@ public class DetectionWithMappedRead extends Detection {
 
         double sum = printRefCpGGroupCoverage(refCpGList, graph, groupResultWriter);
 
-        List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, groupResultWriter);
-
-        writePvalues(pArray, groupResultWriter);
+        List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, pArray, groupResultWriter);
 
         writeGroupReadList(groupResultWriter, groupResultList);
 
@@ -154,7 +168,7 @@ public class DetectionWithMappedRead extends Detection {
         return sum;
     }
 
-    private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph,
+    private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph, double[] pArray,
                                                  BufferedWriter groupResultWriter) throws IOException {
         List<GroupResult> groupResultList = graph.getClusterResult().values().stream().map(
                 vertex -> new GroupResult(new ArrayList<>(vertex.getRefCpGMap().values()), vertex.getMappedReadList(),
@@ -164,8 +178,11 @@ public class DetectionWithMappedRead extends Detection {
         groupResultWriter.write("Aligned result:\n");
         groupResultList.sort(GroupResult::compareTo);
 
+        StringBuilder pvalueStrBuilder = new StringBuilder("P:\t");
+
         for (int i = 0; i < groupResultList.size(); i++) {
             groupResultWriter.write(i + ":\t");
+            int j = 0;
             for (RefCpG refCpG : refCpGList) {
                 Map<Integer, RefCpG> refCpGMap = groupResultList.get(i).getRefCpGList().stream().collect(
                         Collectors.toMap(RefCpG::getPos, r -> r));
@@ -173,22 +190,22 @@ public class DetectionWithMappedRead extends Detection {
                     groupResultWriter.write(Strings.padEnd(
                             String.format("%.2f(%d)", refCpGMap.get(refCpG.getPos()).getMethylLevel(),
                                           refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' '));
+
+                    if (j < pArray.length) {
+                        pvalueStrBuilder.append(Strings.padEnd(String.format("%.3f", pArray[j++]), 10, ' '));
+                    }
                 } else {
                     // fill the gap
                     groupResultWriter.write(Strings.repeat(" ", 10));
+                    if (j < pArray.length) {
+                        pvalueStrBuilder.append(Strings.repeat(" ", 10));
+                    }
                 }
             }
             groupResultWriter.write("\n");
         }
+        groupResultWriter.write(pvalueStrBuilder.toString() + "\n");
         return groupResultList;
-    }
-
-    private void writePvalues(double[] pArray, BufferedWriter groupResultWriter) throws IOException {
-        groupResultWriter.write("P:\t");
-        for (double v : pArray) {
-            groupResultWriter.write(Strings.padEnd(String.format("%.3f", v), 10, ' '));
-        }
-        groupResultWriter.write("\n");
     }
 
     private void writeGroupReadList(BufferedWriter groupResultWriter,
@@ -253,14 +270,34 @@ public class DetectionWithMappedRead extends Detection {
     private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
                                 double avgGroupCpGCoverage, int testCount, double regionP) {
         StringBuilder sb = new StringBuilder(
-                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%d\t%.5f\t", chr, startPos,
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%d\t%.5f\t%.5f\t", chr, startPos,
                               endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
                               mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
                               avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
                               calcErrorProbability(refCpGList, graph.getClusterResult().values(),
-                                                   graph.getClusterRefCpGMap()), testCount, regionP));
-        for (Vertex vertex : graph.getClusterResult().values()) {
-            sb.append(vertex.getMappedReadList().size()).append(",");
+                                                   graph.getClusterRefCpGMap()), testCount,
+                              testCount / (double) refCpGList.size(), regionP));
+        switch (graph.getClusterResult().values().size()) {
+            case 1:
+                for (Vertex vertex : graph.getClusterResult().values()) {
+                    sb.append(vertex.getMappedReadList().size()).append("\t");
+                }
+                sb.append("NULL\t");
+                break;
+            case 2:
+                for (Vertex vertex : graph.getClusterResult().values()) {
+                    sb.append(vertex.getMappedReadList().size()).append("\t");
+                }
+                break;
+            default:
+                throw new RuntimeException("more than 2 clusters in result!");
+
+        }
+        //if (regionP<=GlobalParameter.REGION_P_THRESHOLD){
+        if (testCount / (double) refCpGList.size() >= GlobalParameter.REGION_PERCENT_THRESHOLD) {
+            sb.append('+');
+        } else {
+            sb.append('-');
         }
         sb.append("\n");
         return sb.toString();
