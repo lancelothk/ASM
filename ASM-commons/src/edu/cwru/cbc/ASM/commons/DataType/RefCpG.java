@@ -13,6 +13,7 @@ public class RefCpG implements Comparable<RefCpG> {
 	private List<CpG> cpGList;
 	private int methylCount;
 	private int coveredCount;
+    private double p_value = -1;
 
 	public RefCpG(int pos) {
 		this.pos = pos;
@@ -30,8 +31,16 @@ public class RefCpG implements Comparable<RefCpG> {
 		}
 	}
 
-	/**
-	 * check if parameter RefCpG have shared reads  with current RefCpG *
+    public double getP_value() {
+        return p_value;
+    }
+
+    public void setP_value(double p_value) {
+        this.p_value = p_value;
+    }
+
+    /**
+     * check if parameter RefCpG have shared reads  with current RefCpG *
 	 */
 	public boolean hasCommonRead(RefCpG next) {
 		for (CpG cCpg : this.getCpGList()) {

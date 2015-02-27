@@ -128,13 +128,13 @@ public class DetectionWithMappedRead extends Detection {
         // give -1 if only one cluster
         double regionP = pArray.length == 0 ? -1 : 1 - Math.pow(1 - StatUtils.min(pArray), pArray.length);
 
-        double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph, pArray);
+        double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
 
         return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList, graph, avgGroupCpGCoverage,
                             getFisherTestCount(pArray), regionP);
     }
 
-    private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph, double[] pArray) throws IOException {
+    private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
         BufferedWriter groupResultWriter = new BufferedWriter(
                 new FileWriter(inputFile.getAbsolutePath() + "." + EXPERIMENT_NAME));
 
@@ -144,7 +144,8 @@ public class DetectionWithMappedRead extends Detection {
 
         double sum = printRefCpGGroupCoverage(refCpGList, graph, groupResultWriter);
 
-        List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, pArray, groupResultWriter);
+        List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, groupResultWriter);
+        writePvalues(refCpGList, groupResultWriter);
 
         writeGroupReadList(groupResultWriter, groupResultList);
 
@@ -168,7 +169,7 @@ public class DetectionWithMappedRead extends Detection {
         return sum;
     }
 
-    private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph, double[] pArray,
+    private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph,
                                                  BufferedWriter groupResultWriter) throws IOException {
         List<GroupResult> groupResultList = graph.getClusterResult().values().stream().map(
                 vertex -> new GroupResult(new ArrayList<>(vertex.getRefCpGMap().values()), vertex.getMappedReadList(),
@@ -177,8 +178,6 @@ public class DetectionWithMappedRead extends Detection {
         // start to write aligned result
         groupResultWriter.write("Aligned result:\n");
         groupResultList.sort(GroupResult::compareTo);
-
-        StringBuilder pvalueStrBuilder = new StringBuilder("P:\t");
 
         for (int i = 0; i < groupResultList.size(); i++) {
             groupResultWriter.write(i + ":\t");
@@ -190,22 +189,27 @@ public class DetectionWithMappedRead extends Detection {
                     groupResultWriter.write(Strings.padEnd(
                             String.format("%.2f(%d)", refCpGMap.get(refCpG.getPos()).getMethylLevel(),
                                           refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' '));
-
-                    if (j < pArray.length) {
-                        pvalueStrBuilder.append(Strings.padEnd(String.format("%.3f", pArray[j++]), 10, ' '));
-                    }
                 } else {
                     // fill the gap
                     groupResultWriter.write(Strings.repeat(" ", 10));
-                    if (j < pArray.length) {
-                        pvalueStrBuilder.append(Strings.repeat(" ", 10));
-                    }
                 }
             }
             groupResultWriter.write("\n");
         }
-        groupResultWriter.write(pvalueStrBuilder.toString() + "\n");
         return groupResultList;
+    }
+
+    private void writePvalues(List<RefCpG> refCpGList, BufferedWriter groupResultWriter) throws IOException {
+        groupResultWriter.write("P:\t");
+        for (RefCpG refCpG : refCpGList) {
+            if (refCpG.getP_value() != -1) {
+                groupResultWriter.write(Strings.padEnd(String.format("%.3f", refCpG.getP_value()), 10, ' '));
+            } else {
+                groupResultWriter.write(Strings.repeat(" ", 10));
+
+            }
+        }
+        groupResultWriter.write("\n");
     }
 
     private void writeGroupReadList(BufferedWriter groupResultWriter,
@@ -233,7 +237,7 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     private double[] fisherTest(List<RefCpG> refCpGList, ASMGraph graph) {
-        double[] pArray = null;
+        double[] pArray;
         if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
             List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
             for (RefCpG refCpG : refCpGList) {
@@ -257,9 +261,10 @@ public class DetectionWithMappedRead extends Detection {
                         j++;
                     }
                 }
-
-                pArray[i] = FisherExact.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
-                                                         matrix[1][1])[0];  // [0] is two tail test.
+                double fisher_P = FisherExact.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
+                                                               matrix[1][1])[0];  // [0] is two tail test.
+                twoClusterRefCpGList.get(i).setP_value(fisher_P);
+                pArray[i] = fisher_P;
             }
         } else {
             pArray = new double[0];
