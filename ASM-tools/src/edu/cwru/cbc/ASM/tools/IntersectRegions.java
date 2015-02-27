@@ -21,7 +21,7 @@ public class IntersectRegions {
         execution(currUserHome, 0.7, 0.3);
     }
 
-    private static void execution(String currUserHome, double alpha, double beta) throws IOException {
+    public static void execution(String currUserHome, double alpha, double beta) throws IOException {
         System.out.printf("%.1f-%.1f\n", alpha, beta);
         String targetFileName = currUserHome +
                 "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2_selection.bed";
@@ -106,9 +106,9 @@ public class IntersectRegions {
         writer.close();
         System.out.printf("truePositive:%d\ttrueNegative:%d\n", tp, tn);
         System.out.printf("falseNegative:%d\tfalsePositive:%d\n", fn, fp);
-        System.out.println("accuracy:" + (tp + tn) / (double) (tp + tn + fn + fp));
-        System.out.println("Precision:" + tp / (double) (tp + fp));
-        System.out.println("Sensitivity:" + tp / (double) (tp + fn));
+        System.out.printf("accuracy:%.4f\n", (tp + tn) / (double) (tp + tn + fn + fp));
+        System.out.printf("Precision:%.4f\n", tp / (double) (tp + fp));
+        System.out.printf("Sensitivity:%.4f\n", tp / (double) (tp + fn));
 
     }
 }

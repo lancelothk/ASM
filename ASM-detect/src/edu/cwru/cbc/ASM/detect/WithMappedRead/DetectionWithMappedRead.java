@@ -12,6 +12,7 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ClusterRefCpG;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
+import edu.cwru.cbc.ASM.tools.IntersectRegions;
 import edu.cwru.cbc.ASM.tools.visulization.ReadsVisualization;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -37,20 +38,71 @@ import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
 public class DetectionWithMappedRead extends Detection {
     private static final Logger logger = Logger.getLogger(DetectionWithMappedRead.class.getName());
     private static final String EXPERIMENT_NAME = "2group";
+    private static boolean useRegionP = true;
+    private double fisher_p_threshold;
+    private double region_p_threshold;
+    private double region_percent_threshold;
 
-    public DetectionWithMappedRead() {
+    public DetectionWithMappedRead(double fisher_p_threshold, double region_p_threshold,
+                                   double region_percent_threshold) {
+        this.fisher_p_threshold = fisher_p_threshold;
+        this.region_p_threshold = region_p_threshold;
+        this.region_percent_threshold = region_percent_threshold;
     }
 
     public static void main(
             String[] args) throws ExecutionException, InterruptedException, IOException, InstantiationException, IllegalAccessException {
         long start = System.currentTimeMillis();
-        simulationData(1, 0);
-        simulationData(0.8, 0.2);
-        simulationData(0.7, 0.3);
+        String currUserHome = System.getProperty("user.home");
+        double fisher_p_threshold = 0.2;
+        double region_p_threshold = 0.01;
+        double region_percent_threshold = 0.9;
+        System.out.println("RegionP <=" + region_p_threshold);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 1, 0);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.8, 0.2);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.7, 0.3);
+        IntersectRegions.execution(currUserHome, 1, 0);
+        IntersectRegions.execution(currUserHome, 0.8, 0.2);
+        IntersectRegions.execution(currUserHome, 0.7, 0.3);
+
+        fisher_p_threshold = 0.2;
+        region_p_threshold = 0.05;
+        region_percent_threshold = 0.9;
+        System.out.println("RegionP <=" + region_p_threshold);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 1, 0);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.8, 0.2);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.7, 0.3);
+        IntersectRegions.execution(currUserHome, 1, 0);
+        IntersectRegions.execution(currUserHome, 0.8, 0.2);
+        IntersectRegions.execution(currUserHome, 0.7, 0.3);
+
+        fisher_p_threshold = 0.2;
+        region_p_threshold = 0.1;
+        region_percent_threshold = 0.9;
+        System.out.println("RegionP <=" + region_p_threshold);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 1, 0);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.8, 0.2);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.7, 0.3);
+        IntersectRegions.execution(currUserHome, 1, 0);
+        IntersectRegions.execution(currUserHome, 0.8, 0.2);
+        IntersectRegions.execution(currUserHome, 0.7, 0.3);
+
+        fisher_p_threshold = 0.2;
+        region_p_threshold = 0.2;
+        region_percent_threshold = 0.9;
+        System.out.println("RegionP <=" + region_p_threshold);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 1, 0);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.8, 0.2);
+        simulationData(fisher_p_threshold, region_p_threshold, region_percent_threshold, 0.7, 0.3);
+        IntersectRegions.execution(currUserHome, 1, 0);
+        IntersectRegions.execution(currUserHome, 0.8, 0.2);
+        IntersectRegions.execution(currUserHome, 0.7, 0.3);
+
         logger.info(System.currentTimeMillis() - start + "ms");
     }
 
-    public static void simulationData(double alpha,
+    public static void simulationData(double fisher_p_threshold, double region_p_threshold,
+                                      double region_percent_threshold, double alpha,
                                       double beta) throws IOException, ExecutionException, InterruptedException {
         String homeDirectory = System.getProperty("user.home");
 
@@ -61,10 +113,11 @@ public class DetectionWithMappedRead extends Detection {
                 "%s/experiments/ASM/simulation/CPGI_%.1f_%.1f/intervals_i90_r1_chr20_CPGI_%.1f_%.1f.sim/",
                 homeDirectory, alpha, beta, alpha, beta);
 
-        execution(inputName, summaryFileName);
+        execution(inputName, summaryFileName, fisher_p_threshold, region_p_threshold, region_percent_threshold);
     }
 
-    public static void realData() throws ExecutionException, InterruptedException, IOException {
+    public static void realData(double fisher_p_threshold, double region_p_threshold,
+                                double region_percent_threshold) throws ExecutionException, InterruptedException, IOException {
         String cellLine = "i90";
         String replicate = "r1";
         String name = "chr20";
@@ -81,20 +134,23 @@ public class DetectionWithMappedRead extends Detection {
                 homeDirectory, cellLine, replicate, name, fileName, EXPERIMENT_NAME, GlobalParameter.MIN_CONT_COVERAGE,
                 GlobalParameter.MIN_INTERVAL_CPG, GlobalParameter.MIN_INTERVAL_READS);
 
-        execution(inputName, summaryFileName);
+        execution(inputName, summaryFileName, fisher_p_threshold, region_p_threshold, region_percent_threshold);
     }
 
-    private static void execution(String inputName,
-                                  String summaryFileName) throws ExecutionException, InterruptedException, IOException {
+    private static void execution(String inputName, String summaryFileName, double fisher_p_threshold,
+                                  double region_p_threshold,
+                                  double region_percent_threshold) throws ExecutionException, InterruptedException, IOException {
         int threadNumber = 6;
-        List<String> resultList = new DetectionWithMappedRead().execute(inputName, threadNumber);
+        List<String> resultList = new DetectionWithMappedRead(fisher_p_threshold, region_p_threshold,
+                                                              region_percent_threshold).execute(inputName,
+                                                                                                threadNumber);
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
-                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\tCpGSiteCount\tGroupCount\t" +
+                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\t#CpGSite\t#CpGSiteInClusters\tGroupCount\t" +
                         "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwithFisherP<=" +
-                        GlobalParameter.fisher_P_threshold + "\tP_percent>=" +
-                        GlobalParameter.REGION_PERCENT_THRESHOLD + "\tregionPvalue<=" +
-                        GlobalParameter.REGION_P_THRESHOLD + "\tgroup1\tgroup2\tlabel\n");
+                        fisher_p_threshold + "\tP_percent>=" +
+                        region_percent_threshold + "\tregionPvalue<=" +
+                        region_p_threshold + "\tgroup1\tgroup2\tlabel\n");
 
         for (String result : resultList) {
             summaryWriter.write(result);
@@ -121,17 +177,17 @@ public class DetectionWithMappedRead extends Detection {
         // clustering
         graph.cluster();
 
-
+        List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
         // get fisher test P values for each refCpG in clusters.
-        double[] pArray = fisherTest(refCpGList, graph);
+        double[] pArray = fisherTest(refCpGList, graph, twoClusterRefCpGList);
 
         // give -1 if only one cluster
-        double regionP = pArray.length == 0 ? -1 : 1 - Math.pow(1 - StatUtils.min(pArray), pArray.length);
+        double regionP = pArray.length == 0 ? -1 : 1 - Math.pow(1 - StatUtils.min(pArray), refCpGList.size());
 
         double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
 
         return buildSummary(endPos - startPos + 1, refCpGList, mappedReadList, graph, avgGroupCpGCoverage,
-                            getFisherTestCount(pArray), regionP);
+                            twoClusterRefCpGList, getFisherTestCount(pArray), regionP);
     }
 
     private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
@@ -181,7 +237,6 @@ public class DetectionWithMappedRead extends Detection {
 
         for (int i = 0; i < groupResultList.size(); i++) {
             groupResultWriter.write(i + ":\t");
-            int j = 0;
             for (RefCpG refCpG : refCpGList) {
                 Map<Integer, RefCpG> refCpGMap = groupResultList.get(i).getRefCpGList().stream().collect(
                         Collectors.toMap(RefCpG::getPos, r -> r));
@@ -229,25 +284,16 @@ public class DetectionWithMappedRead extends Detection {
     private int getFisherTestCount(double[] pArray) {
         int testCount = 0;
         for (double v : pArray) {
-            if (v <= GlobalParameter.fisher_P_threshold) {
+            if (v <= this.fisher_p_threshold) {
                 testCount++;
             }
         }
         return testCount;
     }
 
-    private double[] fisherTest(List<RefCpG> refCpGList, ASMGraph graph) {
+    private double[] fisherTest(List<RefCpG> refCpGList, ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
         double[] pArray;
         if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
-            List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
-            for (RefCpG refCpG : refCpGList) {
-                if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
-                    if (graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount() == 2) {
-                        twoClusterRefCpGList.add(refCpG);
-                    }
-                }
-            }
-
             pArray = new double[twoClusterRefCpGList.size()];
             for (int i = 0; i < twoClusterRefCpGList.size(); i++) {
                 assert twoClusterRefCpGList.get(i).getCpGCoverage() == 2;
@@ -273,15 +319,16 @@ public class DetectionWithMappedRead extends Detection {
     }
 
     private String buildSummary(int length, List<RefCpG> refCpGList, List<MappedRead> mappedReadList, ASMGraph graph,
-                                double avgGroupCpGCoverage, int testCount, double regionP) {
+                                double avgGroupCpGCoverage, List<RefCpG> twoClusterRefCpGList, int testCount,
+                                double regionP) {
         StringBuilder sb = new StringBuilder(
-                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%f\t%d\t%f\t%f\t%d\t%.5f\t%.5f\t", chr, startPos,
-                              endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
-                              mappedReadList.size(), refCpGList.size(), graph.getClusterResult().size(),
-                              avgGroupCpGCoverage, graph.getMECSum(), graph.getCpGSum(), graph.getNormMECSum(),
-                              calcErrorProbability(refCpGList, graph.getClusterResult().values(),
-                                                   graph.getClusterRefCpGMap()), testCount,
-                              testCount / (double) refCpGList.size(), regionP));
+                String.format("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%f\t%f\t%d\t%f\t%f\t%d\t%.5f\t%.5f\t", chr,
+                              startPos, endPos, length, graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(),
+                              mappedReadList.size(), refCpGList.size(), twoClusterRefCpGList.size(),
+                              graph.getClusterResult().size(), avgGroupCpGCoverage, graph.getMECSum(),
+                              graph.getCpGSum(), graph.getNormMECSum(),
+                              calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), testCount,
+                              testCount / (double) twoClusterRefCpGList.size(), regionP));
         switch (graph.getClusterResult().values().size()) {
             case 1:
                 for (Vertex vertex : graph.getClusterResult().values()) {
@@ -298,18 +345,25 @@ public class DetectionWithMappedRead extends Detection {
                 throw new RuntimeException("more than 2 clusters in result!");
 
         }
-        //if (regionP<=GlobalParameter.REGION_P_THRESHOLD){
-        if (testCount / (double) refCpGList.size() >= GlobalParameter.REGION_PERCENT_THRESHOLD) {
-            sb.append('+');
+        if (useRegionP) {
+            if (regionP <= this.region_p_threshold && regionP >= 0) {
+                sb.append('+');
+            } else {
+                sb.append('-');
+            }
         } else {
-            sb.append('-');
+            if (testCount / (double) twoClusterRefCpGList.size() >= this.region_percent_threshold) {
+                sb.append('+');
+            } else {
+                sb.append('-');
+            }
         }
+
         sb.append("\n");
         return sb.toString();
     }
 
-    private double calcErrorProbability(List<RefCpG> refCpGList, Collection<Vertex> clusterResult,
-                                        Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
+    private double calcErrorProbability(Collection<Vertex> clusterResult, List<RefCpG> twoClusterRefCpGList) {
         double p;
         switch (clusterResult.size()) {
             case 1:
@@ -322,15 +376,6 @@ public class DetectionWithMappedRead extends Detection {
                 Vertex minorityCluster = clusterResultList.get(0);
                 Vertex majorityCluster = clusterResultList.get(1);
 
-                List<RefCpG> twoClusterRefCpGList = new ArrayList<>();
-                for (RefCpG refCpG : refCpGList) {
-                    if (clusterRefCpGMap.containsKey(refCpG.getPos())) {
-                        if (clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2) {
-                            twoClusterRefCpGList.add(refCpG);
-                        }
-                    }
-                }
-
                 // overlapped CpG < GlobalParameter.MIN_INTERVAL_CPG
                 if (twoClusterRefCpGList.size() < GlobalParameter.MIN_INTERVAL_CPG) {
                     p = -3;
@@ -342,6 +387,11 @@ public class DetectionWithMappedRead extends Detection {
                 p = -2; // more than 2 clusters
         }
         return p;
+    }
+
+    private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
+        return refCpGList.stream().filter(refCpG -> clusterRefCpGMap.containsKey(refCpG.getPos())).filter(
+                refCpG -> clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2).collect(Collectors.toList());
     }
 
     private double EPCaluculation_average_combine(Vertex minorityCluster, Vertex majorityCluster,
@@ -364,6 +414,7 @@ public class DetectionWithMappedRead extends Detection {
 
     @Override
     protected Detection constructNewInstance() {
-        return new DetectionWithMappedRead();
+        return new DetectionWithMappedRead(this.fisher_p_threshold, this.region_p_threshold,
+                                           this.region_percent_threshold);
     }
 }
