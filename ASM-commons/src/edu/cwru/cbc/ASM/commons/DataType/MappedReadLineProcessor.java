@@ -14,12 +14,13 @@ import java.util.stream.Collectors;
  * Mapped reads start pos is 1-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
-    public static final int MIN_READ_CPG = 0;
-    protected List<MappedRead> mappedReadList = new ArrayList<>();
+	protected List<MappedRead> mappedReadList = new ArrayList<>();
     protected Map<Integer, RefCpG> refMap;
+	protected int min_read_cpg;
 
-    public MappedReadLineProcessor(List<RefCpG> refCpGList) {
+    public MappedReadLineProcessor(List<RefCpG> refCpGList, int min_read_cpg) {
         this.refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		this.min_read_cpg = min_read_cpg;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
         MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
                                                Integer.parseInt(items[3]), items[4], items[5]);
 
-        if (countCpGInRead(start, end, mappedRead) >= MIN_READ_CPG) {
+        if (countCpGInRead(start, end, mappedRead) >= this.min_read_cpg) {
             for (int i = start; i < end; i++) {
                 if (refMap.containsKey(i)) {
                     CpG cpg = new CpG(mappedRead, refMap.get(i), mappedRead.getMethylStatus(i));

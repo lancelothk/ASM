@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.tools;
+package edu.cwru.cbc.ASM.tools.Simulation;
 
 import java.io.BufferedReader;
 import java.io.File;

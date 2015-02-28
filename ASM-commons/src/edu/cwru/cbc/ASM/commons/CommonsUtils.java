@@ -3,7 +3,6 @@ package edu.cwru.cbc.ASM.commons;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.DataType.EpiRead;
 import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
 import edu.cwru.cbc.ASM.commons.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
@@ -15,16 +14,9 @@ import java.util.List;
 
 /**
  * Created by kehu on 11/13/14.
- * Utils for methods shared by modules under ASM project.
+ * CommonsUtils for methods shared by modules under ASM project.
  */
-public class Utils {
-
-    public static List<EpiRead> readEpiReadFile(File inputFile, EpiRead.EpiReadFormat format) throws IOException {
-        List<EpiRead> epiReadList = new ArrayList<>();
-        java.nio.file.Files.lines(inputFile.toPath()).forEach(
-                line -> epiReadList.add(EpiRead.ParseEpiRead(line, format)));
-        return epiReadList;
-    }
+public class CommonsUtils {
 
     /**
      * Extract reference CpG from reference string.

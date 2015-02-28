@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by kehu on 12/9/14.
  */
-public class Utils {
+public class DetectionUtils {
     public static String readRefFromIntervalFile(File inputFile) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
         String line = bufferedReader.readLine();

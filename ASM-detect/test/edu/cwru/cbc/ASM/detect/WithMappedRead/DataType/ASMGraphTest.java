@@ -6,14 +6,14 @@ import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils.ReflectionUtils;
-import edu.cwru.cbc.ASM.detect.WithMappedRead.Utils;
+import edu.cwru.cbc.ASM.detect.WithMappedRead.DetectionUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
 import static org.junit.Assert.assertEquals;
 
 public class ASMGraphTest {
@@ -26,11 +26,11 @@ public class ASMGraphTest {
 		int startPos = Integer.parseInt(inputFile.getName().split("-")[1]);
 
 		// load input
-		String reference = Utils.readRefFromIntervalFile(inputFile);
+		String reference = DetectionUtils.readRefFromIntervalFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		// filter out reads which only cover 1 or no CpG sites
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8).readLines(
-				new MappedReadLineProcessor(refCpGList));
+				new MappedReadLineProcessor(refCpGList, 2));
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);
 
 		List edgeList = (List) (ReflectionUtils.getPrivateField(ASMGraph.class.getDeclaredField("edgeList"), asmGraph));

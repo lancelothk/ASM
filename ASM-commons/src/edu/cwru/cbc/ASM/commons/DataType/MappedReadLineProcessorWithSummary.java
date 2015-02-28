@@ -1,5 +1,7 @@
 package edu.cwru.cbc.ASM.commons.DataType;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
@@ -10,7 +12,6 @@ import java.util.logging.Logger;
  * LineProcessor for process mapped read and print summary.
  */
 public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor {
-    private static final Logger logger = Logger.getLogger(MappedReadLineProcessorWithSummary.class.getName());
     private long totalLength, qualifiedTotalLength;
     private long count;
     private int maxLength = Integer.MIN_VALUE;
@@ -24,10 +25,12 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
     private int qualifiedMaxCpGCount = Integer.MIN_VALUE;
     private int qualifiedMinCpGCount = Integer.MAX_VALUE;
     private BitSet chrBitSet;
+	private BufferedWriter summaryWriter;
 
-    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int refLength) throws IOException {
-        super(refCpGList);
+    public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int min_read_cpg, int refLength, String reportFileName) throws IOException {
+        super(refCpGList, min_read_cpg);
         this.chrBitSet = new BitSet(refLength);
+		this.summaryWriter = new BufferedWriter(new FileWriter(reportFileName));
     }
 
     @Override
@@ -38,7 +41,7 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
             int cpgCount = mappedRead.getCpgList().size();
 
             //stat variables
-            if (cpgCount >= MappedReadLineProcessor.MIN_READ_CPG) {
+            if (cpgCount >= this.min_read_cpg) {
                 qualifiedTotalLength += length;
                 qualifiedMaxLength = length > qualifiedMaxLength ? length : qualifiedMaxLength;
                 qualifiedMinLength = length < qualifiedMinLength ? length : qualifiedMinLength;
@@ -99,6 +102,7 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
         sb.append(String.format(
                 "totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
                 totalCpGCountInRefMap, totalCpGCountInRefMap / (double) refMap.size(), maxCpGCoverage, minCpGCoverage));
-        logger.warning(sb.toString());
+		summaryWriter.write(sb.toString());
+		summaryWriter.close();
     }
 }

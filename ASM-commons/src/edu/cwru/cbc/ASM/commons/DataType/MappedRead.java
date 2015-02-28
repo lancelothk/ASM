@@ -20,7 +20,6 @@ public class MappedRead {
     private List<CpG> cpgList;
     private CpG firstCpG;
     private CpG lastCpG;
-    private EpiRead epiRead;
 
     public MappedRead(String chr, char strand, int start, int end, String sequence, String id) {
         super();
@@ -190,15 +189,6 @@ public class MappedRead {
         int rightOffset = end > rightBound ? end - rightBound : 0;
         return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start + leftOffset, end - rightOffset,
                              sequence.substring(leftOffset, sequence.length() - rightOffset), id);
-    }
-
-    public EpiRead getEpiRead(int startCpGPos, int endCpGPos) {
-        if (epiRead == null && firstCpG != null) {
-            return new EpiRead(chr, firstCpG.getRefCpG().getIndex(), firstCpG.getPos(),
-                               getCpGSeq(startCpGPos, endCpGPos), id);
-        } else {
-            return epiRead;
-        }
     }
 
     private String getCpGSeq(int startCpGPos, int endCpGPos) {

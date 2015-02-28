@@ -6,11 +6,11 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class UtilsTest {
+public class CommonsUtilsTest {
 
     @Test
     public void testExtractCpGSite() throws Exception {

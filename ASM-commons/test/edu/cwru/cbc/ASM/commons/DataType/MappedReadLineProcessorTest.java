@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -20,7 +20,7 @@ public class MappedReadLineProcessorTest {
         String mappedReadStr3 = "20\t+\t17207806\t17207874\tGTATTTNGATGTAGAATGTTTTTTATGAGAGGTGATTTTTTAGGATTTTTAATTTGTGTTTAAATTAAT\t815505";
         // contains only one CpG, shouldn't be added to mappredReadList
         String mappedReadStr2 = "20\t-\t17207806\t17207814\tACATTCCGA\t3458074";
-        MappedReadLineProcessor mp = new MappedReadLineProcessor(refCpGList);
+        MappedReadLineProcessor mp = new MappedReadLineProcessor(refCpGList, 2);
 
         MappedRead mappedRead1 = mp.processRead(mappedReadStr1);
         MappedRead mappedRead2 = mp.processRead(mappedReadStr2);

@@ -6,10 +6,10 @@ import org.apache.commons.math3.special.Gamma;
  * Created by kehu on 2/25/15.
  * Fisher's exact test.
  */
-public class FisherExact {
+public class FisherExactTest {
     public static void main(String[] args) {
 
-        double[] stat = FisherExact.fishersExactTest(4, 2, 1, 3);
+        double[] stat = FisherExactTest.fishersExactTest(4, 2, 1, 3);
         System.out.println(stat[0]);
         System.out.println(stat[1]);
     }

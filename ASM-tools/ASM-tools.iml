@@ -22,5 +22,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="ASM-commons" />
+    <orderEntry type="library" name="commons-cli-1.2-javadoc" level="project" />
   </component>
 </module>

@@ -1,9 +1,9 @@
-package edu.cwru.cbc.ASM.tools;
+package edu.cwru.cbc.ASM.tools.Simulation;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.DataType.*;
-import edu.cwru.cbc.ASM.commons.Utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,8 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-import static edu.cwru.cbc.ASM.commons.Utils.extractCpGSite;
-import static edu.cwru.cbc.ASM.commons.Utils.readBedRegions;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.readBedRegions;
 
 /**
  * Created by kehu on 2/12/15.
@@ -42,7 +42,7 @@ public class Simulation {
 
 		outputFileName = String.format("%s_%.1f_%.1f.sim", outputFileName, alpha, beta);
         // read reference and refCpGs
-        RefChr refChr = Utils.readReferenceGenome(referenceGenomeFileName);
+        RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
 
 
@@ -58,7 +58,7 @@ public class Simulation {
 
         // read input sequences
         List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8).readLines(
-                new MappedReadLineProcessor(refCpGList));
+                new MappedReadLineProcessor(refCpGList, 0));
 
         // assign methyl status
         assignMethylStatusForNonASMRegion(nonASMRegions);

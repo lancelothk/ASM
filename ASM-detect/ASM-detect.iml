@@ -26,5 +26,6 @@
     <orderEntry type="library" name="commons-math3" level="project" />
     <orderEntry type="module" module-name="ASM-tools" />
     <orderEntry type="module" module-name="ASM-commons" />
+    <orderEntry type="library" name="commons-cli-1.2-javadoc" level="project" />
   </component>
 </module>

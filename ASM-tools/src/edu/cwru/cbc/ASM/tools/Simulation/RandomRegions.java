@@ -1,7 +1,7 @@
-package edu.cwru.cbc.ASM.tools;
+package edu.cwru.cbc.ASM.tools.Simulation;
 
+import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
-import edu.cwru.cbc.ASM.commons.Utils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -21,7 +21,7 @@ public class RandomRegions {
                 "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.bed";
 
 		Random rand = new Random();
-		List<GenomicRegion> regionList = Utils.readBedRegions(inputFile);
+		List<GenomicRegion> regionList = CommonsUtils.readBedRegions(inputFile);
 		int numberOfSelection = 100;
 		List<GenomicRegion> selection = new ArrayList<>();
 		for (int i = 0; selection.size() != numberOfSelection; i++) {
