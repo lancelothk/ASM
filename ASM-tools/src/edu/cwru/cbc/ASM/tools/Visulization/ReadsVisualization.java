@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.tools.Visulization;
 
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.ReadComparator;
+import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,14 +15,15 @@ import java.util.List;
 public class ReadsVisualization {
     private static String ref;
 
-    public static void main(String[] args) throws IOException {
-        String targetFileName;
-        if (args.length == 0) {
-            targetFileName = "/home/kehu/experiments/ASM/simulation/207789.reads";
-        } else {
-            targetFileName = args[0];
-        }
-        ReadsVisualization.align(targetFileName);
+    public static void main(String[] args) throws IOException, ParseException {
+		Options options=new Options();
+		options.addOption("t",true,"input file");
+
+		CommandLineParser parser = new BasicParser();
+		CommandLine cmd = parser.parse(options, args);
+
+		String inputFileName = cmd.getOptionValue("t");
+		ReadsVisualization.align(inputFileName);
     }
 
     public static void align(String fileName) throws IOException {
