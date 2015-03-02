@@ -52,9 +52,14 @@ public class Simulation {
 	public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
 										 String targetRegionFileName, String outputFileName, double alpha,
 										 double beta) throws IOException {
-		outputFileName = String.format("%s_%.1f_%.1f.sim", outputFileName, alpha, beta);
-		// read reference and refCpGs
-		RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
+        File outputFile = new File(outputFileName);
+        if (!outputFile.getParentFile().exists()) {
+            outputFile.getParentFile().mkdirs();
+        }
+
+        System.out.println("simulation start");
+        // read reference and refCpGs
+        RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = CommonsUtils.extractCpGSite(refChr.getRefString(), 0);
 
 		// read target regions
@@ -71,6 +76,8 @@ public class Simulation {
 		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8).readLines(
 				new MappedReadLineProcessor(refCpGList, 0));
 
+        System.out.println("load reads finished");
+
 		// assign methyl status
 		assignMethylStatusForNonASMRegion(nonASMRegions);
 		assignMethylStatusForASMRegion(targetRegions);
@@ -80,8 +87,8 @@ public class Simulation {
 		addRandomnessToReads(targetRegions, alpha, beta);
 
 		// write out result
-		BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
-		for (MappedRead mappedRead : mappedReadList) {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+        for (MappedRead mappedRead : mappedReadList) {
 			writer.write(mappedRead.toSimulationString() + "\n");
 		}
 		writer.close();
@@ -97,7 +104,8 @@ public class Simulation {
 		}
 		asmWriter.close();
 		nonasmWriter.close();
-	}
+        System.out.println("simulation finished");
+    }
 
 	private static void addRandomnessToReads(List<GenomicRegion> regions, double alpha, double beta) {
 		for (GenomicRegion region : regions) {

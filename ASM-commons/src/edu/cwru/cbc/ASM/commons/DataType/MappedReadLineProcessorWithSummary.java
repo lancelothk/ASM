@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Created by lancelothk on 5/27/14.
