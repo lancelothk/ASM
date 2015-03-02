@@ -38,18 +38,18 @@ public class Detection implements Callable<String> {
 	private String chr;
 	private int startPos;
 	private int endPos;
-	private int min_interval_reads;
-	private int min_read_cpg;
+    private int min_interval_cpg;
+    private int min_read_cpg;
 	private double fisher_p_threshold;
 	private double region_threshold;
 	private boolean useRegionP;
 
-    public Detection(File inputFile, int min_interval_reads, int min_read_cpg, double fisher_p_threshold,
+    public Detection(File inputFile, int min_interval_cpg, int min_read_cpg, double fisher_p_threshold,
                      double region_threshold, boolean useRegionP) {
         this.fisher_p_threshold = fisher_p_threshold;
         this.region_threshold = region_threshold;
         this.inputFile = inputFile;
-        this.min_interval_reads = min_interval_reads;
+        this.min_interval_cpg = min_interval_cpg;
         this.min_read_cpg = min_read_cpg;
         this.useRegionP = useRegionP;
     }
@@ -197,7 +197,7 @@ public class Detection implements Callable<String> {
         Options options = new Options();
         options.addOption("i", true, "Input intervals folder");
         options.addOption("s", true, "Summary File");
-        options.addOption("mir", true, "Minimum interval read number");
+        options.addOption("mic", true, "Minimum interval cpg number");
         options.addOption("mrc", true, "Minimum read CpG number");
         options.addOption("f", true, "Fisher exact test P threshold");
         options.addOption("m", true, "Mode: Percent(per) or RegionP(rp)");
@@ -210,7 +210,7 @@ public class Detection implements Callable<String> {
 
         String inputPathName = cmd.getOptionValue("i");
         String summaryFileName = cmd.getOptionValue("s");
-        int min_interval_reads = Integer.valueOf(cmd.getOptionValue("mir"));
+        int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
         int min_read_cpg = Integer.valueOf(cmd.getOptionValue("mrc"));
         double fisher_p_threshold = Double.valueOf(cmd.getOptionValue("f"));
         double region_threshold;
@@ -224,14 +224,14 @@ public class Detection implements Callable<String> {
         } else {
             throw new RuntimeException("invalid mode!");
         }
-        int threadNumber = Integer.valueOf(cmd.getOptionValue("m", "6"));
-        List<String> resultList = execute(inputPathName, threadNumber, min_interval_reads, min_read_cpg,
+        int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
+        List<String> resultList = execute(inputPathName, threadNumber, min_interval_cpg, min_read_cpg,
                                           fisher_p_threshold, region_threshold, useRegionP);
         BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
         summaryWriter.write(
                 "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\t#CpGSite\t#CpGSiteInClusters\tGroupCount\t" +
                         "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwithFisherP<=" +
-                        fisher_p_threshold + "\tregionP=" +
+                        fisher_p_threshold + "\t" + (useRegionP ? "regionP" : "RegionPercent") + "=" +
                         region_threshold + "\tgroup1\tgroup2\tlabel\n");
 
         for (String result : resultList) {
@@ -241,8 +241,8 @@ public class Detection implements Callable<String> {
         System.out.println(System.currentTimeMillis() - start + "ms");
     }
 
-	private static List<String> execute(String inputName, int threadNumber, int min_interval_reads, int min_read_cpg,
-										double fisher_p_threshold, double region_threshold,
+    private static List<String> execute(String inputName, int threadNumber, int min_interval_cpg, int min_read_cpg,
+                                        double fisher_p_threshold, double region_threshold,
 										boolean useRegionP) throws ExecutionException, InterruptedException {
 		File inputFile = new File(inputName);
 		List<String> resultList = new ArrayList<>();
@@ -257,10 +257,10 @@ public class Detection implements Callable<String> {
 					try {
 						if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
 								!file.getName().endsWith("test") && !file.getName().endsWith("~") &&
-								!file.getName().endsWith("group")) {
-							Future<String> future = executor.submit(
-									new Detection(file, min_interval_reads, min_read_cpg, fisher_p_threshold,
-												  region_threshold, useRegionP));
+                                !file.getName().endsWith("detected")) {
+                            Future<String> future = executor.submit(
+                                    new Detection(file, min_interval_cpg, min_read_cpg, fisher_p_threshold,
+                                                  region_threshold, useRegionP));
 							futureList.add(future);
 						}
 					} catch (Exception e) {
@@ -271,8 +271,8 @@ public class Detection implements Callable<String> {
 		} else {
 			try {
 				Future<String> future = executor.submit(
-						new Detection(inputFile, min_interval_reads, min_read_cpg, fisher_p_threshold, region_threshold,
-									  useRegionP));
+                        new Detection(inputFile, min_interval_cpg, min_read_cpg, fisher_p_threshold, region_threshold,
+                                      useRegionP));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
@@ -514,8 +514,8 @@ public class Detection implements Callable<String> {
 				Vertex majorityCluster = clusterResultList.get(1);
 
 				// overlapped CpG < GlobalParameter.MIN_INTERVAL_CPG
-				if (twoClusterRefCpGList.size() < this.min_interval_reads) {
-					p = -3;
+                if (twoClusterRefCpGList.size() < this.min_interval_cpg) {
+                    p = -3;
 				} else {
 					p = EPCaluculation_average_combine(minorityCluster, majorityCluster, twoClusterRefCpGList);
 				}

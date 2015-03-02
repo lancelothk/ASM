@@ -64,7 +64,7 @@ public class CommonsUtils {
             @Override
             public boolean processLine(String line) throws IOException {
                 String[] items = line.split("\t");
-                if (items[0].equals("chr")) {
+                if (items[0].equals("chr") || line.equals("")) {
                     // skip column name
                     return true;
                 }
@@ -77,8 +77,11 @@ public class CommonsUtils {
                         case '-':
                             isPositive = false;
                             break;
+                        case '*':
+                            isPositive = false;
+                            break;
                         default:
-                            throw new RuntimeException("invalid label!");
+                            throw new RuntimeException("invalid label!\t" + line);
                     }
                     // 0: chr 1: start 2: end
                     genomicRegionList.add(

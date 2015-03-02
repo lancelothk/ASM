@@ -63,8 +63,8 @@ public class CPMR {
 			//noinspection ResultOfMethodCallIgnored
 			intervalFolder.mkdirs();
 		}
-		String summaryFileName = outputPath + "summary";
-		String reportFileName = outputPath + "report";
+        String summaryFileName = outputPath + "CPMR_summary";
+        String reportFileName = outputPath + "CPMR_report";
 
 		RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
@@ -92,16 +92,18 @@ public class CPMR {
 
 		writeIntervals(intervalFolderName, summaryFileName, refChr, cpgSiteIntervalList, min_cpg_coverage,
 					   min_interval_cpg, min_interval_reads);
-		System.out.println("Raw Interval count:\t" + cpgSiteIntervalList.size() + "");
-		System.out.println("Output Interval count:\t" + outputIntervalCount + "");
-		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
+        // TODO make thw report writing more elegant.
+        BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName));
+        writer.write("Raw Interval count:\t" + cpgSiteIntervalList.size() + "");
+        writer.write("Output Interval count:\t" + outputIntervalCount + "");
+        writer.close();
+        System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 	}
 
-	private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList, int min_cont_coverage) {
-		// filter refCpG by coverage and partial methylation
+    private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList, int min_cpg_coverage) {
+        // filter refCpG by coverage and partial methylation
 		List<RefCpG> filteredRefCpG = refCpGList.stream().filter(
-				refCpG -> refCpG.getCpGCoverage() >= min_cont_coverage && refCpG.hasPartialMethyl()).collect(
-				Collectors.toList());
+                refCpG -> refCpG.getCpGCoverage() >= min_cpg_coverage && refCpG.hasPartialMethyl()).collect(Collectors.toList());
 
 		// split regions by continuous CpG coverage
 		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();

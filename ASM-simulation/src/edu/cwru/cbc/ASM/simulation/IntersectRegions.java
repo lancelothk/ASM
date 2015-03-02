@@ -20,8 +20,6 @@ public class IntersectRegions {
 		options.addOption("r", true, "actual result file");
 		options.addOption("e", true, "expected result file");
 		options.addOption("o", true, "output file");
-		options.addOption("a", true, "alpha");
-		options.addOption("b", true, "beta");
 
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = parser.parse(options, args);
@@ -30,19 +28,17 @@ public class IntersectRegions {
 		String actualResultFileName = cmd.getOptionValue("r");
 		String expectedResultFileName  = cmd.getOptionValue("e");
 		String outputFileName = cmd.getOptionValue("o");
-		double alpha  = Double.valueOf(cmd.getOptionValue("a"));
-		double beta = Double.valueOf(cmd.getOptionValue("b"));
 
-		execution(targetFileName, actualResultFileName, expectedResultFileName, outputFileName, alpha, beta);
-	}
+        execution(targetFileName, actualResultFileName, expectedResultFileName, outputFileName);
+    }
 
 	public static void execution(String targetFileName, String actualResultFileName, String expectedResultFileName,
-								 String outputFileName, double alpha, double beta) throws IOException {
-		System.out.printf("%.1f-%.1f\n", alpha, beta);
-		twoWayIntersection(targetFileName, actualResultFileName, expectedResultFileName);
-		fourWayIntersection(expectedResultFileName, actualResultFileName, outputFileName);
-		System.out.println();
-	}
+                                 String outputFileName) throws IOException {
+        System.out.println("actualResultFile:\t" + actualResultFileName);
+        twoWayIntersection(targetFileName, actualResultFileName, expectedResultFileName);
+        fourWayIntersection(actualResultFileName, expectedResultFileName, outputFileName);
+        System.out.println();
+    }
 
 	private static void twoWayIntersection(String targetFileName, String actualResultFileName,
 										   String expectedResultFileName) throws IOException {
@@ -77,8 +73,7 @@ public class IntersectRegions {
 		writer.close();
 	}
 
-	private static void fourWayIntersection(String expectedResultFileName, String actualResultFileName,
-											String outputFileName) throws IOException {
+    private static void fourWayIntersection(String actualResultFileName, String expectedResultFileName, String outputFileName) throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
 		int tp = 0, fp = 0, fn = 0, tn = 0;
         List<GenomicRegion> expectedRegions = CommonsUtils.readBedRegions(expectedResultFileName, true);
