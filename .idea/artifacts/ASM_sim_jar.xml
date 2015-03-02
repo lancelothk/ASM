@@ -1,7 +1,10 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="ASM-sim:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/ASM_sim_jar</output-path>
+    <output-path>$PROJECT_DIR$/out/artifacts/</output-path>
     <root id="archive" name="ASM-tools.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/ASM-tools/src/simulation/META-INF/MANIFEST.MF" />
+      </element>
       <element id="module-output" name="ASM-tools" />
       <element id="module-output" name="ASM-commons" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-cli-1.2.jar" path-in-jar="/" />
