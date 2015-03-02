@@ -21,6 +21,5 @@
     </orderEntry>
     <orderEntry type="library" name="guava" level="project" />
     <orderEntry type="library" scope="TEST" name="junit-addons-1.4" level="project" />
-    <orderEntry type="library" name="guava" level="project" />
   </component>
 </module>

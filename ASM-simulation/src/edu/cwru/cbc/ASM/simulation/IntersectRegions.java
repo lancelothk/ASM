@@ -1,5 +1,6 @@
-package edu.cwru.cbc.ASM.tools.Simulation;
+package edu.cwru.cbc.ASM.simulation;
 
+import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
 import org.apache.commons.cli.*;
 
@@ -7,8 +8,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-
-import static edu.cwru.cbc.ASM.commons.CommonsUtils.readBedRegions;
 
 /**
  * Created by kehu on 2/16/15.
@@ -47,8 +46,8 @@ public class IntersectRegions {
 
 	private static void twoWayIntersection(String targetFileName, String actualResultFileName,
 										   String expectedResultFileName) throws IOException {
-		List<GenomicRegion> targetRegions = readBedRegions(targetFileName);
-		List<GenomicRegion> resultRegions = readBedRegions(actualResultFileName);
+        List<GenomicRegion> targetRegions = CommonsUtils.readBedRegions(targetFileName);
+        List<GenomicRegion> resultRegions = CommonsUtils.readBedRegions(actualResultFileName);
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(expectedResultFileName));
 
@@ -82,9 +81,9 @@ public class IntersectRegions {
 											String outputFileName) throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
 		int tp = 0, fp = 0, fn = 0, tn = 0;
-		List<GenomicRegion> expectedRegions = readBedRegions(expectedResultFileName, true);
-		List<GenomicRegion> actualRegions = readBedRegions(actualResultFileName, true);
-		for (GenomicRegion expectedRegion : expectedRegions) {
+        List<GenomicRegion> expectedRegions = CommonsUtils.readBedRegions(expectedResultFileName, true);
+        List<GenomicRegion> actualRegions = CommonsUtils.readBedRegions(actualResultFileName, true);
+        for (GenomicRegion expectedRegion : expectedRegions) {
 			for (GenomicRegion actualRegion : actualRegions) {
 				if (expectedRegion.getStart() == actualRegion.getStart() &&
 						expectedRegion.getEnd() == actualRegion.getEnd()) {

@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.tools.Simulation;
+package edu.cwru.cbc.ASM.simulation.tools;
 
 import java.io.*;
 import java.util.List;

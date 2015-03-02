@@ -10,7 +10,7 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ASMGraph;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.ClusterRefCpG;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
-import edu.cwru.cbc.ASM.tools.Visulization.ReadsVisualization;
+import edu.cwru.cbc.ASM.visualization.ReadsVisualization;
 import org.apache.commons.cli.*;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -44,62 +44,15 @@ public class Detection implements Callable<String> {
 	private double region_threshold;
 	private boolean useRegionP;
 
-	public static void main(
-			String[] args) throws ParseException, IOException, ExecutionException, InterruptedException {
-		long start = System.currentTimeMillis();
-//		String currUserHome = System.getProperty("user.home");
-//		Detection.useRegionP = true;
-//		regionPExperiment(currUserHome);
-
-//        DetectionWithMappedRead.useRegionP = false;
-//        regionPercentExperiment(currUserHome);
-
-		Options options = new Options();
-		options.addOption("i", true, "Input intervals folder");
-		options.addOption("s", true, "Summary File");
-		options.addOption("mir", true, "Minimum interval read number");
-		options.addOption("mrc", true, "Minimum read CpG number");
-		options.addOption("f", true, "Fisher exact test P threshold");
-		options.addOption("m", true, "Mode: Percent(per) or RegionP(rp)");
-		options.addOption("r", true, "Region threshold");
-		options.addOption("t", false, "Thread number to execute the program.");
-
-
-		CommandLineParser parser = new BasicParser();
-		CommandLine cmd = parser.parse(options, args);
-
-		String inputPathName = cmd.getOptionValue("i");
-		String summaryFileName = cmd.getOptionValue("s");
-		int min_interval_reads = Integer.valueOf(cmd.getOptionValue("mir"));
-		int min_read_cpg = Integer.valueOf(cmd.getOptionValue("mrc"));
-		double fisher_p_threshold = Double.valueOf(cmd.getOptionValue("f"));
-		double region_threshold;
-		boolean useRegionP;
-		if (cmd.getOptionValue("m").equals("per")) {
-			region_threshold = Double.valueOf(cmd.getOptionValue("r"));
-			useRegionP = false;
-		} else if (cmd.getOptionValue("m").equals("rp")) {
-			region_threshold = Double.valueOf(cmd.getOptionValue("r"));
-			useRegionP = true;
-		} else {
-			throw new RuntimeException("invalid mode!");
-		}
-		int threadNumber = Integer.valueOf(cmd.getOptionValue("m", "6"));
-		List<String> resultList = execute(inputPathName, threadNumber, min_interval_reads, min_read_cpg,
-										  fisher_p_threshold, region_threshold, useRegionP);
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
-		summaryWriter.write(
-				"chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\t#CpGSite\t#CpGSiteInClusters\tGroupCount\t" +
-						"avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwithFisherP<=" +
-						fisher_p_threshold + "\tregionP=" +
-						region_threshold + "\tgroup1\tgroup2\tlabel\n");
-
-		for (String result : resultList) {
-			summaryWriter.write(result);
-		}
-		summaryWriter.close();
-		System.out.println(System.currentTimeMillis() - start + "ms");
-	}
+    public Detection(File inputFile, int min_interval_reads, int min_read_cpg, double fisher_p_threshold,
+                     double region_threshold, boolean useRegionP) {
+        this.fisher_p_threshold = fisher_p_threshold;
+        this.region_threshold = region_threshold;
+        this.inputFile = inputFile;
+        this.min_interval_reads = min_interval_reads;
+        this.min_read_cpg = min_read_cpg;
+        this.useRegionP = useRegionP;
+    }
 
 //	private static void regionPercentExperiment(
 //			String currUserHome) throws IOException, ExecutionException, InterruptedException {
@@ -231,15 +184,62 @@ public class Detection implements Callable<String> {
 //		detect(inputName, summaryFileName, fisher_p_threshold, region_threshold, region_percent_threshold);
 //	}
 
-	public Detection(File inputFile, int min_interval_reads, int min_read_cpg, double fisher_p_threshold,
-					 double region_threshold, boolean useRegionP) {
-		this.fisher_p_threshold = fisher_p_threshold;
-		this.region_threshold = region_threshold;
-		this.inputFile = inputFile;
-		this.min_interval_reads = min_interval_reads;
-		this.min_read_cpg = min_read_cpg;
-		this.useRegionP = useRegionP;
-	}
+    public static void main(
+            String[] args) throws ParseException, IOException, ExecutionException, InterruptedException {
+        long start = System.currentTimeMillis();
+//		String currUserHome = System.getProperty("user.home");
+//		Detection.useRegionP = true;
+//		regionPExperiment(currUserHome);
+
+//        DetectionWithMappedRead.useRegionP = false;
+//        regionPercentExperiment(currUserHome);
+
+        Options options = new Options();
+        options.addOption("i", true, "Input intervals folder");
+        options.addOption("s", true, "Summary File");
+        options.addOption("mir", true, "Minimum interval read number");
+        options.addOption("mrc", true, "Minimum read CpG number");
+        options.addOption("f", true, "Fisher exact test P threshold");
+        options.addOption("m", true, "Mode: Percent(per) or RegionP(rp)");
+        options.addOption("r", true, "Region threshold");
+        options.addOption("t", false, "Thread number to execute the program.");
+
+
+        CommandLineParser parser = new BasicParser();
+        CommandLine cmd = parser.parse(options, args);
+
+        String inputPathName = cmd.getOptionValue("i");
+        String summaryFileName = cmd.getOptionValue("s");
+        int min_interval_reads = Integer.valueOf(cmd.getOptionValue("mir"));
+        int min_read_cpg = Integer.valueOf(cmd.getOptionValue("mrc"));
+        double fisher_p_threshold = Double.valueOf(cmd.getOptionValue("f"));
+        double region_threshold;
+        boolean useRegionP;
+        if (cmd.getOptionValue("m").equals("per")) {
+            region_threshold = Double.valueOf(cmd.getOptionValue("r"));
+            useRegionP = false;
+        } else if (cmd.getOptionValue("m").equals("rp")) {
+            region_threshold = Double.valueOf(cmd.getOptionValue("r"));
+            useRegionP = true;
+        } else {
+            throw new RuntimeException("invalid mode!");
+        }
+        int threadNumber = Integer.valueOf(cmd.getOptionValue("m", "6"));
+        List<String> resultList = execute(inputPathName, threadNumber, min_interval_reads, min_read_cpg,
+                                          fisher_p_threshold, region_threshold, useRegionP);
+        BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
+        summaryWriter.write(
+                "chr\tstartPos\tendPos\tlength\tvertex number\tedge number\treadCount\t#CpGSite\t#CpGSiteInClusters\tGroupCount\t" +
+                        "avgGroupPerCpG\tMECSum\tCpGSum\tNormMEC\terrorProbability\t#CpGwithFisherP<=" +
+                        fisher_p_threshold + "\tregionP=" +
+                        region_threshold + "\tgroup1\tgroup2\tlabel\n");
+
+        for (String result : resultList) {
+            summaryWriter.write(result);
+        }
+        summaryWriter.close();
+        System.out.println(System.currentTimeMillis() - start + "ms");
+    }
 
 	private static List<String> execute(String inputName, int threadNumber, int min_interval_reads, int min_read_cpg,
 										double fisher_p_threshold, double region_threshold,

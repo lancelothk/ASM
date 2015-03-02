@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.tools.Simulation;
+package edu.cwru.cbc.ASM.simulation.tools;
 
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;

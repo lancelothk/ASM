@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.tools.Visulization;
+package edu.cwru.cbc.ASM.visualization;
 
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.ReadComparator;
