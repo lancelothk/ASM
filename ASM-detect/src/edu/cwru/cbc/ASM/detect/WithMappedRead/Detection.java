@@ -38,18 +38,25 @@ public class Detection implements Callable<String> {
     private int startPos;
     private int endPos;
     private int min_interval_cpg;
-    private int min_read_cpg;
     private double fisher_p_threshold;
     private double region_threshold;
     private boolean useRegionP;
 
-    public Detection(File inputFile, int min_interval_cpg, int min_read_cpg, double fisher_p_threshold,
+    /**
+     * Detection constructor.
+     *
+     * @param inputFile          A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+     * @param min_interval_cpg   Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
+     * @param fisher_p_threshold Significant fisher P value threshold.
+     * @param region_threshold   Significant region P value threshold.
+     * @param useRegionP         If use the region P value as result filtering criteria or use region percent.
+     */
+    public Detection(File inputFile, int min_interval_cpg, double fisher_p_threshold,
                      double region_threshold, boolean useRegionP) {
         this.fisher_p_threshold = fisher_p_threshold;
         this.region_threshold = region_threshold;
         this.inputFile = inputFile;
         this.min_interval_cpg = min_interval_cpg;
-        this.min_read_cpg = min_read_cpg;
         this.useRegionP = useRegionP;
     }
 
@@ -58,7 +65,7 @@ public class Detection implements Callable<String> {
         long start = System.currentTimeMillis();
 
         Options options = new Options();
-        options.addOption("i", true, "Input intervals folder");
+        options.addOption("i", true, "Input intervals folder or interval file name");
         options.addOption("s", true, "Summary File");
         options.addOption("mic", true, "Minimum interval cpg number");
         options.addOption("mrc", true, "Minimum read CpG number");
@@ -66,7 +73,6 @@ public class Detection implements Callable<String> {
         options.addOption("m", true, "Mode: Percent(per) or RegionP(rp)");
         options.addOption("r", true, "Region threshold");
         options.addOption("t", false, "Thread number to execute the program.");
-
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd = parser.parse(options, args);
@@ -122,7 +128,7 @@ public class Detection implements Callable<String> {
                                 !file.getName().endsWith("test") && !file.getName().endsWith("~") &&
                                 !file.getName().endsWith("detected")) {
                             Future<String> future = executor.submit(
-                                    new Detection(file, min_interval_cpg, min_read_cpg, fisher_p_threshold,
+                                    new Detection(file, min_interval_cpg, fisher_p_threshold,
                                                   region_threshold, useRegionP));
                             futureList.add(future);
                         }
@@ -134,7 +140,7 @@ public class Detection implements Callable<String> {
         } else {
             try {
                 Future<String> future = executor.submit(
-                        new Detection(inputFile, min_interval_cpg, min_read_cpg, fisher_p_threshold, region_threshold,
+                        new Detection(inputFile, min_interval_cpg, fisher_p_threshold, region_threshold,
                                       useRegionP));
                 futureList.add(future);
             } catch (Exception e) {
@@ -166,7 +172,7 @@ public class Detection implements Callable<String> {
         List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
         // filter out reads which only cover 1 or no CpG sites
         List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8).readLines(
-                new MappedReadLineProcessor(refCpGList, this.min_read_cpg));
+                new MappedReadLineProcessor(refCpGList));
 
         // align read
         ReadsVisualization.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");

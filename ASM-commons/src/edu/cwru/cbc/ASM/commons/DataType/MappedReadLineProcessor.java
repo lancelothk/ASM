@@ -18,6 +18,11 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
     protected Map<Integer, RefCpG> refMap;
 	protected int min_read_cpg;
 
+    public MappedReadLineProcessor(List<RefCpG> refCpGList) {
+        this.refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+        this.min_read_cpg = 0;
+    }
+
     public MappedReadLineProcessor(List<RefCpG> refCpGList, int min_read_cpg) {
         this.refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 		this.min_read_cpg = min_read_cpg;

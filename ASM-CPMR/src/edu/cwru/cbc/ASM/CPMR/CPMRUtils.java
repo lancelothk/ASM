@@ -18,11 +18,14 @@ public class CPMRUtils {
      * write single interval output in mapped read format like the original data *
      */
     public static void writeMappedReadInInterval(String intervalFolderName, RefChr refChr, int startPos, int endPos,
-                                                 Collection<MappedRead> mappedReadSet) throws IOException {
+                                                 Collection<MappedRead> mappedReadSet,
+                                                 int min_read_cpg) throws IOException {
         BufferedWriter mappedReadWriter = new BufferedWriter(
                 new FileWriter(String.format("%s/%s-%d-%d", intervalFolderName, refChr.getChr(), startPos, endPos)));
         mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
         for (MappedRead mappedRead : mappedReadSet) {
+            // The mapped read to write should contain at least min_read_cpg cpgs.
+            assert mappedRead.getCpgList().size() < min_read_cpg;
             mappedReadWriter.write(mappedRead.outputString(startPos, endPos));
         }
         mappedReadWriter.close();

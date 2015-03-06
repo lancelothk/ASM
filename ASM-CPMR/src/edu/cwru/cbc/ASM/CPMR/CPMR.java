@@ -24,7 +24,7 @@ import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
  * Main entry of the module.
  */
 public class CPMR {
-	public static int outputIntervalCount = 0;
+    private static int outputIntervalCount = 0;
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
@@ -51,8 +51,7 @@ public class CPMR {
 					   min_interval_cpg, min_interval_reads);
 	}
 
-	public static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName, String outputPath,
-									  int min_cpg_coverage, int min_read_cpg, int min_interval_cpg,
+    private static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName, String outputPath, int min_cpg_coverage, int min_read_cpg, int min_interval_cpg,
 									  int min_interval_reads) throws IOException {
 		long start = System.currentTimeMillis();
 		outputPath += String.format("/experiment_%d_%d_%d_%d/", min_cpg_coverage, min_read_cpg, min_interval_cpg,
@@ -91,7 +90,7 @@ public class CPMR {
 		List<List<RefCpG>> cpgSiteIntervalList = getIntervals(refCpGList, min_cpg_coverage);
 
 		writeIntervals(intervalFolderName, summaryFileName, refChr, cpgSiteIntervalList, min_cpg_coverage,
-					   min_interval_cpg, min_interval_reads);
+                       min_interval_cpg, min_interval_reads, min_read_cpg);
         // TODO make thw report writing more elegant.
         BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName));
         writer.write("Raw Interval count:\t" + cpgSiteIntervalList.size() + "");
@@ -128,8 +127,9 @@ public class CPMR {
 
 	private static void writeIntervals(String intervalFolderName, String summaryFileName, RefChr refChr,
 									   List<List<RefCpG>> cpgSiteIntervalList, int min_cpg_coverage,
-									   int min_interval_cpg, int min_interval_reads) throws IOException {
-		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
+                                       int min_interval_cpg, int min_interval_reads,
+                                       int min_read_cpg) throws IOException {
+        BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		intervalSummaryWriter.write("chr\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
 		cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = new HashSet<>();
@@ -152,8 +152,9 @@ public class CPMR {
 					intervalSummaryWriter.write(
 							String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), endPos - startPos + 1,
 										  mappedReadList.size(), list.size(), startCpGPos, endCpGPos));
-					CPMRUtils.writeMappedReadInInterval(intervalFolderName, refChr, startPos, endPos, mappedReadList);
-				} catch (IOException e) {
+                    CPMRUtils.writeMappedReadInInterval(intervalFolderName, refChr, startPos, endPos, mappedReadList,
+                                                        min_read_cpg);
+                } catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 			}
