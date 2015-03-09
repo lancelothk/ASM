@@ -12,6 +12,7 @@ import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.GroupResult;
 import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.Vertex;
 import edu.cwru.cbc.ASM.visualization.ReadsVisualization;
 import org.apache.commons.cli.*;
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
 
@@ -187,19 +188,30 @@ public class Detection implements Callable<String> {
         // get fisher test P values for each refCpG in clusters.
         double regionP;
         if (fisherTest(graph, twoClusterRefCpGList)) {
-            regionP = 1;
+            // use product of 1-pi
+//            regionP = 1;
 //            for (RefCpG refCpG : twoClusterRefCpGList) {
 //                regionP *= (1 - refCpG.getP_value());
 //            }
 // 			  regionP = 1 - regionP;
-			// use min P
-			double minP = Double.MAX_VALUE;
-			for (RefCpG refCpG : twoClusterRefCpGList) {
-				if (minP > refCpG.getP_value()){
-					minP = refCpG.getP_value();
-				}
-			}
-			regionP = 1- Math.pow(1-minP, twoClusterRefCpGList.size());
+
+            // use min P -- sidak's combination test
+//			double minP = Double.MAX_VALUE;
+//			for (RefCpG refCpG : twoClusterRefCpGList) {
+//				if (minP > refCpG.getP_value()){
+//					minP = refCpG.getP_value();
+//				}
+//			}
+//			regionP = 1- Math.pow(1-minP, twoClusterRefCpGList.size());
+
+            // use fisher's combination test
+            regionP = 0;
+            for (RefCpG refCpG : twoClusterRefCpGList) {
+                regionP += Math.log(refCpG.getP_value());
+            }
+            ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
+            regionP = 1 - chiSquaredDistribution.cumulativeProbability(-2 * regionP);
+
         } else {
             // give -1 if only one cluster
             regionP = -1;
