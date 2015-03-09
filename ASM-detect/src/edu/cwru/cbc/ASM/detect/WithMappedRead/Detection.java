@@ -188,10 +188,18 @@ public class Detection implements Callable<String> {
         double regionP;
         if (fisherTest(graph, twoClusterRefCpGList)) {
             regionP = 1;
-            for (RefCpG refCpG : twoClusterRefCpGList) {
-                regionP *= (1 - refCpG.getP_value());
-            }
-            regionP = 1 - regionP;
+//            for (RefCpG refCpG : twoClusterRefCpGList) {
+//                regionP *= (1 - refCpG.getP_value());
+//            }
+// 			  regionP = 1 - regionP;
+			// use min P
+			double minP = Double.MAX_VALUE;
+			for (RefCpG refCpG : twoClusterRefCpGList) {
+				if (minP > refCpG.getP_value()){
+					minP = refCpG.getP_value();
+				}
+			}
+			regionP = 1- Math.pow(1-minP, twoClusterRefCpGList.size());
         } else {
             // give -1 if only one cluster
             regionP = -1;
