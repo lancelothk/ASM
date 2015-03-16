@@ -107,7 +107,8 @@ public class IntersectRegions {
 		System.out.printf("accuracy:%.4f\n", (tp + tn) / (double) (tp + tn + fn + fp));
 		System.out.printf("Precision:%.4f\n", tp / (double) (tp + fp));
 		System.out.printf("Sensitivity:%.4f\n", tp / (double) (tp + fn));
-        System.out.printf("FDR:%.4f\n", fp / (double) (fp + tn));
+        System.out.printf("Fall-out:%.4f\n", fp / (double) (fp + tn));
+        System.out.printf("FDR:%.4f\n", fp / (double) (fp + tp));
         System.out.printf("F1 score:%.4f\n", 2 * tp / (double) (2 * tp + fp + fn));
         System.out.printf("MCC:%.4f\n", (tp * tn - fp * fn) / (double) ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)));
 	}
