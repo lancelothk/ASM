@@ -212,6 +212,14 @@ public class Detection implements Callable<String> {
             ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
             regionP = 1 - chiSquaredDistribution.cumulativeProbability(-2 * regionP);
 
+            // use Stouffer's combination test
+//            double z=0;
+//            NormalDistribution stdNorm = new NormalDistribution(0,1);
+//            for (RefCpG refCpG : twoClusterRefCpGList) {
+//                z += stdNorm.inverseCumulativeProbability(1 - refCpG.getP_value());
+//            }
+//            z /=Math.sqrt(twoClusterRefCpGList.size());
+//            regionP = 1 - stdNorm.cumulativeProbability(z);
         } else {
             // give -1 if only one cluster
             regionP = -1;
