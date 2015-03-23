@@ -83,17 +83,12 @@ public class CommonsUtils {
                         default:
                             throw new RuntimeException("invalid label!\t" + line);
                     }
-                    // 0: chr 1: start 2: end
-                    genomicRegionList.add(
-                            new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
-                                              items[3], isPositive));
+                    addRegionToList(new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
+                                                      items[3], isPositive), genomicRegionList);
                 } else {
-                    // 0: chr 1: start 2: end
-                    genomicRegionList.add(
-                            new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
-                                              items[3]));
+                    addRegionToList(new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
+                                                      items[3]), genomicRegionList);
                 }
-                // TODO make sure there is no overlapped regions.
                 // TODO make sure all regions are from same chromosome
                 return true;
             }
@@ -103,5 +98,18 @@ public class CommonsUtils {
                 return genomicRegionList;
             }
         });
+    }
+
+    private static void addRegionToList(GenomicRegion newRegion, List<GenomicRegion> genomicRegionList) {
+        if (!hasOverlap(newRegion, genomicRegionList)) {
+            // 0: chr 1: start 2: end
+            genomicRegionList.add(newRegion);
+        } else {
+            throw new RuntimeException("Regions have overlap!");
+        }
+    }
+
+    private static boolean hasOverlap(GenomicRegion region, List<GenomicRegion> regionList) {
+        return regionList.stream().anyMatch(r -> region.getStart() <= r.getEnd() && region.getEnd() >= r.getStart());
     }
 }

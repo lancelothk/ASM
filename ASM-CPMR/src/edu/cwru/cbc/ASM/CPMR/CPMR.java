@@ -100,24 +100,22 @@ public class CPMR {
 	}
 
     private static List<List<RefCpG>> getIntervals(List<RefCpG> refCpGList, int min_cpg_coverage) {
-        // filter refCpG by coverage and partial methylation
-		List<RefCpG> filteredRefCpG = refCpGList.stream().filter(
-                refCpG -> refCpG.getCpGCoverage() >= min_cpg_coverage && refCpG.hasPartialMethyl()).collect(Collectors.toList());
-
 		// split regions by continuous CpG coverage
 		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
 		boolean cont = true;
 		List<RefCpG> resultRefCpGList = new ArrayList<>();
-		for (int i = 0; i < filteredRefCpG.size() - 1; i++) {
-			RefCpG curr = filteredRefCpG.get(i);
-			if (!cont && resultRefCpGList.size() > 0) {
-				cpgSiteIntervalList.add(resultRefCpGList);
-				resultRefCpGList = new ArrayList<>();
-			}
-			resultRefCpGList.add(curr);
-			RefCpG next = filteredRefCpG.get(i + 1);
-			cont = curr.hasCommonRead(next);
-		}
+        for (int i = 0; i < refCpGList.size() - 1; i++) {
+            RefCpG curr = refCpGList.get(i);
+            if (curr.getCpGCoverage() >= min_cpg_coverage && curr.hasPartialMethyl()) {
+                if (!cont && resultRefCpGList.size() > 0) {
+                    cpgSiteIntervalList.add(resultRefCpGList);
+                    resultRefCpGList = new ArrayList<>();
+                }
+                resultRefCpGList.add(curr);
+                RefCpG next = refCpGList.get(i + 1);
+                cont = next.getCpGCoverage() >= min_cpg_coverage && next.hasPartialMethyl() && curr.hasCommonRead(next);
+            }
+        }
 		if (cont && resultRefCpGList.size() > 0) {
 			resultRefCpGList.add(resultRefCpGList.get(resultRefCpGList.size() - 1));
 			cpgSiteIntervalList.add(resultRefCpGList);

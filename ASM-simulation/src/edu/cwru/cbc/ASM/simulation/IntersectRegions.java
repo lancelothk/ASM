@@ -2,7 +2,7 @@ package edu.cwru.cbc.ASM.simulation;
 
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -15,24 +15,21 @@ import java.util.List;
  */
 public class IntersectRegions {
     public static void main(String[] args) throws IOException, ParseException {
-//        Options options = new Options();
-//        options.addOption("t", true, "target file");
-//        options.addOption("r", true, "actual result file");
-//        options.addOption("e", true, "expected result file");
-//        options.addOption("o", true, "output file");
-//
-//        CommandLineParser parser = new BasicParser();
-//        CommandLine cmd = parser.parse(options, args);
-//
-//        String targetFileName = cmd.getOptionValue("t");
-//        String actualResultFileName = cmd.getOptionValue("r");
-//        String expectedResultFileName = cmd.getOptionValue("e");
-//        String outputFileName = cmd.getOptionValue("o");
-//
-//        execution(targetFileName, actualResultFileName, expectedResultFileName, outputFileName);.
-        calcOverlappedLenth(
-                "/home/kehu/experiments/ASM/simulation/CpGIslandsRegions/CpGIslandsRegions_selected_15_5.bed",
-                "/home/kehu/experiments/ASM/simulation/CPGI_0.8_0.2/experiment_4_2_5_10/result_summary_tp");
+        Options options = new Options();
+        options.addOption("t", true, "target file");
+        options.addOption("r", true, "actual result file");
+        options.addOption("e", true, "expected result file");
+        options.addOption("o", true, "output file");
+
+        CommandLineParser parser = new BasicParser();
+        CommandLine cmd = parser.parse(options, args);
+
+        String targetFileName = cmd.getOptionValue("t");
+        String actualResultFileName = cmd.getOptionValue("r");
+        String expectedResultFileName = cmd.getOptionValue("e");
+        String outputFileName = cmd.getOptionValue("o");
+
+        execution(targetFileName, actualResultFileName, expectedResultFileName, outputFileName);
     }
 
     public static void execution(String targetFileName, String actualResultFileName, String expectedResultFileName,
@@ -44,10 +41,11 @@ public class IntersectRegions {
     }
 
 
-    private static void calcOverlappedLenth(String targetFileName, String actualResultFileName) throws IOException {
+    public static void calcOverlappedLenth(String targetFileName, String actualResultFileName,
+                                           String label) throws IOException {
         int overlappedLength = 0, tpLength = 0;
         List<GenomicRegion> targetRegions = CommonsUtils.readBedRegions(targetFileName);
-        List<GenomicRegion> resultRegions = CommonsUtils.readBedRegions(actualResultFileName);
+        List<GenomicRegion> resultRegions = CommonsUtils.readBedRegions(actualResultFileName + label);
 
         for (GenomicRegion resultRegion : resultRegions) {
             tpLength += resultRegion.length();
@@ -57,20 +55,20 @@ public class IntersectRegions {
             for (GenomicRegion resultRegion : resultRegions) {
                 if (targetRegion.getStart() <= resultRegion.getEnd() &&
                         targetRegion.getEnd() >= resultRegion.getStart()) {
-                    targetRegion.setIntersected(true);
-                    resultRegion.setIntersected(true);
+                    targetRegion.addIntersectedRegion(resultRegion);
+                    resultRegion.addIntersectedRegion(targetRegion);
                     int right = Math.min(targetRegion.getEnd(), resultRegion.getEnd());
                     int left = Math.max(targetRegion.getStart(), resultRegion.getStart());
                     int length = right - left + 1;
                     System.out.println(resultRegion.getStart() + "\t" + resultRegion.getEnd() +
-                                               "\toverlapped length/tp length:\t" + length + "\t" +
+                                               "\toverlapped length/" + label + " length:\t" + length + "\t" +
                                                resultRegion.length());
                     overlappedLength += length;
                 }
             }
         }
         System.out.println("overlapped length:\t" + overlappedLength);
-        System.out.println("tp length:\t" + tpLength);
+        System.out.println(label + " length:\t" + tpLength);
     }
 
     private static void twoWayIntersection(String targetFileName, String actualResultFileName,
@@ -84,22 +82,30 @@ public class IntersectRegions {
             for (GenomicRegion resultRegion : resultRegions) {
                 if (targetRegion.getStart() <= resultRegion.getEnd() &&
                         targetRegion.getEnd() >= resultRegion.getStart()) {
-                    targetRegion.setIntersected(true);
-                    resultRegion.setIntersected(true);
-                    writer.write(String.format("%s\t%s\t+\n", resultRegion.toBedString(), targetRegion.toBedString()));
+                    targetRegion.addIntersectedRegion(resultRegion);
+                    resultRegion.addIntersectedRegion(targetRegion);
                 }
+            }
+        }
+        for (GenomicRegion resultRegion : resultRegions) {
+            if (resultRegion.isIntersected()) {
+                writer.write(String.format("%s\t", resultRegion.toBedString()));
+                for (GenomicRegion intersectedRegion : resultRegion.getIntersectedRegions()) {
+                    writer.write(String.format("%s\t", intersectedRegion.toBedString()));
+                }
+                writer.write("+\n");
             }
         }
 
         for (GenomicRegion targetRegion : targetRegions) {
             if (!targetRegion.isIntersected()) {
-                writer.write(targetRegion.toBedString() + "\t\t\t\t\t*\n");
+                writer.write(targetRegion.toBedString() + "\t*\n");
             }
         }
 
         for (GenomicRegion resultRegion : resultRegions) {
             if (!resultRegion.isIntersected()) {
-                writer.write(resultRegion.toBedString() + "\t\t\t\t\t-\n");
+                writer.write(resultRegion.toBedString() + "\t-\n");
             }
         }
 

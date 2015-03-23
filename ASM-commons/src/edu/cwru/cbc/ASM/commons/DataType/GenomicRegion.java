@@ -1,9 +1,6 @@
 package edu.cwru.cbc.ASM.commons.DataType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by kehu on 2/12/15.
@@ -16,8 +13,8 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
     private String name;
     private List<RefCpG> refCpGList;
     private boolean[] allelePattern;
-    private boolean isIntersected;
     private boolean isPositive;
+    private Set<GenomicRegion> intersectedRegions;
 
     public GenomicRegion(String chr, int start, int end, String name) {
         this.chr = chr;
@@ -25,13 +22,11 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         this.end = end;
         this.name = name;
         this.refCpGList = new ArrayList<>();
+        this.intersectedRegions = new HashSet<>();
     }
 
     public GenomicRegion(String chr, int start, int end, String name, boolean isPositive) {
-        this.chr = chr;
-        this.start = start;
-        this.end = end;
-        this.name = name;
+        this(chr, start, end, name);
         this.isPositive = isPositive;
     }
 
@@ -43,12 +38,16 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         this.isPositive = isPositive;
     }
 
-    public boolean isIntersected() {
-        return isIntersected;
+    public void addIntersectedRegion(GenomicRegion region) {
+        intersectedRegions.add(region);
     }
 
-    public void setIntersected(boolean isIntersected) {
-        this.isIntersected = isIntersected;
+    public Set<GenomicRegion> getIntersectedRegions() {
+        return intersectedRegions;
+    }
+
+    public boolean isIntersected() {
+        return intersectedRegions.size() != 0;
     }
 
     public String getChr() {
