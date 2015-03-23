@@ -83,6 +83,10 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         }
     }
 
+    public int length() {
+        return this.getEnd() - this.getStart() + 1;
+    }
+
     public boolean getRefMethylStatus(int index) {
         return allelePattern[index];
     }
