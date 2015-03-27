@@ -6,26 +6,21 @@ import java.util.*;
  * Created by kehu on 2/12/15.
  * Genomic Region in bed format.
  */
-public class GenomicRegion implements Comparable<GenomicRegion> {
-    private String chr;
-    private int start;
-    private int end;
+public class GenomicInterval extends GenomicIntervalBase implements Comparable<GenomicInterval> {
     private String name;
     private List<RefCpG> refCpGList;
     private boolean[] allelePattern;
     private boolean isPositive;
-    private Set<GenomicRegion> intersectedRegions;
+    private Set<GenomicInterval> intersectedRegions;
 
-    public GenomicRegion(String chr, int start, int end, String name) {
-        this.chr = chr;
-        this.start = start;
-        this.end = end;
+    public GenomicInterval(String chr, int start, int end, String name) {
+        super(chr, start, end);
         this.name = name;
         this.refCpGList = new ArrayList<>();
         this.intersectedRegions = new HashSet<>();
     }
 
-    public GenomicRegion(String chr, int start, int end, String name, boolean isPositive) {
+    public GenomicInterval(String chr, int start, int end, String name, boolean isPositive) {
         this(chr, start, end, name);
         this.isPositive = isPositive;
     }
@@ -38,28 +33,16 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
         this.isPositive = isPositive;
     }
 
-    public void addIntersectedRegion(GenomicRegion region) {
+    public void addIntersectedRegion(GenomicInterval region) {
         intersectedRegions.add(region);
     }
 
-    public Set<GenomicRegion> getIntersectedRegions() {
+    public Set<GenomicInterval> getIntersectedRegions() {
         return intersectedRegions;
     }
 
     public boolean isIntersected() {
         return intersectedRegions.size() != 0;
-    }
-
-    public String getChr() {
-        return chr;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public int getEnd() {
-        return end;
     }
 
     public String getName() {
@@ -99,7 +82,7 @@ public class GenomicRegion implements Comparable<GenomicRegion> {
 	}
 
     @Override
-    public int compareTo(GenomicRegion o) {
+    public int compareTo(GenomicInterval o) {
         int startDiff = this.getStart() - o.getStart();
         int endDiff = this.getEnd() - o.getEnd();
         return startDiff == 0 ? endDiff : startDiff;

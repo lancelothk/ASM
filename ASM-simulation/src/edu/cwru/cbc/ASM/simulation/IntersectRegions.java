@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation;
 
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
+import edu.cwru.cbc.ASM.commons.DataType.GenomicInterval;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -44,15 +44,15 @@ public class IntersectRegions {
     public static void calcOverlappedLenth(String targetFileName, String actualResultFileName,
                                            String label) throws IOException {
         int overlappedLength = 0, tpLength = 0;
-        List<GenomicRegion> targetRegions = CommonsUtils.readBedRegions(targetFileName);
-        List<GenomicRegion> resultRegions = CommonsUtils.readBedRegions(actualResultFileName + label);
+        List<GenomicInterval> targetRegions = CommonsUtils.readBedRegions(targetFileName);
+        List<GenomicInterval> resultRegions = CommonsUtils.readBedRegions(actualResultFileName + label);
 
-        for (GenomicRegion resultRegion : resultRegions) {
+        for (GenomicInterval resultRegion : resultRegions) {
             tpLength += resultRegion.length();
         }
 
-        for (GenomicRegion targetRegion : targetRegions) {
-            for (GenomicRegion resultRegion : resultRegions) {
+        for (GenomicInterval targetRegion : targetRegions) {
+            for (GenomicInterval resultRegion : resultRegions) {
                 if (targetRegion.getStart() <= resultRegion.getEnd() &&
                         targetRegion.getEnd() >= resultRegion.getStart()) {
                     targetRegion.addIntersectedRegion(resultRegion);
@@ -73,13 +73,13 @@ public class IntersectRegions {
 
     private static void twoWayIntersection(String targetFileName, String actualResultFileName,
                                            String expectedResultFileName) throws IOException {
-        List<GenomicRegion> targetRegions = CommonsUtils.readBedRegions(targetFileName);
-        List<GenomicRegion> resultRegions = CommonsUtils.readBedRegions(actualResultFileName);
+        List<GenomicInterval> targetRegions = CommonsUtils.readBedRegions(targetFileName);
+        List<GenomicInterval> resultRegions = CommonsUtils.readBedRegions(actualResultFileName);
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(expectedResultFileName));
 
-        for (GenomicRegion targetRegion : targetRegions) {
-            for (GenomicRegion resultRegion : resultRegions) {
+        for (GenomicInterval targetRegion : targetRegions) {
+            for (GenomicInterval resultRegion : resultRegions) {
                 if (targetRegion.getStart() <= resultRegion.getEnd() &&
                         targetRegion.getEnd() >= resultRegion.getStart()) {
                     targetRegion.addIntersectedRegion(resultRegion);
@@ -87,23 +87,23 @@ public class IntersectRegions {
                 }
             }
         }
-        for (GenomicRegion resultRegion : resultRegions) {
+        for (GenomicInterval resultRegion : resultRegions) {
             if (resultRegion.isIntersected()) {
                 writer.write(String.format("%s\t", resultRegion.toBedString()));
-                for (GenomicRegion intersectedRegion : resultRegion.getIntersectedRegions()) {
+                for (GenomicInterval intersectedRegion : resultRegion.getIntersectedRegions()) {
                     writer.write(String.format("%s\t", intersectedRegion.toBedString()));
                 }
                 writer.write("+\n");
             }
         }
 
-        for (GenomicRegion targetRegion : targetRegions) {
+        for (GenomicInterval targetRegion : targetRegions) {
             if (!targetRegion.isIntersected()) {
                 writer.write(targetRegion.toBedString() + "\t*\n");
             }
         }
 
-        for (GenomicRegion resultRegion : resultRegions) {
+        for (GenomicInterval resultRegion : resultRegions) {
             if (!resultRegion.isIntersected()) {
                 writer.write(resultRegion.toBedString() + "\t-\n");
             }
@@ -116,10 +116,10 @@ public class IntersectRegions {
                                             String outputFileName) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
         int tp = 0, fp = 0, fn = 0, tn = 0;
-        List<GenomicRegion> expectedRegions = CommonsUtils.readBedRegions(expectedResultFileName, true);
-        List<GenomicRegion> actualRegions = CommonsUtils.readBedRegions(actualResultFileName, true);
-        for (GenomicRegion expectedRegion : expectedRegions) {
-            for (GenomicRegion actualRegion : actualRegions) {
+        List<GenomicInterval> expectedRegions = CommonsUtils.readBedRegions(expectedResultFileName, true);
+        List<GenomicInterval> actualRegions = CommonsUtils.readBedRegions(actualResultFileName, true);
+        for (GenomicInterval expectedRegion : expectedRegions) {
+            for (GenomicInterval actualRegion : actualRegions) {
                 if (expectedRegion.getStart() == actualRegion.getStart() &&
                         expectedRegion.getEnd() == actualRegion.getEnd()) {
                     if (expectedRegion.isPositive() && actualRegion.isPositive()) {

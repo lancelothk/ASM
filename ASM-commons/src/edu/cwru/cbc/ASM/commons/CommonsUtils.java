@@ -3,7 +3,7 @@ package edu.cwru.cbc.ASM.commons;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.DataType.GenomicRegion;
+import edu.cwru.cbc.ASM.commons.DataType.GenomicInterval;
 import edu.cwru.cbc.ASM.commons.DataType.RefChr;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 
@@ -45,7 +45,7 @@ public class CommonsUtils {
         return new RefChr(chr, referenceBuilder.toString());
     }
 
-    public static List<GenomicRegion> readBedRegions(String bedFileName) throws IOException {
+    public static List<GenomicInterval> readBedRegions(String bedFileName) throws IOException {
         return readBedRegions(bedFileName, false);
     }
 
@@ -57,9 +57,9 @@ public class CommonsUtils {
      * @return list of bed regions
      * @throws IOException
      */
-    public static List<GenomicRegion> readBedRegions(String bedFileName, boolean readLabel) throws IOException {
-        return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<GenomicRegion>>() {
-            private List<GenomicRegion> genomicRegionList = new ArrayList<>();
+    public static List<GenomicInterval> readBedRegions(String bedFileName, boolean readLabel) throws IOException {
+        return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<GenomicInterval>>() {
+            private List<GenomicInterval> genomicIntervalList = new ArrayList<>();
 
             @Override
             public boolean processLine(String line) throws IOException {
@@ -83,33 +83,35 @@ public class CommonsUtils {
                         default:
                             throw new RuntimeException("invalid label!\t" + line);
                     }
-                    addRegionToList(new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
-                                                      items[3], isPositive), genomicRegionList);
+                    addRegionToList(
+                            new GenomicInterval(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
+                                    items[3], isPositive), genomicIntervalList);
                 } else {
-                    addRegionToList(new GenomicRegion(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
-                                                      items[3]), genomicRegionList);
+                    addRegionToList(
+                            new GenomicInterval(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
+                                    items[3]), genomicIntervalList);
                 }
                 // TODO make sure all regions are from same chromosome
                 return true;
             }
 
             @Override
-            public List<GenomicRegion> getResult() {
-                return genomicRegionList;
+            public List<GenomicInterval> getResult() {
+                return genomicIntervalList;
             }
         });
     }
 
-    private static void addRegionToList(GenomicRegion newRegion, List<GenomicRegion> genomicRegionList) {
-        if (!hasOverlap(newRegion, genomicRegionList)) {
+    private static void addRegionToList(GenomicInterval newRegion, List<GenomicInterval> genomicIntervalList) {
+        if (!hasOverlap(newRegion, genomicIntervalList)) {
             // 0: chr 1: start 2: end
-            genomicRegionList.add(newRegion);
+            genomicIntervalList.add(newRegion);
         } else {
             throw new RuntimeException("Regions have overlap!");
         }
     }
 
-    private static boolean hasOverlap(GenomicRegion region, List<GenomicRegion> regionList) {
+    private static boolean hasOverlap(GenomicInterval region, List<GenomicInterval> regionList) {
         return regionList.stream().anyMatch(r -> region.getStart() <= r.getEnd() && region.getEnd() >= r.getStart());
     }
 }
