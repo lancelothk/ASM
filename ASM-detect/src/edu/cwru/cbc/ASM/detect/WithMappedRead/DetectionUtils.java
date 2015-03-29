@@ -39,8 +39,8 @@ public class DetectionUtils {
     public static double getFDRCutoff(List<Double> pvalueList, double fdr) {
         pvalueList.sort(Double::compare);
         for (int i = 0; i < pvalueList.size(); i++) {
-            if (pvalueList.get(i) <= i / (double) pvalueList.size() * fdr) {
-                return pvalueList.get(i);
+			if (pvalueList.get(i) > fdr * (i + 1) / (double) pvalueList.size()) {
+				return pvalueList.get(i);
             }
         }
         throw new RuntimeException("no P value <= k/m*fdr!");

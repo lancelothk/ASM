@@ -1,11 +1,10 @@
 package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by kehu on 3/27/15.
@@ -16,16 +15,14 @@ public class IntervalDetectionSummary {
     private static int elementCount;
     private static String headLine;
     private static String formatLine;
-    private List<Object> argumentList;
-    private String summaryString;
+    private Object[] arguments;
     private double regionP;
 
 
-    public IntervalDetectionSummary() {
-        argumentList = new ArrayList<>();
+    public IntervalDetectionSummary(double regionP, Object... arguments) {
+        this.regionP = regionP;
+        this.arguments = arguments;
     }
-
-    // TODO implement argument builder here.
 
     public static void initializeFormat(ImmutableList<Pair<String, String>> elementPairList) {
         elementCount = elementPairList.size();
@@ -38,12 +35,11 @@ public class IntervalDetectionSummary {
                 });
         headLine = buildLine(headLineList);
         formatLine = buildLine(formatLineList);
+        System.out.println(headLine + formatLine);
     }
 
     private static String buildLine(ArrayList<String> formatLine) {
-        StringBuilder formatLineBuilder = new StringBuilder(StringUtils.join(formatLine, "\t"));
-        formatLineBuilder.replace(formatLineBuilder.length() - 1, formatLineBuilder.length(), "\n");
-        return formatLineBuilder.toString();
+        return StringUtils.join(formatLine, "\t") + "\n";
     }
 
     public static String getHeadLine() {
@@ -53,23 +49,16 @@ public class IntervalDetectionSummary {
         return headLine;
     }
 
-    public void appendArgument(Object argument) {
-        argumentList.add(argument);
-    }
-
     public double getRegionP() {
         return regionP;
     }
 
-    public void setRegionP(double regionP) {
-        this.regionP = regionP;
-    }
-
-    public String getSummaryString() {
-        if (elementCount != argumentList.size()) {
-            throw new RuntimeException("unmatched number of elements in arguments list!");
+    public String getSummaryString(double region_threshold) {
+        if (elementCount != arguments.length) {
+            throw new RuntimeException(
+                    String.format("unmatched number of elements in arguments list!:%d-%d", elementCount,
+                            arguments.length + 1));
         }
-        this.summaryString = String.format(formatLine, argumentList);
-        return summaryString;
+        return String.format(formatLine, arguments).replace("<label>", regionP <= region_threshold ? "+" : "-");
     }
 }
