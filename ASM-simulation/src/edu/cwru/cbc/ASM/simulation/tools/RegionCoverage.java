@@ -19,7 +19,7 @@ public class RegionCoverage {
 
 	public static void main(String[] args) throws IOException {
 		RefChr refChr = CommonsUtils.readReferenceGenome("/home/lancelothk/experiments/ASM/data/hg18_chr20.fa");
-		String outputBedRegionFolderName = "/home/lancelothk/experiments/ASM/simulation/CpGIslandsRegions/";
+		String outputBedRegionFolderName = "/home/lancelothk/";
 //		for (int i = 1; i <= 31; i++) {
 //			execution(i);
 //		}
@@ -109,7 +109,7 @@ public class RegionCoverage {
 				int cpgCount = StringUtils.countMatches(refChr.getRefString().substring(start, end), "CG");
 				if (cpgCount >= min_cpg_number) {
 					System.out.printf("region:%d-%d\n", start, end);
-					writer.write(String.format("%s\t%d\t%d\t%s\n", refChr.getChr(), start, end, qualifiedCount));
+					writer.write(String.format("%s\t%d\t%d\t%s\n", refChr.getChr(), start, end, cpgCount));
 					qualifiedCount++;
 				}
 				count++;
@@ -119,8 +119,7 @@ public class RegionCoverage {
 														regionStart + nextFalse - 1 + regionStart), "CG");
 				if (cpgCount >= min_cpg_number) {
 					System.out.printf("region:%d-%d\n", nextTrue, regionEnd);
-					writer.write(
-							String.format("%s\t%d\t%d\t%s\n", refChr.getChr(), nextTrue, regionEnd, qualifiedCount));
+					writer.write(String.format("%s\t%d\t%d\t%s\n", refChr.getChr(), nextTrue, regionEnd, cpgCount));
 					qualifiedCount++;
 				}
 				count++;
