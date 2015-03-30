@@ -41,6 +41,36 @@ public class IntersectRegions {
     }
 
 
+    public static void calcOverlappedLenth(String targetFileName, String actualResultFileName) throws IOException {
+        int overlappedLength = 0, tpLength = 0;
+        List<GenomicInterval> targetRegions = CommonsUtils.readBedRegions(targetFileName);
+        List<GenomicInterval> resultRegions = CommonsUtils.readBedRegions(actualResultFileName);
+
+        //        for (GenomicInterval resultRegion : resultRegions) {
+        //            tpLength += resultRegion.length();
+        //        }
+
+        for (GenomicInterval targetRegion : targetRegions) {
+            for (GenomicInterval resultRegion : resultRegions) {
+                if (targetRegion.getStart() <= resultRegion.getEnd() &&
+                        targetRegion.getEnd() >= resultRegion.getStart()) {
+                    targetRegion.addIntersectedRegion(resultRegion);
+                    resultRegion.addIntersectedRegion(targetRegion);
+                    int right = Math.min(targetRegion.getEnd(), resultRegion.getEnd());
+                    int left = Math.max(targetRegion.getStart(), resultRegion.getStart());
+                    int length = right - left + 1;
+                    System.out.println(resultRegion.getStart() + "\t" + resultRegion.getEnd() +
+                            "\toverlapped length:\t" + length + "\tnonoverlapped length:\t" +
+                            (resultRegion.length() - length));
+                    tpLength += (resultRegion.length() - length);
+                    overlappedLength += length;
+                }
+            }
+        }
+        System.out.println("overlapped length:\t" + overlappedLength);
+        System.out.println("nonOverlapped length:\t" + (tpLength));
+    }
+
     public static void calcOverlappedLenth(String targetFileName, String actualResultFileName,
                                            String label) throws IOException {
         int overlappedLength = 0, tpLength = 0;

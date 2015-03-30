@@ -35,7 +35,6 @@ public class IntervalDetectionSummary {
                 });
         headLine = buildLine(headLineList);
         formatLine = buildLine(formatLineList);
-        System.out.println(headLine + formatLine);
     }
 
     private static String buildLine(ArrayList<String> formatLine) {
