@@ -101,8 +101,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
                 .add(new ImmutablePair<>("MECsum", "%f"))
                 .add(new ImmutablePair<>("NormMEC", "%f"))
                 .add(new ImmutablePair<>("errorProb", "%f"))
-                .add(new ImmutablePair<>("fisherPCount", "%d"))
-                .add(new ImmutablePair<>("regionP", "%.5f"))
+                .add(new ImmutablePair<>("fisherPCount", "%d")).add(new ImmutablePair<>("regionP", "%.10f"))
                 .add(new ImmutablePair<>("group1", "%d"))
                 .add(new ImmutablePair<>("group2", "%d"))
                 .add(new ImmutablePair<>("label", "%s"))
@@ -145,8 +144,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
             resultList.add(intervalDetectionSummaryFuture.get());
         }
         executor.shutdown();
-        double regionP_threshold = DetectionUtils.getFDRCutoff(
-                resultList.stream().map(IntervalDetectionSummary::getRegionP).collect(Collectors.toList()),
+        double regionP_threshold = DetectionUtils.getFDRCutoff(resultList.stream()
+                        .filter(ids -> ids.getRegionP() != 1)
+                        .map(IntervalDetectionSummary::getRegionP)
+                        .collect(Collectors.toList()),
                 FDR_threshold);
         System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
         writeDetectionSummary(summaryFileName, resultList, regionP_threshold);
