@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.commons;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.GenomicInterval;
@@ -73,12 +74,17 @@ public class CommonsUtils {
 		});
 	}
 
-	/**
-	 * read bed format regions.
-	 * Only include first 4 columns: chr, start, end, name.
-	 */
-	public static Map<String, List<GenomicInterval>> readBedRegions(String bedFileName) throws IOException {
-		return readBedRegions(bedFileName, false);
+	public static List<GenomicInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
+		return readSingleChromBedRegions(bedFileName, false);
+	}
+
+	public static List<GenomicInterval> readSingleChromBedRegions(String bedFileName,
+																  boolean readLabel) throws IOException {
+		Map<String, List<GenomicInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
+		if (regionsMap.size() != 1) {
+			throw new RuntimeException("bed file should only contain regions from single chromosome!");
+		}
+		return Iterables.get(regionsMap.values(), 0);
 	}
 
 	/**
@@ -149,5 +155,13 @@ public class CommonsUtils {
 		return genomicIntervalMap.get(region.getChr())
 				.stream()
 				.anyMatch(r -> region.getStart() <= r.getEnd() && region.getEnd() >= r.getStart());
+	}
+
+	/**
+	 * read bed format regions.
+	 * Only include first 4 columns: chr, start, end, name.
+	 */
+	public static Map<String, List<GenomicInterval>> readBedRegions(String bedFileName) throws IOException {
+		return readBedRegions(bedFileName, false);
 	}
 }

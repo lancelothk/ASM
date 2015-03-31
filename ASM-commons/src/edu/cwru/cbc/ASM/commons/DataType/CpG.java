@@ -19,9 +19,9 @@ public class CpG {
 		return methylStatus;
 	}
 
-    public void setMethylStatus(MethylStatus methylStatus) {
-        this.methylStatus = methylStatus;
-    }
+	public void setMethylStatus(MethylStatus methylStatus) {
+		this.methylStatus = methylStatus;
+	}
 
 	public MappedRead getMappedRead() {
 		return mappedRead;
@@ -31,7 +31,7 @@ public class CpG {
 		return refCpG;
 	}
 
-	public int getPos(){
+	public int getPos() {
 		return this.refCpG.getPos();
 	}
 }

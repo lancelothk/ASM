@@ -20,9 +20,9 @@ public class RegionCoverage {
 	public static void main(String[] args) throws IOException {
 		RefChr refChr = CommonsUtils.readReferenceGenome("/home/lancelothk/experiments/ASM/data/hg18_chr20.fa");
 		String outputBedRegionFolderName = "/home/lancelothk/";
-//		for (int i = 1; i <= 31; i++) {
-//			execution(i);
-//		}
+		//		for (int i = 1; i <= 31; i++) {
+		//			execution(i);
+		//		}
 		execution(refChr, outputBedRegionFolderName, 10, 5);
 	}
 
@@ -39,11 +39,11 @@ public class RegionCoverage {
 		String currUserHome = System.getProperty("user.home");
 		String inputFolderName = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/";
 		String prefix = "i90_r1_chr20_";
-//		String inputFolderName = currUserHome + "/experiments/ASM/data/";
-//		String prefix = "i90_r1_chr20_";
+		//		String inputFolderName = currUserHome + "/experiments/ASM/data/";
+		//		String prefix = "i90_r1_chr20_";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter(
-				outputBedRegionFolderName + String.format("CpGIslandsRegions_selected_%d_%d.bed", coverage_threshold, min_cpg_number)));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(outputBedRegionFolderName +
+				String.format("CpGIslandsRegions_selected_%d_%d.bed", coverage_threshold, min_cpg_number)));
 
 		File inputFolder = new File(inputFolderName);
 		if (!inputFolder.isDirectory()) {
@@ -51,6 +51,7 @@ public class RegionCoverage {
 		}
 
 		File[] inputFiles = inputFolder.listFiles();
+		assert inputFiles != null;
 		for (File inputFile : inputFiles) {
 			if (inputFile.getName().startsWith(prefix) && !inputFile.getName().endsWith(".aligned")) {
 				//System.out.println(inputFile.getName());
@@ -61,7 +62,7 @@ public class RegionCoverage {
 		writer.close();
 		System.out.printf("total count:%d\tqualifiedCount:%d\n", count, qualifiedCount);
 		System.out.printf("bps passed coverage threshold:%d\ttotal length:%d\t%.2f\n", bpsPassedCoverageThreshold,
-						  totalLength, bpsPassedCoverageThreshold / (double) totalLength);
+				totalLength, bpsPassedCoverageThreshold / (double) totalLength);
 	}
 
 	private static void selectHighCoverageRegion(RefChr refChr, File inputFile, BufferedWriter writer, String prefix,
@@ -100,7 +101,7 @@ public class RegionCoverage {
 			}
 		}
 
-		int nextTrue = -1;
+		int nextTrue;
 		int nextFalse = -1;
 		while ((nextTrue = bitSet.nextSetBit(nextFalse + 1)) != -1) {
 			if ((nextFalse = bitSet.nextClearBit(nextTrue + 1)) != -1) {
@@ -114,9 +115,9 @@ public class RegionCoverage {
 				}
 				count++;
 			} else {
-				int cpgCount = StringUtils.countMatches(
-						refChr.getRefString().substring(regionStart + nextTrue + regionStart,
-														regionStart + nextFalse - 1 + regionStart), "CG");
+				int cpgCount = StringUtils.countMatches(refChr.getRefString()
+								.substring(regionStart + nextTrue + regionStart,
+										regionStart + nextFalse - 1 + regionStart), "CG");
 				if (cpgCount >= min_cpg_number) {
 					System.out.printf("region:%d-%d\n", nextTrue, regionEnd);
 					writer.write(String.format("%s\t%d\t%d\t%s\n", refChr.getChr(), nextTrue, regionEnd, cpgCount));

@@ -5,25 +5,25 @@ package edu.cwru.cbc.ASM.commons.DataType;
  * Base class of Genomic interval.
  */
 public class GenomicIntervalBase {
-    protected String chr;
-    protected int start;
-    protected int end;
+	protected String chr;
+	protected int start;
+	protected int end;
 
-    public GenomicIntervalBase(String chr, int start, int end) {
-        this.chr = chr;
-        this.start = start;
-        this.end = end;
-    }
+	public GenomicIntervalBase(String chr, int start, int end) {
+		this.chr = chr;
+		this.start = start;
+		this.end = end;
+	}
 
-    public String getChr() {
-        return chr;
-    }
+	public String getChr() {
+		return chr;
+	}
 
-    public int getStart() {
-        return start;
-    }
+	public int getStart() {
+		return start;
+	}
 
-    public int getEnd() {
-        return end;
-    }
+	public int getEnd() {
+		return end;
+	}
 }

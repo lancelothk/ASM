@@ -13,7 +13,7 @@ public class RefCpG implements Comparable<RefCpG> {
 	private List<CpG> cpGList;
 	private int methylCount;
 	private int coveredCount;
-    private double p_value = -1;
+	private double p_value = -1;
 
 	public RefCpG(int pos) {
 		this.pos = pos;
@@ -31,16 +31,16 @@ public class RefCpG implements Comparable<RefCpG> {
 		}
 	}
 
-    public double getP_value() {
-        return p_value;
-    }
+	public double getP_value() {
+		return p_value;
+	}
 
-    public void setP_value(double p_value) {
-        this.p_value = p_value;
-    }
+	public void setP_value(double p_value) {
+		this.p_value = p_value;
+	}
 
-    /**
-     * check if parameter RefCpG have shared reads  with current RefCpG *
+	/**
+	 * check if parameter RefCpG have shared reads  with current RefCpG *
 	 */
 	public boolean hasCommonRead(RefCpG next) {
 		for (CpG cCpg : this.getCpGList()) {
@@ -53,8 +53,8 @@ public class RefCpG implements Comparable<RefCpG> {
 		return false;
 	}
 
-	public int getPos() {
-		return pos;
+	public List<CpG> getCpGList() {
+		return cpGList;
 	}
 
 	public void assignIndex(int order) {
@@ -74,21 +74,17 @@ public class RefCpG implements Comparable<RefCpG> {
 	}
 
 	public boolean hasPartialMethyl() {
-        double m = 0, n = 0;
-        for (CpG cpG : cpGList) {
+		double m = 0, n = 0;
+		for (CpG cpG : cpGList) {
 			if (cpG.getMethylStatus() == MethylStatus.C) {
 				m++;
 			} else if (cpG.getMethylStatus() == MethylStatus.T) {
 				n++;
 			}
 		}
-        double rate = m > n ? n / m : m / n;
-        return rate >= 0.1;
-//        return m != 0 && n != 0;
-    }
-
-	public List<CpG> getCpGList() {
-		return cpGList;
+		double rate = m > n ? n / m : m / n;
+		return rate >= 0.1;
+		//        return m != 0 && n != 0;
 	}
 
 	public void addMethylCount(int count) {
@@ -130,5 +126,9 @@ public class RefCpG implements Comparable<RefCpG> {
 	@Override
 	public int compareTo(RefCpG o) {
 		return this.getPos() - o.getPos();
+	}
+
+	public int getPos() {
+		return pos;
 	}
 }

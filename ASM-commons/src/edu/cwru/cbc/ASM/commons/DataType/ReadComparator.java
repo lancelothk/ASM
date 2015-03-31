@@ -13,9 +13,9 @@ public class ReadComparator implements Comparator<MappedRead> {
 			return 1;
 		} else if (r1.getEnd() < r2.getEnd()) {
 			return -1;
-        } else if (r1.getEnd() > r2.getEnd()) {
-            return 1;
-        } else {
+		} else if (r1.getEnd() > r2.getEnd()) {
+			return 1;
+		} else {
 			return 0;
 		}
 	}

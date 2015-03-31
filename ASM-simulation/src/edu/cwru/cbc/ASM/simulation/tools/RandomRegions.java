@@ -16,15 +16,15 @@ import java.util.Random;
  */
 public class RandomRegions {
 	public static void main(String[] args) throws IOException {
-        String currUserHome = System.getProperty("user.home");
-        String inputFile = currUserHome +
-                "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.bed";
+		String currUserHome = System.getProperty("user.home");
+		String inputFile = currUserHome +
+				"/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.bed";
 
 		Random rand = new Random();
-		List<GenomicInterval> regionList = CommonsUtils.readBedRegions(inputFile);
+		List<GenomicInterval> regionList = CommonsUtils.readSingleChromBedRegions(inputFile);
 		int numberOfSelection = 100;
 		List<GenomicInterval> selection = new ArrayList<>();
-		for (int i = 0; selection.size() != numberOfSelection; i++) {
+		while (selection.size() != numberOfSelection) {
 			GenomicInterval genomicInterval = regionList.get(rand.nextInt(regionList.size()));
 			if (!selection.contains(genomicInterval)) {
 				selection.add(genomicInterval);
@@ -32,7 +32,8 @@ public class RandomRegions {
 		}
 
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile.replace(".bed", "") + "_selection" + ".bed"));
+		BufferedWriter writer = new BufferedWriter(
+				new FileWriter(inputFile.replace(".bed", "") + "_selection" + ".bed"));
 		for (GenomicInterval genomicInterval : selection) {
 			writer.write(genomicInterval.toBedString() + "\n");
 		}

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 /**
  * Created by kehu on 3/23/15.
+ * Used to calculate overlapped region length
  */
 public class OverlappedRegionLength {
     public static void main(String[] args) throws IOException {

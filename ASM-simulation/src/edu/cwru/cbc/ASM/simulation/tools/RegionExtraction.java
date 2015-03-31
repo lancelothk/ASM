@@ -28,7 +28,7 @@ public class RegionExtraction {
             int end = Integer.parseInt(items[2]);
             BufferedWriter writer = new BufferedWriter(new FileWriter(
                     String.format("/home/kehu/experiments/ASM/simulation/CpGIslandsRegions/i90_r1_chr20_%d-%d", start,
-                                  end)));
+                            end)));
 
             for (String read : lines) {
                 items = read.split("\t");
