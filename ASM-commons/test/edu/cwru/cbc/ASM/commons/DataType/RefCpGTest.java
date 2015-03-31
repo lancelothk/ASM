@@ -1,6 +1,6 @@
 package edu.cwru.cbc.ASM.commons.DataType;
 
-import edu.cwru.cbc.ASM.commons.ReflectionUtils.ReflectionUtils;
+import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 

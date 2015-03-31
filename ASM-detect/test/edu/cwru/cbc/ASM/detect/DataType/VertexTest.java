@@ -1,10 +1,10 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.detect.DataType;
 
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
-import edu.cwru.cbc.ASM.commons.ReflectionUtils.ReflectionUtils;
+import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import org.junit.Before;
 
 import java.util.ArrayList;

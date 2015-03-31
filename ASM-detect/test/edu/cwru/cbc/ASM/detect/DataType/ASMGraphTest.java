@@ -1,12 +1,12 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.detect.DataType;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
-import edu.cwru.cbc.ASM.commons.ReflectionUtils.ReflectionUtils;
-import edu.cwru.cbc.ASM.detect.WithMappedRead.DetectionUtils;
+import edu.cwru.cbc.ASM.commons.ReflectionUtils;
+import edu.cwru.cbc.ASM.detect.DetectionUtils;
 import org.junit.Test;
 
 import java.io.File;

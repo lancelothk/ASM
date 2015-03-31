@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.detect.DataType;
 
 /**
  * Created by lancelothk on 5/14/14.
@@ -20,6 +20,13 @@ public class Edge {
         this.right = right;
         this.weight = weight;
         calcId();
+    }
+
+    private String calcId() {
+        // smaller id first
+        this.id = left.getId().compareTo(right.getId()) < 0 ?
+                left.getId() + "-" + right.getId() : right.getId() + "-" + left.getId();
+        return id;
     }
 
     public void replaceVertex(Vertex oldVertex, Vertex newVertex) {
@@ -64,12 +71,5 @@ public class Edge {
 
     public String getUniqueId() {
         return id == null ? calcId() : id;
-    }
-
-    private String calcId() {
-        // smaller id first
-        this.id = left.getId().compareTo(right.getId()) < 0 ?
-                left.getId() + "-" + right.getId() : right.getId() + "-" + left.getId();
-        return id;
     }
 }

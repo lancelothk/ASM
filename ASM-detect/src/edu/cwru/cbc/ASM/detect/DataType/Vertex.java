@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.detect.DataType;
 
 import edu.cwru.cbc.ASM.commons.DataType.CpG;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;

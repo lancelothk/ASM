@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead;
+package edu.cwru.cbc.ASM.detect;
 
 import org.apache.commons.lang3.StringUtils;
 

@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.detect.DataType;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;

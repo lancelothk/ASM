@@ -6,22 +6,23 @@ package edu.cwru.cbc.ASM.commons.DataType;
  */
 public class RefChr {
     private String chr;
-    private String ref;
+    private String refString;
 
     /**
      * @param refString should be upperCase string and without space in it.
      */
     public RefChr(String chr, String refString) {
         this.chr = chr;
-        this.ref = refString;
+        this.refString = refString;
     }
 
     public String getChr() {
         return chr;
     }
 
+    // The refString is in upper case.
     public String getRefString() {
-        return ref;
+        return refString;
     }
 
     public int getStart() {
@@ -29,6 +30,6 @@ public class RefChr {
     }
 
     public int getEnd() {
-        return ref.length() - 1;
+        return refString.length() - 1;
     }
 }

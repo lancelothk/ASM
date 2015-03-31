@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead;
+package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -8,7 +8,7 @@ import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
 import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
-import edu.cwru.cbc.ASM.detect.WithMappedRead.DataType.*;
+import edu.cwru.cbc.ASM.detect.DataType.*;
 import edu.cwru.cbc.ASM.visualization.ReadsVisualization;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -163,16 +163,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
         summaryWriter.close();
     }
 
-    private void extractIntervalPosition(File inputFile) {
-        String[] items = inputFile.getName().split("-");
-        if (items.length != 3) {
-            throw new RuntimeException("invalid input file name format!\t" + inputFile.getName());
-        }
-        chr = items[0];
-        startPos = Integer.parseInt(items[1]);
-        endPos = Integer.parseInt(items[2]);
-    }
-
     public IntervalDetectionSummary call() throws Exception {
         extractIntervalPosition(inputFile);
 
@@ -218,26 +208,44 @@ public class Detection implements Callable<IntervalDetectionSummary> {
                         .size(), "<label>");
     }
 
-    private double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
-        double minP = Double.MAX_VALUE;
-        for (RefCpG refCpG : twoClusterRefCpGList) {
-            if (minP > refCpG.getP_value()) {
-                minP = refCpG.getP_value();
-            }
+    private void extractIntervalPosition(File inputFile) {
+        String[] items = inputFile.getName().split("-");
+        if (items.length != 3) {
+            throw new RuntimeException("invalid input file name format!\t" + inputFile.getName());
         }
-        return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
+        chr = items[0];
+        startPos = Integer.parseInt(items[1]);
+        endPos = Integer.parseInt(items[2]);
     }
 
-    private double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {
-        double regionP;
-        double z = 0;
-        NormalDistribution stdNorm = new NormalDistribution(0, 1);
-        for (RefCpG refCpG : twoClusterRefCpGList) {
-            z += stdNorm.inverseCumulativeProbability(1 - refCpG.getP_value());
+    private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
+        return refCpGList.stream()
+                .filter(refCpG -> clusterRefCpGMap.containsKey(refCpG.getPos()))
+                .filter(refCpG -> clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2)
+                .collect(Collectors.toList());
+    }
+
+    private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
+        if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
+            for (RefCpG refCpG : twoClusterRefCpGList) {
+                assert refCpG.getCpGCoverage() == 2;
+                int j = 0;
+                int[][] matrix = new int[2][2];
+                for (Vertex vertex : graph.getClusterResult().values()) {
+                    if (vertex.getRefCpGMap().containsKey(refCpG.getPos())) {
+                        matrix[j][0] = vertex.getRefCpGMap().get(refCpG.getPos()).getMethylCount();
+                        matrix[j][1] = vertex.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount();
+                        j++;
+                    }
+                }
+                double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
+                        matrix[1][1])[0];  // [0] is two tail test.
+                refCpG.setP_value(fisher_P);
+            }
+            return true;
+        } else {
+            return false;
         }
-        z /= Math.sqrt(twoClusterRefCpGList.size());
-        regionP = 1 - stdNorm.cumulativeProbability(z);
-        return regionP;
     }
 
     private double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
@@ -270,6 +278,42 @@ public class Detection implements Callable<IntervalDetectionSummary> {
         groupResultWriter.close();
 
         return sum / graph.getClusterRefCpGMap().size();
+    }
+
+    private double calcErrorProbability(Collection<Vertex> clusterResult, List<RefCpG> twoClusterRefCpGList) {
+        double p;
+        switch (clusterResult.size()) {
+            case 1:
+                p = -1; // one cluster case
+                break;
+            case 2:
+                List<Vertex> clusterResultList = clusterResult.stream().collect(Collectors.toList());
+                clusterResultList.sort(
+                        (Vertex v1, Vertex v2) -> v1.getMappedReadList().size() - v2.getMappedReadList().size());
+                Vertex minorityCluster = clusterResultList.get(0);
+                Vertex majorityCluster = clusterResultList.get(1);
+
+                // overlapped CpG < GlobalParameter.MIN_INTERVAL_CPG
+                if (twoClusterRefCpGList.size() < this.min_interval_cpg) {
+                    p = -3;
+                } else {
+                    p = EPCaluculation_average_combine(minorityCluster, majorityCluster, twoClusterRefCpGList);
+                }
+                break;
+            default:
+                p = -2; // more than 2 clusters
+        }
+        return p;
+    }
+
+    private int getFisherTestCount(List<RefCpG> twoClusterRefCpGList) {
+        int testCount = 0;
+        for (RefCpG refCpG : twoClusterRefCpGList) {
+            if (refCpG.getP_value() <= this.fisher_p_threshold) {
+                testCount++;
+            }
+        }
+        return testCount;
     }
 
     private double printRefCpGGroupCoverage(List<RefCpG> refCpGList, ASMGraph graph,
@@ -347,72 +391,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
         }
     }
 
-    private int getFisherTestCount(List<RefCpG> twoClusterRefCpGList) {
-        int testCount = 0;
-        for (RefCpG refCpG : twoClusterRefCpGList) {
-            if (refCpG.getP_value() <= this.fisher_p_threshold) {
-                testCount++;
-            }
-        }
-        return testCount;
-    }
-
-    private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
-        if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
-            for (RefCpG refCpG : twoClusterRefCpGList) {
-                assert refCpG.getCpGCoverage() == 2;
-                int j = 0;
-                int[][] matrix = new int[2][2];
-                for (Vertex vertex : graph.getClusterResult().values()) {
-                    if (vertex.getRefCpGMap().containsKey(refCpG.getPos())) {
-                        matrix[j][0] = vertex.getRefCpGMap().get(refCpG.getPos()).getMethylCount();
-                        matrix[j][1] = vertex.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount();
-                        j++;
-                    }
-                }
-                double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
-                        matrix[1][1])[0];  // [0] is two tail test.
-                refCpG.setP_value(fisher_P);
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private double calcErrorProbability(Collection<Vertex> clusterResult, List<RefCpG> twoClusterRefCpGList) {
-        double p;
-        switch (clusterResult.size()) {
-            case 1:
-                p = -1; // one cluster case
-                break;
-            case 2:
-                List<Vertex> clusterResultList = clusterResult.stream().collect(Collectors.toList());
-                clusterResultList.sort(
-                        (Vertex v1, Vertex v2) -> v1.getMappedReadList().size() - v2.getMappedReadList().size());
-                Vertex minorityCluster = clusterResultList.get(0);
-                Vertex majorityCluster = clusterResultList.get(1);
-
-                // overlapped CpG < GlobalParameter.MIN_INTERVAL_CPG
-                if (twoClusterRefCpGList.size() < this.min_interval_cpg) {
-                    p = -3;
-                } else {
-                    p = EPCaluculation_average_combine(minorityCluster, majorityCluster, twoClusterRefCpGList);
-                }
-                break;
-            default:
-                p = -2; // more than 2 clusters
-        }
-        return p;
-    }
-
-    private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
-        return refCpGList.stream()
-                .filter(refCpG -> clusterRefCpGMap.containsKey(refCpG.getPos()))
-                .filter(refCpG -> clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2)
-                .collect(Collectors.toList());
-    }
-
     private double EPCaluculation_average_combine(Vertex minorityCluster, Vertex majorityCluster,
             List<RefCpG> twoClusterRefCpGList) {
         double p = 0;
@@ -429,5 +407,27 @@ public class Detection implements Callable<IntervalDetectionSummary> {
         }
         p /= twoClusterRefCpGList.size();
         return p;
+    }
+
+    private double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
+        double minP = Double.MAX_VALUE;
+        for (RefCpG refCpG : twoClusterRefCpGList) {
+            if (minP > refCpG.getP_value()) {
+                minP = refCpG.getP_value();
+            }
+        }
+        return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
+    }
+
+    private double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {
+        double regionP;
+        double z = 0;
+        NormalDistribution stdNorm = new NormalDistribution(0, 1);
+        for (RefCpG refCpG : twoClusterRefCpGList) {
+            z += stdNorm.inverseCumulativeProbability(1 - refCpG.getP_value());
+        }
+        z /= Math.sqrt(twoClusterRefCpGList.size());
+        regionP = 1 - stdNorm.cumulativeProbability(z);
+        return regionP;
     }
 }

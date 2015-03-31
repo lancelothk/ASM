@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead.DataType;
+package edu.cwru.cbc.ASM.detect.DataType;
 
 import java.util.HashSet;
 import java.util.Set;

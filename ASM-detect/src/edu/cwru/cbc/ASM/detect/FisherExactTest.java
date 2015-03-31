@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.detect.WithMappedRead;
+package edu.cwru.cbc.ASM.detect;
 
 import org.apache.commons.math3.special.Gamma;
 
@@ -73,6 +73,15 @@ public class FisherExactTest {
         return result;
     }
 
+    protected static double hypergeometricProbability(int x, int n1d, int n2d, int nd1, int nd2) {
+        int n3 = nd1 - x;
+        int ndd = nd1 + nd2;
+
+        double sum = logCombination(n1d, x) + logCombination(n2d, n3) - logCombination(ndd, nd1);
+
+        return Math.exp(sum);
+    }
+
     /**
      * Compute log of number of combinations of n things taken k at a time.
      *
@@ -90,15 +99,6 @@ public class FisherExactTest {
         return logFactorial(n) -
                 logFactorial(k) -
                 logFactorial(n - k);
-    }
-
-    protected static double hypergeometricProbability(int x, int n1d, int n2d, int nd1, int nd2) {
-        int n3 = nd1 - x;
-        int ndd = nd1 + nd2;
-
-        double sum = logCombination(n1d, x) + logCombination(n2d, n3) - logCombination(ndd, nd1);
-
-        return Math.exp(sum);
     }
 
     /**

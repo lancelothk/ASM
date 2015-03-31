@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.commons.ReflectionUtils;
+package edu.cwru.cbc.ASM.commons;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

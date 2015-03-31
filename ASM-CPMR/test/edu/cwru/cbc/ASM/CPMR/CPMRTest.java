@@ -1,12 +1,7 @@
 package edu.cwru.cbc.ASM.CPMR;
 
-import edu.cwru.cbc.ASM.commons.ReflectionUtils.ReflectionUtils;
+import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 public class CPMRTest {
 
