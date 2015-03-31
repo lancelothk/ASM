@@ -10,7 +10,10 @@ import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by kehu on 11/13/14.
@@ -52,6 +55,9 @@ public class CommonsUtils {
 				if (s.startsWith(">")) {
 					chr = s.substring(1, s.length());
 				} else {
+					if (Pattern.compile("[^ACGTNacgtn]").matcher(s).find()) {
+						throw new RuntimeException("invalid character in sequence! only acgtn/ACGTN are allowed!");
+					}
 					referenceBuilder.append(s.replaceAll(" ", "").toUpperCase());
 				}
 				return true;
@@ -67,73 +73,81 @@ public class CommonsUtils {
 		});
 	}
 
-	public static List<GenomicInterval> readBedRegions(String bedFileName) throws IOException {
+	/**
+	 * read bed format regions.
+	 * Only include first 4 columns: chr, start, end, name.
+	 */
+	public static Map<String, List<GenomicInterval>> readBedRegions(String bedFileName) throws IOException {
 		return readBedRegions(bedFileName, false);
 	}
 
 	/**
-	 * read bed format regions
-	 *
-	 * @param bedFileName name of the input file
-	 * @param readLabel   if read the label of the region
-	 * @return list of bed regions
-	 * @throws IOException
+	 * read bed format regions.
+	 * Only include first 4 columns: chr, start, end, name.
+	 * And the last column label if readLabel is true.
 	 */
-	public static List<GenomicInterval> readBedRegions(String bedFileName, boolean readLabel) throws IOException {
-		return Files.readLines(new File(bedFileName), Charsets.UTF_8, new LineProcessor<List<GenomicInterval>>() {
-			private List<GenomicInterval> genomicIntervalList = new ArrayList<>();
+	public static Map<String, List<GenomicInterval>> readBedRegions(String bedFileName,
+																	boolean readLabel) throws IOException {
+		return Files.readLines(new File(bedFileName), Charsets.UTF_8,
+				new LineProcessor<Map<String, List<GenomicInterval>>>() {
+					private Map<String, List<GenomicInterval>> genomicIntervalMap = new HashMap<>();
 
-			@Override
-			public boolean processLine(String line) throws IOException {
-				String[] items = line.split("\t");
-				if (items[0].equals("chr") || line.equals("")) {
-					// skip column name
-					return true;
-				}
-				if (readLabel) {
-					boolean isPositive;
-					switch (line.charAt(line.length() - 1)) {
-						case '+':
-							isPositive = true;
-							break;
-						case '-':
-							isPositive = false;
-							break;
-						case '*':
-							isPositive = false;
-							break;
-						default:
-							throw new RuntimeException("invalid label!\t" + line);
+					@Override
+					public boolean processLine(String line) throws IOException {
+						String[] items = line.split("\t");
+						if (items[0].equals("chr") || line.equals("")) {
+							// skip column name
+							return true;
+						}
+						if (readLabel) {
+							boolean isPositive;
+							switch (line.charAt(line.length() - 1)) {
+								case '+':
+									isPositive = true;
+									break;
+								case '-':
+									isPositive = false;
+									break;
+								case '*':
+									isPositive = false;
+									break;
+								default:
+									throw new RuntimeException("invalid label!\t" + line);
+							}
+							addRegionToList(new GenomicInterval(items[0], Integer.parseInt(items[1]),
+									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
+						} else {
+							addRegionToList(new GenomicInterval(items[0], Integer.parseInt(items[1]),
+									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
+						}
+						return true;
 					}
-					addRegionToList(
-							new GenomicInterval(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
-									items[3], isPositive), genomicIntervalList);
-				} else {
-					addRegionToList(
-							new GenomicInterval(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]),
-									items[3]), genomicIntervalList);
-				}
-				// TODO make sure all regions are from same chromosome
-				return true;
-			}
 
-			@Override
-			public List<GenomicInterval> getResult() {
-				return genomicIntervalList;
-			}
-		});
+					@Override
+					public Map<String, List<GenomicInterval>> getResult() {
+						return genomicIntervalMap;
+					}
+				});
 	}
 
-	private static void addRegionToList(GenomicInterval newRegion, List<GenomicInterval> genomicIntervalList) {
-		if (!hasOverlap(newRegion, genomicIntervalList)) {
-			// 0: chr 1: start 2: end
-			genomicIntervalList.add(newRegion);
+	private static void addRegionToList(GenomicInterval newRegion,
+										Map<String, List<GenomicInterval>> genomicIntervalMap) {
+		if (genomicIntervalMap.containsKey(newRegion.getChr())) {
+			if (!hasOverlap(newRegion, genomicIntervalMap)) {
+				genomicIntervalMap.get(newRegion.getChr()).add(newRegion);
+			} else {
+				throw new RuntimeException("Regions have overlap!");
+			}
 		} else {
-			throw new RuntimeException("Regions have overlap!");
+			List<GenomicInterval> genomicIntervalList = new ArrayList<>();
+			genomicIntervalList.add(newRegion);
+			genomicIntervalMap.put(newRegion.getChr(), genomicIntervalList);
 		}
 	}
 
-	private static boolean hasOverlap(GenomicInterval region, List<GenomicInterval> regionList) {
-		return regionList.stream().anyMatch(r -> region.getStart() <= r.getEnd() && region.getEnd() >= r.getStart());
+	private static boolean hasOverlap(GenomicInterval region, Map<String, List<GenomicInterval>> genomicIntervalMap) {
+		return genomicIntervalMap.get(region.getChr())
+				.stream()
+				.anyMatch(r -> region.getStart() <= r.getEnd() && region.getEnd() >= r.getStart());
 	}
 }
