@@ -13,22 +13,19 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e143c304-554b-4089-b41b-fc68d6fd9e70" name="Default" comment="exclude single cluster as -1 score.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dictionaries/kehu.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dictionaries/lancelothk.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMRUtils.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java" />
+    <list default="true" id="e143c304-554b-4089-b41b-fc68d6fd9e70" name="Default" comment="refactor CPMR.&#10;add .idea back to git repository.">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/test/edu/cwru/cbc/ASM/CPMR/CPMRTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225501-225799" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225501-225799.aligned" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225518-225607.aligned" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225518-225607.template" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225722-225723.template" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-intervalSummary_4_2_5.template" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/i90_r1_chr20.225400_225900.test.fa" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/i90_r1_chr20.225500_225800.test" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/i90_r1_chr20.225500_225800.test.aligned" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/test.log.template" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ASM.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -200,31 +197,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CPMR.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="CPMR.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="89" column="87" selection-start-line="89" selection-start-column="68" selection-end-line="89" selection-end-column="87" />
+            <state vertical-scroll-proportion="0.2556213">
+              <caret line="43" column="41" selection-start-line="43" selection-start-column="41" selection-end-line="43" selection-end-column="41" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CPMRTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-CPMR/test/edu/cwru/cbc/ASM/CPMR/CPMRTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RefCpG.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="RefCpG.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.32149202">
-              <caret line="88" column="43" selection-start-line="88" selection-start-column="43" selection-end-line="88" selection-end-column="43" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -265,7 +252,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/RegionCoverage.java" />
         <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/RandomRegions.java" />
         <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/visulization/ReadsVisualization.java" />
         <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Simulation.java" />
@@ -316,6 +302,7 @@
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMRUtils.java" />
         <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" />
+        <option value="$PROJECT_DIR$/ASM-CPMR/test/edu/cwru/cbc/ASM/CPMR/CPMRTest.java" />
       </list>
     </option>
   </component>
@@ -592,58 +579,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-CPMR" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-CPMR" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-CPMR" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="CPMR" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-commons" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
     </panes>
@@ -913,14 +848,15 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3262032" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3275401" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3275401" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32457143" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32457143" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32984293" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30371568" sideWeight="0.496" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.30371568" sideWeight="0.496" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959612" sideWeight="0.5" order="7" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3279483" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -936,7 +872,6 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959612" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47047496" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" x="304" y="129" width="1382" height="784" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3275401" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39973262" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32714054" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5623003" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
@@ -992,7 +927,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="added IntersectRetions" />
     <MESSAGE value="write simulated pattern out." />
     <MESSAGE value="add fisher exact test." />
     <MESSAGE value="removed mww test and unused errorProbability calculation methods" />
@@ -1017,7 +951,8 @@
     <MESSAGE value="refactor readBedRegions and add test for it.&#10;Tests for commonUtils are still need revise and add more test cases." />
     <MESSAGE value="reformat and fix warning.&#10;Refactor readBedRegions" />
     <MESSAGE value="exclude single cluster as -1 score." />
-    <option name="LAST_COMMIT_MESSAGE" value="exclude single cluster as -1 score." />
+    <MESSAGE value="refactor CPMR.&#10;add .idea back to git repository." />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor CPMR.&#10;add .idea back to git repository." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1435,14 +1370,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/test/edu/cwru/cbc/ASM/CPMR/CPMRTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/RefCpGTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1451,18 +1378,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="89" column="87" selection-start-line="89" selection-start-column="68" selection-end-line="89" selection-end-column="87" />
+          <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.32149202">
-          <caret line="88" column="43" selection-start-line="88" selection-start-column="43" selection-end-line="88" selection-end-column="43" />
+        <state vertical-scroll-proportion="0.2556213">
+          <caret line="43" column="41" selection-start-line="43" selection-start-column="41" selection-end-line="43" selection-end-column="41" />
           <folding />
         </state>
       </provider>
