@@ -84,7 +84,6 @@ public class RefCpG implements Comparable<RefCpG> {
 		}
 		double rate = m > n ? n / m : m / n;
 		return rate >= 0.1;
-		//        return m != 0 && n != 0;
 	}
 
 	public void addMethylCount(int count) {
