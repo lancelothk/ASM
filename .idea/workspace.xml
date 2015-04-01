@@ -13,18 +13,10 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e143c304-554b-4089-b41b-fc68d6fd9e70" name="Default" comment="refactor CPMR.&#10;add .idea back to git repository.">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/test/edu/cwru/cbc/ASM/CPMR/CPMRTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225501-225799" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225501-225799.aligned" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225518-225607.aligned" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225518-225607.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-225722-225723.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/chr20_225400_225900-intervalSummary_4_2_5.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/i90_r1_chr20.225400_225900.test.fa" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/i90_r1_chr20.225500_225800.test" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/i90_r1_chr20.225500_225800.test.aligned" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ASM-CPMR/testData/test.log.template" afterPath="" />
+    <list default="true" id="e143c304-554b-4089-b41b-fc68d6fd9e70" name="Default" comment="it is hard to unit test CPMR. delete previous test.">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/FisherExactTest.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/FisherExactTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ASM.iws" />
@@ -197,31 +189,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CPMR.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+      <file leaf-file-name="Detection.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2556213">
-              <caret line="43" column="41" selection-start-line="43" selection-start-column="41" selection-end-line="43" selection-end-column="41" />
+            <state vertical-scroll-proportion="0.49112427">
+              <caret line="343" column="50" selection-start-line="343" selection-start-column="50" selection-end-line="343" selection-end-column="50" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RefCpG.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
+      <file leaf-file-name="ASMGraph.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ASMGraph.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RefCpGTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/RefCpGTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="67" column="53" selection-start-line="67" selection-start-column="53" selection-end-line="67" selection-end-column="53" />
+              <caret line="47" column="49" selection-start-line="47" selection-start-column="49" selection-end-line="47" selection-end-column="49" />
               <folding />
             </state>
           </provider>
@@ -284,9 +266,6 @@
         <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java" />
         <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/OverlappedRegionLength.java" />
         <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RandomRegions.java" />
-        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" />
-        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" />
-        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/FisherExactTest.java" />
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/Vertex.java" />
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/IntervalDetectionSummary.java" />
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/GroupResult.java" />
@@ -303,6 +282,9 @@
         <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java" />
         <option value="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" />
         <option value="$PROJECT_DIR$/ASM-CPMR/test/edu/cwru/cbc/ASM/CPMR/CPMRTest.java" />
+        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/FisherExactTest.java" />
+        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" />
+        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" />
       </list>
     </option>
   </component>
@@ -531,26 +513,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-visualization" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-tools" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="ASM-simulation" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -575,7 +537,133 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-simulation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="simulation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
               <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-simulation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="simulation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="testData" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DataType" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="detect" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DataType" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -927,7 +1015,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="write simulated pattern out." />
     <MESSAGE value="add fisher exact test." />
     <MESSAGE value="removed mww test and unused errorProbability calculation methods" />
     <MESSAGE value="add regionP calculation" />
@@ -952,7 +1039,8 @@
     <MESSAGE value="reformat and fix warning.&#10;Refactor readBedRegions" />
     <MESSAGE value="exclude single cluster as -1 score." />
     <MESSAGE value="refactor CPMR.&#10;add .idea back to git repository." />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor CPMR.&#10;add .idea back to git repository." />
+    <MESSAGE value="it is hard to unit test CPMR. delete previous test." />
+    <option name="LAST_COMMIT_MESSAGE" value="it is hard to unit test CPMR. delete previous test." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1286,13 +1374,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-visualization/src/edu/cwru/cbc/ASM/visualization/ReadsVisualization.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="73" column="50" selection-start-line="73" selection-start-column="50" selection-end-line="73" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MRToMappedRead.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1311,13 +1392,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.15">
           <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="4.725">
-          <caret line="208" column="42" selection-start-line="208" selection-start-column="42" selection-end-line="208" selection-end-column="42" />
         </state>
       </provider>
     </entry>
@@ -1378,18 +1452,98 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2556213">
+          <caret line="43" column="41" selection-start-line="43" selection-start-column="41" selection-end-line="43" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="0.7254438">
           <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/FisherExactTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2556213">
-          <caret line="43" column="41" selection-start-line="43" selection-start-column="41" selection-end-line="43" selection-end-column="41" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="54" column="4" selection-start-line="54" selection-start-column="4" selection-end-line="54" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ClusterRefCpG.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-visualization/src/edu/cwru/cbc/ASM/visualization/ReadsVisualization.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5313609">
+          <caret line="73" column="50" selection-start-line="73" selection-start-column="50" selection-end-line="73" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="3.0899408">
+          <caret line="203" column="24" selection-start-line="203" selection-start-column="24" selection-end-line="203" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/Vertex.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1704142">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/IntervalDetectionSummary.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.19171597">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/GroupResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1704142">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ASMGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="47" column="49" selection-start-line="47" selection-start-column="49" selection-end-line="47" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.49112427">
+          <caret line="343" column="50" selection-start-line="343" selection-start-column="50" selection-end-line="343" selection-end-column="50" />
           <folding />
         </state>
       </provider>

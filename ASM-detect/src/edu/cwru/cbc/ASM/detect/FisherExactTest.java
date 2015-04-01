@@ -25,27 +25,23 @@ public class FisherExactTest {
 		int c = Math.abs(n21);
 		int d = Math.abs(n22);
 
-		//	Compute parameters for hypergeometric
-		//	distribution.
+		//	Compute parameters for hypergeometric distribution.
 		int r = a + b;
 		int s = c + d;
 		int m = a + c;
 		int n = b + d;
-								/*	Get range of variation. */
+		/*	Get range of variation. */
 
 		int lm = (0 > m - s) ? 0 : m - s;
 		int um = (m < r) ? m : r;
 
-								/*	Probability is 1 if no range of variation. */
+		/*	Probability is 1 if no range of variation. */
 
 		if ((um - lm + 2) == 0) {
 			result[0] = 1.0D;
 			result[1] = 1.0D;
 		} else {
-			//	Compute critical value of
-			//	hypergeometric distribution
-			//	which serves as cut-off when
-			//	computing two-tailed test. *
+			//	Compute critical value of hypergeometric distribution which serves as cut-off when computing two-tailed test.
 
 			double cutoff = hypergeometricProbability(a, r, s, m, n);
 
@@ -75,7 +71,7 @@ public class FisherExactTest {
 		return result;
 	}
 
-	protected static double hypergeometricProbability(int x, int n1d, int n2d, int nd1, int nd2) {
+	private static double hypergeometricProbability(int x, int n1d, int n2d, int nd1, int nd2) {
 		int n3 = nd1 - x;
 		int ndd = nd1 + nd2;
 
@@ -97,7 +93,7 @@ public class FisherExactTest {
 	 * </p>
 	 */
 
-	protected static double logCombination(int n, int k) {
+	private static double logCombination(int n, int k) {
 		return logFactorial(n) -
 				logFactorial(k) -
 				logFactorial(n - k);
@@ -118,7 +114,7 @@ public class FisherExactTest {
 	 * </p>
 	 */
 
-	public static double logFactorial(int n) {
+	private static double logFactorial(int n) {
 		if (n <= 1) {
 			return 0.0D;
 		} else {

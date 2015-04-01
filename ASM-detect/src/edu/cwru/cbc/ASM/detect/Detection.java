@@ -85,29 +85,28 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 								double fisher_p_threshold,
 								double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummary format
-		ImmutableList<Pair<String, String>> elementPairList = new ImmutableList.Builder<Pair<String, String>>().add(
-				new ImmutablePair<>("chr", "%s"))
-				.add(new ImmutablePair<>("startPos", "%d"))
-				.add(new ImmutablePair<>("endPos", "%d"))
-				.add(new ImmutablePair<>("length", "%d"))
-				.add(new ImmutablePair<>("#vertex", "%d"))
-				.add(new ImmutablePair<>("#edge", "%d"))
-				.add(new ImmutablePair<>("#read", "%d"))
-				.add(new ImmutablePair<>("#refCpG", "%d"))
-				.add(new ImmutablePair<>("#clusterCpG", "%d"))
-				.add(new ImmutablePair<>("#cluster", "%d"))
-				.add(new ImmutablePair<>("avgGroupPerCpG", "%f"))
-				.add(new ImmutablePair<>("CpGsum", "%d"))
-				.add(new ImmutablePair<>("MECsum", "%f"))
-				.add(new ImmutablePair<>("NormMEC", "%f"))
-				.add(new ImmutablePair<>("errorProb", "%f"))
-				.add(new ImmutablePair<>("fisherPCount", "%d"))
-				.add(new ImmutablePair<>("regionP", "%.10f"))
-				.add(new ImmutablePair<>("group1", "%d"))
-				.add(new ImmutablePair<>("group2", "%d"))
-				.add(new ImmutablePair<>("label", "%s"))
-				.build();
-		IntervalDetectionSummary.initializeFormat(elementPairList);
+		IntervalDetectionSummary.initializeFormat(
+				new ImmutableList.Builder<Pair<String, String>>().add(new ImmutablePair<>("chr", "%s"))
+						.add(new ImmutablePair<>("startPos", "%d"))
+						.add(new ImmutablePair<>("endPos", "%d"))
+						.add(new ImmutablePair<>("length", "%d"))
+						.add(new ImmutablePair<>("#vertex", "%d"))
+						.add(new ImmutablePair<>("#edge", "%d"))
+						.add(new ImmutablePair<>("#read", "%d"))
+						.add(new ImmutablePair<>("#refCpG", "%d"))
+						.add(new ImmutablePair<>("#clusterCpG", "%d"))
+						.add(new ImmutablePair<>("#cluster", "%d"))
+						.add(new ImmutablePair<>("avgGroupPerCpG", "%f"))
+						.add(new ImmutablePair<>("CpGsum", "%d"))
+						.add(new ImmutablePair<>("MECsum", "%f"))
+						.add(new ImmutablePair<>("NormMEC", "%f"))
+						.add(new ImmutablePair<>("errorProb", "%f"))
+						.add(new ImmutablePair<>("fisherPCount", "%d"))
+						.add(new ImmutablePair<>("regionP", "%.10f"))
+						.add(new ImmutablePair<>("group1", "%d"))
+						.add(new ImmutablePair<>("group2", "%d"))
+						.add(new ImmutablePair<>("label", "%s"))
+						.build());
 
 		File inputFile = new File(inputName);
 		List<IntervalDetectionSummary> resultList = new ArrayList<>();
@@ -145,6 +144,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			resultList.add(intervalDetectionSummaryFuture.get());
 		}
 		executor.shutdown();
+
 		double regionP_threshold = DetectionUtils.getFDRCutoff(resultList.stream()
 				.filter(ids -> ids.getRegionP() != 1)
 				.map(IntervalDetectionSummary::getRegionP)
