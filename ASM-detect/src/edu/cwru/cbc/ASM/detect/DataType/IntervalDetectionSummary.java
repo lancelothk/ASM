@@ -51,6 +51,10 @@ public class IntervalDetectionSummary {
 		return regionP;
 	}
 
+	public void setRegionP(double regionP) {
+		this.regionP = regionP;
+	}
+
 	public String getSummaryString(double region_threshold) {
 		if (elementCount != arguments.length) {
 			throw new RuntimeException(

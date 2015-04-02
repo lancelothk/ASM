@@ -41,17 +41,14 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private int startPos;
 	private int endPos;
 	private int min_interval_cpg;
-	private double fisher_p_threshold;
 
 	/**
 	 * Detection constructor.
 	 *
 	 * @param inputFile          A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
 	 * @param min_interval_cpg   Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
-	 * @param fisher_p_threshold Significant fisher P value threshold.
 	 */
-	public Detection(File inputFile, int min_interval_cpg, double fisher_p_threshold) {
-		this.fisher_p_threshold = fisher_p_threshold;
+	public Detection(File inputFile, int min_interval_cpg) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
 	}
@@ -64,8 +61,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		options.addOption("i", true, "Input intervals folder or interval file name");
 		options.addOption("s", true, "Summary File");
 		options.addOption("mic", true, "Minimum interval cpg number");
-		options.addOption("f", true, "Fisher exact test P threshold");
-		options.addOption("fdr", true, "FDR threshold");
+		options.addOption("f", true, "FDR threshold");
 		options.addOption("t", false, "Thread number to execute the program.");
 
 		CommandLineParser parser = new BasicParser();
@@ -74,15 +70,13 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		String inputPathName = cmd.getOptionValue("i");
 		String summaryFileName = cmd.getOptionValue("s");
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
-		double fisher_p_threshold = Double.valueOf(cmd.getOptionValue("f"));
-		double FDR_threshold = Double.valueOf(cmd.getOptionValue("fdr"));
+		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
-		execute(inputPathName, summaryFileName, threadNumber, min_interval_cpg, fisher_p_threshold, FDR_threshold);
+		execute(inputPathName, summaryFileName, threadNumber, min_interval_cpg, FDR_threshold);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
 	private static void execute(String inputName, String summaryFileName, int threadNumber, int min_interval_cpg,
-								double fisher_p_threshold,
 								double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
@@ -101,7 +95,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("errorProb", "%f"))
-						.add(new ImmutablePair<>("fisherPCount", "%d"))
 						.add(new ImmutablePair<>("regionP", "%.10f"))
 						.add(new ImmutablePair<>("group1", "%d"))
 						.add(new ImmutablePair<>("group2", "%d"))
@@ -123,7 +116,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 								!file.getName().endsWith("test") && !file.getName().endsWith("~") &&
 								!file.getName().endsWith("detected")) {
 							Future<IntervalDetectionSummary> future = executor.submit(
-									new Detection(file, min_interval_cpg, fisher_p_threshold));
+									new Detection(file, min_interval_cpg));
 							futureList.add(future);
 						}
 					} catch (Exception e) {
@@ -133,8 +126,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			}
 		} else {
 			try {
-				Future<IntervalDetectionSummary> future = executor.submit(
-						new Detection(inputFile, min_interval_cpg, fisher_p_threshold));
+				Future<IntervalDetectionSummary> future = executor.submit(new Detection(inputFile, min_interval_cpg));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
@@ -145,8 +137,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		}
 		executor.shutdown();
 
-		double regionP_threshold = DetectionUtils.getFDRCutoff(resultList.stream()
-				.filter(ids -> ids.getRegionP() != 1)
+		//		double regionP_threshold = FDR_threshold/resultList.size();
+		double regionP_threshold = DetectionUtils.getBHYFDRCutoff(
+				resultList.stream().filter(ids -> ids.getRegionP() != -1)
 				.map(IntervalDetectionSummary::getRegionP)
 				.collect(Collectors.toList()), FDR_threshold);
 		System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
@@ -188,8 +181,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		if (fisherTest(graph, twoClusterRefCpGList)) {
 			regionP = calcRegionP_FisherComb(twoClusterRefCpGList);
 		} else {
-			// give 1 if only one cluster
-			regionP = 1;
+			// give -1 if only one cluster
+			regionP = -1;
 		}
 
 		double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
@@ -200,8 +193,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage, graph.getCpGSum(),
 				graph.getMECSum(), graph.getNormMECSum(),
-				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList),
-				getFisherTestCount(twoClusterRefCpGList), regionP,
+				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), regionP,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
 				graph.getClusterResult().values().size() == 1 ? 0 : Iterables.get(graph.getClusterResult().values(), 1)
 						.getMappedReadList()
@@ -240,7 +232,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				}
 				double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
 						matrix[1][1])[0];  // [0] is two tail test.
-				refCpG.setP_value(fisher_P);
+				refCpG.setP_value(DetectionUtils.correctPbyBonferroni(fisher_P, twoClusterRefCpGList.size()));
 			}
 			return true;
 		} else {
@@ -304,16 +296,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				p = -2; // more than 2 clusters
 		}
 		return p;
-	}
-
-	private int getFisherTestCount(List<RefCpG> twoClusterRefCpGList) {
-		int testCount = 0;
-		for (RefCpG refCpG : twoClusterRefCpGList) {
-			if (refCpG.getP_value() <= this.fisher_p_threshold) {
-				testCount++;
-			}
-		}
-		return testCount;
 	}
 
 	private double printRefCpGGroupCoverage(List<RefCpG> refCpGList, ASMGraph graph,
