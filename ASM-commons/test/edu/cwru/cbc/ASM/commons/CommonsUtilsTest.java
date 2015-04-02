@@ -1,15 +1,14 @@
 package edu.cwru.cbc.ASM.commons;
 
 import com.google.common.collect.Ordering;
-import edu.cwru.cbc.ASM.commons.DataType.GenomicInterval;
-import edu.cwru.cbc.ASM.commons.DataType.RefChr;
-import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefChr;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
 
-import static edu.cwru.cbc.ASM.commons.CommonsUtils.*;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.CommonsUtils.readReferenceGenome;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,19 +44,6 @@ public class CommonsUtilsTest {
 		assertEquals("incorrecr ref string", "ACGCAATCGNNNNNNATTGCGACGACGCGACTGNNNACGCGTAACGN", refChr.getRefString());
 		assertEquals("incorrect start position", 0, refChr.getStart());
 		assertEquals("incorrect end position", 46, refChr.getEnd());
-
-		// TODO add error cases.
-	}
-
-	@Test
-	public void testReadBedRegions() throws Exception {
-		String bedWithLabel = "testData/bedWithLabel.bed";
-
-		Map<String, List<GenomicInterval>> bedRegionsWithLabel = readBedRegions(bedWithLabel, true);
-
-		assertEquals("bed region size incorrect!", 11, bedRegionsWithLabel.get("chr20").size());
-		assertEquals("incorrect label!", true, bedRegionsWithLabel.get("chr20").get(0).isPositive());
-
 
 		// TODO add error cases.
 	}

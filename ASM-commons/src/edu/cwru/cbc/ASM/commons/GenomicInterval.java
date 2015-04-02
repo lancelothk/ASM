@@ -1,10 +1,12 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons;
+
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 
 import java.util.*;
 
 /**
  * Created by kehu on 2/12/15.
- * Genomic Region in bed format.
+ * Genomic Region in Bed format.
  */
 public class GenomicInterval extends GenomicIntervalBase implements Comparable<GenomicInterval> {
 	private String name;

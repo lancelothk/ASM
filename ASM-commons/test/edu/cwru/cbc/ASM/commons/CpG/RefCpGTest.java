@@ -1,5 +1,7 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.CpG;
 
+import edu.cwru.cbc.ASM.commons.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import org.junit.Before;
 import org.junit.Test;

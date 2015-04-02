@@ -2,8 +2,15 @@ package edu.cwru.cbc.ASM.simulation;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.Bed.BedUtils;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.DataType.*;
+import edu.cwru.cbc.ASM.commons.CpG.CpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefChr;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -66,7 +73,7 @@ public class Simulation {
 		List<RefCpG> refCpGList = CommonsUtils.extractCpGSite(refChr.getRefString(), 0);
 
 		// read target regions
-		List<GenomicInterval> targetRegionsMap = CommonsUtils.readSingleChromBedRegions(targetRegionFileName);
+		List<GenomicInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);
 		Collections.sort(targetRegionsMap);
 
 		// generate non-ASM regions
@@ -150,7 +157,7 @@ public class Simulation {
 				}
 			}
 		}
-		allRegions.forEach(edu.cwru.cbc.ASM.commons.DataType.GenomicInterval::generateRandomAllelePattern);
+		allRegions.forEach(GenomicInterval::generateRandomAllelePattern);
 	}
 
 	private static void assignMethylStatusForNonASMRegion(List<GenomicInterval> nonASMRegions) {

@@ -1,6 +1,9 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.Read;
 
 import com.google.common.io.LineProcessor;
+import edu.cwru.cbc.ASM.commons.CpG.CpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.MethylStatus;
 
 import java.io.IOException;
 import java.util.ArrayList;

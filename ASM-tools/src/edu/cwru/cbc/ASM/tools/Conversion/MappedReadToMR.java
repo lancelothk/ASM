@@ -3,7 +3,7 @@ package edu.cwru.cbc.ASM.tools.Conversion;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 
 import java.io.BufferedWriter;
 import java.io.File;

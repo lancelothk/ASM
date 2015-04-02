@@ -1,10 +1,10 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
 import com.google.common.collect.Sets;
-import edu.cwru.cbc.ASM.commons.DataType.CpG;
-import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
-import edu.cwru.cbc.ASM.commons.DataType.MethylStatus;
-import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
+import edu.cwru.cbc.ASM.commons.CpG.CpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 
 import java.io.IOException;
 import java.util.*;

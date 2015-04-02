@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.CpG;
 
 /**
  * Created by lancelothk on 5/27/14.

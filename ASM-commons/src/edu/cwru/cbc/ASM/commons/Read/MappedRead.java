@@ -1,6 +1,8 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.Read;
 
 import com.google.common.base.Strings;
+import edu.cwru.cbc.ASM.commons.CpG.CpG;
+import edu.cwru.cbc.ASM.commons.MethylStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;

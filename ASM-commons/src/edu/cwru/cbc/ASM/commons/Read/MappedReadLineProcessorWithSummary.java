@@ -1,4 +1,6 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.Read;
+
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

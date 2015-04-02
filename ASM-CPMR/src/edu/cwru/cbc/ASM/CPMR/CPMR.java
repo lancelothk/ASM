@@ -3,7 +3,11 @@ package edu.cwru.cbc.ASM.CPMR;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.DataType.*;
+import edu.cwru.cbc.ASM.commons.CpG.CpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefChr;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessorWithSummary;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;

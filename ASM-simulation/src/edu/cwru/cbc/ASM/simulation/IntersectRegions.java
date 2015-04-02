@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation;
 
-import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.DataType.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.Bed.BedUtils;
+import edu.cwru.cbc.ASM.commons.GenomicInterval;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -42,10 +42,10 @@ public class IntersectRegions {
 
     private static void twoWayIntersection(String targetFileName, String actualResultFileName,
                                            String expectedResultFileName) throws IOException {
-        List<GenomicInterval> srcRegions = CommonsUtils.readSingleChromBedRegions(targetFileName);
-        List<GenomicInterval> dstRegions = CommonsUtils.readSingleChromBedRegions(actualResultFileName);
+        List<GenomicInterval> srcRegions = BedUtils.readSingleChromBedRegions(targetFileName);
+        List<GenomicInterval> dstRegions = BedUtils.readSingleChromBedRegions(actualResultFileName);
         if (!srcRegions.get(0).getChr().equals(dstRegions.get(0).getChr())) {
-            throw new RuntimeException("two bed file should contain regions from same chromosome!");
+            throw new RuntimeException("two Bed file should contain regions from same chromosome!");
         }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(expectedResultFileName));
@@ -82,10 +82,10 @@ public class IntersectRegions {
 
     private static void fourWayIntersection(String actualResultFileName, String expectedResultFileName,
                                             String outputFileName) throws IOException {
-        List<GenomicInterval> srcRegions = CommonsUtils.readSingleChromBedRegions(expectedResultFileName, true);
-        List<GenomicInterval> dstRegions = CommonsUtils.readSingleChromBedRegions(actualResultFileName, true);
+        List<GenomicInterval> srcRegions = BedUtils.readSingleChromBedRegions(expectedResultFileName, true);
+        List<GenomicInterval> dstRegions = BedUtils.readSingleChromBedRegions(actualResultFileName, true);
         if (!srcRegions.get(0).getChr().equals(dstRegions.get(0).getChr())) {
-            throw new RuntimeException("two bed file should contain regions from same chromosome!");
+            throw new RuntimeException("two Bed file should contain regions from same chromosome!");
         }
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
         int tp = 0, fp = 0, fn = 0, tn = 0;
@@ -126,10 +126,10 @@ public class IntersectRegions {
 
     public static void calcOverlappedLenth(String targetFileName, String actualResultFileName) throws IOException {
         int overlappedLength = 0, tpLength = 0;
-        List<GenomicInterval> srcRegions = CommonsUtils.readSingleChromBedRegions(targetFileName);
-        List<GenomicInterval> dstRegions = CommonsUtils.readSingleChromBedRegions(actualResultFileName);
+        List<GenomicInterval> srcRegions = BedUtils.readSingleChromBedRegions(targetFileName);
+        List<GenomicInterval> dstRegions = BedUtils.readSingleChromBedRegions(actualResultFileName);
         if (!srcRegions.get(0).getChr().equals(dstRegions.get(0).getChr())) {
-            throw new RuntimeException("two bed file should contain regions from same chromosome!");
+            throw new RuntimeException("two Bed file should contain regions from same chromosome!");
         }
         for (GenomicInterval targetRegion : srcRegions) {
             for (GenomicInterval resultRegion : dstRegions) {

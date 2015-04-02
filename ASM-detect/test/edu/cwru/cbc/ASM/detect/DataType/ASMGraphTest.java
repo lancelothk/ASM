@@ -2,9 +2,9 @@ package edu.cwru.cbc.ASM.detect.DataType;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
-import edu.cwru.cbc.ASM.commons.DataType.MappedReadLineProcessor;
-import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.detect.DetectionUtils;
 import org.junit.Test;

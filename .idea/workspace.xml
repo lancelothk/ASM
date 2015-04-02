@@ -13,10 +13,39 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e143c304-554b-4089-b41b-fc68d6fd9e70" name="Default" comment="code refactor">
+    <list default="true" id="e143c304-554b-4089-b41b-fc68d6fd9e70" name="Default" comment="refactor commons package structure">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Bed/BedUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/Bed/BedUtilsTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/CpG.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/CpG.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/GenomicInterval.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/GenomicInterval.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/GenomicIntervalBase.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/GenomicIntervalBase.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedRead.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/MappedRead.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessor.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessor.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessorWithSummary.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessorWithSummary.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MethylStatus.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/MethylStatus.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/ReadComparator.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/ReadComparator.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefChr.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/RefChr.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/RefCpG.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessorTest.java" afterPath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessorTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/MappedReadTest.java" afterPath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/Read/MappedReadTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/RefCpGTest.java" afterPath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CpG/RefCpGTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ASMGraph.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ASMGraph.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/test/edu/cwru/cbc/ASM/detect/DataType/ASMGraphTest.java" afterPath="$PROJECT_DIR$/ASM-detect/test/edu/cwru/cbc/ASM/detect/DataType/ASMGraphTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" afterPath="$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CommonsUtils.java" afterPath="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CommonsUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CommonsUtilsTest.java" afterPath="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CommonsUtilsTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/IntervalDetectionSummary.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/IntervalDetectionSummary.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/GroupResult.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/GroupResult.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java" afterPath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MRToMappedRead.java" afterPath="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MRToMappedRead.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MappedReadToMR.java" afterPath="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MappedReadToMR.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/OverlappedRegionLength.java" afterPath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/OverlappedRegionLength.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RandomRegions.java" afterPath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RandomRegions.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-visualization/src/edu/cwru/cbc/ASM/visualization/ReadsVisualization.java" afterPath="$PROJECT_DIR$/ASM-visualization/src/edu/cwru/cbc/ASM/visualization/ReadsVisualization.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RegionCoverage.java" afterPath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RegionCoverage.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java" afterPath="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/Vertex.java" afterPath="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/Vertex.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ASM-detect/test/edu/cwru/cbc/ASM/detect/DataType/VertexTest.java" afterPath="$PROJECT_DIR$/ASM-detect/test/edu/cwru/cbc/ASM/detect/DataType/VertexTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ASM.iws" />
@@ -189,94 +218,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Detection.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6229885">
-              <caret line="243" column="62" selection-start-line="243" selection-start-column="62" selection-end-line="243" selection-end-column="62" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DetectionUtils.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="81" column="42" selection-start-line="81" selection-start-column="42" selection-end-line="81" selection-end-column="42" />
-              <folding>
-                <element signature="e#2355#2356#0" expanded="true" />
-                <element signature="e#2378#2379#0" expanded="true" />
-                <element signature="e#2440#2441#0" expanded="true" />
-                <element signature="e#2480#2481#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="IntervalDetectionSummary.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/IntervalDetectionSummary.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="53" column="44" selection-start-line="53" selection-start-column="44" selection-end-line="53" selection-end-column="44" />
-              <folding>
-                <element signature="e#1471#1472#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="IntersectRegions.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+              <caret line="62" column="58" selection-start-line="62" selection-start-column="58" selection-end-line="62" selection-end-column="58" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Simulation.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java">
+      <file leaf-file-name="BedUtils.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Bed/BedUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CPMR.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="32" column="70" selection-start-line="32" selection-start-column="70" selection-end-line="32" selection-end-column="70" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ASMGraph.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ASMGraph.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="47" column="49" selection-start-line="47" selection-start-column="49" selection-end-line="47" selection-end-column="49" />
+            <state vertical-scroll-proportion="0.79310346">
+              <caret line="113" column="45" selection-start-line="113" selection-start-column="45" selection-end-line="113" selection-end-column="45" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#9007#9008#0" expanded="false" />
-                <element signature="e#9037#9038#0" expanded="false" />
-                <element signature="e#9087#9088#0" expanded="false" />
-                <element signature="e#9114#9115#0" expanded="false" />
-                <element signature="e#9151#9152#0" expanded="false" />
-                <element signature="e#9181#9182#0" expanded="false" />
-                <element signature="e#9219#9220#0" expanded="false" />
-                <element signature="e#9250#9251#0" expanded="false" />
-                <element signature="e#9290#9291#0" expanded="false" />
-                <element signature="e#9323#9324#0" expanded="false" />
-                <element signature="e#9361#9362#0" expanded="false" />
-                <element signature="e#9392#9393#0" expanded="false" />
-                <element signature="e#9426#9427#0" expanded="false" />
-                <element signature="e#9465#9466#0" expanded="false" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -287,8 +245,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
+        <option value="JUnit4 Test Class" />
       </list>
     </option>
   </component>
@@ -296,7 +255,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="add_unit_test" />
       </map>
     </option>
   </component>
@@ -308,12 +267,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/visulization/ReadsVisualization.java" />
-        <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Simulation.java" />
-        <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/WithMappedRead/FisherExact.java" />
-        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Utils.java" />
-        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/GlobalParameter.java" />
-        <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/IntersectRegions.java" />
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/WithMappedRead/DetectionWithMappedRead.java" />
         <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessorWithSummary.java" />
         <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedRead.java" />
@@ -328,14 +281,11 @@
         <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefChr.java" />
         <option value="$PROJECT_DIR$/ASM-commons/testData/testRefFile.fa" />
         <option value="$PROJECT_DIR$/ASM-commons/testData/bedWithoutLabel.bed" />
-        <option value="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CommonsUtilsTest.java" />
         <option value="$PROJECT_DIR$/ASM-commons/testData/bedWithLabel.bed" />
         <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MappedReadToMR.java" />
         <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/SplitFileByChr.java" />
         <option value="$PROJECT_DIR$/ASM-visualization/src/edu/cwru/cbc/ASM/visualization/ReadsVisualization.java" />
         <option value="$PROJECT_DIR$/ASM-tools/src/edu/cwru/cbc/ASM/tools/Conversion/MRToMappedRead.java" />
-        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CommonsUtils.java" />
-        <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java" />
         <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java" />
         <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/OverlappedRegionLength.java" />
         <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RandomRegions.java" />
@@ -359,6 +309,15 @@
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/MultiTestCorrection.java" />
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java" />
         <option value="$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CommonsUtils.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/bed/BedUtils.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CommonsUtilsTest.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/bed/BedUtilsTest.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/GenomicInterval.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessorTest.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CpG/RefCpGTest.java" />
+        <option value="$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java" />
+        <option value="$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Bed/BedUtils.java" />
       </list>
     </option>
   </component>
@@ -570,6 +529,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -648,7 +608,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemId" value="ASM-commons" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -658,53 +618,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="testData" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="test" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="DataType" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemId" value="ASM-commons" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -712,7 +626,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="detect" />
+              <option name="myItemId" value="commons" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -722,7 +636,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="ASM-detect" />
+              <option name="myItemId" value="ASM-commons" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -730,19 +644,18 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="detect" />
+              <option name="myItemId" value="commons" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="DataType" />
+              <option name="myItemId" value="Bed" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -819,23 +732,89 @@
       <recent name="$PROJECT_DIR$/ASM-CPMR/testData" />
     </key>
     <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="edu.cwru.cbc.ASM.commons.bed.BedUtils" />
       <recent name="edu.cwru.cbc.ASM.commons.Utils" />
       <recent name="edu.cwru.cbc.ASM.detect.WithMappedRead.Utils" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="edu.cwru.cbc.ASM.commons.CpG" />
+      <recent name="edu.cwru.cbc.ASM.commons.Read" />
       <recent name="edu.cwru.cbc.ASM.commons" />
       <recent name="edu.cwru.cbc.ASM.commons.DataType" />
       <recent name="edu.cwru.cbc.ASM.detect.WithMappedRead.DataType" />
-      <recent name="edu.cwru.cbc.ASM.CPMR" />
     </key>
     <key name="CreateTestDialog.RecentsKey">
+      <recent name="edu.cwru.cbc.ASM.commons.bed" />
       <recent name="edu.cwru.cbc.ASM.commons" />
       <recent name="edu.cwru.cbc.ASM.detect.WithMappedRead.DataType" />
       <recent name="edu.cwru.cbc.ASM.commons.DataType" />
       <recent name="edu.cwru.cbc.ASM.CPMR" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="JUnit.All in ASM-detect">
+    <configuration default="false" name="All in ASM-commons" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="ASM-commons" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="All in ASM-CPMR" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="ASM-CPMR" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="All in ASM-detect" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="ASM-detect" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
@@ -990,6 +969,18 @@
       <envs />
       <method />
     </configuration>
+    <list size="3">
+      <item index="0" class="java.lang.String" itemvalue="JUnit.All in ASM-commons" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.All in ASM-CPMR" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.All in ASM-detect" />
+    </list>
+    <recent_temporary>
+      <list size="3">
+        <item index="0" class="java.lang.String" itemvalue="JUnit.All in ASM-detect" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.All in ASM-CPMR" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.All in ASM-commons" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="SvnConfiguration">
@@ -1010,19 +1001,22 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3262032" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3275401" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32739422" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3275401" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32739422" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32457143" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32714054" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32984293" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3085622" sideWeight="0.496" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2552504" sideWeight="0.496" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3279483" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30371568" sideWeight="0.504" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47047496" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" x="304" y="129" width="1382" height="784" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -1031,12 +1025,9 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959612" sideWeight="0.5" order="7" side_tool="false" content_ui="combo" />
       <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.328877" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959612" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47047496" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" x="304" y="129" width="1382" height="784" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39973262" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32714054" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5623003" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3279483" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32956383" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -1089,7 +1080,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="removed mww test and unused errorProbability calculation methods" />
     <MESSAGE value="add regionP calculation" />
     <MESSAGE value="add RegionP and RegionPercent to result.&#10;TODO: fix p value align bug" />
     <MESSAGE value="fixed p value print bug." />
@@ -1114,7 +1104,8 @@
     <MESSAGE value="refactor CPMR.&#10;add .idea back to git repository." />
     <MESSAGE value="it is hard to unit test CPMR. delete previous test." />
     <MESSAGE value="code refactor" />
-    <option name="LAST_COMMIT_MESSAGE" value="code refactor" />
+    <MESSAGE value="1. remove fisher exact test threshold&#10;2. apply bonferroni correction to fisher exact test p value&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="1. remove fisher exact test threshold&#10;2. apply bonferroni correction to fisher exact test p value&#10;" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1134,6 +1125,30 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="52" selection-start-line="18" selection-start-column="52" selection-end-line="18" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="32" column="70" selection-start-line="32" selection-start-column="70" selection-end-line="32" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1141,14 +1156,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/RefCpG.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="86" column="5" selection-start-line="86" selection-start-column="5" selection-end-line="86" selection-end-column="5" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/RefCpGTest.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CpG/RefCpGTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="35" column="41" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="41" />
@@ -1373,63 +1388,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessor.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessor.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CommonsUtilsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8">
-          <caret line="61" column="20" selection-start-line="61" selection-start-column="20" selection-end-line="61" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/ReadComparator.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/ReadComparator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="15" column="26" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessorWithSummary.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessorWithSummary.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="12" column="72" selection-start-line="12" selection-start-column="72" selection-end-line="12" selection-end-column="72" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/MappedReadLineProcessorTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/GenomicInterval.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="24" column="37" selection-start-line="24" selection-start-column="37" selection-end-line="24" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/GenomicIntervalBase.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/GenomicIntervalBase.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MappedRead.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Read/MappedRead.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="19" column="29" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="29" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/CpG.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/CpG.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
@@ -1457,17 +1451,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefChr.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/RefChr.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.15">
           <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CommonsUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.15833333">
-          <caret line="76" column="65" selection-start-line="76" selection-start-column="40" selection-end-line="76" selection-end-column="65" />
         </state>
       </provider>
     </entry>
@@ -1492,13 +1479,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/MethylStatus.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.082474224">
-          <caret line="4" column="36" selection-start-line="4" selection-start-column="36" selection-end-line="4" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/tools/RegionCoverage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.2783505">
@@ -1506,31 +1486,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/DataType/RefCpGTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="67" column="53" selection-start-line="67" selection-start-column="53" selection-end-line="67" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/DataType/RefCpG.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CpG/RefCpG.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7254438">
           <caret line="102" column="28" selection-start-line="102" selection-start-column="28" selection-end-line="102" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/FisherExactTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ClusterRefCpG.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -1541,81 +1500,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/Vertex.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1704142">
-          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/GroupResult.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1704142">
-          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="32" column="70" selection-start-line="32" selection-start-column="70" selection-end-line="32" selection-end-column="70" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/ASMGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="47" column="49" selection-start-line="47" selection-start-column="49" selection-end-line="47" selection-end-column="49" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#9007#9008#0" expanded="false" />
-            <element signature="e#9037#9038#0" expanded="false" />
-            <element signature="e#9087#9088#0" expanded="false" />
-            <element signature="e#9114#9115#0" expanded="false" />
-            <element signature="e#9151#9152#0" expanded="false" />
-            <element signature="e#9181#9182#0" expanded="false" />
-            <element signature="e#9219#9220#0" expanded="false" />
-            <element signature="e#9250#9251#0" expanded="false" />
-            <element signature="e#9290#9291#0" expanded="false" />
-            <element signature="e#9323#9324#0" expanded="false" />
-            <element signature="e#9361#9362#0" expanded="false" />
-            <element signature="e#9392#9393#0" expanded="false" />
-            <element signature="e#9426#9427#0" expanded="false" />
-            <element signature="e#9465#9466#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/lib/commons-math3-3.3.jar!/org/apache/commons/math3/stat/StatUtils.class">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.6402367">
           <caret line="203" column="9" selection-start-line="203" selection-start-column="9" selection-end-line="203" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///usr/lib/jvm/java-8-oracle/src.zip!/java/util/stream/Stream.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="183" column="18" selection-start-line="183" selection-start-column="18" selection-end-line="183" selection-end-column="18" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1623,7 +1511,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.22758621">
           <caret line="34" column="35" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1643,34 +1530,121 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DataType/IntervalDetectionSummary.java">
+    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CommonsUtilsTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="53" column="44" selection-start-line="53" selection-start-column="44" selection-end-line="53" selection-end-column="44" />
-          <folding>
-            <element signature="e#1471#1472#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/DetectionUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="81" column="42" selection-start-line="81" selection-start-column="42" selection-end-line="81" selection-end-column="42" />
-          <folding>
-            <element signature="e#2355#2356#0" expanded="true" />
-            <element signature="e#2378#2379#0" expanded="true" />
-            <element signature="e#2440#2441#0" expanded="true" />
-            <element signature="e#2480#2481#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ASM-detect/src/edu/cwru/cbc/ASM/detect/Detection.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6229885">
-          <caret line="243" column="62" selection-start-line="243" selection-start-column="62" selection-end-line="243" selection-end-column="62" />
+        <state vertical-scroll-proportion="0.74311924">
+          <caret line="48" column="0" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/Bed/BedUtilsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.49541286">
+          <caret line="24" column="36" selection-start-line="24" selection-start-column="36" selection-end-line="24" selection-end-column="36" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/CommonsUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7224771">
+          <caret line="58" column="48" selection-start-line="58" selection-start-column="48" selection-end-line="58" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/Simulation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-CPMR/src/edu/cwru/cbc/ASM/CPMR/CPMR.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="32" column="70" selection-start-line="32" selection-start-column="70" selection-end-line="32" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/CpG/RefCpGTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.45517242">
+          <caret line="31" column="18" selection-start-line="31" selection-start-column="18" selection-end-line="31" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/test/edu/cwru/cbc/ASM/commons/Read/MappedReadLineProcessorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2689655">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/GenomicInterval.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.37241378">
+          <caret line="20" column="5" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/MethylStatus.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.12413793">
+          <caret line="6" column="24" selection-start-line="6" selection-start-column="12" selection-end-line="6" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-oracle/src.zip!/java/util/stream/Stream.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7057471">
+          <caret line="897" column="12" selection-start-line="897" selection-start-column="12" selection-end-line="897" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-oracle/src.zip!/java/util/function/Supplier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="40" column="17" selection-start-line="40" selection-start-column="17" selection-end-line="40" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-oracle/src.zip!/java/util/stream/Collectors.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3954023">
+          <caret line="211" column="41" selection-start-line="211" selection-start-column="41" selection-end-line="211" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-simulation/src/edu/cwru/cbc/ASM/simulation/IntersectRegions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="62" column="58" selection-start-line="62" selection-start-column="58" selection-end-line="62" selection-end-column="58" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ASM-commons/src/edu/cwru/cbc/ASM/commons/Bed/BedUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.79310346">
+          <caret line="113" column="45" selection-start-line="113" selection-start-column="45" selection-end-line="113" selection-end-column="45" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

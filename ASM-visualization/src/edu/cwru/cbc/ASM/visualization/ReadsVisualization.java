@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.visualization;
 
-import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
-import edu.cwru.cbc.ASM.commons.DataType.ReadComparator;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Read.ReadComparator;
 import org.apache.commons.cli.*;
 
 import java.io.*;

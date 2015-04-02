@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
-import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.DataType.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.Bed.BedUtils;
+import edu.cwru.cbc.ASM.commons.GenomicInterval;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -18,10 +18,10 @@ public class RandomRegions {
 	public static void main(String[] args) throws IOException {
 		String currUserHome = System.getProperty("user.home");
 		String inputFile = currUserHome +
-				"/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.bed";
+				"/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.Bed";
 
 		Random rand = new Random();
-		List<GenomicInterval> regionList = CommonsUtils.readSingleChromBedRegions(inputFile);
+		List<GenomicInterval> regionList = BedUtils.readSingleChromBedRegions(inputFile);
 		int numberOfSelection = 100;
 		List<GenomicInterval> selection = new ArrayList<>();
 		while (selection.size() != numberOfSelection) {
@@ -33,7 +33,7 @@ public class RandomRegions {
 
 
 		BufferedWriter writer = new BufferedWriter(
-				new FileWriter(inputFile.replace(".bed", "") + "_selection" + ".bed"));
+				new FileWriter(inputFile.replace(".Bed", "") + "_selection" + ".Bed"));
 		for (GenomicInterval genomicInterval : selection) {
 			writer.write(genomicInterval.toBedString() + "\n");
 		}

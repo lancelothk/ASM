@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
-import edu.cwru.cbc.ASM.commons.DataType.MappedRead;
-import edu.cwru.cbc.ASM.commons.DataType.RefCpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 
 import java.util.List;
 

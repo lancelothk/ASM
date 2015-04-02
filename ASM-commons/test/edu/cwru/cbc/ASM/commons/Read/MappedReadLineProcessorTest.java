@@ -1,5 +1,6 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.Read;
 
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 import org.junit.Test;
 
 import java.util.List;

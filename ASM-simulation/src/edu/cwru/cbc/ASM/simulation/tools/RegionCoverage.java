@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.DataType.RefChr;
+import edu.cwru.cbc.ASM.commons.CpG.RefChr;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -43,7 +43,7 @@ public class RegionCoverage {
 		//		String prefix = "i90_r1_chr20_";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputBedRegionFolderName +
-				String.format("CpGIslandsRegions_selected_%d_%d.bed", coverage_threshold, min_cpg_number)));
+				String.format("CpGIslandsRegions_selected_%d_%d.Bed", coverage_threshold, min_cpg_number)));
 
 		File inputFolder = new File(inputFolderName);
 		if (!inputFolder.isDirectory()) {

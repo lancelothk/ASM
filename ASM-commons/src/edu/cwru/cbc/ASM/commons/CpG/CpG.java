@@ -1,4 +1,7 @@
-package edu.cwru.cbc.ASM.commons.DataType;
+package edu.cwru.cbc.ASM.commons.CpG;
+
+import edu.cwru.cbc.ASM.commons.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 
 /**
  * Created by lancelothk on 5/27/14.
