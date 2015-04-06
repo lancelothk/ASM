@@ -83,6 +83,11 @@ public class GenomicInterval extends GenomicIntervalBase implements Comparable<G
 		return String.format("%s\t%d\t%d\t%s", this.chr, this.start, this.end, this.name);
 	}
 
+
+	public String toBedWithIntersectionString() {
+		return String.format("%s\t%d\t%d\t%s\t%b", this.chr, this.start, this.end, this.name,isIntersected());
+	}
+
 	@Override
 	public int compareTo(GenomicInterval o) {
 		int startDiff = this.getStart() - o.getStart();
