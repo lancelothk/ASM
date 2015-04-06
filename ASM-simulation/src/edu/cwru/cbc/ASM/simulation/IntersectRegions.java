@@ -35,21 +35,34 @@ public class IntersectRegions {
 		Collection<GenomicInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName, true);
 		Collection<GenomicInterval> intersections = BedUtils.intersect(regionsA, regionsB);
 		BedUtils.writeBedRegions(intersections, outputPathName + "intersection.bed");
-		BedUtils.writeBedWithIntersection(regionsA, outputPathName + new File(aFileName).getName() + "_intersected.bed");
+		BedUtils.writeBedWithIntersection(regionsA,
+				outputPathName + new File(aFileName).getName() + "_intersected.bed");
 		BedUtils.writeBedWithIntersection(regionsB,
 				outputPathName + new File(bFileName).getName() + "_intersected.bed");
 
+		double intersectedCount_regionA = regionsA.stream().filter(GenomicInterval::isIntersected).count();
+		double nonIntersectedCount_regionA = regionsA.stream().filter(r -> !r.isIntersected()).count();
+		double intersectedCount_regionB = regionsB.stream().filter(GenomicInterval::isIntersected).count();
+		double nonIntersectedCount_regionB = regionsB.stream().filter(r -> !r.isIntersected()).count();
+		int intersectionLength = intersections.stream().mapToInt(GenomicInterval::length).sum();
+		int nonIntersectionLength_regionA =
+				regionsA.stream().mapToInt(GenomicInterval::length).sum() - intersectionLength;
+		int nonIntersectionLength_regionB =
+				regionsB.stream().mapToInt(GenomicInterval::length).sum() - intersectionLength;
+
 		System.out.printf("#intersection:%d\n", intersections.size());
-		System.out.printf("total length of intersection:%d\n", intersections.stream().mapToInt
-				(GenomicInterval::length).sum());
-		System.out.printf("#covered regions in A:%d\n", regionsA.stream().filter(GenomicInterval::isIntersected)
-				.count());
-		System.out.printf("#not covered regions in A:%d\n", regionsA.stream().filter(r -> !r.isIntersected())
-				.count());
+		System.out.printf("non-intersected length of A:%d\n", nonIntersectionLength_regionA);
+		System.out.printf("non-intersected length of B:%d\n", nonIntersectionLength_regionB);
+		System.out.printf("total length of intersection:%d\n", intersectionLength);
+		System.out.printf("#covered regions in A:%.4f(%.4f)\n", intersectedCount_regionA,
+				intersectedCount_regionA / regionsA.size());
+		System.out.printf("#not covered regions in A:%.4f(%.4f)\n", nonIntersectedCount_regionA,
+				nonIntersectedCount_regionA / regionsA.size());
 		System.out.printf("#regions in A:%d\n", regionsA.size());
-		System.out.printf("#covered regions in B:%d\n",
-				regionsB.stream().filter(GenomicInterval::isIntersected).count());
-		System.out.printf("#not covered regions in B:%d\n", regionsB.stream().filter(r -> !r.isIntersected()).count());
+		System.out.printf("#covered regions in B:%.4f(%.4f)\n", intersectedCount_regionB,
+				intersectedCount_regionB / regionsB.size());
+		System.out.printf("#not covered regions in B:%.4f(%.4f)\n", nonIntersectedCount_regionB,
+				nonIntersectedCount_regionB / regionsB.size());
 		System.out.printf("#regions in B:%d\n", regionsB.size());
 	}
 
