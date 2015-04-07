@@ -151,7 +151,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
-			summaryWriter.write(result.getSummaryString(region_threshold));
+			if (result.getRegionP() <= region_threshold) {
+				summaryWriter.write(result.getSummaryString(region_threshold));
+			}
 		}
 		summaryWriter.close();
 	}
