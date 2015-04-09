@@ -2,7 +2,6 @@ package edu.cwru.cbc.ASM.simulation;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.commons.Bed.BedUtils;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.CpG.CpG;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
@@ -11,6 +10,7 @@ import edu.cwru.cbc.ASM.commons.GenomicInterval;
 import edu.cwru.cbc.ASM.commons.MethylStatus;
 import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;

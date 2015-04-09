@@ -1,19 +1,18 @@
-package edu.cwru.cbc.ASM.simulation;
+package edu.cwru.cbc.ASM.intersect;
 
-import edu.cwru.cbc.ASM.commons.Bed.BedUtils;
 import edu.cwru.cbc.ASM.commons.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by kehu on 2/16/15.
  * check intersection of two region groups
  */
-public class IntersectRegions {
+public class IntersectRegionsPgm {
 	public static void main(String[] args) throws IOException, ParseException {
 		Options options = new Options();
 		options.addOption("a", true, "bed file A");
@@ -64,33 +63,5 @@ public class IntersectRegions {
 		System.out.printf("#not covered regions in B:%.4f(%.4f)\n", nonIntersectedCount_regionB,
 				nonIntersectedCount_regionB / regionsB.size());
 		System.out.printf("#regions in B:%d\n", regionsB.size());
-	}
-
-	public static void calcOverlappedLenth(String targetFileName, String actualResultFileName) throws IOException {
-		int overlappedLength = 0, tpLength = 0;
-		List<GenomicInterval> srcRegions = BedUtils.readSingleChromBedRegions(targetFileName);
-		List<GenomicInterval> dstRegions = BedUtils.readSingleChromBedRegions(actualResultFileName);
-		if (!srcRegions.get(0).getChr().equals(dstRegions.get(0).getChr())) {
-			throw new RuntimeException("two Bed file should contain regions from same chromosome!");
-		}
-		for (GenomicInterval targetRegion : srcRegions) {
-			for (GenomicInterval resultRegion : dstRegions) {
-				if (targetRegion.getStart() <= resultRegion.getEnd() &&
-						targetRegion.getEnd() >= resultRegion.getStart()) {
-					targetRegion.addIntersectedRegion(resultRegion);
-					resultRegion.addIntersectedRegion(targetRegion);
-					int right = Math.min(targetRegion.getEnd(), resultRegion.getEnd());
-					int left = Math.max(targetRegion.getStart(), resultRegion.getStart());
-					int length = right - left + 1;
-					System.out.println(resultRegion.getStart() + "\t" + resultRegion.getEnd() +
-							"\toverlapped length:\t" + length + "\tnonoverlapped length:\t" +
-							(resultRegion.length() - length));
-					tpLength += (resultRegion.length() - length);
-					overlappedLength += length;
-				}
-			}
-		}
-		System.out.println("overlapped length:\t" + overlappedLength);
-		System.out.println("nonOverlapped length:\t" + (tpLength));
 	}
 }

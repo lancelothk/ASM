@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.commons.Bed;
+package edu.cwru.cbc.ASM.commons.bed;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;

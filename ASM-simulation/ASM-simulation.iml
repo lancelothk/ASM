@@ -11,5 +11,6 @@
     <orderEntry type="module" module-name="ASM-commons" />
     <orderEntry type="library" name="guava" level="project" />
     <orderEntry type="library" name="commons-lang3" level="project" />
+    <orderEntry type="module" module-name="ASM-intersect" />
   </component>
 </module>
