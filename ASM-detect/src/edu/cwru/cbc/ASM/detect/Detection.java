@@ -137,9 +137,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		}
 		executor.shutdown();
 
-		//		double regionP_threshold = FDR_threshold/resultList.size();
 		double regionP_threshold = DetectionUtils.getBHYFDRCutoff(resultList.stream()
-				.filter(ids -> ids.getRegionP() != -1)
+				.filter(ids -> ids.getRegionP() >= 0)
 				.map(IntervalDetectionSummary::getRegionP)
 				.collect(Collectors.toList()), FDR_threshold);
 		System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
@@ -151,7 +150,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
-			if (result.getRegionP() <= region_threshold) {
+			if (result.getRegionP() <= region_threshold && result.getRegionP() >= 0) {
 				summaryWriter.write(result.getSummaryString(region_threshold));
 			}
 		}
@@ -185,6 +184,11 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		} else {
 			// give -1 if only one cluster
 			regionP = -1;
+		}
+
+		if (twoClusterRefCpGList.size() < min_interval_cpg) {
+			// give -2 if interval contain less #cpg than min_interval_cpg
+			regionP = -2;
 		}
 
 		double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
@@ -234,17 +238,23 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				}
 				double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
 						matrix[1][1])[0];  // [0] is two tail test.
-				refCpG.setP_value(fisher_P);
-//				if (refCpG.getP_value() <= 0 || refCpG.getP_value() >= 1) {
-//					System.err.println(
-//							refCpG.getP_value() + "\t" + matrix[0][0] + "\t" + matrix[0][1] + "\t" + matrix[1][0] +
-//									"\t" + matrix[1][1]);
-//				}
+				if (fisher_P >= 0 && fisher_P <= 1) {
+					refCpG.setP_value(fisher_P);
+				} else {
+					throw new RuntimeException("p value is not in [0,1]!");
+				}
+
 			}
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	private double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
+		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
+		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
+		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
 	}
 
 	private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
@@ -330,7 +340,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				if (refCpGMap.containsKey(refCpG.getPos())) {
 					groupResultWriter.write(Strings.padEnd(
 							String.format("%.2f(%d)", refCpGMap.get(refCpG.getPos()).getMethylLevel(),
-									refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' ' ));
+									refCpGMap.get(refCpG.getPos()).getCoveredCount()), 10, ' '));
 				} else {
 					// fill the gap
 					groupResultWriter.write(Strings.repeat(" ", 10));
@@ -345,7 +355,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		groupResultWriter.write("P:\t");
 		for (RefCpG refCpG : refCpGList) {
 			if (refCpG.getP_value() != -1) {
-				groupResultWriter.write(Strings.padEnd(String.format("%.3f", refCpG.getP_value()), 10, ' ' ));
+				groupResultWriter.write(Strings.padEnd(String.format("%.3f", refCpG.getP_value()), 10, ' '));
 			} else {
 				groupResultWriter.write(Strings.repeat(" ", 10));
 
@@ -386,16 +396,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return p;
 	}
 
-	private double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
-		double minP = Double.MAX_VALUE;
-		for (RefCpG refCpG : twoClusterRefCpGList) {
-			if (minP > refCpG.getP_value()) {
-				minP = refCpG.getP_value();
-			}
-		}
-		return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
-	}
-
 	private double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {
 		NormalDistribution stdNorm = new NormalDistribution(0, 1);
 		double z = twoClusterRefCpGList.stream()
@@ -404,14 +404,13 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
-	private double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
-		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> {
-			if (refCpG.getP_value() == 0) {
-				throw new RuntimeException("cpg p value is zero!");
+	private double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
+		double minP = Double.MAX_VALUE;
+		for (RefCpG refCpG : twoClusterRefCpGList) {
+			if (minP > refCpG.getP_value()) {
+				minP = refCpG.getP_value();
 			}
-			return Math.log(refCpG.getP_value());
-		}).sum();
-		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
-		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
+		}
+		return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
 	}
 }
