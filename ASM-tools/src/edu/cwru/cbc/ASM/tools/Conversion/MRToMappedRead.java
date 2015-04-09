@@ -9,8 +9,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by kehu on 2/6/15.
@@ -20,10 +18,9 @@ public class MRToMappedRead {
 	public static void main(String[] args) throws IOException {
 		String input = "/home/kehu/experiments/ASM/amrfinder/simulation/i90_r1_chr20_sim.mr";
 		String output = "/home/kehu/experiments/ASM/amrfinder/simulation/i90_r1_chr20_sim";
+		BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(output));
 
-		List<MappedRead> mappedReadList = Files.readLines(new File(input), Charsets.UTF_8,
-				new LineProcessor<List<MappedRead>>() {
-					private List<MappedRead> mappedReadList = new ArrayList<>();
+		Files.readLines(new File(input), Charsets.UTF_8, new LineProcessor() {
 
 					@Override
 					public boolean processLine(String line) throws IOException {
@@ -37,20 +34,18 @@ public class MRToMappedRead {
 
 						MappedRead mappedRead = new MappedRead(items[0], items[5].charAt(0), Integer.parseInt(items[1]),
 								Integer.parseInt(items[2]), items[6], items[3]);
-						mappedReadList.add(mappedRead);
+						mappedReadWriter.write(mappedRead.outputString());
 						return true;
 					}
 
 					@Override
-					public List<MappedRead> getResult() {
-						return mappedReadList;
+					public Object getResult() {
+						return null;
 					}
+
 				});
 
-		BufferedWriter mappedReadWriter = new BufferedWriter(new FileWriter(output));
-		for (MappedRead mappedRead : mappedReadList) {
-			mappedReadWriter.write(mappedRead.outputString());
-		}
+
 		mappedReadWriter.close();
 	}
 }
