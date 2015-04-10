@@ -156,7 +156,7 @@ public class CPMR {
 	}
 
 	private static void writeReport(String reportFileName, List<List<RefCpG>> cpgSiteIntervalList) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName, true));
 		writer.write("Raw Interval count:\t" + cpgSiteIntervalList.size() + "\n");
 		writer.write("Output Interval count:\t" + outputIntervalCount + "\n");
 		writer.close();
