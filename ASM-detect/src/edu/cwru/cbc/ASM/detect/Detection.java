@@ -137,10 +137,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		}
 		executor.shutdown();
 
-		double regionP_threshold = DetectionUtils.getBHYFDRCutoff(resultList.stream()
-				.filter(ids -> ids.getRegionP() >= 0)
-				.map(IntervalDetectionSummary::getRegionP)
-				.collect(Collectors.toList()), FDR_threshold);
+		double regionP_threshold = DetectionUtils.getBHYFDRCutoff(
+				resultList.stream().map(IntervalDetectionSummary::getRegionP).collect(Collectors.toList()),
+				FDR_threshold);
 		System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
 		writeDetectionSummary(summaryFileName, resultList, regionP_threshold);
 	}
@@ -150,7 +149,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
-			if (result.getRegionP() <= region_threshold && result.getRegionP() >= 0) {
+			if (result.getRegionP() <= region_threshold) {
 				summaryWriter.write(result.getSummaryString(region_threshold));
 			}
 		}
@@ -182,13 +181,13 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		if (fisherTest(graph, twoClusterRefCpGList)) {
 			regionP = calcRegionP_FisherComb(twoClusterRefCpGList);
 		} else {
-			// give -1 if only one cluster
-			regionP = -1;
+			// give 2 if only one cluster
+			regionP = 2;
 		}
 
 		if (twoClusterRefCpGList.size() < min_interval_cpg) {
-			// give -2 if interval contain less #cpg than min_interval_cpg
-			regionP = -2;
+			// give 3 if interval contain less #cpg than min_interval_cpg
+			regionP = 3;
 		}
 
 		double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
