@@ -34,7 +34,6 @@ public class Simulation {
 		options.addOption("t", true, "Target region File");
 		options.addOption("o", true, "Output file");
 		options.addOption("a", true, "Alpha");
-		options.addOption("b", true, "Beta");
 
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = parser.parse(options, args);
@@ -44,9 +43,8 @@ public class Simulation {
 		String targetRegionFileName = cmd.getOptionValue("t");
 		String outputFileName = cmd.getOptionValue("o");
 		double alpha = Double.valueOf(cmd.getOptionValue("a"));
-		double beta = Double.valueOf(cmd.getOptionValue("b"));
 
-		executeSimulation(referenceGenomeFileName, readsFileName, targetRegionFileName, outputFileName, alpha, beta);
+		executeSimulation(referenceGenomeFileName, readsFileName, targetRegionFileName, outputFileName, alpha);
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 	}
 
@@ -54,12 +52,10 @@ public class Simulation {
 	 * execute data simulation
 	 *
 	 * @param alpha read will keep same pattern with chosen allele with probability alpha.
-	 * @param beta  methyl status of CpG will flip with probability beta
 	 * @throws IOException
 	 */
 	public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
-										 String targetRegionFileName, String outputFileName, double alpha,
-										 double beta) throws IOException {
+			String targetRegionFileName, String outputFileName, double alpha) throws IOException {
 		File outputFile = new File(outputFileName);
 		if (!outputFile.getParentFile().exists()) {
 			if (!outputFile.getParentFile().mkdirs()) {
@@ -93,8 +89,8 @@ public class Simulation {
 		assignMethylStatusForASMRegion(targetRegionsMap);
 
 		// add randomness
-		addRandomnessToReads(nonASMRegions, alpha, beta);
-		addRandomnessToReads(targetRegionsMap, alpha, beta);
+		addRandomnessToReads(nonASMRegions, alpha);
+		addRandomnessToReads(targetRegionsMap, alpha);
 
 		// write out result
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
@@ -145,7 +141,7 @@ public class Simulation {
 	}
 
 	private static void attachRefCpGToRegions(List<RefCpG> refCpGList, List<GenomicInterval> targetRegionList,
-											  List<GenomicInterval> nonASMRegions) {
+			List<GenomicInterval> nonASMRegions) {
 		List<GenomicInterval> allRegions = new ArrayList<>();
 		allRegions.addAll(nonASMRegions);
 		allRegions.addAll(targetRegionList);
@@ -199,8 +195,6 @@ public class Simulation {
 							});
 				} else {
 					// allele 2 : conterpart of allele 1
-					// opposite to allele 1
-					// opposite to allele 1
 					mappedRead.getCpgList()
 							.stream()
 							.filter(cpg -> targetRegion.getRefCpGList().contains(cpg.getRefCpG()))
@@ -216,19 +210,17 @@ public class Simulation {
 		}
 	}
 
-	private static void addRandomnessToReads(List<GenomicInterval> regions, double alpha, double beta) {
+	private static void addRandomnessToReads(List<GenomicInterval> regions, double alpha) {
 		for (GenomicInterval region : regions) {
 			Set<MappedRead> readsInRegion = getReadsInRegion(region);
 			for (MappedRead read : readsInRegion) {
-				Random rand = new Random();
-				if (rand.nextDouble() > alpha) {
-					// add randomness
-					// add randomness. Flip methyl status
-					read.getCpgList().stream().filter(cpG -> rand.nextDouble() < beta).forEach(cpG -> {
+				// add randomness. Flip methyl status
+				read.getCpgList().stream().forEach(cpG -> {
+					if (Math.random() < alpha) {
 						// add randomness. Flip methyl status
 						cpG.setMethylStatus(cpG.getMethylStatus() == MethylStatus.C ? MethylStatus.T : MethylStatus.C);
-					});
-				}
+					}
+				});
 			}
 		}
 	}
