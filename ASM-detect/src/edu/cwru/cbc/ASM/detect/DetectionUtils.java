@@ -43,6 +43,10 @@ public class DetectionUtils {
 		for (double i = 1; i < pvalueList.size(); i++) {
 			cm += 1 / i;
 		}
+		if (pvalueList.get(0) > fdr * (1) / (double) pvalueList.size() / cm) {
+			System.out.printf("first P values(%d) > a*k/(m*cm). reject all p values.\n", pvalueList.size());
+			return -1;
+		}
 		for (int i = 1; i < pvalueList.size(); i++) {
 			if (pvalueList.get(i) > fdr * (i + 1) / (double) pvalueList.size() / cm) {
 				System.out.println("k is " + i);
@@ -51,7 +55,8 @@ public class DetectionUtils {
 				return pvalueList.get(i - 1);
 			}
 		}
-		throw new RuntimeException("no P value <= a*k/(m*cm)");
+		System.out.printf("all P values(%d) <= a*k/(m*cm). Use the last p as cutoff.\n", pvalueList.size());
+		return pvalueList.get(pvalueList.size() - 1);
 	}
 
 	/**
@@ -64,6 +69,10 @@ public class DetectionUtils {
 	 */
 	public static double getBHFDRCutoff(List<Double> pvalueList, double fdr) {
 		pvalueList.sort(Double::compare);
+		if (pvalueList.get(0) > fdr * (1) / (double) pvalueList.size()) {
+			System.out.printf("first P values(%d) > a*k/m. reject all p values.\n", pvalueList.size());
+			return -1;
+		}
 		for (int i = 1; i < pvalueList.size(); i++) {
 			if (pvalueList.get(i) > fdr * (i + 1) / (double) pvalueList.size()) {
 				System.out.println("k is " + i);
@@ -71,7 +80,8 @@ public class DetectionUtils {
 				return pvalueList.get(i - 1);
 			}
 		}
-		throw new RuntimeException("no P value <= a*k/m");
+		System.out.printf("all P values(%d) <= a*k/m. Use the last p as cutoff.\n", pvalueList.size());
+		return pvalueList.get(pvalueList.size() - 1);
 	}
 
 	public static double correctPbyBonferroni(double p, int count) {
