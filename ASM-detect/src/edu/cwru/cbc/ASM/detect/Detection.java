@@ -384,7 +384,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double p = 0;
 		for (RefCpG refCpG : twoClusterRefCpGList) {
 			double majorMethylLevel = majorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylLevel();
-			long comb = CombinatoricsUtils.binomialCoefficient(
+			double comb = CombinatoricsUtils.binomialCoefficientDouble(
 					minorityCluster.getRefCpGMap().get(refCpG.getPos()).getCoveredCount(),
 					minorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylCount());
 			p += comb *
