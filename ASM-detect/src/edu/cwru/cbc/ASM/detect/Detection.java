@@ -96,7 +96,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("errorProb", "%f"))
-						.add(new ImmutablePair<>("regionP", "%.10f"))
+						.add(new ImmutablePair<>("regionP", "%e"))
 						.add(new ImmutablePair<>("group1", "%d"))
 						.add(new ImmutablePair<>("group2", "%d"))
 						.add(new ImmutablePair<>("label", "%s"))
@@ -356,7 +356,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		for (RefCpG refCpG : refCpGList) {
 			if (refCpG.getP_value() != -1) {
 				groupResultWriter.write(
-						Strings.padEnd(String.format("%.8f", refCpG.getP_value()), ALIGN_COL_SIZE, ' '));
+						Strings.padEnd(String.format("%.4e", refCpG.getP_value()), ALIGN_COL_SIZE, ' '));
 			} else {
 				groupResultWriter.write(Strings.repeat(" ", ALIGN_COL_SIZE));
 
