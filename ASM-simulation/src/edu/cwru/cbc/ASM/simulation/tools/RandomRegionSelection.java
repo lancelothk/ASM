@@ -18,11 +18,11 @@ public class RandomRegionSelection {
 	public static void main(String[] args) throws IOException {
 		String currUserHome = System.getProperty("user.home");
 		String inputFile = currUserHome +
-				"/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_qualifiedLength_8_0.2.Bed";
+				"/experiments/ASM/simulation/CpGIslandsRegions/nonCpGIslandsRegions_selected_100000_15_5.Bed";
+		int numberOfSelection = 100;
 
 		Random rand = new Random();
 		List<GenomicInterval> regionList = BedUtils.readSingleChromBedRegions(inputFile);
-		int numberOfSelection = 100;
 		List<GenomicInterval> selection = new ArrayList<>();
 		while (selection.size() != numberOfSelection) {
 			GenomicInterval genomicInterval = regionList.get(rand.nextInt(regionList.size()));
@@ -30,7 +30,6 @@ public class RandomRegionSelection {
 				selection.add(genomicInterval);
 			}
 		}
-
 
 		BufferedWriter writer = new BufferedWriter(
 				new FileWriter(inputFile.replace(".Bed", "") + "_selection" + ".Bed"));
