@@ -14,7 +14,7 @@ import java.util.Random;
  * Created by lancelothk on 2/24/15.
  * random select regions.
  */
-public class RandomRegions {
+public class RandomRegionSelection {
 	public static void main(String[] args) throws IOException {
 		String currUserHome = System.getProperty("user.home");
 		String inputFile = currUserHome +
