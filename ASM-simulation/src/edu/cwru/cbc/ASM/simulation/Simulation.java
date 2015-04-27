@@ -75,7 +75,7 @@ public class Simulation {
 		// generate non-ASM regions
 		List<GenomicInterval> nonASMRegions = generateNonASMRegions(refChr, targetRegionsMap);
 
-		// attach refCpG to regions
+		// attach refCpG to regions and generate random allele pattern.
 		attachRefCpGToRegions(refCpGList, targetRegionsMap, nonASMRegions);
 
 		// read input sequences
@@ -194,7 +194,7 @@ public class Simulation {
 								}
 							});
 				} else {
-					// allele 2 : conterpart of allele 1
+					// allele 2 : counterpart of allele 1
 					mappedRead.getCpgList()
 							.stream()
 							.filter(cpg -> targetRegion.getRefCpGList().contains(cpg.getRefCpG()))
