@@ -23,7 +23,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="commons-math3" level="project" />
-    <orderEntry type="module" module-name="ASM-tools" />
+    <orderEntry type="module" module-name="ASM-conversion" />
     <orderEntry type="library" name="commons-cli-1.2" level="project" />
     <orderEntry type="module" module-name="ASM-visualization" />
   </component>
