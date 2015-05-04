@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
  * generate semi-simulated ASM data
  */
 public class Simulation {
+
+	public static final int MIN_READ_CPG = 2;
+
 	public static void main(String[] args) throws IOException, ParseException {
 		long start = System.currentTimeMillis();
 
@@ -80,7 +83,7 @@ public class Simulation {
 
 		// read input sequences
 		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(refCpGList, 0));
+				.readLines(new MappedReadLineProcessor(refCpGList, MIN_READ_CPG));
 
 		System.out.println("load reads finished");
 

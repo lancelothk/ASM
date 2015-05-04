@@ -20,14 +20,16 @@ public class RegionSelectionOnCoverage {
 	public static void main(String[] args) throws IOException {
 		String currUserHome = System.getProperty("user.home");
 		RefChr refChr = CommonsUtils.readReferenceGenome(currUserHome + "/experiments/ASM/data/hg18_chr20.fa");
-		String inputFolderName = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/nonCGI_regions";
+		String regionType = "nonCGI";
+		String inputFolderName =
+				currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/" + regionType + "_regions";
 		String outputBedRegionFolderName = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/";
 		// >= min_coverage && < max_coverage
-		execution(refChr, inputFolderName, outputBedRegionFolderName, 15, 10, 5);
+		execution(refChr, regionType, inputFolderName, outputBedRegionFolderName, 15, 10, 5);
 	}
 
-	private static void execution(RefChr refChr, String inputFolderName, String outputBedRegionFolderName,
-			int max_coverage, int min_coverage, int min_cpg_number) throws IOException {
+	private static void execution(RefChr refChr, String regionType, String inputFolderName, String outputBedRegionFolderName,
+								  int max_coverage, int min_coverage, int min_cpg_number) throws IOException {
 		bpsPassedCoverageThreshold = 0;
 		totalLength = 0;
 		count = 0;
@@ -40,7 +42,7 @@ public class RegionSelectionOnCoverage {
 		//		String prefix = "i90_r1_chr20_";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputBedRegionFolderName +
-				String.format("nonCpGIslandsRegions_selected_%d_%d_%d.Bed", max_coverage, min_coverage,
+				String.format(regionType + "IslandsRegions_selected_%d_%d_%d.Bed", max_coverage, min_coverage,
 						min_cpg_number)));
 
 		File inputFolder = new File(inputFolderName);
