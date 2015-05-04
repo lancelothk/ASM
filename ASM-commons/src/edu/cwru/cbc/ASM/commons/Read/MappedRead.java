@@ -2,11 +2,13 @@ package edu.cwru.cbc.ASM.commons.Read;
 
 import com.google.common.base.Strings;
 import edu.cwru.cbc.ASM.commons.CpG.CpG;
+import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 import edu.cwru.cbc.ASM.commons.MethylStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by lancelothk on 11/12/14.
@@ -34,6 +36,19 @@ public class MappedRead {
 		this.cpgList = new ArrayList<>();
 	}
 
+	public static int countCpGInRead(MappedRead mappedRead, Map<Integer, RefCpG> refMap) {
+		int count = 0;
+		for (int i = mappedRead.getStart(); i < mappedRead.getEnd(); i++) {
+			if (refMap.containsKey(i)) {
+				if (mappedRead.getMethylStatus(i) == MethylStatus.T ||
+						mappedRead.getMethylStatus(i) == MethylStatus.C) {
+					count++;
+					i++;
+				}
+			}
+		}
+		return count;
+	}
 
 	public String getChr() {
 		return chr;

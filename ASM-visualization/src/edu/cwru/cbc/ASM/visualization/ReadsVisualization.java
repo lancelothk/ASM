@@ -17,12 +17,12 @@ public class ReadsVisualization {
 
 	public static void main(String[] args) throws IOException, ParseException {
 		Options options = new Options();
-		options.addOption("t", true, "input file");
+		options.addOption("i", true, "input file");
 
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = parser.parse(options, args);
 
-		String inputFileName = cmd.getOptionValue("t");
+		String inputFileName = cmd.getOptionValue("i");
 		ReadsVisualization.align(inputFileName);
 	}
 

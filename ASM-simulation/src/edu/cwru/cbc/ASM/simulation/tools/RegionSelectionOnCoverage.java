@@ -25,7 +25,7 @@ public class RegionSelectionOnCoverage {
 				currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/" + regionType + "_regions";
 		String outputBedRegionFolderName = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/";
 		// >= min_coverage && < max_coverage
-		execution(refChr, regionType, inputFolderName, outputBedRegionFolderName, 15, 10, 5);
+		execution(refChr, regionType, inputFolderName, outputBedRegionFolderName, 10, 5, 5);
 	}
 
 	private static void execution(RefChr refChr, String regionType, String inputFolderName, String outputBedRegionFolderName,
@@ -42,7 +42,7 @@ public class RegionSelectionOnCoverage {
 		//		String prefix = "i90_r1_chr20_";
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputBedRegionFolderName +
-				String.format(regionType + "IslandsRegions_selected_%d_%d_%d.Bed", max_coverage, min_coverage,
+				String.format(regionType + "Regions_selected_%d_%d_%d.Bed", max_coverage, min_coverage,
 						min_cpg_number)));
 
 		File inputFolder = new File(inputFolderName);

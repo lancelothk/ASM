@@ -4,6 +4,7 @@ import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 import edu.cwru.cbc.ASM.commons.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 
 import java.io.*;
@@ -18,14 +19,23 @@ import java.util.stream.Collectors;
  * extract reads by regions.
  */
 public class RegionReadsExtraction {
+
+    public static final int MIN_READ_CPG = 2;
+
     public static void main(String[] args) throws IOException {
         long startTime = System.currentTimeMillis();
         String currUserHome = System.getProperty("user.home");
         String referenceGenomeFileName = currUserHome + "/experiments/ASM/data/hg18_chr20.fa";
         String inputReadsPath = currUserHome + "/experiments/ASM/data/i90_r1_chr20";
+        String regionType = "CGI";
         String targetRegionFile = currUserHome +
-                "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_nonCGI.bed";
-        String outputFolder = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/nonCGI_regions";
+                "/experiments/ASM/simulation/CpGIslandsRegions/cpgIslandExt_hg18_UCSCGB_chr20_" + regionType + ".bed";
+        String outputFolder = currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/" + regionType + "_regions";
+
+        File outputFolderFile = new File(outputFolder);
+        if (!outputFolderFile.exists()) {
+            outputFolderFile.mkdir();
+        }
 
         BufferedReader readReader = new BufferedReader(new FileReader(inputReadsPath));
         List<String> lines = readReader.lines().collect(Collectors.toList());
@@ -45,14 +55,18 @@ public class RegionReadsExtraction {
         }
 
         lines.stream().forEach(r -> {
-            String[] tmpItems = r.split("\t");
-            int x = Integer.parseInt(tmpItems[2]);
-            int y = Integer.parseInt(tmpItems[3]);
+            String[] items = r.split("\t");
+            int start = Integer.parseInt(items[2]);
+            int end = Integer.parseInt(items[3]);
 
-            targetRegionsMap.keySet()
-                    .stream()
-                    .filter(genomicInterval -> x <= genomicInterval.getEnd() && y >= genomicInterval.getStart())
-                    .forEach(genomicInterval -> targetRegionsMap.get(genomicInterval).add(r));
+            MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), start, end, items[4], items[5]);
+            if (MappedRead.countCpGInRead(mappedRead, refMap) >= MIN_READ_CPG) {
+                targetRegionsMap.keySet()
+                        .stream()
+                        .filter(genomicInterval -> start <= genomicInterval.getEnd() &&
+                                end >= genomicInterval.getStart())
+                        .forEach(genomicInterval -> targetRegionsMap.get(genomicInterval).add(r));
+            }
 
         });
 
