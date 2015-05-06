@@ -114,8 +114,10 @@ public class CPMR {
 				cont = next.getCpGCoverage() >= min_cpg_coverage && next.hasPartialMethyl() && curr.hasCommonRead(next);
 			}
 		}
-		if (cont && resultRefCpGList.size() > 0) {
-			resultRefCpGList.add(resultRefCpGList.get(resultRefCpGList.size() - 1));
+		if (resultRefCpGList.size() > 0) {
+			if (cont) {
+				resultRefCpGList.add(resultRefCpGList.get(resultRefCpGList.size() - 1));
+			}
 			cpgSiteIntervalList.add(resultRefCpGList);
 		}
 		return cpgSiteIntervalList;
