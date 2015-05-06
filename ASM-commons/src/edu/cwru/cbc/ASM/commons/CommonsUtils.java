@@ -20,7 +20,7 @@ public class CommonsUtils {
 
 	/**
 	 * Extract reference CpG from reference string.
-	 *
+	 * @param initPos 1-based. Same to UCSCGB.
 	 * @param reference should be upperCase string and without space in it.
 	 * @return returned List is sorted by position.
 	 */

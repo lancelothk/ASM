@@ -10,7 +10,7 @@ import java.util.List;
  * Store reference CpG site information in reference genome.
  */
 public class RefCpG implements Comparable<RefCpG> {
-	private int pos;
+	private int pos; // 1-based. Same to UCSCGB.
 	private int index;
 	private List<CpG> cpGList;
 	private int methylCount;

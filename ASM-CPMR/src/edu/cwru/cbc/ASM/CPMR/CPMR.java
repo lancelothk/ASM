@@ -25,6 +25,7 @@ import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
  * Main entry of the module.
  */
 public class CPMR {
+	public static final int INIT_POS = 0;
 	private static int outputIntervalCount = 0;
 
 	public static void main(String[] args) throws ParseException, IOException {
@@ -68,7 +69,7 @@ public class CPMR {
 		}
 
 		RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
-		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), 0);
+		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
@@ -181,7 +182,8 @@ public class CPMR {
 												 int min_read_cpg) throws IOException {
 		BufferedWriter mappedReadWriter = new BufferedWriter(
 				new FileWriter(String.format("%s/%s-%d-%d", intervalFolderName, refChr.getChr(), startPos, endPos)));
-		mappedReadWriter.write(String.format("ref:\t%s\n", refChr.getRefString().substring(startPos, endPos + 1)));
+		mappedReadWriter.write(String.format("ref:\t%s\n",
+				refChr.getRefString().substring(startPos - INIT_POS, endPos + 1 - INIT_POS)));
 		for (MappedRead mappedRead : mappedReadSet) {
 			// The mapped read to write should contain at least min_read_cpg cpgs.
 			assert mappedRead.getCpgList().size() < min_read_cpg;
