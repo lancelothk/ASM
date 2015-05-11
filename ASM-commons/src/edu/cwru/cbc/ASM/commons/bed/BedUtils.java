@@ -63,10 +63,10 @@ public class BedUtils {
 								default:
 									throw new RuntimeException("invalid label!\t" + line);
 							}
-							addRegionToList(new GenomicInterval(items[0], Integer.parseInt(items[1]),
+							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
 						} else {
-							addRegionToList(new GenomicInterval(items[0], Integer.parseInt(items[1]),
+							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
 						}
 						return true;
