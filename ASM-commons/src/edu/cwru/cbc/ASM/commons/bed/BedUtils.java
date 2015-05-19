@@ -24,10 +24,13 @@ public class BedUtils {
 	public static List<GenomicInterval> readSingleChromBedRegions(String bedFileName,
 			boolean readLabel) throws IOException {
 		Map<String, List<GenomicInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
-		if (regionsMap.size() != 1) {
+		if (regionsMap.size() == 0) {
+			return new ArrayList<>();
+		} else if (regionsMap.size() == 1) {
+			return Iterables.get(regionsMap.values(), 0);
+		} else {
 			throw new RuntimeException("Bed file should only contain regions from single chromosome!");
 		}
-		return Iterables.get(regionsMap.values(), 0);
 	}
 
 	/**
