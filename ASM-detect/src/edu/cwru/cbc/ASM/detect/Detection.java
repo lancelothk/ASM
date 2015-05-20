@@ -177,18 +177,22 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		graph.cluster();
 
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
-		// get fisher test P values for each refCpG in clusters.
-		double regionP;
-		if (fisherTest(graph, twoClusterRefCpGList)) {
-			regionP = calcRegionP_FisherComb(twoClusterRefCpGList);
-		} else {
-			// give 2 if only one cluster
-			regionP = 2;
-		}
 
+		double regionP;
 		if (twoClusterRefCpGList.size() < min_interval_cpg) {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
+		} else if (fisherTest(graph, twoClusterRefCpGList)) {
+			// get fisher test P values for each refCpG in clusters.
+			regionP = calcRegionP_FisherComb(twoClusterRefCpGList);
+
+			// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
+			twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
+			startPos = twoClusterRefCpGList.get(0).getPos();
+			endPos = twoClusterRefCpGList.get(twoClusterRefCpGList.size() - 1).getPos() + 1;
+		} else {
+			// give 2 if only one cluster
+			regionP = 2;
 		}
 
 		double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
