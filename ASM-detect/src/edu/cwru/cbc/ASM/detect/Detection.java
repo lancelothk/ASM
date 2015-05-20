@@ -148,12 +148,15 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private static void writeDetectionSummary(String summaryFileName, List<IntervalDetectionSummary> resultList,
 			double region_threshold) throws IOException {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
+		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(summaryFileName + ".bed"));
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
 			if (result.getRegionP() <= region_threshold) {
 				summaryWriter.write(result.getSummaryString(region_threshold));
+				bedWriter.write(result.getBedString());
 			}
 		}
+		bedWriter.close();
 		summaryWriter.close();
 	}
 
@@ -199,7 +202,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		if (graph.getClusterResult().values().size() > 2) {
 			throw new RuntimeException("more than 2 clusters in result!");
 		}
-		return new IntervalDetectionSummary(regionP, chr, startPos, endPos, endPos - startPos + 1,
+		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage, graph.getCpGSum(),
 				graph.getMECSum(), graph.getNormMECSum(),
