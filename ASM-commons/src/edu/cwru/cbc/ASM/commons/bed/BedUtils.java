@@ -68,10 +68,15 @@ public class BedUtils {
 							}
 							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
-						} else {
-							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+                        } else if (items.length >= 4) {
+                            // more than 3 columns bed format
+                            addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
-						}
+                        } else {
+                            // 3 columns bed format
+                            addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+                                    Integer.parseInt(items[2]), ""), genomicIntervalMap);
+                        }
 						return true;
 					}
 
