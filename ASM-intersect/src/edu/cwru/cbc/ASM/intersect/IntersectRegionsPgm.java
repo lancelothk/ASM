@@ -17,27 +17,27 @@ public class IntersectRegionsPgm {
 		Options options = new Options();
 		options.addOption("a", true, "bed file A");
 		options.addOption("b", true, "bed file B");
-		options.addOption("o", true, "output path");
+        options.addOption("o", true, "output file name");
 
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String aFileName = cmd.getOptionValue("a");
 		String bFileName = cmd.getOptionValue("b");
-		String outputPathName = cmd.getOptionValue("o");
+        String outputFileName = cmd.getOptionValue("o");
 
-		execution(aFileName, bFileName, outputPathName);
-	}
+        execution(aFileName, bFileName, outputFileName);
+    }
 
-	private static void execution(String aFileName, String bFileName, String outputPathName) throws IOException {
-		Collection<GenomicInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName, true);
+    private static void execution(String aFileName, String bFileName, String outputFileName) throws IOException {
+        Collection<GenomicInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName, true);
 		Collection<GenomicInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName, true);
 		Collection<GenomicInterval> intersections = BedUtils.intersect(regionsA, regionsB);
-		BedUtils.writeBedRegions(intersections, outputPathName + "intersection.bed");
-		BedUtils.writeBedWithIntersection(regionsA,
-				outputPathName + new File(aFileName).getName() + "_intersected.bed");
-		BedUtils.writeBedWithIntersection(regionsB,
-				outputPathName + new File(bFileName).getName() + "_intersected.bed");
+        BedUtils.writeBedRegions(intersections, outputFileName);
+        BedUtils.writeBedWithIntersection(regionsA,
+                new File(aFileName).getAbsolutePath() + "_intersected.bed");
+        BedUtils.writeBedWithIntersection(regionsB,
+                new File(bFileName).getAbsolutePath() + "_intersected.bed");
 
 		double intersectedCount_regionA = regionsA.stream().filter(GenomicInterval::isIntersected).count();
 		double nonIntersectedCount_regionA = regionsA.stream().filter(r -> !r.isIntersected()).count();
