@@ -187,7 +187,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			regionP = 3;
 		} else if (fisherTest(graph, twoClusterRefCpGList)) {
 			// get fisher test P values for each refCpG in clusters.
-			regionP = calcRegionP_FisherComb(twoClusterRefCpGList);
+			regionP = calcRegionP_StoufferComb(twoClusterRefCpGList);
 
 			// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
 			twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
