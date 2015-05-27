@@ -49,9 +49,9 @@ public class RefCpGTest {
 
 	@Test
 	public void testHasCommonRead() throws Exception {
-		assertTrue(rc1.hasCommonRead(rc2));
-		assertTrue(!rc1.hasCommonRead(rc3));
-		assertTrue(rc2.hasCommonRead(rc3));
+		assertTrue(rc1.hasCommonRead(rc2, 0));
+		assertTrue(!rc1.hasCommonRead(rc3, 0));
+		assertTrue(rc2.hasCommonRead(rc3, 0));
 	}
 
 	@Test
