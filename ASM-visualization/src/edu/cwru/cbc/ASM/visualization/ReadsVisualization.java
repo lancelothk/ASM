@@ -86,4 +86,26 @@ public class ReadsVisualization {
 		}
 		bufferedWriter.close();
 	}
+
+	public static void alignReadsIntoGroups(List<List<MappedRead>> readGroups, String ref, String outputFileName) throws IOException {
+		List<MappedRead> allReads = new ArrayList<>();
+		readGroups.forEach(allReads::addAll);
+		// sort reads first
+		allReads.sort(new ReadComparator());
+		// set initial position
+		int initialPos = allReads.get(0).getStart();
+		BufferedWriter bufferedWriter;
+		bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
+		if (ref != null) {
+			bufferedWriter.write(String.format("ref:\t%s\n", ref));
+		}
+		for (List<MappedRead> readGroup : readGroups) {
+			readGroup.sort(new ReadComparator());
+			for (MappedRead read : readGroup) {
+				bufferedWriter.write(read.toVisualizationString(initialPos) + "\n");
+			}
+			bufferedWriter.write("\n");
+		}
+		bufferedWriter.close();
+	}
 }

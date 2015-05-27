@@ -202,6 +202,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		if (graph.getClusterResult().values().size() > 2) {
 			throw new RuntimeException("more than 2 clusters in result!");
 		}
+		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(Vertex::getMappedReadList).collect(Collectors.toList());
+		ReadsVisualization.alignReadsIntoGroups(readGroups, reference, inputFile.getAbsolutePath() + ".groups.aligned");
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage, graph.getCpGSum(),
