@@ -54,8 +54,8 @@ public class CPMR {
 	}
 
 	private static void splitEpigenome(String referenceGenomeFileName, String mappedReadFileName, String outputPath,
-									   int min_cpg_coverage, int min_read_cpg, int min_interval_cpg,
-									   int min_interval_reads) throws IOException {
+	                                   int min_cpg_coverage, int min_read_cpg, int min_interval_cpg,
+	                                   int min_interval_reads) throws IOException {
 		long start = System.currentTimeMillis();
 		outputPath += String.format("/experiment_%d_%d_%d_%d/", min_cpg_coverage, min_read_cpg, min_interval_cpg,
 				min_interval_reads);
@@ -125,16 +125,16 @@ public class CPMR {
 	}
 
 	private static void writeIntervals(String intervalFolderName, String summaryFileName, RefChr refChr,
-									   List<List<RefCpG>> cpgSiteIntervalList, int min_cpg_coverage,
-									   int min_interval_cpg, int min_interval_reads,
-									   int min_read_cpg) throws IOException {
+	                                   List<List<RefCpG>> cpgSiteIntervalList, int min_cpg_coverage,
+	                                   int min_interval_cpg, int min_interval_reads,
+	                                   int min_read_cpg) throws IOException {
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		intervalSummaryWriter.write("chr\tlength\treadCount\tCpGCount\tstartCpG\tendCpG\n");
 		cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = getReadsFromCpGs(min_cpg_coverage, list);
 			// only pass high quality result for next step.
 			if (mappedReadSet.size() >= min_interval_reads && list.size() >= min_interval_cpg) {
-				List<MappedRead> mappedReadList = mappedReadSet.stream()
+				List<MappedRead> mappedReadList = mappedReadSet.stream().filter(mr -> countOverlapCpG(mr, list) >= min_read_cpg)
 						.sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
 						.sorted((m1, m2) -> m1.getStart() - m2.getStart())
 						.collect(Collectors.toList());
@@ -148,8 +148,7 @@ public class CPMR {
 					intervalSummaryWriter.write(
 							String.format("%s\t%d\t%d\t%d\t%d\t%d\n", refChr.getChr(), endPos - startPos + 1,
 									mappedReadList.size(), list.size(), startCpGPos, endCpGPos));
-					writeMappedReadInInterval(intervalFolderName, refChr, startPos, endPos, mappedReadList,
-							min_read_cpg);
+					writeMappedReadInInterval(intervalFolderName, refChr, startPos, endPos, mappedReadList);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -165,6 +164,17 @@ public class CPMR {
 		writer.close();
 	}
 
+	private static int countOverlapCpG(MappedRead read, List<RefCpG> refCpGList) {
+		Map<Integer, RefCpG> refCpGMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		int count = 0;
+		for (CpG cpG : read.getCpgList()) {
+			if (refCpGMap.containsKey(cpG.getPos())) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	private static Set<MappedRead> getReadsFromCpGs(int min_cpg_coverage, List<RefCpG> list) {
 		Set<MappedRead> mappedReadSet = new HashSet<>();
 		list.forEach((refCpG) -> {
@@ -178,15 +188,12 @@ public class CPMR {
 	 * write single interval output in mapped read format like the original data *
 	 */
 	public static void writeMappedReadInInterval(String intervalFolderName, RefChr refChr, int startPos, int endPos,
-												 Collection<MappedRead> mappedReadSet,
-												 int min_read_cpg) throws IOException {
+	                                             Collection<MappedRead> mappedReadSet) throws IOException {
 		BufferedWriter mappedReadWriter = new BufferedWriter(
 				new FileWriter(String.format("%s/%s-%d-%d", intervalFolderName, refChr.getChr(), startPos, endPos)));
 		mappedReadWriter.write(String.format("ref:\t%s\n",
 				refChr.getRefString().substring(startPos - INIT_POS, endPos + 1 - INIT_POS)));
 		for (MappedRead mappedRead : mappedReadSet) {
-			// The mapped read to write should contain at least min_read_cpg cpgs.
-			assert mappedRead.getCpgList().size() < min_read_cpg;
 			mappedReadWriter.write(mappedRead.outputString(startPos, endPos));
 		}
 		mappedReadWriter.close();
