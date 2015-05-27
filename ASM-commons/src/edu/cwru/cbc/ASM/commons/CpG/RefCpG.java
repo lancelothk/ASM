@@ -44,11 +44,15 @@ public class RefCpG implements Comparable<RefCpG> {
 	/**
 	 * check if parameter RefCpG have shared reads  with current RefCpG *
 	 */
-	public boolean hasCommonRead(RefCpG next) {
+	public boolean hasCommonRead(RefCpG next, int min_cpg_coverage) {
+		int count = 0;
 		for (CpG cCpg : this.getCpGList()) {
 			for (CpG nCpg : next.getCpGList()) {
 				if (cCpg.getMappedRead() == nCpg.getMappedRead()) {
-					return true;
+					count++;
+					if (count >= min_cpg_coverage) {
+						return true;
+					}
 				}
 			}
 		}
@@ -84,8 +88,8 @@ public class RefCpG implements Comparable<RefCpG> {
 				n++;
 			}
 		}
-		double rate = m > n ? n / m : m / n;
-		return rate >= 0.1;
+		double rate = m > n ? n / (m + n) : m / (m + n);
+		return rate >= 0.2;
 	}
 
 	public void addMethylCount(int count) {
