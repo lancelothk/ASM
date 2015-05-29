@@ -22,7 +22,7 @@ public class BedUtils {
 	}
 
 	public static List<GenomicInterval> readSingleChromBedRegions(String bedFileName,
-			boolean readLabel) throws IOException {
+	                                                              boolean readLabel) throws IOException {
 		Map<String, List<GenomicInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
 		if (regionsMap.size() == 0) {
 			return new ArrayList<>();
@@ -39,7 +39,7 @@ public class BedUtils {
 	 * And the last column label if readLabel is true.
 	 */
 	public static Map<String, List<GenomicInterval>> readBedRegions(String bedFileName,
-			boolean readLabel) throws IOException {
+	                                                                boolean readLabel) throws IOException {
 		return Files.readLines(new File(bedFileName), Charsets.UTF_8,
 				new LineProcessor<Map<String, List<GenomicInterval>>>() {
 					private Map<String, List<GenomicInterval>> genomicIntervalMap = new HashMap<>();
@@ -68,15 +68,15 @@ public class BedUtils {
 							}
 							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
-                        } else if (items.length >= 4) {
-                            // more than 3 columns bed format
-                            addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+						} else if (items.length >= 4) {
+							// more than 3 columns bed format
+							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
-                        } else {
-                            // 3 columns bed format
-                            addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
-                                    Integer.parseInt(items[2]), ""), genomicIntervalMap);
-                        }
+						} else {
+							// 3 columns bed format
+							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+									Integer.parseInt(items[2]), ""), genomicIntervalMap);
+						}
 						return true;
 					}
 
@@ -88,13 +88,9 @@ public class BedUtils {
 	}
 
 	private static void addRegionToList(GenomicInterval newRegion,
-			Map<String, List<GenomicInterval>> genomicIntervalMap) {
+	                                    Map<String, List<GenomicInterval>> genomicIntervalMap) {
 		if (genomicIntervalMap.containsKey(newRegion.getChr())) {
-			if (!hasOverlap(newRegion, genomicIntervalMap)) {
-				genomicIntervalMap.get(newRegion.getChr()).add(newRegion);
-			} else {
-				throw new RuntimeException("Regions have overlap!");
-			}
+			genomicIntervalMap.get(newRegion.getChr()).add(newRegion);
 		} else {
 			List<GenomicInterval> genomicIntervalList = new ArrayList<>();
 			genomicIntervalList.add(newRegion);
@@ -126,7 +122,7 @@ public class BedUtils {
 	}
 
 	public static Collection<GenomicInterval> intersect(Collection<GenomicInterval> regionsA,
-			Collection<GenomicInterval> regionsB) {
+	                                                    Collection<GenomicInterval> regionsB) {
 		List<GenomicInterval> intersections = new ArrayList<>();
 		for (GenomicInterval regionA : regionsA) {
 			for (GenomicInterval regionB : regionsB) {

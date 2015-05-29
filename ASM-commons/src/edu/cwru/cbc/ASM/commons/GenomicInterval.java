@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.commons;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by kehu on 2/12/15.
@@ -85,7 +86,16 @@ public class GenomicInterval extends GenomicIntervalBase implements Comparable<G
 
 
 	public String toBedWithIntersectionString() {
-		return String.format("%s\t%d\t%d\t%s\t%b", this.chr, this.start, this.end, this.name,isIntersected());
+		return String.format("%s\t%d\t%d\t%s\t%s\t%b", this.chr, this.start, this.end, this.name, uniqueRegionnames(intersectedRegions), isIntersected());
+	}
+
+	private String uniqueRegionnames(Set<GenomicInterval> intersectedRegions) {
+		Set<String> intersectionRegionNameSet = intersectedRegions.stream().map(GenomicInterval::getName).collect(Collectors.toSet());
+		StringBuilder sb = new StringBuilder();
+		for (String s : intersectionRegionNameSet) {
+			sb.append(s).append(',');
+		}
+		return sb.toString();
 	}
 
 	@Override
