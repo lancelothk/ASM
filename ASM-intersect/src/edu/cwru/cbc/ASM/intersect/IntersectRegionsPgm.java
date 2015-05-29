@@ -61,6 +61,8 @@ public class IntersectRegionsPgm {
 		System.out.printf("total length of A:%d\n", totalLengthRegionA);
 		System.out.printf("#covered regions in A:%d(%.4f)\n", intersectedCount_regionA,
 				(double) intersectedCount_regionA / regionsA.size());
+		System.out.printf("#non-covered regions in A:%d(%.4f)\n", nonIntersectedCount_regionA,
+				(double) nonIntersectedCount_regionA / regionsA.size());
 		System.out.printf("percent of intersected length of A:%.4f\n", (double) intersectionLength / totalLengthRegionA);
 		assert intersectedCount_regionA + nonIntersectedCount_regionA == regionsA.size();
 
@@ -69,6 +71,8 @@ public class IntersectRegionsPgm {
 		System.out.printf("total length of B:%d\n", totalLengthRegionB);
 		System.out.printf("#covered regions in B:%d(%.4f)\n", intersectedCount_regionB,
 				(double) intersectedCount_regionB / regionsB.size());
+		System.out.printf("#non-covered regions in B:%d(%.4f)\n", nonIntersectedCount_regionB,
+				(double) nonIntersectedCount_regionB / regionsB.size());
 		System.out.printf("percent of intersected length of B:%.4f\n", (double) intersectionLength / totalLengthRegionB);
 		assert intersectedCount_regionB + nonIntersectedCount_regionB == regionsB.size();
 
