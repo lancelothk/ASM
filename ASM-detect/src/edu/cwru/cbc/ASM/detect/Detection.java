@@ -78,7 +78,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private static void execute(String inputName, String summaryFileName, int threadNumber, int min_interval_cpg,
-			double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
+	                            double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
 				new ImmutableList.Builder<Pair<String, String>>().add(new ImmutablePair<>("chr", "%s"))
@@ -91,7 +91,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						.add(new ImmutablePair<>("#refCpG", "%d"))
 						.add(new ImmutablePair<>("#clusterCpG", "%d"))
 						.add(new ImmutablePair<>("#cluster", "%d"))
-						.add(new ImmutablePair<>("avgGroupPerCpG", "%f"))
 						.add(new ImmutablePair<>("CpGsum", "%d"))
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
@@ -99,6 +98,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						.add(new ImmutablePair<>("regionP", "%e"))
 						.add(new ImmutablePair<>("group1", "%d"))
 						.add(new ImmutablePair<>("group2", "%d"))
+						.add(new ImmutablePair<>("group1Methyl", "%f"))
+						.add(new ImmutablePair<>("group2Methyl", "%f"))
 						.add(new ImmutablePair<>("label", "%s"))
 						.build());
 
@@ -146,7 +147,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private static void writeDetectionSummary(String summaryFileName, List<IntervalDetectionSummary> resultList,
-			double region_threshold) throws IOException {
+	                                          double region_threshold) throws IOException {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(summaryFileName + ".bed"));
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
@@ -198,21 +199,22 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			regionP = 2;
 		}
 
-		double avgGroupCpGCoverage = writeGroupResult(refCpGList, graph);
-		if (graph.getClusterResult().values().size() > 2) {
-			throw new RuntimeException("more than 2 clusters in result!");
+		List<GroupResult> groupResultList = writeGroupResult(refCpGList, graph);
+		if (graph.getClusterResult().values().size() != 2) {
+			throw new RuntimeException("clusters number is not 2!");
 		}
 		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(Vertex::getMappedReadList).collect(Collectors.toList());
 		ReadsVisualization.alignReadsIntoGroups(readGroups, reference, inputFile.getAbsolutePath() + ".groups.aligned");
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
-				twoClusterRefCpGList.size(), graph.getClusterResult().size(), avgGroupCpGCoverage, graph.getCpGSum(),
+				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
 				graph.getMECSum(), graph.getNormMECSum(),
 				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), regionP,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
-				graph.getClusterResult().values().size() == 1 ? 0 : Iterables.get(graph.getClusterResult().values(), 1)
-						.getMappedReadList()
-						.size(), "<label>");
+				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
+				groupResultList.get(0).getAvgMethylLevel(),
+				groupResultList.get(1).getAvgMethylLevel(),
+				"<label>");
 	}
 
 	private void extractIntervalPosition(File inputFile) {
@@ -266,7 +268,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
 	}
 
-	private double writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
+	private List<GroupResult> writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
 		BufferedWriter groupResultWriter = new BufferedWriter(
 				new FileWriter(inputFile.getAbsolutePath() + ".detected"));
 
@@ -274,7 +276,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
 		groupResultWriter.write(String.format("tied id counter:%d\n", graph.getTieIdCountCounter()));
 
-		double sum = printRefCpGGroupCoverage(refCpGList, graph, groupResultWriter);
+		printRefCpGGroupCoverage(refCpGList, graph, groupResultWriter);
 
 		List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, groupResultWriter);
 		writePvalues(refCpGList, groupResultWriter);
@@ -283,7 +285,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		groupResultWriter.close();
 
-		return sum / graph.getClusterRefCpGMap().size();
+		return groupResultList;
 	}
 
 	private double calcErrorProbability(Collection<Vertex> clusterResult, List<RefCpG> twoClusterRefCpGList) {
@@ -312,22 +314,19 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return p;
 	}
 
-	private double printRefCpGGroupCoverage(List<RefCpG> refCpGList, ASMGraph graph,
-			BufferedWriter groupResultWriter) throws IOException {
+	private void printRefCpGGroupCoverage(List<RefCpG> refCpGList, ASMGraph graph,
+	                                      BufferedWriter groupResultWriter) throws IOException {
 		// print refCpG's group coverage
-		double sum = 0;
 		for (RefCpG refCpG : refCpGList) {
 			if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
 				groupResultWriter.write(String.format("pos: %d\tcount: %d\n", refCpG.getPos(),
 						graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount()));
-				sum += graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount();
 			}
 		}
-		return sum;
 	}
 
 	private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph,
-			BufferedWriter groupResultWriter) throws IOException {
+	                                             BufferedWriter groupResultWriter) throws IOException {
 		List<GroupResult> groupResultList = graph.getClusterResult()
 				.values()
 				.stream()
@@ -341,12 +340,16 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		for (int i = 0; i < groupResultList.size(); i++) {
 			groupResultWriter.write(i + ":\t");
+			int count = 0;
+			double methylLevel = 0;
 			for (RefCpG refCpG : refCpGList) {
 				Map<Integer, RefCpG> refCpGMap = groupResultList.get(i)
 						.getRefCpGList()
 						.stream()
 						.collect(Collectors.toMap(RefCpG::getPos, r -> r));
 				if (refCpGMap.containsKey(refCpG.getPos())) {
+					count++;
+					methylLevel += refCpGMap.get(refCpG.getPos()).getMethylLevel();
 					groupResultWriter.write(Strings.padEnd(
 							String.format("%.2f(%d)", refCpGMap.get(refCpG.getPos()).getMethylLevel(),
 									refCpGMap.get(refCpG.getPos()).getCoveredCount()), ALIGN_COL_SIZE, ' '));
@@ -355,6 +358,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 					groupResultWriter.write(Strings.repeat(" ", ALIGN_COL_SIZE));
 				}
 			}
+			groupResultList.get(i).setAvgMethylLevel(methylLevel / count);
 			groupResultWriter.write("\n");
 		}
 		return groupResultList;
@@ -375,7 +379,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private void writeGroupReadList(BufferedWriter groupResultWriter,
-			List<GroupResult> groupResultList) throws IOException {
+	                                List<GroupResult> groupResultList) throws IOException {
 		groupResultWriter.write("Group's read list:\n");
 		for (int i = 0; i < groupResultList.size(); i++) {
 			groupResultWriter.write("Group:" + i + "\t" + "size:" + groupResultList.get(i).getMappedReadList().size() +
@@ -389,7 +393,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private double EPCaluculation_average_combine(Vertex minorityCluster, Vertex majorityCluster,
-			List<RefCpG> twoClusterRefCpGList) {
+	                                              List<RefCpG> twoClusterRefCpGList) {
 		double p = 0;
 		for (RefCpG refCpG : twoClusterRefCpGList) {
 			double majorMethylLevel = majorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylLevel();

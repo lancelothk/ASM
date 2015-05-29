@@ -12,6 +12,7 @@ import java.util.List;
 public class GroupResult implements Comparable<GroupResult> {
 	private List<RefCpG> refCpGList;
 	private List<MappedRead> mappedReadList;
+	private double avgMethylLevel;
 	private double mec;
 
 	public GroupResult(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double mec) {
@@ -42,5 +43,13 @@ public class GroupResult implements Comparable<GroupResult> {
 
 	public double getMec() {
 		return mec;
+	}
+
+	public double getAvgMethylLevel() {
+		return avgMethylLevel;
+	}
+
+	public void setAvgMethylLevel(double avgMethylLevel) {
+		this.avgMethylLevel = avgMethylLevel;
 	}
 }
