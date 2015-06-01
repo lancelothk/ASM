@@ -65,6 +65,6 @@ public class IntervalDetectionSummary {
 	}
 
 	public String getBedString() {
-		return String.format("%s\t%d\t%d\n", arguments[0], arguments[1], arguments[2]);
+		return String.format("chr%s\t%d\t%d\n", arguments[0], arguments[1], arguments[2]);
 	}
 }
