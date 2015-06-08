@@ -28,9 +28,8 @@ public class ASMGraphTest {
 		// load input
 		String reference = DetectionUtils.readRefFromIntervalFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
-		// filter out reads which only cover 1 or no CpG sites
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(refCpGList, 2));
+				.readLines(new MappedReadLineProcessor(refCpGList));
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);
 
 		List edgeList = (List) (ReflectionUtils.getPrivateField(ASMGraph.class.getDeclaredField("edgeList"), asmGraph));

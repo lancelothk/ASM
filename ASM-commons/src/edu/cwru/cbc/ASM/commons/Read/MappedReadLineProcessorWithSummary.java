@@ -2,8 +2,6 @@ package edu.cwru.cbc.ASM.commons.Read;
 
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.List;
  * Created by lancelothk on 5/27/14.
  * LineProcessor for process mapped read and print summary.
  */
-public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor {
+public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorBase<String> {
 	private long totalLength, qualifiedTotalLength;
 	private long count;
 	private int maxLength = Integer.MIN_VALUE;
@@ -26,56 +24,42 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
 	private int qualifiedMaxCpGCount = Integer.MIN_VALUE;
 	private int qualifiedMinCpGCount = Integer.MAX_VALUE;
 	private BitSet chrBitSet;
-	private BufferedWriter summaryWriter;
+	private int min_read_cpg;
 
-	public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int min_read_cpg, int refLength,
-											  String reportFileName) throws IOException {
-		super(refCpGList, min_read_cpg);
+	public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int min_read_cpg, int refLength) throws IOException {
+		super(refCpGList);
+		this.min_read_cpg = min_read_cpg;
 		this.chrBitSet = new BitSet(refLength);
-		this.summaryWriter = new BufferedWriter(new FileWriter(reportFileName));
 	}
 
 	@Override
-	public boolean processLine(String s) throws IOException {
-		try {
-			MappedRead mappedRead = processRead(s);
-			int length = mappedRead.getSequence().length();
-			int cpgCount = mappedRead.getCpgList().size();
-
-			//stat variables
-			if (cpgCount >= this.min_read_cpg) {
-				qualifiedTotalLength += length;
-				qualifiedMaxLength = length > qualifiedMaxLength ? length : qualifiedMaxLength;
-				qualifiedMinLength = length < qualifiedMinLength ? length : qualifiedMinLength;
-				qualifiedTotalCpGCount += cpgCount;
-				qualifiedMaxCpGCount = cpgCount > qualifiedMaxCpGCount ? cpgCount : qualifiedMaxCpGCount;
-				qualifiedMinCpGCount = cpgCount < qualifiedMinCpGCount ? cpgCount : qualifiedMinCpGCount;
-			}
-			count++;
-			totalLength += length;
-			maxLength = length > maxLength ? length : maxLength;
-			minLength = length < minLength ? length : minLength;
-			totalCpGCount += cpgCount;
-			maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
-			minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
-			chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
-			return true;
-		} catch (Exception e) {
-			throw new RuntimeException("Problem line: " + s + "\n", e);
+	protected void updateRefCpG(MappedRead mappedRead) {
+		int length = mappedRead.getSequence().length();
+		int cpgCount = mappedRead.getCpgList().size();
+		if (mappedRead.countCpG(refMap) >= this.min_read_cpg) {
+			super.updateRefCpG(mappedRead);
+			qualifiedTotalLength += length;
+			qualifiedMaxLength = length > qualifiedMaxLength ? length : qualifiedMaxLength;
+			qualifiedMinLength = length < qualifiedMinLength ? length : qualifiedMinLength;
+			qualifiedTotalCpGCount += cpgCount;
+			qualifiedMaxCpGCount = cpgCount > qualifiedMaxCpGCount ? cpgCount : qualifiedMaxCpGCount;
+			qualifiedMinCpGCount = cpgCount < qualifiedMinCpGCount ? cpgCount : qualifiedMinCpGCount;
 		}
+		count++;
+		totalLength += length;
+		maxLength = length > maxLength ? length : maxLength;
+		minLength = length < minLength ? length : minLength;
+		totalCpGCount += cpgCount;
+		maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
+		minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
+		chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
 	}
 
-	@Override
-	public List<MappedRead> getResult() {
-		try {
-			printSummary();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		return this.mappedReadList;
+	public String getResult() {
+		return getSummaryString();
 	}
 
-	private void printSummary() throws IOException {
+	private String getSummaryString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Reference and Mapped Reads summary:\n");
 		sb.append(String.format("totalReadCount:%d\tQualifiedReadCount:%d\n", count, mappedReadList.size()));
@@ -104,7 +88,6 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessor 
 		sb.append(String.format(
 				"totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
 				totalCpGCountInRefMap, totalCpGCountInRefMap / (double) refMap.size(), maxCpGCoverage, minCpGCoverage));
-		summaryWriter.write(sb.toString());
-		summaryWriter.close();
+		return sb.toString();
 	}
 }

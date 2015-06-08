@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
 import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
@@ -60,7 +61,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		Options options = new Options();
 		options.addOption("i", true, "Input intervals folder or interval file name");
-		options.addOption("s", true, "Summary File");
 		options.addOption("mic", true, "Minimum interval cpg number");
 		options.addOption("f", true, "FDR threshold");
 		options.addOption("t", false, "Thread number to execute the program.");
@@ -68,16 +68,15 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd = parser.parse(options, args);
 
-		String inputPathName = cmd.getOptionValue("i");
-		String summaryFileName = cmd.getOptionValue("s");
+		String inputPath = cmd.getOptionValue("i");
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
 		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
-		execute(inputPathName, summaryFileName, threadNumber, min_interval_cpg, FDR_threshold);
+		execute(inputPath, threadNumber, min_interval_cpg, FDR_threshold);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-	private static void execute(String inputName, String summaryFileName, int threadNumber, int min_interval_cpg,
+	private static void execute(String inputPath, int threadNumber, int min_interval_cpg,
 	                            double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
@@ -103,7 +102,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						.add(new ImmutablePair<>("label", "%s"))
 						.build());
 
-		File inputFile = new File(inputName);
+		File inputFile = new File(inputPath);
 		List<IntervalDetectionSummary> resultList = new ArrayList<>();
 		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
 		List<Future<IntervalDetectionSummary>> futureList = new ArrayList<>();
@@ -114,9 +113,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			} else {
 				for (File file : files) {
 					try {
-						if (file.isFile() && file.getName().startsWith("chr") && !file.getName().endsWith("aligned") &&
-								!file.getName().endsWith("test") && !file.getName().endsWith("~") &&
-								!file.getName().endsWith("detected")) {
+						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
 							Future<IntervalDetectionSummary> future = executor.submit(
 									new Detection(file, min_interval_cpg));
 							futureList.add(future);
@@ -143,13 +140,14 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				resultList.stream().map(IntervalDetectionSummary::getRegionP).collect(Collectors.toList()),
 				FDR_threshold);
 		System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
-		writeDetectionSummary(summaryFileName, resultList, regionP_threshold);
+		writeDetectionSummary(inputPath, resultList, regionP_threshold);
 	}
 
-	private static void writeDetectionSummary(String summaryFileName, List<IntervalDetectionSummary> resultList,
+	private static void writeDetectionSummary(String outputPath, List<IntervalDetectionSummary> resultList,
 	                                          double region_threshold) throws IOException {
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
-		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(summaryFileName + ".bed"));
+		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.summary"));
+		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.bed"));
+		// TODO refactor IntervalDetectionSUmmary with genomic interval type. And sort before output.
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
 			if (result.getRegionP() <= region_threshold) {
@@ -218,7 +216,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private void extractIntervalPosition(File inputFile) {
-		String[] items = inputFile.getName().split("-");
+		String[] items = inputFile.getName().replace(Constant.MAPPEDREADS_EXTENSION, "").split("-");
 		if (items.length != 3) {
 			throw new RuntimeException("invalid input file name format!\t" + inputFile.getName());
 		}

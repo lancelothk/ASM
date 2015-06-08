@@ -83,7 +83,7 @@ public class Simulation {
 
 		// read input sequences
 		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(refCpGList, MIN_READ_CPG));
+				.readLines(new MappedReadLineProcessor(refCpGList));
 
 		System.out.println("load reads finished");
 

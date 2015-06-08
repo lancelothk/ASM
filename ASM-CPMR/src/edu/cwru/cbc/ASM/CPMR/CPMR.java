@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.CPMR;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
+import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.CpG.CpG;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
@@ -33,7 +34,7 @@ public class CPMR {
 		options.addOption("r", true, "Reference File");
 		options.addOption("m", true, "MappedRead File");
 		options.addOption("o", true, "Output Path");
-		options.addOption("mcc", true, "Minimum CpG coverage");
+		options.addOption("mcc", true, "Minimum adjacent CpG coverage");
 		options.addOption("mrc", true, "Minimum read CpG number");
 		options.addOption("mic", true, "Minimum interval CpG number");
 		options.addOption("mir", true, "Minimum interval read number");
@@ -57,12 +58,9 @@ public class CPMR {
 	                                   int min_cpg_coverage, int min_read_cpg, int min_interval_cpg,
 	                                   int min_interval_reads) throws IOException {
 		long start = System.currentTimeMillis();
-		outputPath += String.format("/experiment_%d_%d_%d_%d/", min_cpg_coverage, min_read_cpg, min_interval_cpg,
-				min_interval_reads);
-		String intervalFolderName = outputPath + "intervals";
-		String summaryFileName = outputPath + "CPMR_summary";
-		String reportFileName = outputPath + "CPMR_report";
-		File intervalFolder = new File(intervalFolderName);
+		String summaryFileName = outputPath + "/CPMR.bed";
+		String reportFileName = outputPath + "/CPMR.report";
+		File intervalFolder = new File(outputPath);
 		if (!intervalFolder.exists()) {
 			//noinspection ResultOfMethodCallIgnored
 			intervalFolder.mkdirs();
@@ -84,17 +82,16 @@ public class CPMR {
 		System.out.println("cpg id assignment complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
-		Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessorWithSummary(refCpGList, min_read_cpg, refChr.getRefString().length(),
-						reportFileName));
+		String reportString = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
+				new MappedReadLineProcessorWithSummary(refCpGList, min_read_cpg, refChr.getRefString().length()));
 		System.out.println("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		start = System.currentTimeMillis();
 		List<List<RefCpG>> cpgSiteIntervalList = getIntervals(refCpGList, min_cpg_coverage);
 
-		writeIntervals(intervalFolderName, summaryFileName, refChr, cpgSiteIntervalList, min_cpg_coverage,
+		writeIntervals(outputPath, summaryFileName, refChr, cpgSiteIntervalList, min_cpg_coverage,
 				min_interval_cpg, min_interval_reads, min_read_cpg);
-		writeReport(reportFileName, cpgSiteIntervalList);
+		writeReport(reportFileName, reportString, cpgSiteIntervalList);
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 	}
 
@@ -157,8 +154,9 @@ public class CPMR {
 		intervalSummaryWriter.close();
 	}
 
-	private static void writeReport(String reportFileName, List<List<RefCpG>> cpgSiteIntervalList) throws IOException {
+	private static void writeReport(String reportFileName, String reportString, List<List<RefCpG>> cpgSiteIntervalList) throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName, true));
+		writer.write(reportString);
 		writer.write("Raw Interval count:\t" + cpgSiteIntervalList.size() + "\n");
 		writer.write("Output Interval count:\t" + outputIntervalCount + "\n");
 		writer.close();
@@ -190,7 +188,7 @@ public class CPMR {
 	public static void writeMappedReadInInterval(String intervalFolderName, RefChr refChr, int startPos, int endPos,
 	                                             Collection<MappedRead> mappedReadSet) throws IOException {
 		BufferedWriter mappedReadWriter = new BufferedWriter(
-				new FileWriter(String.format("%s/%s-%d-%d", intervalFolderName, refChr.getChr(), startPos, endPos)));
+				new FileWriter(String.format("%s/%s-%d-%d%s", intervalFolderName, refChr.getChr(), startPos, endPos, Constant.MAPPEDREADS_EXTENSION)));
 		mappedReadWriter.write(String.format("ref:\t%s\n",
 				refChr.getRefString().substring(startPos - INIT_POS, endPos + 1 - INIT_POS)));
 		for (MappedRead mappedRead : mappedReadSet) {

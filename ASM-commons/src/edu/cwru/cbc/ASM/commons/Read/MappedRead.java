@@ -36,12 +36,12 @@ public class MappedRead {
 		this.cpgList = new ArrayList<>();
 	}
 
-	public static int countCpGInRead(MappedRead mappedRead, Map<Integer, RefCpG> refMap) {
+	public int countCpG(Map<Integer, RefCpG> refMap) {
 		int count = 0;
-		for (int i = mappedRead.getStart(); i < mappedRead.getEnd(); i++) {
+		for (int i = this.getStart(); i < this.getEnd(); i++) {
 			if (refMap.containsKey(i)) {
-				if (mappedRead.getMethylStatus(i) == MethylStatus.T ||
-						mappedRead.getMethylStatus(i) == MethylStatus.C) {
+				if (this.getMethylStatus(i) == MethylStatus.T ||
+						this.getMethylStatus(i) == MethylStatus.C) {
 					count++;
 					i++;
 				}
