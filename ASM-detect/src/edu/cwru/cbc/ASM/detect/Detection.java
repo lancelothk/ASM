@@ -2,7 +2,6 @@ package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
@@ -11,9 +10,6 @@ import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.detect.DataType.*;
 import edu.cwru.cbc.ASM.visualization.ReadsVisualization;
-import org.apache.commons.cli.*;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -27,13 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
 
 /**
- * Created by kehu on 11/12/14.
+ * Created by lancelothk on 6/8/15.
  * ASM Detection with whole read info.
  */
 public class Detection implements Callable<IntervalDetectionSummary> {
@@ -53,110 +49,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	public Detection(File inputFile, int min_interval_cpg) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
-	}
-
-	public static void main(
-			String[] args) throws ParseException, IOException, ExecutionException, InterruptedException {
-		long start = System.currentTimeMillis();
-
-		Options options = new Options();
-		options.addOption("i", true, "Input intervals folder or interval file name");
-		options.addOption("mic", true, "Minimum interval cpg number");
-		options.addOption("f", true, "FDR threshold");
-		options.addOption("t", false, "Thread number to execute the program.");
-
-		CommandLineParser parser = new BasicParser();
-		CommandLine cmd = parser.parse(options, args);
-
-		String inputPath = cmd.getOptionValue("i");
-		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
-		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
-		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
-		execute(inputPath, threadNumber, min_interval_cpg, FDR_threshold);
-		System.out.println(System.currentTimeMillis() - start + "ms");
-	}
-
-	private static void execute(String inputPath, int threadNumber, int min_interval_cpg,
-	                            double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
-		// initialize IntervalDetectionSummary format
-		IntervalDetectionSummary.initializeFormat(
-				new ImmutableList.Builder<Pair<String, String>>().add(new ImmutablePair<>("chr", "%s"))
-						.add(new ImmutablePair<>("startPos", "%d"))
-						.add(new ImmutablePair<>("endPos", "%d"))
-						.add(new ImmutablePair<>("length", "%d"))
-						.add(new ImmutablePair<>("#vertex", "%d"))
-						.add(new ImmutablePair<>("#edge", "%d"))
-						.add(new ImmutablePair<>("#read", "%d"))
-						.add(new ImmutablePair<>("#refCpG", "%d"))
-						.add(new ImmutablePair<>("#clusterCpG", "%d"))
-						.add(new ImmutablePair<>("#cluster", "%d"))
-						.add(new ImmutablePair<>("CpGsum", "%d"))
-						.add(new ImmutablePair<>("MECsum", "%f"))
-						.add(new ImmutablePair<>("NormMEC", "%f"))
-						.add(new ImmutablePair<>("errorProb", "%f"))
-						.add(new ImmutablePair<>("regionP", "%e"))
-						.add(new ImmutablePair<>("group1", "%d"))
-						.add(new ImmutablePair<>("group2", "%d"))
-						.add(new ImmutablePair<>("group1Methyl", "%f"))
-						.add(new ImmutablePair<>("group2Methyl", "%f"))
-						.add(new ImmutablePair<>("label", "%s"))
-						.build());
-
-		File inputFile = new File(inputPath);
-		List<IntervalDetectionSummary> resultList = new ArrayList<>();
-		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
-		List<Future<IntervalDetectionSummary>> futureList = new ArrayList<>();
-		if (inputFile.isDirectory()) {
-			File[] files = inputFile.listFiles();
-			if (files == null) {
-				throw new RuntimeException("Empty folder!");
-			} else {
-				for (File file : files) {
-					try {
-						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
-							Future<IntervalDetectionSummary> future = executor.submit(
-									new Detection(file, min_interval_cpg));
-							futureList.add(future);
-						}
-					} catch (Exception e) {
-						throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
-					}
-				}
-			}
-		} else {
-			try {
-				Future<IntervalDetectionSummary> future = executor.submit(new Detection(inputFile, min_interval_cpg));
-				futureList.add(future);
-			} catch (Exception e) {
-				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
-			}
-		}
-		for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
-			resultList.add(intervalDetectionSummaryFuture.get());
-		}
-		executor.shutdown();
-
-		double regionP_threshold = DetectionUtils.getBHYFDRCutoff(
-				resultList.stream().map(IntervalDetectionSummary::getRegionP).collect(Collectors.toList()),
-				FDR_threshold);
-		System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
-		writeDetectionSummary(inputPath, resultList, regionP_threshold);
-	}
-
-	private static void writeDetectionSummary(String outputPath, List<IntervalDetectionSummary> resultList,
-	                                          double region_threshold) throws IOException {
-		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.summary"));
-		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.bed"));
-		// TODO refactor IntervalDetectionSUmmary with genomic interval type. And sort before output.
-		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
-		for (IntervalDetectionSummary result : resultList) {
-			if (result.getRegionP() <= region_threshold) {
-				summaryWriter.write(result.getSummaryString(region_threshold));
-				bedWriter.write(result.getBedString());
-			}
-		}
-		bedWriter.close();
-		summaryWriter.close();
 	}
 
 	public IntervalDetectionSummary call() throws Exception {
@@ -201,7 +93,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		if (graph.getClusterResult().values().size() != 2) {
 			throw new RuntimeException("clusters number is not 2!");
 		}
-		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(Vertex::getMappedReadList).collect(Collectors.toList());
+		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(
+				Vertex::getMappedReadList).collect(
+				Collectors.toList());
 		ReadsVisualization.alignReadsIntoGroups(readGroups, reference, inputFile.getAbsolutePath() + ".groups.aligned");
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
@@ -258,12 +152,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		} else {
 			return false;
 		}
-	}
-
-	private double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
-		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
-		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
-		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
 	}
 
 	private List<GroupResult> writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
@@ -414,6 +302,12 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				.mapToDouble(refCpG -> stdNorm.inverseCumulativeProbability(1 - refCpG.getP_value()))
 				.sum() / Math.sqrt(twoClusterRefCpGList.size());
 		return 1 - stdNorm.cumulativeProbability(z);
+	}
+
+	private double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
+		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
+		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
+		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
 	}
 
 	private double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {

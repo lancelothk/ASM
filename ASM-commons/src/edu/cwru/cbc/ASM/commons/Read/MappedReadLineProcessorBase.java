@@ -26,7 +26,6 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 		this.refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 	}
 
-
 	@Override
 	public boolean processLine(String line) throws IOException {
 		try {

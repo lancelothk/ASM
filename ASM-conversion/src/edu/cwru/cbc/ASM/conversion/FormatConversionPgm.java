@@ -11,7 +11,7 @@ import static edu.cwru.cbc.ASM.conversion.Conversion.MappedReadToMR.conversion;
  * Created by kehu on 5/4/15.
  * FormatConversion program entrance.
  */
-public class FormatConversion {
+public class FormatConversionPgm {
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
 		options.addOption("m", true, "conversion mode. 1:MappedRead->MR;2.MR->MappedRead");
