@@ -115,15 +115,12 @@ public class DetectionPgm {
 	private static void writeDetectionSummary(String outputPath, List<IntervalDetectionSummary> resultList,
 	                                          double region_threshold) throws IOException {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.summary"));
-		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.bed"));
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
 			if (result.getRegionP() <= region_threshold) {
 				summaryWriter.write(result.getSummaryString(region_threshold));
-				bedWriter.write(result.getBedString());
 			}
 		}
-		bedWriter.close();
 		summaryWriter.close();
 	}
 }

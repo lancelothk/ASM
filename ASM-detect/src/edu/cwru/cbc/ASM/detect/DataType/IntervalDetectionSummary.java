@@ -63,8 +63,4 @@ public class IntervalDetectionSummary {
 		}
 		return String.format(formatLine, arguments).replace("<label>", regionP <= region_threshold ? "+" : "-");
 	}
-
-	public String getBedString() {
-		return String.format("chr%s\t%d\t%d\n", arguments[0], arguments[1], arguments[2]);
-	}
 }

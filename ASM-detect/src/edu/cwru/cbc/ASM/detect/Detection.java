@@ -61,9 +61,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
 				.readLines(new MappedReadLineProcessor(refCpGList));
 
-		// align read
-		ReadsVisualization.alignReads(mappedReadList, reference, inputFile.getAbsolutePath() + ".aligned");
-
 		// construct graph
 		ASMGraph graph = new ASMGraph(mappedReadList);
 
