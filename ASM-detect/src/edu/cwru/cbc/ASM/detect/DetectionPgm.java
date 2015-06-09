@@ -54,7 +54,6 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("startPos", "%d"))
 						.add(new ImmutablePair<>("endPos", "%d"))
 						.add(new ImmutablePair<>("length", "%d"))
-						.add(new ImmutablePair<>("#vertex", "%d"))
 						.add(new ImmutablePair<>("#edge", "%d"))
 						.add(new ImmutablePair<>("#read", "%d"))
 						.add(new ImmutablePair<>("#refCpG", "%d"))
@@ -117,7 +116,6 @@ public class DetectionPgm {
 	                                          double region_threshold) throws IOException {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.summary"));
 		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.bed"));
-		// TODO refactor IntervalDetectionSUmmary with genomic interval type. And sort before output.
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
 			if (result.getRegionP() <= region_threshold) {
@@ -128,6 +126,4 @@ public class DetectionPgm {
 		bedWriter.close();
 		summaryWriter.close();
 	}
-
-
 }

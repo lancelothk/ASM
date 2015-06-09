@@ -98,7 +98,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				Collectors.toList());
 		ReadsVisualization.alignReadsIntoGroups(readGroups, reference, inputFile.getAbsolutePath() + ".groups.aligned");
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
-				graph.getOriginalVertexCount(), graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
+				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
 				graph.getMECSum(), graph.getNormMECSum(),
 				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), regionP,

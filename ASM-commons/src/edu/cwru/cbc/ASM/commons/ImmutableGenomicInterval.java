@@ -12,7 +12,6 @@ import java.util.List;
  * start pos is 0-based, end pos is 0-based.
  */
 public class ImmutableGenomicInterval extends ImmutableGenomicIntervalBase {
-
 	private final String refString;
 	private ImmutableList<RefCpG> refCpGList;
 	private ImmutableList<MappedRead> mappedReadList;
