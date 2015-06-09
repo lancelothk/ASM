@@ -9,19 +9,19 @@ import java.util.stream.Collectors;
  * Created by kehu on 2/12/15.
  * Genomic Region in Bed format.
  */
-public class GenomicInterval extends GenomicIntervalBase implements Comparable<GenomicInterval> {
+public class BedInterval extends GenomicIntervalBase implements Comparable<BedInterval> {
 	private String name;
 	private List<RefCpG> refCpGList;
 	private boolean[] allelePattern;
 	private boolean isPositive;
-	private Set<GenomicInterval> intersectedRegions;
+	private Set<BedInterval> intersectedRegions;
 
-	public GenomicInterval(String chr, int start, int end, String name, boolean isPositive) {
+	public BedInterval(String chr, int start, int end, String name, boolean isPositive) {
 		this(chr, start, end, name);
 		this.isPositive = isPositive;
 	}
 
-	public GenomicInterval(String chr, int start, int end, String name) {
+	public BedInterval(String chr, int start, int end, String name) {
 		super(chr, start, end);
 		this.name = name;
 		this.refCpGList = new ArrayList<>();
@@ -36,11 +36,11 @@ public class GenomicInterval extends GenomicIntervalBase implements Comparable<G
 		this.isPositive = isPositive;
 	}
 
-	public void addIntersectedRegion(GenomicInterval region) {
+	public void addIntersectedRegion(BedInterval region) {
 		intersectedRegions.add(region);
 	}
 
-	public Set<GenomicInterval> getIntersectedRegions() {
+	public Set<BedInterval> getIntersectedRegions() {
 		return intersectedRegions;
 	}
 
@@ -89,8 +89,9 @@ public class GenomicInterval extends GenomicIntervalBase implements Comparable<G
 		return String.format("%s\t%d\t%d\t%s\t%s\t%b", this.chr, this.start, this.end, this.name, uniqueRegionnames(intersectedRegions), isIntersected());
 	}
 
-	private String uniqueRegionnames(Set<GenomicInterval> intersectedRegions) {
-		Set<String> intersectionRegionNameSet = intersectedRegions.stream().map(GenomicInterval::getName).collect(Collectors.toSet());
+	private String uniqueRegionnames(Set<BedInterval> intersectedRegions) {
+		Set<String> intersectionRegionNameSet = intersectedRegions.stream().map(BedInterval::getName).collect(
+				Collectors.toSet());
 		StringBuilder sb = new StringBuilder();
 		for (String s : intersectionRegionNameSet) {
 			sb.append(s).append(',');
@@ -99,7 +100,7 @@ public class GenomicInterval extends GenomicIntervalBase implements Comparable<G
 	}
 
 	@Override
-	public int compareTo(GenomicInterval o) {
+	public int compareTo(BedInterval o) {
 		int startDiff = this.getStart() - o.getStart();
 		int endDiff = this.getEnd() - o.getEnd();
 		return startDiff == 0 ? endDiff : startDiff;

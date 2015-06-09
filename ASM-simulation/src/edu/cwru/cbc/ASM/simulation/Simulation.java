@@ -2,11 +2,11 @@ package edu.cwru.cbc.ASM.simulation;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.BedInterval;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.CpG.CpG;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.GenomicInterval;
 import edu.cwru.cbc.ASM.commons.MethylStatus;
 import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
@@ -72,11 +72,11 @@ public class Simulation {
 		List<RefCpG> refCpGList = CommonsUtils.extractCpGSite(refChr.getRefString(), 0);
 
 		// read target regions
-		List<GenomicInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);
+		List<BedInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);
 		Collections.sort(targetRegionsMap);
 
 		// generate non-ASM regions
-		List<GenomicInterval> nonASMRegions = generateNonASMRegions(refChr, targetRegionsMap);
+		List<BedInterval> nonASMRegions = generateNonASMRegions(refChr, targetRegionsMap);
 
 		// attach refCpG to regions and generate random allele pattern.
 		attachRefCpGToRegions(refCpGList, targetRegionsMap, nonASMRegions);
@@ -104,10 +104,10 @@ public class Simulation {
 
 		BufferedWriter asmWriter = new BufferedWriter(new FileWriter(outputFileName + ".asmPattern"));
 		BufferedWriter nonasmWriter = new BufferedWriter(new FileWriter(outputFileName + ".nonasmPattern"));
-		for (GenomicInterval targetRegion : targetRegionsMap) {
+		for (BedInterval targetRegion : targetRegionsMap) {
 			asmWriter.write("ASM\t" + targetRegion.toPatternString() + "\n");
 		}
-		for (GenomicInterval nonASMRegion : nonASMRegions) {
+		for (BedInterval nonASMRegion : nonASMRegions) {
 			nonasmWriter.write("nonASM\t" + nonASMRegion.toPatternString() + "\n");
 
 		}
@@ -121,21 +121,21 @@ public class Simulation {
 	 *
 	 * @return list of non ASM regions. In position increasing order.
 	 */
-	private static List<GenomicInterval> generateNonASMRegions(RefChr refChr, List<GenomicInterval> targetRegionList) {
-		List<GenomicInterval> nonASMRegions = new ArrayList<>();
+	private static List<BedInterval> generateNonASMRegions(RefChr refChr, List<BedInterval> targetRegionList) {
+		List<BedInterval> nonASMRegions = new ArrayList<>();
 		int lastEnd = -1;
 		for (int i = 0; i <= targetRegionList.size(); i++) {
 			if (i == 0) {
 				nonASMRegions.add(
-						new GenomicInterval(refChr.getChr(), refChr.getStart(), targetRegionList.get(i).getStart() - 1,
+						new BedInterval(refChr.getChr(), refChr.getStart(), targetRegionList.get(i).getStart() - 1,
 								String.valueOf(nonASMRegions.size() + 1)));
 				lastEnd = targetRegionList.get(i).getEnd();
 			} else if (i == targetRegionList.size()) {
-				nonASMRegions.add(new GenomicInterval(refChr.getChr(), lastEnd + 1, refChr.getEnd(),
+				nonASMRegions.add(new BedInterval(refChr.getChr(), lastEnd + 1, refChr.getEnd(),
 						String.valueOf(nonASMRegions.size() + 1)));
 			} else {
 				nonASMRegions.add(
-						new GenomicInterval(refChr.getChr(), lastEnd + 1, targetRegionList.get(i).getStart() - 1,
+						new BedInterval(refChr.getChr(), lastEnd + 1, targetRegionList.get(i).getStart() - 1,
 								String.valueOf(nonASMRegions.size() + 1)));
 				lastEnd = targetRegionList.get(i).getEnd();
 			}
@@ -143,26 +143,26 @@ public class Simulation {
 		return nonASMRegions;
 	}
 
-	private static void attachRefCpGToRegions(List<RefCpG> refCpGList, List<GenomicInterval> targetRegionList,
-			List<GenomicInterval> nonASMRegions) {
-		List<GenomicInterval> allRegions = new ArrayList<>();
+	private static void attachRefCpGToRegions(List<RefCpG> refCpGList, List<BedInterval> targetRegionList,
+	                                          List<BedInterval> nonASMRegions) {
+		List<BedInterval> allRegions = new ArrayList<>();
 		allRegions.addAll(nonASMRegions);
 		allRegions.addAll(targetRegionList);
 		for (RefCpG refCpG : refCpGList) {
-			for (GenomicInterval region : allRegions) {
+			for (BedInterval region : allRegions) {
 				if (refCpG.getPos() >= region.getStart() && refCpG.getPos() <= region.getEnd()) {
 					region.addRefCpG(refCpG);
 					break;
 				}
 			}
 		}
-		allRegions.forEach(GenomicInterval::generateRandomAllelePattern);
+		allRegions.forEach(BedInterval::generateRandomAllelePattern);
 	}
 
-	private static void assignMethylStatusForNonASMRegion(List<GenomicInterval> nonASMRegions) {
+	private static void assignMethylStatusForNonASMRegion(List<BedInterval> nonASMRegions) {
 		// each refCpG is attached to a region, each CpG in read belongs to a refCpG.
 		// Non ASM region
-		for (GenomicInterval nonASMRegion : nonASMRegions) {
+		for (BedInterval nonASMRegion : nonASMRegions) {
 			for (int i = 0; i < nonASMRegion.getRefCpGList().size(); i++) {
 				for (CpG cpg : nonASMRegion.getRefCpGList().get(i).getCpGList()) {
 					if (nonASMRegion.getRefMethylStatus(i)) {
@@ -175,10 +175,10 @@ public class Simulation {
 		}
 	}
 
-	private static void assignMethylStatusForASMRegion(List<GenomicInterval> targetRegionList) {
+	private static void assignMethylStatusForASMRegion(List<BedInterval> targetRegionList) {
 		// each refCpG is attached to a region, each CpG in read belongs to a refCpG.
 		// ASM region
-		for (GenomicInterval targetRegion : targetRegionList) {
+		for (BedInterval targetRegion : targetRegionList) {
 			Set<MappedRead> mappedReadSet = getReadsInRegion(targetRegion);
 
 			// randomly assign read to each allele
@@ -213,8 +213,8 @@ public class Simulation {
 		}
 	}
 
-	private static void addRandomnessToReads(List<GenomicInterval> regions, double alpha) {
-		for (GenomicInterval region : regions) {
+	private static void addRandomnessToReads(List<BedInterval> regions, double alpha) {
+		for (BedInterval region : regions) {
 			Set<MappedRead> readsInRegion = getReadsInRegion(region);
 			for (MappedRead read : readsInRegion) {
 				// add randomness. Flip methyl status
@@ -228,7 +228,7 @@ public class Simulation {
 		}
 	}
 
-	private static Set<MappedRead> getReadsInRegion(GenomicInterval region) {
+	private static Set<MappedRead> getReadsInRegion(BedInterval region) {
 		Set<MappedRead> mappedReadSet = new HashSet<>();
 		for (int i = 0; i < region.getRefCpGList().size(); i++) {
 			RefCpG refCpG = region.getRefCpGList().get(i);

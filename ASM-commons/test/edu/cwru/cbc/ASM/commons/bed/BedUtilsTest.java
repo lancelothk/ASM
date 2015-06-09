@@ -1,7 +1,6 @@
 package edu.cwru.cbc.ASM.commons.bed;
 
-import edu.cwru.cbc.ASM.commons.GenomicInterval;
-import edu.cwru.cbc.ASM.commons.bed.BedUtils;
+import edu.cwru.cbc.ASM.commons.BedInterval;
 import org.junit.Test;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class BedUtilsTest {
 	public void testReadBedRegions() throws Exception {
 		String bedWithLabel = "testData/bedWithLabel.bed";
 
-		Map<String, List<GenomicInterval>> bedRegionsWithLabel = BedUtils.readBedRegions(bedWithLabel, true);
+		Map<String, List<BedInterval>> bedRegionsWithLabel = BedUtils.readBedRegions(bedWithLabel, true);
 
 		assertEquals("Bed region size incorrect!", 11, bedRegionsWithLabel.get("chr20").size());
 		assertEquals("incorrect label!", true, bedRegionsWithLabel.get("chr20").get(0).isPositive());

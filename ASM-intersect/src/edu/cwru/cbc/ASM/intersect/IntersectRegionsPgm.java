@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.intersect;
 
 import com.google.common.base.Strings;
-import edu.cwru.cbc.ASM.commons.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.BedInterval;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import org.apache.commons.cli.*;
 
@@ -31,22 +31,22 @@ public class IntersectRegionsPgm {
 	}
 
 	private static void execution(String aFileName, String bFileName, String outputFileName) throws IOException {
-		Collection<GenomicInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName, true);
-		Collection<GenomicInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName, true);
-		Collection<GenomicInterval> intersections = BedUtils.intersect(regionsA, regionsB);
+		Collection<BedInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName, true);
+		Collection<BedInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName, true);
+		Collection<BedInterval> intersections = BedUtils.intersect(regionsA, regionsB);
 		BedUtils.writeBedRegions(intersections, outputFileName);
 		BedUtils.writeBedWithIntersection(regionsA,
 				new File(aFileName).getAbsolutePath() + "_intersected.bed");
 		BedUtils.writeBedWithIntersection(regionsB,
 				new File(bFileName).getAbsolutePath() + "_intersected.bed");
 
-		long intersectedCount_regionA = regionsA.stream().filter(GenomicInterval::isIntersected).count();
+		long intersectedCount_regionA = regionsA.stream().filter(BedInterval::isIntersected).count();
 		long nonIntersectedCount_regionA = regionsA.stream().filter(r -> !r.isIntersected()).count();
-		long intersectedCount_regionB = regionsB.stream().filter(GenomicInterval::isIntersected).count();
+		long intersectedCount_regionB = regionsB.stream().filter(BedInterval::isIntersected).count();
 		long nonIntersectedCount_regionB = regionsB.stream().filter(r -> !r.isIntersected()).count();
-		int intersectionLength = intersections.stream().mapToInt(GenomicInterval::length).sum();
-		int totalLengthRegionA = regionsA.stream().mapToInt(GenomicInterval::length).sum();
-		int totalLengthRegionB = regionsB.stream().mapToInt(GenomicInterval::length).sum();
+		int intersectionLength = intersections.stream().mapToInt(BedInterval::length).sum();
+		int totalLengthRegionA = regionsA.stream().mapToInt(BedInterval::length).sum();
+		int totalLengthRegionB = regionsB.stream().mapToInt(BedInterval::length).sum();
 
 		System.out.println(Strings.padStart("", 80, '*'));
 		System.out.printf("A is %s\n", aFileName);

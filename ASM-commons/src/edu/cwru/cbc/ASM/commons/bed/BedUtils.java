@@ -4,7 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.GenomicInterval;
+import edu.cwru.cbc.ASM.commons.BedInterval;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,13 +17,13 @@ import java.util.*;
  * Utils for handling Bed format file.
  */
 public class BedUtils {
-	public static List<GenomicInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
+	public static List<BedInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
 		return readSingleChromBedRegions(bedFileName, false);
 	}
 
-	public static List<GenomicInterval> readSingleChromBedRegions(String bedFileName,
+	public static List<BedInterval> readSingleChromBedRegions(String bedFileName,
 	                                                              boolean readLabel) throws IOException {
-		Map<String, List<GenomicInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
+		Map<String, List<BedInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
 		if (regionsMap.size() == 0) {
 			return new ArrayList<>();
 		} else if (regionsMap.size() == 1) {
@@ -38,11 +38,11 @@ public class BedUtils {
 	 * Only include first 4 columns: chr, start, end, name.
 	 * And the last column label if readLabel is true.
 	 */
-	public static Map<String, List<GenomicInterval>> readBedRegions(String bedFileName,
+	public static Map<String, List<BedInterval>> readBedRegions(String bedFileName,
 	                                                                boolean readLabel) throws IOException {
 		return Files.readLines(new File(bedFileName), Charsets.UTF_8,
-				new LineProcessor<Map<String, List<GenomicInterval>>>() {
-					private Map<String, List<GenomicInterval>> genomicIntervalMap = new HashMap<>();
+				new LineProcessor<Map<String, List<BedInterval>>>() {
+					private Map<String, List<BedInterval>> genomicIntervalMap = new HashMap<>();
 
 					@Override
 					public boolean processLine(String line) throws IOException {
@@ -66,72 +66,72 @@ public class BedUtils {
 								default:
 									throw new RuntimeException("invalid label!\t" + line);
 							}
-							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+							addRegionToList(new BedInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
 						} else if (items.length >= 4) {
 							// more than 3 columns bed format
-							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+							addRegionToList(new BedInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
 						} else {
 							// 3 columns bed format
-							addRegionToList(new GenomicInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+							addRegionToList(new BedInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), ""), genomicIntervalMap);
 						}
 						return true;
 					}
 
 					@Override
-					public Map<String, List<GenomicInterval>> getResult() {
+					public Map<String, List<BedInterval>> getResult() {
 						return genomicIntervalMap;
 					}
 				});
 	}
 
-	private static void addRegionToList(GenomicInterval newRegion,
-	                                    Map<String, List<GenomicInterval>> genomicIntervalMap) {
+	private static void addRegionToList(BedInterval newRegion,
+	                                    Map<String, List<BedInterval>> genomicIntervalMap) {
 		if (genomicIntervalMap.containsKey(newRegion.getChr())) {
 			genomicIntervalMap.get(newRegion.getChr()).add(newRegion);
 		} else {
-			List<GenomicInterval> genomicIntervalList = new ArrayList<>();
-			genomicIntervalList.add(newRegion);
-			genomicIntervalMap.put(newRegion.getChr(), genomicIntervalList);
+			List<BedInterval> bedIntervalList = new ArrayList<>();
+			bedIntervalList.add(newRegion);
+			genomicIntervalMap.put(newRegion.getChr(), bedIntervalList);
 		}
 	}
 
-	private static boolean hasOverlap(GenomicInterval region, Map<String, List<GenomicInterval>> genomicIntervalMap) {
+	private static boolean hasOverlap(BedInterval region, Map<String, List<BedInterval>> genomicIntervalMap) {
 		return genomicIntervalMap.get(region.getChr()).stream().anyMatch(r -> hasOverlap(region, r));
 	}
 
 	/**
 	 * Check if there exists any overlap between given region and regions
 	 */
-	private static boolean hasOverlap(GenomicInterval region, Collection<GenomicInterval> regions) {
+	private static boolean hasOverlap(BedInterval region, Collection<BedInterval> regions) {
 		return regions.stream().anyMatch(r -> hasOverlap(region, r));
 	}
 
 	/**
 	 * Check if there exists overlap in given regions.
 	 */
-	private static boolean hasOverlap(Collection<GenomicInterval> regions) {
+	private static boolean hasOverlap(Collection<BedInterval> regions) {
 		return regions.stream().anyMatch(r -> hasOverlap(r, regions));
 	}
 
-	private static boolean hasOverlap(GenomicInterval regionA, GenomicInterval regionB) {
+	private static boolean hasOverlap(BedInterval regionA, BedInterval regionB) {
 		return regionA.getChr().equals(regionB.getChr()) &&
 				(regionA.getStart() <= regionB.getEnd() && regionA.getEnd() >= regionB.getStart());
 	}
 
-	public static Collection<GenomicInterval> intersect(Collection<GenomicInterval> regionsA,
-	                                                    Collection<GenomicInterval> regionsB) {
-		List<GenomicInterval> intersections = new ArrayList<>();
-		for (GenomicInterval regionA : regionsA) {
-			for (GenomicInterval regionB : regionsB) {
+	public static Collection<BedInterval> intersect(Collection<BedInterval> regionsA,
+	                                                Collection<BedInterval> regionsB) {
+		List<BedInterval> intersections = new ArrayList<>();
+		for (BedInterval regionA : regionsA) {
+			for (BedInterval regionB : regionsB) {
 				if (hasOverlap(regionA, regionB)) {
 					regionA.addIntersectedRegion(regionB);
 					regionB.addIntersectedRegion(regionA);
 					int right = Math.min(regionA.getEnd(), regionB.getEnd());
 					int left = Math.max(regionA.getStart(), regionB.getStart());
-					intersections.add(new GenomicInterval(regionA.getChr(), left, right, regionA.getName() + "-" +
+					intersections.add(new BedInterval(regionA.getChr(), left, right, regionA.getName() + "-" +
 							regionB.getName()));
 				}
 			}
@@ -140,17 +140,18 @@ public class BedUtils {
 	}
 
 
-	public static void writeBedRegions(Collection<GenomicInterval> regions, String bedFileName) throws IOException {
+	public static void writeBedRegions(Collection<BedInterval> regions, String bedFileName) throws IOException {
 		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(bedFileName));
-		for (GenomicInterval region : regions) {
+		for (BedInterval region : regions) {
 			bedWriter.write(region.toBedString() + "\n");
 		}
 		bedWriter.close();
 	}
 
-	public static void writeBedWithIntersection(Collection<GenomicInterval> regions, String bedFileName) throws IOException {
+	public static void writeBedWithIntersection(Collection<BedInterval> regions, String bedFileName) throws
+			IOException {
 		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(bedFileName));
-		for (GenomicInterval region : regions) {
+		for (BedInterval region : regions) {
 			bedWriter.write(region.toBedWithIntersectionString() + "\n");
 		}
 		bedWriter.close();

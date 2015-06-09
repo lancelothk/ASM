@@ -1,9 +1,9 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
+import edu.cwru.cbc.ASM.commons.BedInterval;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.GenomicInterval;
 import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 
@@ -47,10 +47,10 @@ public class RegionReadsExtraction {
         List<RefCpG> refCpGList = CommonsUtils.extractCpGSite(refChr.getRefString(), 0);
         Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 
-        List<GenomicInterval> targetRegions = BedUtils.readSingleChromBedRegions(
+        List<BedInterval> targetRegions = BedUtils.readSingleChromBedRegions(
                 targetRegionFile);
-        Map<GenomicInterval, List<String>> targetRegionsMap = new HashMap<>();
-        for (GenomicInterval targetRegion : targetRegions) {
+        Map<BedInterval, List<String>> targetRegionsMap = new HashMap<>();
+        for (BedInterval targetRegion : targetRegions) {
             targetRegionsMap.put(targetRegion, new ArrayList<>());
         }
 
@@ -70,11 +70,11 @@ public class RegionReadsExtraction {
 
         });
 
-        for (GenomicInterval genomicInterval : targetRegionsMap.keySet()) {
+        for (BedInterval bedInterval : targetRegionsMap.keySet()) {
             BufferedWriter writer = new BufferedWriter(new FileWriter(
                     String.format(outputFolder + "/i90_r1_chr20_" +
-                            "%d-%d", genomicInterval.getStart(), genomicInterval.getEnd())));
-            for (String r : targetRegionsMap.get(genomicInterval)) {
+                            "%d-%d", bedInterval.getStart(), bedInterval.getEnd())));
+            for (String r : targetRegionsMap.get(bedInterval)) {
                 writer.write(r + "\n");
             }
             writer.close();

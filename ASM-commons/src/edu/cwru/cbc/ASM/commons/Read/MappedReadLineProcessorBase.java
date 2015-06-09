@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * Created by lancelothk on 6/8/15.
  * abstract base class for MappedReadLineProcessor.
  * Shared by both MappedReadLineProcessor and MappedReadLineProcessorWithSummary
- * Mapped reads start pos is 1-based, end pos is 0-based.
+ * Mapped reads start pos is 0-based, end pos is 0-based.
  */
 public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T> {
 	protected List<MappedRead> mappedReadList = new ArrayList<>();
@@ -47,7 +47,7 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 		if (!items[1].equals("+") && !items[1].equals("-")) {
 			throw new RuntimeException("invalid strand!");
 		}
-		int start = Integer.parseInt(items[2]);// mapped read is 1bp right than UCSC ref(1 based).
+		int start = Integer.parseInt(items[2]) - 1;// mapped read is 1 based. So convert to 0 based.
 		int end = Integer.parseInt(items[3]);
 
 		MappedRead mappedRead;

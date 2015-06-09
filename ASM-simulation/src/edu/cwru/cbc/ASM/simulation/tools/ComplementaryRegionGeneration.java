@@ -1,8 +1,8 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
+import edu.cwru.cbc.ASM.commons.BedInterval;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.GenomicInterval;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 
 import java.io.BufferedWriter;
@@ -28,14 +28,14 @@ public class ComplementaryRegionGeneration {
         RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
 
         // read target regions
-        List<GenomicInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);
+        List<BedInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);
         Collections.sort(targetRegionsMap);
 
         // generate non-ASM regions
-        List<GenomicInterval> nonASMRegions = generateNonASMRegions(refChr, targetRegionsMap);
+        List<BedInterval> nonASMRegions = generateNonASMRegions(refChr, targetRegionsMap);
         BufferedWriter writer = new BufferedWriter(new FileWriter(targetRegionFileName.replace(".bed", "_nonCGI.bed")));
-        for (GenomicInterval genomicInterval : nonASMRegions) {
-            writer.write(genomicInterval.toBedString() + "\n");
+        for (BedInterval bedInterval : nonASMRegions) {
+            writer.write(bedInterval.toBedString() + "\n");
         }
         writer.close();
     }
@@ -46,21 +46,21 @@ public class ComplementaryRegionGeneration {
      *
      * @return list of non ASM regions. In position increasing order.
      */
-    private static List<GenomicInterval> generateNonASMRegions(RefChr refChr, List<GenomicInterval> targetRegionList) {
-        List<GenomicInterval> nonASMRegions = new ArrayList<>();
+    private static List<BedInterval> generateNonASMRegions(RefChr refChr, List<BedInterval> targetRegionList) {
+        List<BedInterval> nonASMRegions = new ArrayList<>();
         int lastEnd = -1;
         for (int i = 0; i <= targetRegionList.size(); i++) {
             if (i == 0) {
                 nonASMRegions.add(
-                        new GenomicInterval(refChr.getChr(), refChr.getStart(), targetRegionList.get(i).getStart() - 1,
+                        new BedInterval(refChr.getChr(), refChr.getStart(), targetRegionList.get(i).getStart() - 1,
                                 String.valueOf(nonASMRegions.size() + 1)));
                 lastEnd = targetRegionList.get(i).getEnd();
             } else if (i == targetRegionList.size()) {
-                nonASMRegions.add(new GenomicInterval(refChr.getChr(), lastEnd + 1, refChr.getEnd(),
+                nonASMRegions.add(new BedInterval(refChr.getChr(), lastEnd + 1, refChr.getEnd(),
                         String.valueOf(nonASMRegions.size() + 1)));
             } else {
                 nonASMRegions.add(
-                        new GenomicInterval(refChr.getChr(), lastEnd + 1, targetRegionList.get(i).getStart() - 1,
+                        new BedInterval(refChr.getChr(), lastEnd + 1, targetRegionList.get(i).getStart() - 1,
                                 String.valueOf(nonASMRegions.size() + 1)));
                 lastEnd = targetRegionList.get(i).getEnd();
             }

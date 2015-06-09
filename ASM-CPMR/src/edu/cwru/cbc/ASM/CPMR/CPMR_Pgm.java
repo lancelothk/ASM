@@ -3,12 +3,17 @@ package edu.cwru.cbc.ASM.CPMR;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
+import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.CpG.RefChr;
 import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.ImmutableGenomicInterval;
+import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessorWithSummary;
 import org.apache.commons.cli.*;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -19,6 +24,8 @@ import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
  * main entry of program.
  */
 public class CPMR_Pgm {
+	public static final int INIT_POS = 0;
+
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
 		options.addOption("r", true, "Reference File");
@@ -44,7 +51,7 @@ public class CPMR_Pgm {
 		// load reference
 		long start = System.currentTimeMillis();
 		RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
-		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), CPMR.INIT_POS);
+		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		// load mapped reads
@@ -57,15 +64,66 @@ public class CPMR_Pgm {
 		String reportFileName = outputPath + "/CPMR.report";
 		File intervalFolder = new File(outputPath);
 		if (!intervalFolder.exists()) {
-			//noinspection ResultOfMethodCallIgnored
-			intervalFolder.mkdirs();
+			if (!intervalFolder.mkdirs()) {
+				throw new RuntimeException("failed to create folder:\t" + intervalFolder);
+			}
 		}
 
-		CPMR cpmr = new CPMR(refChr, refCpGList, min_cpg_coverage, min_read_cpg,
+		CPMR cpmr = new CPMR(refCpGList, min_cpg_coverage, min_read_cpg,
 				min_interval_cpg, min_interval_reads);
-		List<List<RefCpG>> cpgSiteIntervalList = cpmr.getIntervals();
-		cpmr.writeIntervals(outputPath, summaryFileName, cpgSiteIntervalList);
-		cpmr.writeReport(reportFileName, reportString, cpgSiteIntervalList);
+		List<List<RefCpG>> cpgIntervalList = cpmr.getIntervals();
+		List<ImmutableGenomicInterval> immutableGenomicIntervals = cpmr.getGenomicIntervals(refChr, cpgIntervalList);
+		writeIntervals(outputPath, summaryFileName, immutableGenomicIntervals);
+		writeReport(reportFileName, reportString, cpgIntervalList.size(), immutableGenomicIntervals.size());
+	}
+
+	/**
+	 * write single interval output in mapped read format like the original data *
+	 */
+	private static void writeMappedReadInInterval(String intervalFolderName,
+	                                              ImmutableGenomicInterval immutableGenomicInterval) throws
+			IOException {
+		BufferedWriter mappedReadWriter = new BufferedWriter(
+				new FileWriter(String.format("%s/%s-%d-%d%s", intervalFolderName, immutableGenomicInterval.getChr(),
+						immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd(),
+						Constant.MAPPEDREADS_EXTENSION)));
+		mappedReadWriter.write(String.format("ref:\t%s\n",
+				immutableGenomicInterval.getRefString().substring(immutableGenomicInterval.getStart() - INIT_POS,
+						immutableGenomicInterval.getEnd() + 1 - INIT_POS)));
+		for (MappedRead mappedRead : immutableGenomicInterval.getMappedReadList()) {
+			mappedReadWriter.write(
+					mappedRead.outputString(immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd()));
+		}
+		mappedReadWriter.close();
+	}
+
+	private static void writeIntervals(String intervalFolderName, String summaryFileName,
+	                                   List<ImmutableGenomicInterval> immutableGenomicIntervalList) throws IOException {
+		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
+		intervalSummaryWriter.write("chr\tstart\tend\treadCount\tCpGCount\n");
+		for (ImmutableGenomicInterval immutableGenomicInterval : immutableGenomicIntervalList) {
+			try {
+				intervalSummaryWriter.write(
+						String.format("%s\t%d\t%d\t%d\t%d\n", immutableGenomicInterval.getChr(),
+								immutableGenomicInterval.getStart(),
+								immutableGenomicInterval.getEnd(), immutableGenomicInterval.getMappedReadList().size(),
+								immutableGenomicInterval.getRefCpGList().size()));
+				writeMappedReadInInterval(intervalFolderName, immutableGenomicInterval);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		intervalSummaryWriter.close();
+	}
+
+	private static void writeReport(String reportFileName, String reportString, int rawIntervalCount,
+	                                int outputIntervalCount) throws
+			IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName, true));
+		writer.write(reportString);
+		writer.write("Raw Interval count:\t" + rawIntervalCount + "\n");
+		writer.write("Output Interval count:\t" + outputIntervalCount + "\n");
+		writer.close();
 	}
 
 }
