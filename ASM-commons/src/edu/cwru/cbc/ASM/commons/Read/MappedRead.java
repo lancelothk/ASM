@@ -80,7 +80,6 @@ public class MappedRead {
 			case '+': {
 				// CN is methylated, TN is non-methylated
 				char cbp = sequence.charAt(pos - start);
-				char gbp = sequence.charAt(pos - start + 1);
 				if (cbp == 'C') {
 					return MethylStatus.C;
 				} else if (cbp == 'T') {
@@ -92,7 +91,6 @@ public class MappedRead {
 			case '-': { // here the - strand is origianl one. Not the complementary one.
 				// NC is methylated, NT is non-methylated
 				char cbp = sequence.charAt(pos - start + 1);
-				char gbp = sequence.charAt(pos - start);
 				if (cbp == 'C') {  // for complementary bp, 'G'
 					return MethylStatus.C;
 				} else if (cbp == 'T') { // for complementary bp, 'A'

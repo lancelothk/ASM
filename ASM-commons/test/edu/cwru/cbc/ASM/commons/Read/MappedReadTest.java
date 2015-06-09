@@ -12,7 +12,7 @@ public class MappedReadTest {
 
 	@Before
 	public void setUp() throws Exception {
-		mappedRead = new MappedRead("test", '+', 0, 10, "TGAACGANGA", "read1");
+		mappedRead = new MappedRead("test", '+', 0, 9, "TGAACGANGA", "read1");
 	}
 
 	@Test
@@ -31,8 +31,7 @@ public class MappedReadTest {
 
 	@Test
 	public void testToString() throws Exception {
-		MappedRead read = new MappedRead("6", '+', 10, 20, "1234567890", "test");
-		assertEquals(read.toVisualizationString(5), "6\t+\t10\t20\t.....1234567890\ttest");
-		System.out.println(read.toVisualizationString(5));
+		MappedRead read = new MappedRead("6", '+', 10, 19, "1234567890", "test");
+		assertEquals(read.toVisualizationString(5), "6\t+\t10\t19\t.....1234567890\ttest");
 	}
 }

@@ -47,8 +47,8 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 		if (!items[1].equals("+") && !items[1].equals("-")) {
 			throw new RuntimeException("invalid strand!");
 		}
-		int start = Integer.parseInt(items[2]) - 1;// mapped read is 1 based. So convert to 0 based.
-		int end = Integer.parseInt(items[3]);
+		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
+		int end = Integer.parseInt(items[3]);// mapped read is 0 based end.
 
 		MappedRead mappedRead;
 		if (items.length == 6) {
@@ -65,6 +65,7 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 
 	protected void updateRefCpG(MappedRead mappedRead) {
 		for (int i = mappedRead.getStart(); i < mappedRead.getEnd(); i++) {
+			// since for minus strand, the methyl status is on i+1 position.
 			if (refMap.containsKey(i)) {
 				CpG cpg = new CpG(mappedRead, refMap.get(i), mappedRead.getMethylStatus(i));
 				// ignore unknown methyl CpG

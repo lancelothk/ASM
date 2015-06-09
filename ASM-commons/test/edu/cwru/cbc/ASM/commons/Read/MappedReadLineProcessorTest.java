@@ -16,18 +16,18 @@ public class MappedReadLineProcessorTest {
 		String refString = "CGCATTCCGATGCAGAATGTCCTTCATGAGAGGCGACTTTTTAGGACTTTTAATCTGCGTTCAAATCAATTAATAGTTTGACG";
 		List<RefCpG> refCpGList = extractCpGSite(refString, 17207805);
 
-
+		// mapped read is 0based start.
 		String mappedReadStr1 = "20\t+\t17207806\t17207874\tGTATTTCGATGTAGAATGTTTTTTATGAGAGGTGATTTTTTAGGATTTTTAATTTGTGTTTAAATTAAT\t815505";
-		String mappedReadStr3 = "20\t+\t17207806\t17207874\tGTATTTNGATGTAGAATGTTTTTTATGAGAGGTGATTTTTTAGGATTTTTAATTTGTGTTTAAATTAAT\t815505";
+		String mappedReadStr3 = "20\t+\t17207806\t17207874\tGTATTTNGATGTAGAATGTTTTTTATGAGAGGTGATTTTTTAGGATTTTTAATTTGTGTTTAAATTAAT\t815506";
 		// contains only one CpG, shouldn't be added to mappredReadList
 		String mappedReadStr2 = "20\t-\t17207806\t17207814\tACATTCCGA\t3458074";
 		MappedReadLineProcessorWithSummary mp = new MappedReadLineProcessorWithSummary(refCpGList, 2, refString.length());
 
 		MappedRead mappedRead1 = mp.processRead(mappedReadStr1);
-		MappedRead mappedRead2 = mp.processRead(mappedReadStr2);
-		MappedRead mappedRead3 = mp.processRead(mappedReadStr3);
 		mp.updateRefCpG(mappedRead1);
+		MappedRead mappedRead2 = mp.processRead(mappedReadStr2);
 		mp.updateRefCpG(mappedRead2);
+		MappedRead mappedRead3 = mp.processRead(mappedReadStr3);
 		mp.updateRefCpG(mappedRead3);
 
 		// check if mappedReadList exclude read with only one cpg

@@ -47,7 +47,6 @@ public class CPMR_Pgm {
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
 		int min_interval_reads = Integer.valueOf(cmd.getOptionValue("mir"));
 
-
 		// load reference
 		long start = System.currentTimeMillis();
 		RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
@@ -119,7 +118,7 @@ public class CPMR_Pgm {
 	private static void writeReport(String reportFileName, String reportString, int rawIntervalCount,
 	                                int outputIntervalCount) throws
 			IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName, true));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName));
 		writer.write(reportString);
 		writer.write("Raw Interval count:\t" + rawIntervalCount + "\n");
 		writer.write("Output Interval count:\t" + outputIntervalCount + "\n");

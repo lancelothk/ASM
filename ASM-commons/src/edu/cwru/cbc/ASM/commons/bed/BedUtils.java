@@ -66,15 +66,15 @@ public class BedUtils {
 								default:
 									throw new RuntimeException("invalid label!\t" + line);
 							}
-							addRegionToList(new BedInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
 						} else if (items.length >= 4) {
 							// more than 3 columns bed format
-							addRegionToList(new BedInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
 						} else {
 							// 3 columns bed format
-							addRegionToList(new BedInterval(items[0].replace("chr", ""), Integer.parseInt(items[1]),
+							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), ""), genomicIntervalMap);
 						}
 						return true;

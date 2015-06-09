@@ -24,19 +24,22 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorB
 	private int qualifiedMaxCpGCount = Integer.MIN_VALUE;
 	private int qualifiedMinCpGCount = Integer.MAX_VALUE;
 	private BitSet chrBitSet;
+	private BitSet informativeChrBitSet;
 	private int min_read_cpg;
 
-	public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int min_read_cpg, int refLength) throws IOException {
+	public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int min_read_cpg, int refLength) throws
+			IOException {
 		super(refCpGList);
 		this.min_read_cpg = min_read_cpg;
 		this.chrBitSet = new BitSet(refLength);
+		this.informativeChrBitSet = new BitSet(refLength);
 	}
 
 	@Override
 	protected void updateRefCpG(MappedRead mappedRead) {
 		int length = mappedRead.getSequence().length();
-		int cpgCount = mappedRead.getCpgList().size();
-		if (mappedRead.countCpG(refMap) >= this.min_read_cpg) {
+		int cpgCount = mappedRead.countCpG(refMap);
+		if (cpgCount >= this.min_read_cpg) {
 			super.updateRefCpG(mappedRead);
 			qualifiedTotalLength += length;
 			qualifiedMaxLength = length > qualifiedMaxLength ? length : qualifiedMaxLength;
@@ -44,7 +47,9 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorB
 			qualifiedTotalCpGCount += cpgCount;
 			qualifiedMaxCpGCount = cpgCount > qualifiedMaxCpGCount ? cpgCount : qualifiedMaxCpGCount;
 			qualifiedMinCpGCount = cpgCount < qualifiedMinCpGCount ? cpgCount : qualifiedMinCpGCount;
+			informativeChrBitSet.set(mappedRead.getStart(), mappedRead.getEnd(), true);
 		}
+
 		count++;
 		totalLength += length;
 		maxLength = length > maxLength ? length : maxLength;
@@ -52,7 +57,7 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorB
 		totalCpGCount += cpgCount;
 		maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
 		minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
-		chrBitSet.set(mappedRead.getStart() - 1, mappedRead.getEnd() - 1, true);
+		chrBitSet.set(mappedRead.getStart(), mappedRead.getEnd(), true);
 	}
 
 	public String getResult() {
@@ -60,22 +65,6 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorB
 	}
 
 	private String getSummaryString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Reference and Mapped Reads summary:\n");
-		sb.append(String.format("totalReadCount:%d\tQualifiedReadCount:%d\n", count, mappedReadList.size()));
-		sb.append(String.format("totalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n", totalLength,
-				totalLength / (double) count, maxLength, minLength));
-		sb.append(String.format("qualified: totalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n",
-				qualifiedTotalLength, qualifiedTotalLength / (double) mappedReadList.size(), qualifiedMaxLength,
-				qualifiedMinLength));
-		sb.append(String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,
-				totalCpGCount / (double) count, maxCpGCount, minCpGCount));
-		sb.append(String.format("qualified: totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n",
-				qualifiedTotalCpGCount, qualifiedTotalCpGCount / (double) mappedReadList.size(), qualifiedMaxCpGCount,
-				qualifiedMinCpGCount));
-		sb.append(String.format("refLength:%d\trefCpgSiteNumber:%d\n", chrBitSet.size(), refMap.size()));
-		sb.append(String.format("readCoverage:%f\tcoveredLength:%d\n", totalLength / (double) chrBitSet.size(),
-				chrBitSet.cardinality()));
 		long totalCpGCountInRefMap = 0;
 		int maxCpGCoverage = Integer.MIN_VALUE;
 		int minCpGCoverage = Integer.MAX_VALUE;
@@ -85,8 +74,30 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorB
 			maxCpGCoverage = coverage > maxCpGCoverage ? coverage : maxCpGCoverage;
 			minCpGCoverage = coverage < minCpGCoverage ? coverage : minCpGCoverage;
 		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("Reference and Mapped Reads summary:\n");
+		sb.append(String.format("Reference:\nrefLength:%d\trefCpgSiteNumber:%d\n", chrBitSet.size(), refMap.size()));
 		sb.append(String.format(
-				"totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
+				"\nRaw reads:\ntotalReadCount:%d\ttotalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n",
+				count, totalLength, totalLength / (double) count, maxLength, minLength));
+		sb.append(String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,
+				totalCpGCount / (double) count, maxCpGCount, minCpGCount));
+		sb.append(String.format("coveredLength:%d\toverallCoverage:%f\tactualCoverage:%f\n", chrBitSet.cardinality(),
+				totalLength / (double) chrBitSet.size(), totalLength / (double) chrBitSet.cardinality()));
+
+		sb.append(String.format(
+				"\nInformative reads:\nreadCount:%d\ttotalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n",
+				mappedReadList.size(), qualifiedTotalLength, qualifiedTotalLength / (double) mappedReadList.size(),
+				qualifiedMaxLength, qualifiedMinLength));
+		sb.append(String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n",
+				qualifiedTotalCpGCount, qualifiedTotalCpGCount / (double) mappedReadList.size(), qualifiedMaxCpGCount,
+				qualifiedMinCpGCount));
+		sb.append(String.format("coveredLength:%d\toverallCoverage:%f\tactualCoverage:%f\n",
+				informativeChrBitSet.cardinality(),
+				qualifiedTotalLength / (double) informativeChrBitSet.cardinality(),
+				qualifiedTotalLength / (double) informativeChrBitSet.size()));
+		sb.append(String.format(
+				"(informative reads only)totalCpGCountInRefMap:%d\tavg cpgSite coverage:%f\tmaxCpGCoverage:%d\tminCpGCoverage:%d\n",
 				totalCpGCountInRefMap, totalCpGCountInRefMap / (double) refMap.size(), maxCpGCoverage, minCpGCoverage));
 		return sb.toString();
 	}
