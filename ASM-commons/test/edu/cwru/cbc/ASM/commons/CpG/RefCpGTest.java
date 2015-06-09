@@ -56,9 +56,9 @@ public class RefCpGTest {
 
 	@Test
 	public void testHasPartialMethyl() throws Exception {
-		assertTrue(!rc1.hasPartialMethyl());
-		assertTrue(rc2.hasPartialMethyl());
-		assertTrue(!rc3.hasPartialMethyl());
+		assertTrue(!rc1.hasPartialMethyl(0.2));
+		assertTrue(rc2.hasPartialMethyl(0.2));
+		assertTrue(!rc3.hasPartialMethyl(0.2));
 	}
 
 	@Test

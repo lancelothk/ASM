@@ -79,7 +79,7 @@ public class RefCpG implements Comparable<RefCpG> {
 		return cpGList.size();
 	}
 
-	public boolean hasPartialMethyl() {
+	public boolean hasPartialMethyl(double partial_methyl_threshold) {
 		double m = 0, n = 0;
 		for (CpG cpG : cpGList) {
 			if (cpG.getMethylStatus() == MethylStatus.C) {
@@ -89,7 +89,7 @@ public class RefCpG implements Comparable<RefCpG> {
 			}
 		}
 		double rate = m > n ? n / (m + n) : m / (m + n);
-		return rate >= 0.3;
+		return rate >= partial_methyl_threshold;
 	}
 
 	public void addMethylCount(int count) {
