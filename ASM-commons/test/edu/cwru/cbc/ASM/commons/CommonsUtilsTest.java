@@ -1,8 +1,8 @@
 package edu.cwru.cbc.ASM.commons;
 
 import com.google.common.collect.Ordering;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import org.junit.Test;
 
 import java.util.List;

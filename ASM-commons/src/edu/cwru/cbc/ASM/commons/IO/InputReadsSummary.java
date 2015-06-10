@@ -1,6 +1,7 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.IO;
 
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -9,7 +10,7 @@ import java.util.Collection;
  * Created by lancelothk on 6/9/15.
  * Store and construct summary info about mapped reads.
  */
-public class MappedReadSummary {
+public class InputReadsSummary {
 	private long totalLength;
 	private long count;
 	private int maxLength = Integer.MIN_VALUE;
@@ -21,7 +22,7 @@ public class MappedReadSummary {
 	private StringBuilder sb;
 	private int refLength;
 
-	public MappedReadSummary(int refLength) {
+	public InputReadsSummary(int refLength) {
 		this.refLength = refLength;
 		this.sb = new StringBuilder();
 		this.chrBitSet = new BitSet(refLength);

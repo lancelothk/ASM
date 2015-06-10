@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.commons;
+package edu.cwru.cbc.ASM.commons.GenomicInterval;
 
 /**
  * Created by lancelothk on 6/8/15.

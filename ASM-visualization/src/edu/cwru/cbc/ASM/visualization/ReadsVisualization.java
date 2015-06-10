@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.visualization;
 
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
-import edu.cwru.cbc.ASM.commons.Read.ReadComparator;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedReadComparator;
 import org.apache.commons.cli.*;
 
 import java.io.*;
@@ -64,7 +64,7 @@ public class ReadsVisualization {
 				System.err.println("invalid strand symbol!");
 			}
 			readsList.add(
-					new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]), Integer.parseInt(items[3]),
+					new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
 							items[4], items[5]));
 		}
 		bufferedReader.close();
@@ -73,7 +73,7 @@ public class ReadsVisualization {
 
 	public static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) throws IOException {
 		// sort reads first
-		readsList.sort(new ReadComparator());
+		readsList.sort(new MappedReadComparator());
 		// set initial position
 		int initialPos = readsList.get(0).getStart();
 		BufferedWriter bufferedWriter;
@@ -91,7 +91,7 @@ public class ReadsVisualization {
 		List<MappedRead> allReads = new ArrayList<>();
 		readGroups.forEach(allReads::addAll);
 		// sort reads first
-		allReads.sort(new ReadComparator());
+		allReads.sort(new MappedReadComparator());
 		// set initial position
 		int initialPos = allReads.get(0).getStart();
 		BufferedWriter bufferedWriter;
@@ -100,7 +100,7 @@ public class ReadsVisualization {
 			bufferedWriter.write(String.format("ref:\t%s\n", ref));
 		}
 		for (List<MappedRead> readGroup : readGroups) {
-			readGroup.sort(new ReadComparator());
+			readGroup.sort(new MappedReadComparator());
 			for (MappedRead read : readGroup) {
 				bufferedWriter.write(read.toVisualizationString(initialPos) + "\n");
 			}

@@ -3,8 +3,8 @@ package edu.cwru.cbc.ASM.commons;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 
 import java.io.File;
 import java.io.IOException;

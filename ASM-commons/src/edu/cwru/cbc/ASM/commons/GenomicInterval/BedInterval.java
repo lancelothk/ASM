@@ -1,6 +1,6 @@
-package edu.cwru.cbc.ASM.commons;
+package edu.cwru.cbc.ASM.commons.GenomicInterval;
 
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;

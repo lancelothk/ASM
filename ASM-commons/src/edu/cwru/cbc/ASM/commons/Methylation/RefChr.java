@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.commons.CpG;
+package edu.cwru.cbc.ASM.commons.Methylation;
 
 /**
  * Created by lancelothk on 5/27/14.

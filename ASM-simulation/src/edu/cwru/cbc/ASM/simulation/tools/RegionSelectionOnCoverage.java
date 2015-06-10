@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;

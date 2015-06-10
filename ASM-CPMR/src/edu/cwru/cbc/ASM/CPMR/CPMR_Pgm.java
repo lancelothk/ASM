@@ -4,12 +4,12 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.Constant;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.ImmutableGenomicInterval;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
-import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessorWithSummary;
-import edu.cwru.cbc.ASM.commons.Read.MappedReadSummary;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.ImmutableGenomicInterval;
+import edu.cwru.cbc.ASM.commons.IO.InputReadsSummary;
+import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessorWithFilter;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -60,7 +60,7 @@ public class CPMR_Pgm {
 		// load mapped reads
 		start = System.currentTimeMillis();
 		String reportString = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessorWithSummary(refCpGList, min_read_cpg, refChr.getRefString().length()));
+				new MappedReadLineProcessorWithFilter(refCpGList, min_read_cpg, refChr.getRefString().length()));
 		System.out.println("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		String summaryFileName = outputPath + "/CPMR.bed";
@@ -77,13 +77,13 @@ public class CPMR_Pgm {
 		List<List<RefCpG>> cpgIntervalList = cpmr.getIntervals();
 		List<ImmutableGenomicInterval> immutableGenomicIntervals = cpmr.getGenomicIntervals(refChr, cpgIntervalList);
 		writeIntervals(outputPath, summaryFileName, immutableGenomicIntervals);
-		MappedReadSummary intervalReadsSummary = new MappedReadSummary(refChr.getRefString().length());
+		InputReadsSummary intervalReadsSummary = new InputReadsSummary(refChr.getRefString().length());
 		immutableGenomicIntervals.forEach(i -> i.getMappedReadList().forEach(intervalReadsSummary::addMappedRead));
 		List<RefCpG> refCpGCollection = immutableGenomicIntervals.stream().flatMap(
 				i -> i.getRefCpGList().stream()).collect(Collectors.toList());
 		writeReport(reportFileName,
 				reportString + intervalReadsSummary.getSummaryString(
-						"\nSummary of reads in interval:\n") + MappedReadSummary.getCpGCoverageSummary(
+						"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
 						refCpGCollection), cpgIntervalList.size(), immutableGenomicIntervals.size());
 	}
 

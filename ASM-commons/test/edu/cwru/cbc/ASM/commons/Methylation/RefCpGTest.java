@@ -1,8 +1,7 @@
-package edu.cwru.cbc.ASM.commons.CpG;
+package edu.cwru.cbc.ASM.commons.Methylation;
 
-import edu.cwru.cbc.ASM.commons.MethylStatus;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,11 +24,11 @@ public class RefCpGTest {
 		rc2 = new RefCpG(2);
 		rc3 = new RefCpG(4);
 
-		MappedRead mappedRead1 = new MappedRead("test", '+', 0, 2, "TG", "read1");
-		MappedRead mappedRead2 = new MappedRead("test", '+', 0, 4, "TGTG", "read2");
-		MappedRead mappedRead3 = new MappedRead("test", '+', 2, 6, "CGNG", "read3");
-		MappedRead mappedRead4 = new MappedRead("test", '+', 2, 4, "CG", "read4");
-		MappedRead mappedRead5 = new MappedRead("test", '+', 4, 6, "TG", "read5");
+		MappedRead mappedRead1 = new MappedRead("test", '+', 0, "TG", "read1");
+		MappedRead mappedRead2 = new MappedRead("test", '+', 0, "TGTG", "read2");
+		MappedRead mappedRead3 = new MappedRead("test", '+', 2, "CGNG", "read3");
+		MappedRead mappedRead4 = new MappedRead("test", '+', 2, "CG", "read4");
+		MappedRead mappedRead5 = new MappedRead("test", '+', 4, "TG", "read5");
 
 		CpG ca = new CpG(mappedRead1, rc1, MethylStatus.T);
 		rc1.addCpG(ca);

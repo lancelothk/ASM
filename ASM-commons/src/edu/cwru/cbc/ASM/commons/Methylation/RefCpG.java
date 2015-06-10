@@ -1,6 +1,4 @@
-package edu.cwru.cbc.ASM.commons.CpG;
-
-import edu.cwru.cbc.ASM.commons.MethylStatus;
+package edu.cwru.cbc.ASM.commons.Methylation;
 
 import java.util.ArrayList;
 import java.util.List;

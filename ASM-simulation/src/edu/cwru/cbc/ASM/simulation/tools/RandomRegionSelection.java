@@ -1,6 +1,6 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
-import edu.cwru.cbc.ASM.commons.BedInterval;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 
 import java.io.BufferedWriter;

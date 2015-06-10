@@ -1,6 +1,7 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.IO;
 
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import org.junit.Test;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class MappedReadLineProcessorTest {
 		String mappedReadStr3 = "20\t+\t17207806\t17207874\tGTATTTNGATGTAGAATGTTTTTTATGAGAGGTGATTTTTTAGGATTTTTAATTTGTGTTTAAATTAAT\t815506";
 		// contains only one CpG, shouldn't be added to mappredReadList
 		String mappedReadStr2 = "20\t-\t17207806\t17207814\tACATTCCGA\t3458074";
-		MappedReadLineProcessorWithSummary mp = new MappedReadLineProcessorWithSummary(refCpGList, 2, refString.length());
+		MappedReadLineProcessorWithFilter mp = new MappedReadLineProcessorWithFilter(refCpGList, 2, refString.length());
 
 		MappedRead mappedRead1 = mp.processRead(mappedReadStr1);
 		mp.updateRefCpG(mappedRead1);

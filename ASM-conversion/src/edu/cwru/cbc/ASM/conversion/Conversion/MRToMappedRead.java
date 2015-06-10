@@ -3,7 +3,7 @@ package edu.cwru.cbc.ASM.conversion.Conversion;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,7 +37,7 @@ public class MRToMappedRead {
 				}
 
 				MappedRead mappedRead = new MappedRead(items[0], items[5].charAt(0), Integer.parseInt(items[1]),
-						Integer.parseInt(items[2]), items[6], items[3]);
+						items[6], items[3]);
 				mappedReadWriter.write(mappedRead.outputString());
 				return true;
 			}

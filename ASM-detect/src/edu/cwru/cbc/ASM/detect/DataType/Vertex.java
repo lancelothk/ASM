@@ -1,9 +1,9 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
-import edu.cwru.cbc.ASM.commons.CpG.CpG;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.MethylStatus;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Methylation.CpG;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.util.*;
 

@@ -2,14 +2,14 @@ package edu.cwru.cbc.ASM.simulation;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.commons.BedInterval;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.CpG.CpG;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.MethylStatus;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
-import edu.cwru.cbc.ASM.commons.Read.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
+import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.Methylation.CpG;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import org.apache.commons.cli.*;
 

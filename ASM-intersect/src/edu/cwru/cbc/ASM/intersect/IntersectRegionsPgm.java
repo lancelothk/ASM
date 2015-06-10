@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.intersect;
 
 import com.google.common.base.Strings;
-import edu.cwru.cbc.ASM.commons.BedInterval;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import org.apache.commons.cli.*;
 

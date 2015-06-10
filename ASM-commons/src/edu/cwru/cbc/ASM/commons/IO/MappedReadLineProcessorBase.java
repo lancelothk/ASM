@@ -1,9 +1,10 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.IO;
 
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.CpG.CpG;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.CpG;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,10 +54,10 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 		MappedRead mappedRead;
 		if (items.length == 6) {
 			// for h1/i90 dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, end, items[4], items[5]);
+			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
 		} else if (items.length == 7) {
 			// for h9 and other dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, end, items[4], items[6]);
+			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[6]);
 		} else {
 			throw new RuntimeException("columns is not correct for mapped read format");
 		}

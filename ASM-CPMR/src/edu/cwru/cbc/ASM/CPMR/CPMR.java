@@ -1,10 +1,10 @@
 package edu.cwru.cbc.ASM.CPMR;
 
-import edu.cwru.cbc.ASM.commons.CpG.CpG;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.ImmutableGenomicInterval;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.ImmutableGenomicInterval;
+import edu.cwru.cbc.ASM.commons.Methylation.CpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.io.IOException;
 import java.util.*;

@@ -3,7 +3,7 @@ package edu.cwru.cbc.ASM.conversion.Conversion;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import org.apache.commons.cli.ParseException;
 
 import java.io.BufferedWriter;
@@ -45,7 +45,7 @@ public class MappedReadToMR {
 						}
 
 						MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
-								Integer.parseInt(items[3]), items[4], items[5]);
+								items[4], items[5]);
 						writer.write(mappedRead.toMRFormatString(0, '~') + "\n");
 						return true;
 					}

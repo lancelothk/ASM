@@ -1,8 +1,8 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.Sequence;
 
 import java.util.Comparator;
 
-public class ReadComparator implements Comparator<MappedRead> {
+public class MappedReadComparator implements Comparator<MappedRead> {
 
 	@Override
 	public int compare(MappedRead r1, MappedRead r2) {

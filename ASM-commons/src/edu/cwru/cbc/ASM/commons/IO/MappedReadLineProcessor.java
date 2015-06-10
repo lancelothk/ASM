@@ -1,6 +1,7 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.IO;
 
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.util.List;
 

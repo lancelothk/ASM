@@ -1,10 +1,10 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
-import edu.cwru.cbc.ASM.commons.CpG.CpG;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.MethylStatus;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Methylation.CpG;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import org.junit.Before;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class VertexTest {
 
 	@Before
 	public void setUp() throws Exception {
-		mappedRead = new MappedRead("test", '+', 0, 10, "ACGTGTGCAG", "test-1");
+		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", "test-1");
 		mappedRead.addCpG(new CpG(mappedRead, new RefCpG(1), MethylStatus.C));
 		mappedRead.addCpG(new CpG(mappedRead, new RefCpG(3), MethylStatus.T));
 		vertex = new Vertex(mappedRead);

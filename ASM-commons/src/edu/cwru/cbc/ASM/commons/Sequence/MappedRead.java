@@ -1,9 +1,9 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.Sequence;
 
 import com.google.common.base.Strings;
-import edu.cwru.cbc.ASM.commons.CpG.CpG;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.CpG;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,25 +14,19 @@ import java.util.Map;
  * Created by lancelothk on 11/12/14.
  * Used to represent mapped read.
  */
-public class MappedRead {
+public class MappedRead extends Sequence {
 	private String chr;
-	private String sequence;
-	private String id;
 	private char strand;
 	private int start;
-	private int end;
 	private List<CpG> cpgList;
 	private CpG firstCpG;
 	private CpG lastCpG;
 
-	public MappedRead(String chr, char strand, int start, int end, String sequence, String id) {
-		super();
+	public MappedRead(String chr, char strand, int start, String sequence, String id) {
+		super(id, sequence.toUpperCase());
 		this.chr = chr;
 		this.strand = strand;
 		this.start = start;
-		this.end = end;
-		this.sequence = sequence.toUpperCase();
-		this.id = id;
 		this.cpgList = new ArrayList<>();
 	}
 
@@ -54,14 +48,6 @@ public class MappedRead {
 		return chr;
 	}
 
-	public String getSequence() {
-		return sequence;
-	}
-
-	public String getId() {
-		return id;
-	}
-
 	public char getStrand() {
 		return strand;
 	}
@@ -71,7 +57,7 @@ public class MappedRead {
 	}
 
 	public int getEnd() {
-		return end;
+		return start + sequence.length();
 	}
 
 	public MethylStatus getMethylStatus(int pos) {
@@ -109,7 +95,7 @@ public class MappedRead {
 			throw new IllegalArgumentException("offset exceed max int!");
 		}
 		int offset = this.start - initialPos;
-		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end,
+		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.getEnd(),
 				Strings.padStart(this.strand == '+' ? this.sequence : getComplementarySequence(),
 						offset + this.sequence.length(), '.'), this.id);
 	}
@@ -166,7 +152,7 @@ public class MappedRead {
 				}
 			}
 		}
-		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.end,
+		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.getEnd(),
 				new String(strArray), this.id);
 	}
 
@@ -174,7 +160,7 @@ public class MappedRead {
 	public String toMRFormatString(int mismatch, char qualityChar) {
 		char[] qualityStrArray = new char[this.sequence.length()];
 		Arrays.fill(qualityStrArray, qualityChar);
-		return String.format("%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s", this.chr, this.start, this.end, this.id, mismatch,
+		return String.format("%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s", this.chr, this.start, this.getEnd(), this.id, mismatch,
 				this.strand, this.sequence, new String(qualityStrArray));
 	}
 
@@ -195,13 +181,13 @@ public class MappedRead {
 	}
 
 	public String outputString() {
-		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, end, sequence, id);
+		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, this.getEnd(), sequence, id);
 	}
 
 	public String outputString(int leftBound, int rightBound) {
 		int leftOffset = start < leftBound ? leftBound - start : 0;
-		int rightOffset = end > rightBound ? end - rightBound : 0;
-		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start + leftOffset, end - rightOffset,
+		int rightOffset = this.getEnd() > rightBound ? this.getEnd() - rightBound : 0;
+		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start + leftOffset, this.getEnd() - rightOffset,
 				sequence.substring(leftOffset, sequence.length() - rightOffset), id);
 	}
 

@@ -1,6 +1,7 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.IO;
 
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,19 +10,19 @@ import java.util.List;
  * Created by lancelothk on 5/27/14.
  * LineProcessor for process mapped read and print summary.
  */
-public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorBase<String> {
+public class MappedReadLineProcessorWithFilter extends MappedReadLineProcessorBase<String> {
 	private int refLength;
 	private int min_read_cpg;
-	private MappedReadSummary rawInputSummary;
-	private MappedReadSummary filteredSummary;
+	private InputReadsSummary rawInputSummary;
+	private InputReadsSummary filteredSummary;
 
-	public MappedReadLineProcessorWithSummary(List<RefCpG> refCpGList, int min_read_cpg, int refLength) throws
+	public MappedReadLineProcessorWithFilter(List<RefCpG> refCpGList, int min_read_cpg, int refLength) throws
 			IOException {
 		super(refCpGList);
 		this.refLength = refLength;
 		this.min_read_cpg = min_read_cpg;
-		this.rawInputSummary = new MappedReadSummary(refLength);
-		this.filteredSummary = new MappedReadSummary(refLength);
+		this.rawInputSummary = new InputReadsSummary(refLength);
+		this.filteredSummary = new InputReadsSummary(refLength);
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class MappedReadLineProcessorWithSummary extends MappedReadLineProcessorB
 		return String.format("Reference:\nrefLength:%d\trefCpgSiteNumber:%d\n", refLength,
 				refMap.size()) + rawInputSummary.getSummaryString(
 				"\nSummary of raw input:\n") + filteredSummary.getSummaryString(
-				"\nSummary of filtered reads:\n") + MappedReadSummary.getCpGCoverageSummary(
+				"\nSummary of filtered reads:\n") + InputReadsSummary.getCpGCoverageSummary(
 				refMap.values());
 	}
 }

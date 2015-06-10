@@ -1,7 +1,6 @@
-package edu.cwru.cbc.ASM.commons.CpG;
+package edu.cwru.cbc.ASM.commons.Methylation;
 
-import edu.cwru.cbc.ASM.commons.MethylStatus;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 /**
  * Created by lancelothk on 5/27/14.

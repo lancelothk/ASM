@@ -1,10 +1,10 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
-import edu.cwru.cbc.ASM.commons.BedInterval;
 import edu.cwru.cbc.ASM.commons.CommonsUtils;
-import edu.cwru.cbc.ASM.commons.CpG.RefChr;
-import edu.cwru.cbc.ASM.commons.CpG.RefCpG;
-import edu.cwru.cbc.ASM.commons.Read.MappedRead;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
+import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 
 import java.io.*;
@@ -59,7 +59,7 @@ public class RegionReadsExtraction {
             int start = Integer.parseInt(items[2]);
             int end = Integer.parseInt(items[3]);
 
-            MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), start, end, items[4], items[5]);
+            MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
             if (mappedRead.countCpG(refMap) >= MIN_READ_CPG) {
                 targetRegionsMap.keySet()
                         .stream()

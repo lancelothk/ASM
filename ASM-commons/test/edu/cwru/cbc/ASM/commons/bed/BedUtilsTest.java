@@ -1,6 +1,6 @@
 package edu.cwru.cbc.ASM.commons.bed;
 
-import edu.cwru.cbc.ASM.commons.BedInterval;
+import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
 import org.junit.Test;
 
 import java.util.List;
