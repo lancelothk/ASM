@@ -7,6 +7,7 @@ import java.util.List;
  * Created by lancelothk on 5/27/14.
  * Store reference CpG site information in reference genome.
  */
+//TODO double check unit test
 public class RefCpG implements Comparable<RefCpG> {
 	private int pos; // 1-based. Same to UCSCGB.
 	private int index;

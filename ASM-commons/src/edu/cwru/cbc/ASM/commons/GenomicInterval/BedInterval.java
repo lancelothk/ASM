@@ -90,10 +90,10 @@ public class BedInterval extends GenomicIntervalBase implements Comparable<BedIn
 
 
 	public String toBedWithIntersectionString() {
-		return String.format("%s\t%d\t%d\t%s\t%s\t%b", this.chr, this.start, this.end, this.name, uniqueRegionnames(intersectedRegions), isIntersected());
+		return String.format("%s\t%d\t%d\t%s\t%s\t%b", this.chr, this.start, this.end, this.name, uniqueRegionNames(intersectedRegions), isIntersected());
 	}
 
-	private String uniqueRegionnames(Set<BedInterval> intersectedRegions) {
+	private String uniqueRegionNames(Set<BedInterval> intersectedRegions) {
 		Set<String> intersectionRegionNameSet = intersectedRegions.stream().map(BedInterval::getName).collect(
 				Collectors.toSet());
 		StringBuilder sb = new StringBuilder();

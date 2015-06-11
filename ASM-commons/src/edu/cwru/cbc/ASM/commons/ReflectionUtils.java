@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
  * Created by kehu on 12/9/14.
  * MethylationUtils for using reflection
  */
+//TODO add unit test
 public class ReflectionUtils {
 	public static void setFinalStaticField(Field field, Object newValue) throws Exception {
 		field.setAccessible(true);

@@ -1,7 +1,6 @@
-package edu.cwru.cbc.ASM.commons.Read;
+package edu.cwru.cbc.ASM.commons.Sequence;
 
 import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
-import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.commons.Sequence;
 
 import java.util.Comparator;
 
+//TODO add unit test
 public class MappedReadComparator implements Comparator<MappedRead> {
 
 	@Override

@@ -16,6 +16,7 @@ import java.util.*;
  * Created by lancelothk on 4/2/15.
  * Utils for handling Bed format file.
  */
+//TODO refactor & unit test
 public class BedUtils {
 	public static List<BedInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
 		return readSingleChromBedRegions(bedFileName, false);

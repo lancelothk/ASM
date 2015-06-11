@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * Shared by both MappedReadLineProcessor and MappedReadLineProcessorWithSummary
  * Mapped reads start pos is 0-based, end pos is 0-based.
  */
+//TODO refactor & add unit test
 public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T> {
 	protected List<MappedRead> mappedReadList = new ArrayList<>();
 	protected Map<Integer, RefCpG> refMap;

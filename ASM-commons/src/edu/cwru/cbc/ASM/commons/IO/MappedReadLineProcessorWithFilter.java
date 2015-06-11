@@ -10,6 +10,7 @@ import java.util.List;
  * Created by lancelothk on 5/27/14.
  * LineProcessor for process mapped read and print summary.
  */
+//TODO add unit test
 public class MappedReadLineProcessorWithFilter extends MappedReadLineProcessorBase<String> {
 	private int refLength;
 	private int min_read_cpg;
