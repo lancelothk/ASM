@@ -21,6 +21,13 @@ public class FASTALineProcessorTest {
 	}
 
 	@Test(expected = RuntimeException.class)
+	public void test_processLine_emptyId() throws Exception {
+		String emptyId = ">";
+		FASTALineProcessor flp = new FASTALineProcessor();
+		flp.processLine(emptyId);
+	}
+
+	@Test(expected = RuntimeException.class)
 	public void test_processLine_invalidCharacter() throws Exception {
 		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
 		FASTALineProcessor flp = new FASTALineProcessor();

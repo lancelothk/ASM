@@ -41,6 +41,9 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashMap<String, F
 	@Override
 	public boolean processLine(String line) throws IOException {
 		if (line.startsWith(">")) {
+			if (line.length() == 1) {
+				throw new RuntimeException("empty id!");
+			}
 			if (id == null) { // first sequence
 				id = line.substring(1, line.length());
 			} else {
