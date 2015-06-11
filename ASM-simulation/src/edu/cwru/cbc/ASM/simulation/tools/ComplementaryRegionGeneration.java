@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
 import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
-import edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils;
+import edu.cwru.cbc.ASM.commons.IO.IOUtils;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 
@@ -25,7 +25,7 @@ public class ComplementaryRegionGeneration {
                 currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions" + "/cpgIslandExt_hg18_UCSCGB_chr20.bed";
 
         // read reference and refCpGs
-        RefChr refChr = MethylationUtils.readReferenceGenome(referenceGenomeFileName);
+        RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
 
         // read target regions
         List<BedInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);

@@ -4,9 +4,9 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.GenomicInterval.ImmutableGenomicInterval;
+import edu.cwru.cbc.ASM.commons.IO.IOUtils;
 import edu.cwru.cbc.ASM.commons.IO.InputReadsSummary;
 import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessorWithFilter;
-import edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
@@ -53,7 +53,7 @@ public class CPMR_Pgm {
 
 		// load reference
 		long start = System.currentTimeMillis();
-		RefChr refChr = MethylationUtils.readReferenceGenome(referenceGenomeFileName);
+		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 

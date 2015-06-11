@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.simulation;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
+import edu.cwru.cbc.ASM.commons.IO.IOUtils;
 import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.Methylation.*;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
@@ -64,7 +65,7 @@ public class Simulation {
 
 		System.out.println("simulation start");
 		// read reference and refCpGs
-		RefChr refChr = MethylationUtils.readReferenceGenome(referenceGenomeFileName);
+		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
 		List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(refChr.getRefString(), 0);
 
 		// read target regions
