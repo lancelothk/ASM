@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 
 /**
  * Created by kehu on 12/9/14.
- * CommonsUtils for using reflection
+ * MethylationUtils for using reflection
  */
 public class ReflectionUtils {
 	public static void setFinalStaticField(Field field, Object newValue) throws Exception {

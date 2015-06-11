@@ -71,6 +71,9 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashSet<FASTASequ
 		}
 	}
 
+	/**
+	 * Result in LinkedHashSet keeps the sequences in the order of reading.
+	 */
 	@Override
 	public LinkedHashSet<FASTASequence> getResult() {
 		// put last FASTA sequence to map.

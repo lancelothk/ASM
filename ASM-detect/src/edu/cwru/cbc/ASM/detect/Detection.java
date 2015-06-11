@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
 
 /**
  * Created by lancelothk on 6/8/15.

@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 

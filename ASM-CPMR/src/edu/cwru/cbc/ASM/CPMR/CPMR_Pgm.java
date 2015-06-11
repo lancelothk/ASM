@@ -2,11 +2,11 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.GenomicInterval.ImmutableGenomicInterval;
 import edu.cwru.cbc.ASM.commons.IO.InputReadsSummary;
 import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessorWithFilter;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
 
 /**
  * Created by lancelothk on 5/26/14.
@@ -53,7 +53,7 @@ public class CPMR_Pgm {
 
 		// load reference
 		long start = System.currentTimeMillis();
-		RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
+		RefChr refChr = MethylationUtils.readReferenceGenome(referenceGenomeFileName);
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 

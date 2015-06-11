@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.simulation.tools;
 
-import edu.cwru.cbc.ASM.commons.CommonsUtils;
 import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
@@ -43,8 +43,8 @@ public class RegionReadsExtraction {
         System.out.println("finished loading reads");
         System.out.println(System.currentTimeMillis() - startTime + "ms");
 
-        RefChr refChr = CommonsUtils.readReferenceGenome(referenceGenomeFileName);
-        List<RefCpG> refCpGList = CommonsUtils.extractCpGSite(refChr.getRefString(), 0);
+        RefChr refChr = MethylationUtils.readReferenceGenome(referenceGenomeFileName);
+        List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(refChr.getRefString(), 0);
         Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 
         List<BedInterval> targetRegions = BedUtils.readSingleChromBedRegions(

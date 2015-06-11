@@ -82,6 +82,9 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequ
 		id = line.substring(1, line.length());
 	}
 
+	/**
+	 * Result in LinkedHashSet keeps the sequences in the order of reading.
+	 */
 	@Override
 	public LinkedHashSet<FASTQSequence> getResult() {
 		switch (lineCount) {
