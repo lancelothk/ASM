@@ -7,14 +7,14 @@ import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import edu.cwru.cbc.ASM.detect.DetectionUtils;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 public class ASMGraphTest {
 

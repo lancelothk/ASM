@@ -2,18 +2,18 @@ package edu.cwru.cbc.ASM.commons.Methylation;
 
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class RefCpGTest {
 	private RefCpG rc1;
 	private RefCpG rc2;
 	private RefCpG rc3;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		// ref      1       2       3
 		// cpg      a(T)    d(C)    g(T)

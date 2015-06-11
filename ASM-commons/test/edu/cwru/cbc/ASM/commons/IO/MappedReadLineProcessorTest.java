@@ -2,13 +2,13 @@ package edu.cwru.cbc.ASM.commons.IO;
 
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
 import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 public class MappedReadLineProcessorTest {
 

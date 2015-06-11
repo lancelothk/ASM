@@ -3,14 +3,14 @@ package edu.cwru.cbc.ASM.commons;
 import com.google.common.collect.Ordering;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
 import static edu.cwru.cbc.ASM.commons.CommonsUtils.extractCpGSite;
 import static edu.cwru.cbc.ASM.commons.CommonsUtils.readReferenceGenome;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class CommonsUtilsTest {
 
@@ -32,7 +32,7 @@ public class CommonsUtilsTest {
 
 	@Test
 	public void testReadReferenceGenome() throws Exception {
-		String testRefFileName = "testData/testRefFile.fa";
+		String testRefFileName = "ASM-commons/testData/testRefFile.fa";
 		// ref file should
 		// 1. start with ">name"
 		// 2. maybe single line or multiple fasta file.

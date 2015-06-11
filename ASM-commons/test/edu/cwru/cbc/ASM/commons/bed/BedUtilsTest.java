@@ -1,12 +1,13 @@
 package edu.cwru.cbc.ASM.commons.bed;
 
 import edu.cwru.cbc.ASM.commons.GenomicInterval.BedInterval;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+
 
 /**
  * Created by lancelothk on 4/2/15.
@@ -16,7 +17,7 @@ public class BedUtilsTest {
 
 	@Test
 	public void testReadBedRegions() throws Exception {
-		String bedWithLabel = "testData/bedWithLabel.bed";
+		String bedWithLabel = "ASM-commons/testData/bedWithLabel.bed";
 
 		Map<String, List<BedInterval>> bedRegionsWithLabel = BedUtils.readBedRegions(bedWithLabel, true);
 

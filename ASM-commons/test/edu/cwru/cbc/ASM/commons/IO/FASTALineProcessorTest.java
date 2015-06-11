@@ -1,33 +1,34 @@
 package edu.cwru.cbc.ASM.commons.IO;
 
 import edu.cwru.cbc.ASM.commons.Sequence.FASTASequence;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
+
 
 /**
  * Created by lancelothk on 6/10/15. Tests for FASTALineProcessor
  */
 public class FASTALineProcessorTest {
 
-	@Test(expected = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class)
 	public void test_processLine_missingIdInBeginning() throws Exception {
 		String missingIdInBeginning = "AAAAA";
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(missingIdInBeginning);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class)
 	public void test_processLine_emptyId() throws Exception {
 		String emptyId = ">";
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(emptyId);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class)
 	public void test_processLine_invalidCharacter() throws Exception {
 		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
 		FASTALineProcessor flp = new FASTALineProcessor();
@@ -38,7 +39,7 @@ public class FASTALineProcessorTest {
 
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class)
 	public void test_processLine_duplicateID() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		// Since the last sequence unit is put into map only when getResult called, processLine cannot detect duplicate
@@ -51,14 +52,14 @@ public class FASTALineProcessorTest {
 		flp.processLine("ACGTN");
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class)
 	public void test_processLine_missingSequence() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
 		flp.processLine(">test");
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class)
 	public void test_getResult_MissingSequence() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
@@ -72,7 +73,7 @@ public class FASTALineProcessorTest {
 		flp.processLine(">test");
 		flp.processLine(validCharacter);
 		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals("incorrect sequence!", "ACGTNacgtn.", resultMap.get("test").getSequence());
+		assertEquals("ACGTNacgtn.", resultMap.get("test").getSequence(), "incorrect sequence!");
 	}
 
 
@@ -84,9 +85,9 @@ public class FASTALineProcessorTest {
 		flp.processLine(">test2");
 		flp.processLine("acgtn");
 		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals("incorrect number of sequence!", 2, resultMap.size());
-		assertEquals("incorrect sequence!", "ACGTN", resultMap.get("test1").getSequence());
-		assertEquals("incorrect sequence!", "acgtn", resultMap.get("test2").getSequence());
+		assertEquals(2, resultMap.size(), "incorrect number of sequence!");
+		assertEquals("ACGTN", resultMap.get("test1").getSequence(), "incorrect sequence!");
+		assertEquals("acgtn", resultMap.get("test2").getSequence(), "incorrect sequence!");
 	}
 
 	@Test
@@ -101,16 +102,16 @@ public class FASTALineProcessorTest {
 		flp.processLine("acgtn");
 		flp.processLine("acgtn");
 		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals("incorrect number of sequence!", 2, resultMap.size());
-		assertEquals("incorrect sequence!", "ACGTNACGTNACGTN", resultMap.get("test1").getSequence());
-		assertEquals("incorrect sequence!", "acgtnacgtnacgtn", resultMap.get("test2").getSequence());
+		assertEquals(2, resultMap.size(), "incorrect number of sequence!");
+		assertEquals("ACGTNACGTNACGTN", resultMap.get("test1").getSequence(), "incorrect sequence!");
+		assertEquals("acgtnacgtnacgtn", resultMap.get("test2").getSequence(), "incorrect sequence!");
 	}
 
 	@Test
 	public void test_getResult_emptyInput() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals("incorrect number of sequence!", 0, resultMap.size());
+		assertEquals(0, resultMap.size(), "incorrect number of sequence!");
 	}
 
 	private <T> T getField(Object parent, Class<T> clazz,

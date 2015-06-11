@@ -5,18 +5,20 @@ import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
-import org.junit.Before;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+
 
 public class VertexTest {
 	public MappedRead mappedRead;
 	public Vertex vertex;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", "test-1");
 		mappedRead.addCpG(new CpG(mappedRead, new RefCpG(1), MethylStatus.C));
@@ -24,7 +26,7 @@ public class VertexTest {
 		vertex = new Vertex(mappedRead);
 	}
 
-	@org.junit.Test
+	@Test
 	public void testGetMECScore() throws Exception {
 		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), vertex.getRefCpGMap().get(1), 4);
 		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), vertex.getRefCpGMap().get(1), 8);
@@ -33,12 +35,12 @@ public class VertexTest {
 		assertEquals("incorrect MEC score", 1.5, vertex.getMECScore(), 0.00001);
 	}
 
-	@org.junit.Test
+	@Test
 	public void testAddCpG() throws Exception {
 		assertEquals("incorrect RefCpG size", vertex.getRefCpGMap().size(), 2);
 	}
 
-	@org.junit.Test
+	@Test
 	public void testAddRefCpG() throws Exception {
 		List<RefCpG> refCpGList = new ArrayList<>();
 		refCpGList.add(new RefCpG(1, MethylStatus.T));

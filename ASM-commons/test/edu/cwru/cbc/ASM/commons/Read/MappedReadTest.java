@@ -2,16 +2,16 @@ package edu.cwru.cbc.ASM.commons.Read;
 
 import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class MappedReadTest {
 	private MappedRead mappedRead;
 
-	@Before
+	@BeforeMethod
 	public void setUp() throws Exception {
 		mappedRead = new MappedRead("test", '+', 0, "TGAACGANGA", "read1");
 	}
@@ -33,6 +33,6 @@ public class MappedReadTest {
 	@Test
 	public void testToString() throws Exception {
 		MappedRead read = new MappedRead("6", '+', 10, "1234567890", "test");
-		assertEquals(read.toVisualizationString(5), "6\t+\t10\t19\t.....1234567890\ttest");
+		assertEquals(read.toVisualizationString(5), "6\t+\t10\t20\t.....1234567890\ttest");
 	}
 }
