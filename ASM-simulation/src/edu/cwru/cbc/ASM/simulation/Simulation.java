@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
  */
 public class Simulation {
 
-	public static final int MIN_READ_CPG = 0;
-
 	public static void main(String[] args) throws IOException, ParseException {
 		long start = System.currentTimeMillis();
 

@@ -33,8 +33,6 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 		try {
 			if (line.startsWith("chr") || line.startsWith("ref") || line.startsWith("assembly")) {
 				return true;
-			} else if (line.equals("")) {
-				return false;
 			} else {
 				updateRefCpG(processRead(line));
 				return true;
@@ -50,7 +48,6 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 			throw new RuntimeException("invalid strand!");
 		}
 		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
-		int end = Integer.parseInt(items[3]);// mapped read is 0 based end.
 
 		MappedRead mappedRead;
 		if (items.length == 6) {
