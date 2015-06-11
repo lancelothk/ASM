@@ -40,54 +40,53 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashMap<String, F
 	 */
 	@Override
 	public boolean processLine(String line) throws IOException {
-		if (line.startsWith(">")) {
+		if (line.charAt(0) == '>') {
 			if (line.length() == 1) {
 				throw new RuntimeException("empty id!");
 			}
 			if (id == null) { // first sequence
 				id = line.substring(1, line.length());
 			} else {
-				if (sb.length() == 0) {
-					throw new RuntimeException("missing sequence line!");
-				}
-				if (resultMap.containsKey(id)) {
-					throw new RuntimeException("duplicate id detected!");
-				} else if (sb.length() != 0) {
-					resultMap.put(id, new FASTASequence(id, sb.toString()));
-					if (stringBuilderInitCapacity == -1) {
-						sb = new StringBuilder();
-					} else {
-						sb = new StringBuilder(stringBuilderInitCapacity);
-					}
-				}
+				processFASTASequence();
+				sb = initializeStringBuilder();
 				id = line.substring(1, line.length());
+				if (resultMap.containsKey(id)) {
+					throw new RuntimeException("duplicate id detected:" + id);
+				}
 			}
 		} else {
 			if (id == null) {
 				throw new RuntimeException("missing '>' in the beginning of file!");
 			}
 			if (Pattern.compile("[^ACGTNacgtn\\.]").matcher(line).find()) {
-				throw new RuntimeException("invalid character in sequence! only acgtnACGTN and '.' are allowed!");
+				throw new RuntimeException("invalid character in sequence! only acgtnACGTN and '.' are allowed!:\t" + line);
 			}
 			sb.append(line);
 		}
 		return true;
 	}
 
+	private StringBuilder initializeStringBuilder() {
+		if (stringBuilderInitCapacity == -1) {
+			return new StringBuilder();
+		} else {
+			return new StringBuilder(stringBuilderInitCapacity);
+		}
+	}
+
 	@Override
 	public LinkedHashMap<String, FASTASequence> getResult() {
 		// put last FASTA sequence to map.
 		if (id != null) {
-			if (sb.length() == 0) {
-				throw new RuntimeException("missing sequence line!");
-			} else {
-				if (resultMap.containsKey(id)) {
-					throw new RuntimeException("duplicate id detected!");
-				} else {
-					resultMap.put(id, new FASTASequence(id, sb.toString()));
-				}
-			}
+			processFASTASequence();
 		}
 		return resultMap;
+	}
+
+	private void processFASTASequence() {
+		if (sb.length() == 0) {
+			throw new RuntimeException("missing sequence line!");
+		}
+		resultMap.put(id, new FASTASequence(id, sb.toString()));
 	}
 }

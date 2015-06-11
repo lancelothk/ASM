@@ -14,10 +14,10 @@ import static org.junit.Assert.assertEquals;
 public class FASTALineProcessorTest {
 
 	@Test(expected = RuntimeException.class)
-	public void test_processLine_badStart() throws Exception {
-		String badStart = "AAAAA";
+	public void test_processLine_missingIdInBeginning() throws Exception {
+		String missingIdInBeginning = "AAAAA";
 		FASTALineProcessor flp = new FASTALineProcessor();
-		flp.processLine(badStart);
+		flp.processLine(missingIdInBeginning);
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -49,16 +49,6 @@ public class FASTALineProcessorTest {
 		flp.processLine("acgtn");
 		flp.processLine(">test");
 		flp.processLine("ACGTN");
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void test_getResult_duplicateID() throws Exception {
-		FASTALineProcessor flp = new FASTALineProcessor();
-		flp.processLine(">test");
-		flp.processLine("ACGTN");
-		flp.processLine(">test");
-		flp.processLine("acgtn");
-		flp.getResult();
 	}
 
 	@Test(expected = RuntimeException.class)
