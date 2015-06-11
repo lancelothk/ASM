@@ -88,7 +88,7 @@ public class FASTALineProcessorTest {
 		flp.processLine(">test");
 		flp.processLine("" + c);
 		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals(resultMap.get("" + c).getSequence().charAt(0), c, "incorrect character!");
+		assertEquals(resultMap.get("test").getSequence().charAt(0), c, "incorrect character!");
 	}
 
 

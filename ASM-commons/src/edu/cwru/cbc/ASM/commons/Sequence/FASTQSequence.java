@@ -11,4 +11,8 @@ public class FASTQSequence extends Sequence {
 		super(id, sequence);
 		this.qualSequence = qualSequence;
 	}
+
+	public String getQualSequence() {
+		return qualSequence;
+	}
 }
