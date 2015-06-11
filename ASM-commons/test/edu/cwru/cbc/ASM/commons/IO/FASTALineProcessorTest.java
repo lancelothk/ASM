@@ -1,9 +1,9 @@
 package edu.cwru.cbc.ASM.commons.IO;
 
 import edu.cwru.cbc.ASM.commons.Sequence.FASTASequence;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 
 import static org.testng.Assert.assertEquals;
@@ -13,6 +13,26 @@ import static org.testng.Assert.assertEquals;
  * Created by lancelothk on 6/10/15. Tests for FASTALineProcessor
  */
 public class FASTALineProcessorTest {
+
+	@DataProvider(name = "invalidCharacters")
+	public static Object[][] invalidCharacters() {
+		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
+		Object[][] result = new Object[invalidCharacters.length()][];
+		for (int i = 0; i < invalidCharacters.length(); i++) {
+			result[i] = new Object[]{invalidCharacters.charAt(i)};
+		}
+		return result;
+	}
+
+	@DataProvider(name = "validCharacters")
+	public static Object[][] validCharacters() {
+		String validCharacters = "acgtnACGTN.";
+		Object[][] result = new Object[validCharacters.length()][];
+		for (int i = 0; i < validCharacters.length(); i++) {
+			result[i] = new Object[]{validCharacters.charAt(i)};
+		}
+		return result;
+	}
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void test_processLine_missingIdInBeginning() throws Exception {
@@ -28,15 +48,11 @@ public class FASTALineProcessorTest {
 		flp.processLine(emptyId);
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
-	public void test_processLine_invalidCharacter() throws Exception {
-		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
+	@Test(expectedExceptions = RuntimeException.class, dataProvider = "invalidCharacters")
+	public void test_processLine_invalidCharacter(final char c) throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
-		for (char c : invalidCharacters.toCharArray()) {
-			flp.processLine("" + c);
-		}
-
+		flp.processLine("" + c);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
@@ -66,14 +82,13 @@ public class FASTALineProcessorTest {
 		flp.getResult();
 	}
 
-	@Test
-	public void test_processLine_validCharacter() throws Exception {
-		String validCharacter = "ACGTNacgtn.";
+	@Test(dataProvider = "validCharacters")
+	public void test_processLine_validCharacter(final char c) throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
-		flp.processLine(validCharacter);
+		flp.processLine("" + c);
 		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals("ACGTNacgtn.", resultMap.get("test").getSequence(), "incorrect sequence!");
+		assertEquals(resultMap.get("" + c).getSequence().charAt(0), c, "incorrect character!");
 	}
 
 
@@ -114,10 +129,4 @@ public class FASTALineProcessorTest {
 		assertEquals(0, resultMap.size(), "incorrect number of sequence!");
 	}
 
-	private <T> T getField(Object parent, Class<T> clazz,
-	                       String fieldName) throws NoSuchFieldException, IllegalAccessException {
-		Field f = parent.getClass().getDeclaredField(fieldName);
-		f.setAccessible(true);
-		return clazz.cast(f.get(parent));
-	}
 }

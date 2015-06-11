@@ -35,4 +35,11 @@ public class ReflectionUtils {
 		method.setAccessible(true);
 		method.invoke(obj, args);
 	}
+
+	private <T> T getField(Object parent, Class<T> clazz,
+	                       String fieldName) throws NoSuchFieldException, IllegalAccessException {
+		Field f = parent.getClass().getDeclaredField(fieldName);
+		f.setAccessible(true);
+		return clazz.cast(f.get(parent));
+	}
 }
