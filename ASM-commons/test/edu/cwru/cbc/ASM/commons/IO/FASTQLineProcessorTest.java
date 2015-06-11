@@ -4,7 +4,7 @@ import edu.cwru.cbc.ASM.commons.Sequence.FASTQSequence;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import static org.testng.Assert.assertEquals;
 
@@ -62,10 +62,13 @@ public class FASTQLineProcessorTest {
 	public void test_processLine_DuplicateID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
-		flp.processLine("ACGT");
+		flp.processLine("ACGTC");
 		flp.processLine("+test");
-		flp.processLine("ffff");
+		flp.processLine("ffffe");
 		flp.processLine("@test");
+		flp.processLine("ACGTA");
+		flp.processLine("+test");
+		flp.processLine("ffffe");
 	}
 
 
@@ -134,8 +137,8 @@ public class FASTQLineProcessorTest {
 		flp.processLine("" + c);
 		flp.processLine("+" + c);
 		flp.processLine("f");
-		LinkedHashMap<String, FASTQSequence> resultMap = flp.getResult();
-		assertEquals(resultMap.get("" + c).getSequence().charAt(0), c, "incorrect character!");
+		LinkedHashSet<FASTQSequence> resultSet = flp.getResult();
+		assertEquals(resultSet.iterator().next().getSequence().charAt(0), c, "incorrect character!");
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
@@ -165,7 +168,7 @@ public class FASTQLineProcessorTest {
 	@Test
 	public void test_getResult_emptyInput() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
-		LinkedHashMap<String, FASTQSequence> resultMap = flp.getResult();
-		assertEquals(resultMap.size(), 0, "incorrect number of sequence!");
+		LinkedHashSet<FASTQSequence> resultSet = flp.getResult();
+		assertEquals(resultSet.size(), 0, "incorrect number of sequence!");
 	}
 }

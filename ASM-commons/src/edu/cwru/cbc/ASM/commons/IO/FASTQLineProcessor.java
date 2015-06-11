@@ -4,18 +4,18 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.Sequence.FASTQSequence;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
 
 /**
  * Created by lancelothk on 6/10/15.
  * LineProcessor for reading FASTQ format file.
  */
-public class FASTQLineProcessor implements LineProcessor<LinkedHashMap<String, FASTQSequence>> {
+public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequence>> {
 	public static final int MIN_QUALITY_SCORE = 33;
 	int lineCount = 0;
 	// used to check if id is unique and also keep order of sequence as reading order.
-	private LinkedHashMap<String, FASTQSequence> resultMap = new LinkedHashMap<>();
+	private LinkedHashSet<FASTQSequence> resultSet = new LinkedHashSet<>();
 	private String id;
 	private String sequence;
 
@@ -51,7 +51,9 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashMap<String, F
 				throw new RuntimeException("invalid quality score character:" + c);
 			}
 		}
-		resultMap.put(id, new FASTQSequence(id, sequence, line));
+		if (!resultSet.add(new FASTQSequence(id, sequence, line))) {
+			throw new RuntimeException("duplicate id detected:" + id);
+		}
 	}
 
 	private void processPlusLine(String line) {
@@ -78,13 +80,10 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashMap<String, F
 			throw new RuntimeException("empty ID line!");
 		}
 		id = line.substring(1, line.length());
-		if (resultMap.containsKey(id)) {
-			throw new RuntimeException("duplicate id detected:" + id);
-		}
 	}
 
 	@Override
-	public LinkedHashMap<String, FASTQSequence> getResult() {
+	public LinkedHashSet<FASTQSequence> getResult() {
 		switch (lineCount) {
 			case 1:
 				throw new RuntimeException("missing sequence line in the end of file!");
@@ -93,6 +92,6 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashMap<String, F
 			case 3:
 				throw new RuntimeException("missing quality line in the end of file!");
 		}
-		return resultMap;
+		return resultSet;
 	}
 }

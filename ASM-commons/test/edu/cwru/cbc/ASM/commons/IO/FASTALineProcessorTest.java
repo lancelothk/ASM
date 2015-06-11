@@ -4,7 +4,7 @@ import edu.cwru.cbc.ASM.commons.Sequence.FASTASequence;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import static org.testng.Assert.assertEquals;
 
@@ -87,8 +87,8 @@ public class FASTALineProcessorTest {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
 		flp.processLine("" + c);
-		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals(resultMap.get("test").getSequence().charAt(0), c, "incorrect character!");
+		LinkedHashSet<FASTASequence> resultSet = flp.getResult();
+		assertEquals(resultSet.iterator().next().getSequence().charAt(0), c, "incorrect character!");
 	}
 
 
@@ -99,10 +99,11 @@ public class FASTALineProcessorTest {
 		flp.processLine("ACGTN");
 		flp.processLine(">test2");
 		flp.processLine("acgtn");
-		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals(2, resultMap.size(), "incorrect number of sequence!");
-		assertEquals("ACGTN", resultMap.get("test1").getSequence(), "incorrect sequence!");
-		assertEquals("acgtn", resultMap.get("test2").getSequence(), "incorrect sequence!");
+		LinkedHashSet<FASTASequence> resultSet = flp.getResult();
+		FASTASequence[] result = resultSet.toArray(new FASTASequence[2]);
+		assertEquals(2, resultSet.size(), "incorrect number of sequence!");
+		assertEquals("ACGTN", result[0].getSequence(), "incorrect sequence!");
+		assertEquals("acgtn", result[1].getSequence(), "incorrect sequence!");
 	}
 
 	@Test
@@ -116,17 +117,18 @@ public class FASTALineProcessorTest {
 		flp.processLine("acgtn");
 		flp.processLine("acgtn");
 		flp.processLine("acgtn");
-		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals(2, resultMap.size(), "incorrect number of sequence!");
-		assertEquals("ACGTNACGTNACGTN", resultMap.get("test1").getSequence(), "incorrect sequence!");
-		assertEquals("acgtnacgtnacgtn", resultMap.get("test2").getSequence(), "incorrect sequence!");
+		LinkedHashSet<FASTASequence> resultSet = flp.getResult();
+		assertEquals(2, resultSet.size(), "incorrect number of sequence!");
+		FASTASequence[] result = resultSet.toArray(new FASTASequence[2]);
+		assertEquals("ACGTNACGTNACGTN", result[0].getSequence(), "incorrect sequence!");
+		assertEquals("acgtnacgtnacgtn", result[1].getSequence(), "incorrect sequence!");
 	}
 
 	@Test
 	public void test_getResult_emptyInput() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
-		LinkedHashMap<String, FASTASequence> resultMap = flp.getResult();
-		assertEquals(0, resultMap.size(), "incorrect number of sequence!");
+		LinkedHashSet<FASTASequence> resultSet = flp.getResult();
+		assertEquals(0, resultSet.size(), "incorrect number of sequence!");
 	}
 
 }

@@ -9,4 +9,5 @@ public class FASTASequence extends Sequence {
 	public FASTASequence(String id, String sequence) {
 		super(id, sequence);
 	}
+
 }

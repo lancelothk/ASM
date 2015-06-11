@@ -4,16 +4,16 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.Sequence.FASTASequence;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
 
 /**
  * Created by lancelothk on 6/10/15.
  * LineProcessor for reading FASTA format file.
  */
-public class FASTALineProcessor implements LineProcessor<LinkedHashMap<String, FASTASequence>> {
+public class FASTALineProcessor implements LineProcessor<LinkedHashSet<FASTASequence>> {
 	// used to check if id is unique and also keep order of sequence as reading order.
-	private LinkedHashMap<String, FASTASequence> resultMap = new LinkedHashMap<>();
+	private LinkedHashSet<FASTASequence> resultSet = new LinkedHashSet<>();
 	private int stringBuilderInitCapacity = -1; // -1 means use default setting.
 	private String id = null;
 	private StringBuilder sb;
@@ -50,9 +50,6 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashMap<String, F
 				processFASTASequence();
 				sb = initializeStringBuilder();
 				id = line.substring(1, line.length());
-				if (resultMap.containsKey(id)) {
-					throw new RuntimeException("duplicate id detected:" + id);
-				}
 			}
 		} else {
 			if (id == null) {
@@ -75,18 +72,20 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashMap<String, F
 	}
 
 	@Override
-	public LinkedHashMap<String, FASTASequence> getResult() {
+	public LinkedHashSet<FASTASequence> getResult() {
 		// put last FASTA sequence to map.
 		if (id != null) {
 			processFASTASequence();
 		}
-		return resultMap;
+		return resultSet;
 	}
 
 	private void processFASTASequence() {
 		if (sb.length() == 0) {
 			throw new RuntimeException("missing sequence line!");
 		}
-		resultMap.put(id, new FASTASequence(id, sb.toString()));
+		if (!resultSet.add(new FASTASequence(id, sb.toString()))) {
+			throw new RuntimeException("duplicate id:" + id);
+		}
 	}
 }
