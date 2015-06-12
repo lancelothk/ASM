@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +50,9 @@ public abstract class MappedReadLineProcessorBase<T> implements LineProcessor<T>
 		}
 		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
 
+		if (Pattern.compile("[^ACGTN\\.]").matcher(items[4]).find()) {
+			throw new RuntimeException("invalid character in sequence! only ACGTN and '.' are allowed!:\t" + line);
+		}
 		MappedRead mappedRead;
 		if (items.length == 6) {
 			// for h1/i90 dataset

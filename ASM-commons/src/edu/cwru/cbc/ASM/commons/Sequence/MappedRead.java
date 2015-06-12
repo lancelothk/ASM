@@ -62,6 +62,7 @@ public class MappedRead extends Sequence {
 	}
 
 	public MethylStatus getMethylStatus(int pos) {
+		// minus strand is the complementary string of plus strand.
 		// only consider 'C' position in CpG. Ignore the char in 'G' position
 		switch (strand) {
 			case '+': {

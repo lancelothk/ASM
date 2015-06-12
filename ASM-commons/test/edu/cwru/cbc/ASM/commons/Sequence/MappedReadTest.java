@@ -8,25 +8,30 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 public class MappedReadTest {
-	private MappedRead mappedRead;
+	private MappedRead plusStrandRead;
+	private MappedRead minusStrandRead;
 
 	@BeforeMethod
 	public void setUp() throws Exception {
-		mappedRead = new MappedRead("test", '+', 0, "TGAACGANGA", "read1");
+		plusStrandRead = new MappedRead("plus", '+', 0, "TGAACGANGA", "read_plus");
+		minusStrandRead = new MappedRead("minus", '-', 0, "CTTTGCTCNT", "read_minus");
 	}
 
 	@Test
 	public void testGetMethylStatus() throws Exception {
-		// Parameterized test can be used here for large number of test cases.
-		// But currently, only several simple cases added.
-		assertTrue(mappedRead.getMethylStatus(0) == MethylStatus.T);
-		assertTrue(mappedRead.getMethylStatus(4) == MethylStatus.C);
-		assertTrue(mappedRead.getMethylStatus(7) == MethylStatus.N);
+		assertTrue(plusStrandRead.getMethylStatus(0) == MethylStatus.T);
+		assertTrue(plusStrandRead.getMethylStatus(4) == MethylStatus.C);
+		assertTrue(plusStrandRead.getMethylStatus(7) == MethylStatus.N);
+
+		assertTrue(minusStrandRead.getMethylStatus(0) == MethylStatus.T);
+		assertTrue(minusStrandRead.getMethylStatus(4) == MethylStatus.C);
+		assertTrue(minusStrandRead.getMethylStatus(7) == MethylStatus.N);
 	}
 
 	@Test
 	public void testGetComplementarySequence() throws Exception {
-		assertTrue("ACTTGCTNCT".equals(mappedRead.getComplementarySequence()));
+		assertTrue("ACTTGCTNCT".equals(plusStrandRead.getComplementarySequence()));
+		assertTrue("GAAACGAGNA".equals(minusStrandRead.getComplementarySequence()));
 	}
 
 	@Test
