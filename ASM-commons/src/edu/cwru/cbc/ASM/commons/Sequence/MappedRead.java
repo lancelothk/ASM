@@ -31,18 +31,23 @@ public class MappedRead extends Sequence {
 		this.cpgList = new ArrayList<>();
 	}
 
-	public int countCpG(Map<Integer, RefCpG> refMap) {
-		int count = 0;
-		for (int i = this.getStart(); i < this.getEnd(); i++) {
+	/**
+	 * This method associate RefCpG <-> CpG <-> MappedRead
+	 */
+	public void generateCpGsInRead(Map<Integer, RefCpG> refMap) {
+		int start = this.strand == '+' ? this.getStart() : this.getStart() - 1;
+		int end = this.strand == '+' ? this.getEnd() : this.getEnd() - 1;
+		for (int i = start; i < end; i++) {
 			if (refMap.containsKey(i)) {
-				if (this.getMethylStatus(i) == MethylStatus.T ||
-						this.getMethylStatus(i) == MethylStatus.C) {
-					count++;
+				MethylStatus methylStatus = this.getMethylStatus(i);
+				if (methylStatus != MethylStatus.N) {
+					CpG cpg = new CpG(this, refMap.get(i), methylStatus);
+					this.addCpG(cpg);
+					refMap.get(i).addCpG(cpg);
 					i++;
 				}
 			}
 		}
-		return count;
 	}
 
 	public String getChr() {
@@ -61,7 +66,7 @@ public class MappedRead extends Sequence {
 		return start + sequence.length();
 	}
 
-	public MethylStatus getMethylStatus(int pos) {
+	private MethylStatus getMethylStatus(int pos) {
 		// minus strand is the complementary string of plus strand.
 		// only consider 'C' position in CpG. Ignore the char in 'G' position
 		switch (strand) {
@@ -93,9 +98,6 @@ public class MappedRead extends Sequence {
 	}
 
 	public String toVisualizationString(int initialPos) throws IllegalArgumentException {
-		if (this.start - initialPos > Integer.MAX_VALUE) {
-			throw new IllegalArgumentException("offset exceed max int!");
-		}
 		int offset = this.start - initialPos;
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.getEnd(),
 				Strings.padStart(this.strand == '+' ? this.sequence : getComplementarySequence(),
@@ -166,16 +168,13 @@ public class MappedRead extends Sequence {
 				this.strand, this.sequence, new String(qualityStrArray));
 	}
 
-	public void addCpG(CpG cpg) {
+	private void addCpG(CpG cpg) {
 		if (cpgList.size() == 0) {
 			this.cpgList.add(cpg);
 			firstCpG = cpg;
 			lastCpG = cpg;
 		} else {
 			this.cpgList.add(cpg);
-			if (cpg.getPos() < firstCpG.getPos()) {
-				firstCpG = cpg;
-			}
 			if (cpg.getPos() > lastCpG.getPos()) {
 				lastCpG = cpg;
 			}

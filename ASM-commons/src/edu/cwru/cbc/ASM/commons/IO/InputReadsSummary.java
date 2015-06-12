@@ -48,8 +48,9 @@ public class InputReadsSummary {
 	/**
 	 * update summary with give read.
 	 */
-	public void addMappedRead(MappedRead mappedRead, int cpgCount) {
+	public void addMappedRead(MappedRead mappedRead) {
 		count++;
+		int cpgCount = mappedRead.getCpgList().size();
 		int length = mappedRead.getSequence().length();
 		totalLength += length;
 		maxLength = length > maxLength ? length : maxLength;
@@ -58,10 +59,6 @@ public class InputReadsSummary {
 		maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
 		minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
 		chrBitSet.set(mappedRead.getStart(), mappedRead.getEnd(), true);
-	}
-
-	public void addMappedRead(MappedRead mappedRead) {
-		this.addMappedRead(mappedRead, mappedRead.getCpgList().size());
 	}
 
 	public String getSummaryString(String header) {

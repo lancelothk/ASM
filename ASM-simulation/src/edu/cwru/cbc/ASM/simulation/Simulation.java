@@ -78,7 +78,10 @@ public class Simulation {
 
 		// read input sequences
 		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(refCpGList));
+				.readLines(new MappedReadLineProcessor());
+
+		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		System.out.println("load reads finished");
 

@@ -61,7 +61,8 @@ public class RegionReadsExtraction {
             int end = Integer.parseInt(items[3]);
 
             MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
-            if (mappedRead.countCpG(refMap) >= MIN_READ_CPG) {
+            mappedRead.generateCpGsInRead(refMap);
+            if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
                 targetRegionsMap.keySet()
                         .stream()
                         .filter(genomicInterval -> start <= genomicInterval.getEnd() &&

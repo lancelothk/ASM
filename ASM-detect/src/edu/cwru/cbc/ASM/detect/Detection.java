@@ -59,7 +59,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		// filter out reads which only cover 1 or no CpG sites
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(refCpGList));
+				.readLines(new MappedReadLineProcessor());
+
+		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		// construct graph
 		ASMGraph graph = new ASMGraph(mappedReadList);
@@ -117,9 +120,15 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
-		return refCpGList.stream().filter(
-				refCpG -> clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2 && clusterRefCpGMap.containsKey(
-						refCpG.getPos())).collect(Collectors.toList());
+		try {
+			return refCpGList.stream().filter(
+					refCpG -> clusterRefCpGMap.get(refCpG.getPos())
+							.getClusterCount() == 2 && clusterRefCpGMap.containsKey(
+							refCpG.getPos())).collect(Collectors.toList());
+		} catch (Exception e) {
+			System.out.println();
+			throw e;
+		}
 	}
 
 	private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {

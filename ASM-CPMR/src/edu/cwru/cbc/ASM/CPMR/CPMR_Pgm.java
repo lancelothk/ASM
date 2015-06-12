@@ -6,7 +6,7 @@ import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.GenomicInterval.ImmutableGenomicInterval;
 import edu.cwru.cbc.ASM.commons.IO.IOUtils;
 import edu.cwru.cbc.ASM.commons.IO.InputReadsSummary;
-import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessorWithFilter;
+import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
@@ -54,14 +55,21 @@ public class CPMR_Pgm {
 		// load reference
 		long start = System.currentTimeMillis();
 		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
+		// TODO refacor refCpGList to linkedhashMap, since we need use map but should keep the order of RefCpG.
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		// load mapped reads
 		start = System.currentTimeMillis();
-		String reportString = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessorWithFilter(refCpGList, min_read_cpg, refChr.getRefString().length()));
+		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
+				new MappedReadLineProcessor());
 		System.out.println("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		mappedReadList.forEach(mr -> mr.generateCpGsInRead(
+				refMap)); // TODO double check if it is neccesary to exclude read with CpGs < 2
+
+		InputReadsSummary inputReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+		mappedReadList.forEach(inputReadsSummary::addMappedRead);
 
 		String summaryFileName = outputPath + "/CPMR.bed";
 		String reportFileName = outputPath + "/CPMR.report";
@@ -82,7 +90,8 @@ public class CPMR_Pgm {
 		List<RefCpG> refCpGCollection = immutableGenomicIntervals.stream().flatMap(
 				i -> i.getRefCpGList().stream()).collect(Collectors.toList());
 		writeReport(reportFileName,
-				reportString + intervalReadsSummary.getSummaryString(
+				inputReadsSummary.getSummaryString(
+						"Summary of raw input reads:\n") + intervalReadsSummary.getSummaryString(
 						"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
 						refCpGCollection), cpgIntervalList.size(), immutableGenomicIntervals.size());
 	}

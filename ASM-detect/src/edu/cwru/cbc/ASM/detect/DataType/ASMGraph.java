@@ -49,26 +49,31 @@ public class ASMGraph {
 	}
 
 	private double checkCompatible(MappedRead readA, MappedRead readB) {
-		if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
-				readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
-			int score = 0;
-			for (CpG cpgA : readA.getCpgList()) {
-				for (CpG cpgB : readB.getCpgList()) {
-					if (cpgA.getPos() == cpgB.getPos()) {
-						if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
-							assert cpgA.getMethylStatus() != MethylStatus.N;
-							assert cpgB.getMethylStatus() != MethylStatus.N;
-							score--;
-						} else {
-							score++;
+		try {
+			if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
+					readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
+				int score = 0;
+				for (CpG cpgA : readA.getCpgList()) {
+					for (CpG cpgB : readB.getCpgList()) {
+						if (cpgA.getPos() == cpgB.getPos()) {
+							if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
+								assert cpgA.getMethylStatus() != MethylStatus.N;
+								assert cpgB.getMethylStatus() != MethylStatus.N;
+								score--;
+							} else {
+								score++;
+							}
 						}
 					}
 				}
+				return score;
+			} else {
+				// don't have overlapped CpG, non-connected
+				return Double.MIN_VALUE;
 			}
-			return score;
-		} else {
-			// don't have overlapped CpG, non-connected
-			return Double.MIN_VALUE;
+		} catch (Exception e) {
+			System.out.printf("");
+			throw e;
 		}
 	}
 

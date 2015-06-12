@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.detect.DataType;
 
-import edu.cwru.cbc.ASM.commons.Methylation.CpG;
 import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
+import edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -21,8 +22,8 @@ public class VertexTest {
 	@BeforeMethod
 	public void setUp() throws Exception {
 		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", "test-1");
-		mappedRead.addCpG(new CpG(mappedRead, new RefCpG(1), MethylStatus.C));
-		mappedRead.addCpG(new CpG(mappedRead, new RefCpG(3), MethylStatus.T));
+		mappedRead.generateCpGsInRead(MethylationUtils.extractCpGSite("ACGCGTGCAG", 0).stream().collect(
+				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG)));
 		vertex = new Vertex(mappedRead);
 	}
 

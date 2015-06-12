@@ -69,20 +69,21 @@ public class CPMR {
 		cpgSiteIntervalList.forEach((list) -> {
 			Set<MappedRead> mappedReadSet = getReadsFromRefCpGs(min_cpg_coverage, list);
 			// only pass high quality result for next step.
-			if (mappedReadSet.size() >= min_interval_reads && list.size() >= min_interval_cpg) {
-				List<MappedRead> mappedReadList = mappedReadSet.stream().filter(
-						mr -> countOverlapCpG(mr, list) >= min_read_cpg)
+			if (list.size() >= min_interval_cpg) {
+				List<MappedRead> mappedReadList = mappedReadSet.stream().filter(mr -> mr.getCpgList().size() > 0)
 						.sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
 						.sorted((m1, m2) -> m1.getStart() - m2.getStart())
 						.collect(Collectors.toList());
-				int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
-				int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
-				@SuppressWarnings("UnnecessaryLocalVariable") // since it makes clear pos and CpGPos is different.
-						int startPos = startCpGPos;
-				int endPos = endCpGPos + 1;
-				immutableGenomicIntervalList.add(
-						new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
-								mappedReadList));
+				if (mappedReadList.size() >= min_interval_reads) {
+					int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+					int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+					@SuppressWarnings("UnnecessaryLocalVariable") // since it makes clear pos and CpGPos is different.
+							int startPos = startCpGPos;
+					int endPos = endCpGPos + 2;// +1 to include whole CpG in plus strand, +2 to include whole CpG in minus strand
+					immutableGenomicIntervalList.add(
+							new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
+									mappedReadList));
+				}
 			}
 		});
 		return immutableGenomicIntervalList;

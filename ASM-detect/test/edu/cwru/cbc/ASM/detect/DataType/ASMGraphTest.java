@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
 import static org.testng.AssertJUnit.assertEquals;
@@ -29,9 +30,12 @@ public class ASMGraphTest {
 		String reference = DetectionUtils.readRefFromIntervalFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(refCpGList));
-		ASMGraph asmGraph = new ASMGraph(mappedReadList);
+				.readLines(new MappedReadLineProcessor());
+		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(
+				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
+		ASMGraph asmGraph = new ASMGraph(mappedReadList);
 		List edgeList = (List) (ReflectionUtils.getPrivateField(ASMGraph.class.getDeclaredField("edgeList"), asmGraph));
 		Map vertexMap = (Map) (ReflectionUtils.getPrivateField(ASMGraph.class.getDeclaredField("vertexMap"), asmGraph));
 		assertEquals("incorrect edge number", 43, edgeList.size());
