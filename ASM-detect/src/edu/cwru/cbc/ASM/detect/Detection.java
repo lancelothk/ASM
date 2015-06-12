@@ -117,10 +117,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
-		return refCpGList.stream()
-				.filter(refCpG -> clusterRefCpGMap.containsKey(refCpG.getPos()))
-				.filter(refCpG -> clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2)
-				.collect(Collectors.toList());
+		return refCpGList.stream().filter(
+				refCpG -> clusterRefCpGMap.get(refCpG.getPos()).getClusterCount() == 2 && clusterRefCpGMap.containsKey(
+						refCpG.getPos())).collect(Collectors.toList());
 	}
 
 	private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
