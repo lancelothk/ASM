@@ -33,6 +33,7 @@ import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSi
  * ASM Detection with whole read info.
  */
 public class Detection implements Callable<IntervalDetectionSummary> {
+	public static final double FISHER_P_THRESHOLD = 0.01;
 	private final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
 	private String chr;
@@ -77,13 +78,19 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
 		} else if (fisherTest(graph, twoClusterRefCpGList)) {
-			// get fisher test P values for each refCpG in clusters.
-			regionP = calcRegionP_StoufferComb(twoClusterRefCpGList);
+			if (twoClusterRefCpGList.stream()
+					.filter(refCpG -> refCpG.getP_value() <= FISHER_P_THRESHOLD)
+					.count() < min_interval_cpg) {
+				regionP = 3;
+			} else {
+				// get fisher test P values for each refCpG in clusters.
+				regionP = calcRegionP_StoufferComb(twoClusterRefCpGList);
 
-			// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
-			twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
-			startPos = twoClusterRefCpGList.get(0).getPos();
-			endPos = twoClusterRefCpGList.get(twoClusterRefCpGList.size() - 1).getPos() + 1;
+				// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
+				twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
+				startPos = twoClusterRefCpGList.get(0).getPos();
+				endPos = twoClusterRefCpGList.get(twoClusterRefCpGList.size() - 1).getPos() + 1;
+			}
 		} else {
 			// give 2 if only one cluster
 			regionP = 2;
