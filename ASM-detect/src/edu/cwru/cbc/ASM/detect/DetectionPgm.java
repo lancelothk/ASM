@@ -32,6 +32,7 @@ public class DetectionPgm {
 		Options options = new Options();
 		options.addOption("i", true, "Input intervals folder or interval file name");
 		options.addOption("mic", true, "Minimum interval cpg number");
+		options.addOption("mcc", true, "Minimum adjacent CpG coverage");
 		options.addOption("f", true, "FDR threshold");
 		options.addOption("t", false, "Thread number to execute the program.");
 
@@ -40,13 +41,14 @@ public class DetectionPgm {
 
 		String inputPath = cmd.getOptionValue("i");
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
+		int min_cpg_coverage = Integer.valueOf(cmd.getOptionValue("mcc"));
 		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
-		execute(inputPath, threadNumber, min_interval_cpg, FDR_threshold);
+		execute(inputPath, threadNumber, min_interval_cpg, min_cpg_coverage, FDR_threshold);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-	private static void execute(String inputPath, int threadNumber, int min_interval_cpg,
+	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, int min_cpg_coverage,
 	                            double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
@@ -84,7 +86,7 @@ public class DetectionPgm {
 					try {
 						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
 							Future<IntervalDetectionSummary> future = executor.submit(
-									new Detection(file, min_interval_cpg));
+									new Detection(file, min_interval_cpg, min_cpg_coverage));
 							futureList.add(future);
 						}
 					} catch (Exception e) {
@@ -94,7 +96,8 @@ public class DetectionPgm {
 			}
 		} else {
 			try {
-				Future<IntervalDetectionSummary> future = executor.submit(new Detection(inputFile, min_interval_cpg));
+				Future<IntervalDetectionSummary> future = executor.submit(
+						new Detection(inputFile, min_interval_cpg, min_cpg_coverage));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);

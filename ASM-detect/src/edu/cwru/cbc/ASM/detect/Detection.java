@@ -33,23 +33,24 @@ import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSi
  * ASM Detection with whole read info.
  */
 public class Detection implements Callable<IntervalDetectionSummary> {
-	public static final double FISHER_P_THRESHOLD = 0.01;
 	private final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
 	private String chr;
 	private int startPos;
 	private int endPos;
 	private int min_interval_cpg;
+	private int min_cpg_coverage;
 
 	/**
 	 * Detection constructor.
-	 *
-	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 *  @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
+	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
 	 */
-	public Detection(File inputFile, int min_interval_cpg) {
+	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
+		this.min_cpg_coverage = min_cpg_coverage;
 	}
 
 	public IntervalDetectionSummary call() throws Exception {
@@ -79,7 +80,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			regionP = 3;
 		} else if (fisherTest(graph, twoClusterRefCpGList)) {
 			if (twoClusterRefCpGList.stream()
-					.filter(refCpG -> refCpG.getP_value() <= FISHER_P_THRESHOLD)
+					.filter(refCpG -> refCpG.getP_value() <= calcMinFisherP(min_cpg_coverage))
 					.count() < min_interval_cpg) {
 				regionP = 3;
 			} else {
@@ -114,6 +115,13 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				groupResultList.get(0).getAvgMethylLevel(),
 				groupResultList.get(1).getAvgMethylLevel(),
 				"<label>");
+	}
+
+	private double calcMinFisherP(int min_cpg_coverage) {
+		int ceiling = (int) Math.ceil(min_cpg_coverage / 2.0);
+		int[][] matrix = {{ceiling, 0}, {0, min_cpg_coverage - ceiling}};
+		return FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
+				matrix[1][1])[0];
 	}
 
 	private void extractIntervalPosition(File inputFile) {
