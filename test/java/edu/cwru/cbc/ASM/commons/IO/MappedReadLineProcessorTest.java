@@ -31,6 +31,13 @@ public class MappedReadLineProcessorTest {
 		return result;
 	}
 
+	@Test(expectedExceptions = RuntimeException.class)
+	public void test_invalidStrand() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
+		String mappedReadStr1 = "20\tplus\t17207806\t17207874\tcccccc\t815505";
+		mlp.processLine(mappedReadStr1);
+	}
+
 	@Test(dataProvider = "validCharacters")
 	public void test_processLine_validCharacter(final char c) throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor();

@@ -46,7 +46,7 @@ public class MappedReadToMR {
 
 						MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
 								items[4], items[5]);
-						writer.write(mappedRead.toMRFormatString(0, '~') + "\n");
+						writer.write(mappedRead.toMRFormatString(0, '~'));
 						return true;
 					}
 				} catch (Exception e) {

@@ -16,8 +16,8 @@ import java.util.Map;
  */
 //TODO double check unit test
 public class MappedRead extends Sequence {
-	private String chr;
-	private char strand;
+	private final String chr;
+	private final char strand;
 	private int start;
 	private List<CpG> cpgList;
 	private CpG firstCpG;
@@ -37,7 +37,7 @@ public class MappedRead extends Sequence {
 	public void generateCpGsInRead(Map<Integer, RefCpG> refMap) {
 		int start = this.strand == '+' ? this.getStart() : this.getStart() - 1;
 		int end = this.strand == '+' ? this.getEnd() : this.getEnd() - 1;
-		for (int i = start; i < end; i++) {
+		for (int i = start; i <= end; i++) {
 			if (refMap.containsKey(i)) {
 				MethylStatus methylStatus = this.getMethylStatus(i);
 				if (methylStatus != MethylStatus.N) {
@@ -54,16 +54,15 @@ public class MappedRead extends Sequence {
 		return chr;
 	}
 
-	public char getStrand() {
-		return strand;
-	}
-
 	public int getStart() {
 		return start;
 	}
 
+	/**
+	 * 0-based (inclusive the last base pair)
+	 */
 	public int getEnd() {
-		return start + sequence.length();
+		return start + sequence.length() - 1;
 	}
 
 	private MethylStatus getMethylStatus(int pos) {
@@ -156,7 +155,7 @@ public class MappedRead extends Sequence {
 				}
 			}
 		}
-		return String.format("%s\t%s\t%d\t%d\t%s\t%s", this.chr, this.strand, this.start, this.getEnd(),
+		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", this.chr, this.strand, this.start, this.getEnd(),
 				new String(strArray), this.id);
 	}
 
@@ -164,7 +163,7 @@ public class MappedRead extends Sequence {
 	public String toMRFormatString(int mismatch, char qualityChar) {
 		char[] qualityStrArray = new char[this.sequence.length()];
 		Arrays.fill(qualityStrArray, qualityChar);
-		return String.format("%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s", this.chr, this.start, this.getEnd(), this.id, mismatch,
+		return String.format("%s\t%d\t%d\t%s\t%d\t%s\t%s\t%s\n", this.chr, this.start, this.getEnd(), this.id, mismatch,
 				this.strand, this.sequence, new String(qualityStrArray));
 	}
 
@@ -181,25 +180,15 @@ public class MappedRead extends Sequence {
 		}
 	}
 
-	public String outputString() {
+	public String toMappedReadString() {
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, this.getEnd(), sequence, id);
 	}
 
-	public String outputString(int leftBound, int rightBound) {
+	public String toMappedReadString(int leftBound, int rightBound) {
 		int leftOffset = start < leftBound ? leftBound - start : 0;
 		int rightOffset = this.getEnd() > rightBound ? this.getEnd() - rightBound : 0;
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start + leftOffset, this.getEnd() - rightOffset,
 				sequence.substring(leftOffset, sequence.length() - rightOffset), id);
-	}
-
-	private String getCpGSeq(int startCpGPos, int endCpGPos) {
-		StringBuilder sb = new StringBuilder();
-		for (CpG cpG : cpgList) {
-			if (cpG.getPos() >= startCpGPos && cpG.getPos() <= endCpGPos) {
-				sb.append(cpG.getMethylStatus());
-			}
-		}
-		return sb.toString();
 	}
 
 	public List<CpG> getCpgList() {

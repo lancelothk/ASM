@@ -38,7 +38,7 @@ public class MRToMappedRead {
 
 				MappedRead mappedRead = new MappedRead(items[0], items[5].charAt(0), Integer.parseInt(items[1]),
 						items[6], items[3]);
-				mappedReadWriter.write(mappedRead.outputString());
+				mappedReadWriter.write(mappedRead.toMappedReadString());
 				return true;
 			}
 

@@ -96,7 +96,7 @@ public class Simulation {
 		// write out result
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
 		for (MappedRead mappedRead : mappedReadList) {
-			writer.write(mappedRead.toSimulationString() + "\n");
+			writer.write(mappedRead.toSimulationString());
 		}
 		writer.close();
 

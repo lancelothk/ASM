@@ -117,7 +117,8 @@ public class CPMR_Pgm {
 						immutableGenomicInterval.getEnd() + 1 - INIT_POS)));
 		for (MappedRead mappedRead : immutableGenomicInterval.getMappedReadList()) {
 			mappedReadWriter.write(
-					mappedRead.outputString(immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd()));
+					mappedRead.toMappedReadString(immutableGenomicInterval.getStart(),
+							immutableGenomicInterval.getEnd()));
 		}
 		mappedReadWriter.close();
 	}

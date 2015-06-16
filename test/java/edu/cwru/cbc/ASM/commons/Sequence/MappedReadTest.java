@@ -12,24 +12,21 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 
 public class MappedReadTest {
-	private MappedRead plusStrandRead;
-	private MappedRead minusStrandRead;
-	private MappedRead plusStrandRead_partialCpG;
-	private MappedRead minusStrandRead_partialCpG;
 	private Map<Integer, RefCpG> refCpGMap;
 
 	@BeforeMethod
 	public void setUp() throws Exception {
 		refCpGMap = MethylationUtils.extractCpGSite("CGATCGACGACG", 0).stream().collect(
 				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
-		plusStrandRead = new MappedRead("plus", '+', 0, "TGATCGANGACG", "read_plus1");
-		minusStrandRead = new MappedRead("minus", '-', 0, "CTATGCTCNTGC", "read_minus1");
-		plusStrandRead_partialCpG = new MappedRead("plus", '+', 1, "GATCGANGAT", "read_plus2");
-		minusStrandRead_partialCpG = new MappedRead("minus", '-', 1, "CTAGTTGNTG", "read_minus2");
 	}
 
 	@Test
 	public void testGenerateCpGsInRead() throws Exception {
+		MappedRead plusStrandRead = new MappedRead("plus", '+', 0, "TGATCGANGACG", "read_plus1");
+		MappedRead minusStrandRead = new MappedRead("minus", '-', 0, "CTATGCTCNTGC", "read_minus1");
+		MappedRead plusStrandRead_partialCpG = new MappedRead("plus", '+', 1, "GATCGANGAT", "read_plus2");
+		MappedRead minusStrandRead_partialCpG = new MappedRead("minus", '-', 1, "CTAGTTGNTG", "read_minus2");
+
 		plusStrandRead.generateCpGsInRead(refCpGMap);
 		minusStrandRead.generateCpGsInRead(refCpGMap);
 		plusStrandRead_partialCpG.generateCpGsInRead(refCpGMap);
@@ -56,13 +53,50 @@ public class MappedReadTest {
 
 	@Test
 	public void testGetComplementarySequence() throws Exception {
+		MappedRead plusStrandRead = new MappedRead("plus", '+', 0, "TGATCGANGACG", "read_plus1");
+		MappedRead minusStrandRead = new MappedRead("minus", '-', 0, "CTATGCTCNTGC", "read_minus1");
 		assertEquals(plusStrandRead.getComplementarySequence(), "ACTAGCTNCTGC");
 		assertEquals(minusStrandRead.getComplementarySequence(), "GATACGAGNACG");
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	public void testToVisualizationString() throws Exception {
 		MappedRead read = new MappedRead("6", '+', 10, "1234567890", "test");
-		assertEquals(read.toVisualizationString(5), "6\t+\t10\t20\t.....1234567890\ttest");
+		assertEquals(read.toVisualizationString(5), "6\t+\t10\t19\t.....1234567890\ttest");
+	}
+
+	@Test
+	public void testToSimulationString() throws Exception {
+		MappedRead plusStrandRead = new MappedRead("plus", '+', 0, "TGATCGANGACG", "read_plus1");
+		plusStrandRead.generateCpGsInRead(refCpGMap);
+		plusStrandRead.getCpgList().get(0).setMethylStatus(MethylStatus.C);
+		plusStrandRead.getCpgList().get(1).setMethylStatus(MethylStatus.T);
+		plusStrandRead.getCpgList().get(2).setMethylStatus(MethylStatus.N);
+		assertEquals(plusStrandRead.toSimulationString(), "plus\t+\t0\t11\tCGATTGANGACG\tread_plus1\n");
+
+		MappedRead minusStrandRead = new MappedRead("minus", '-', 0, "CTATGCTCNTGC", "read_minus1");
+		minusStrandRead.generateCpGsInRead(refCpGMap);
+		minusStrandRead.getCpgList().get(0).setMethylStatus(MethylStatus.C);
+		minusStrandRead.getCpgList().get(1).setMethylStatus(MethylStatus.C);
+		minusStrandRead.getCpgList().get(2).setMethylStatus(MethylStatus.T);
+		assertEquals(minusStrandRead.toSimulationString(), "minus\t-\t0\t11\tGCATGCTCNTGT\tread_minus1\n");
+	}
+
+	@Test
+	public void testToMRFormatString() throws Exception {
+		MappedRead plusStrandRead = new MappedRead("plus", '+', 0, "TGAT", "read_plus1");
+		assertEquals(plusStrandRead.toMRFormatString(3, 'a'), "plus\t0\t3\tread_plus1\t3\t+\tTGAT\taaaa\n");
+	}
+
+	@Test
+	public void testMappedReadString() throws Exception {
+		MappedRead plusStrandRead = new MappedRead("plus", '+', 0, "TGATCGANGACG", "read_plus1");
+		assertEquals(plusStrandRead.toMappedReadString(), "plus\t+\t0\t11\tTGATCGANGACG\tread_plus1\n");
+	}
+
+	@Test
+	public void testMappedReadString_withBound() throws Exception {
+		MappedRead plusStrandRead = new MappedRead("plus", '+', 0, "TGATCGANGACG", "read_plus1");
+		assertEquals(plusStrandRead.toMappedReadString(1, 4), "plus\t+\t1\t4\tGATC\tread_plus1\n");
 	}
 }
