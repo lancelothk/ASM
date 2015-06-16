@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'distribution'
+    id "org.hidetake.ssh" version "1.1.3"
 }
 
 //noinspection GroovyUnusedAssignment
@@ -53,7 +54,7 @@ CreateStartScripts buildStartScript(String appName, String mainClass) {
     }
 }
 
-task addAllStartSctipts {
+task addAllStartSctipts (dependsOn: jar) {
     group = "scripts"
     buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm").execute()
     buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm").execute()
@@ -77,6 +78,63 @@ distributions {
             }
 
             exclude "**/*.bat"
+        }
+    }
+}
+
+remotes {
+    lab {
+        host = 'lancelothk.case.edu'
+        user = 'kehu'
+        identity = file('/home/lancelothk/.ssh/id_rsa')
+    }
+}
+
+task updateBin(dependsOn: jar) {
+    doLast {
+        if (jar.state.skipped == false) {
+            def userName = System.getProperty('user.name')
+            if (userName == "kehu") {
+                copy {
+                    from 'build/install/ASM/bin'
+                    into '/home/kehu/experiments/ASM/bin'
+                }
+                copy {
+                    from 'build/libs/ASM.jar'
+                    into '/home/kehu/experiments/ASM/lib'
+                }
+            } else if (userName == "lancelothk") {
+                ssh.run {
+                    session(remotes.lab) {
+                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+                    }
+                }
+            }
+        }
+    }
+}
+
+task updateInstall(dependsOn: installDist) {
+    doLast {
+        if (installDist.state.skipped == false) {
+            def userName = System.getProperty('user.name')
+            if (userName == "kehu") {
+                copy {
+                    from 'build/install/ASM/bin'
+                    into '/home/kehu/experiments/ASM/bin'
+                }
+                copy {
+                    from 'build/install/ASM/lib'
+                    into '/home/kehu/experiments/ASM/lib'
+                }
+            } else if (userName == "lancelothk") {
+                ssh.run {
+                    session(remotes.lab) {
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM/bin'
+                        put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM/lib'
+                    }
+                }
+            }
         }
     }
 }
