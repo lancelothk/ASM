@@ -3,7 +3,10 @@ package edu.cwru.cbc.ASM.commons.IO;
 import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
 import org.testng.annotations.Test;
 
+import java.net.URL;
+
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 /**
  * Created by kehu on 6/11/15.
@@ -19,8 +22,9 @@ public class IOUtilsTest {
 		// 3. may contain upper or lower in {A,C,G,T,N}.
 
 		// test for correct case
-		RefChr refChr = IOUtils.readReferenceGenome(
-				getClass().getClassLoader().getResource("testRefFile.fa").getPath());
+		URL file = getClass().getClassLoader().getResource("testRefFile.fa");
+		assertNotNull(file);
+		RefChr refChr = IOUtils.readReferenceGenome(file.getPath());
 		assertEquals("incorrect reference name", "chr20", refChr.getChr());
 		assertEquals("incorrecr ref string", "ACGCAATCGNNNNNNATTGCGACGACGCGACTGNNNACGCGTAACGN", refChr.getRefString());
 		assertEquals("incorrect start position", 0, refChr.getStart());

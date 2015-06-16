@@ -10,18 +10,22 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 public class ASMGraphTest {
 
 	@Test
 	public void testCluster() throws Exception {
-		File inputFile = new File(getClass().getClassLoader().getResource("chr20-56859339-56859404").getFile());
+		URL file = getClass().getClassLoader().getResource("chr20-56859339-56859404");
+		assertNotNull(file);
+		File inputFile = new File(file.getFile());
 
 		int startPos = Integer.parseInt(inputFile.getName().split("-")[1]);
 
