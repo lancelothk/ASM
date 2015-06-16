@@ -81,7 +81,7 @@ public class CPMR {
 					int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
 					@SuppressWarnings("UnnecessaryLocalVariable") // since it makes clear pos and CpGPos is different.
 							int startPos = startCpGPos;
-					int endPos = endCpGPos + 2;// +1 to include whole CpG in plus strand, +2 to include whole CpG in minus strand
+					int endPos = endCpGPos + 1;// +1 to include whole CpG in plus strand
 					immutableGenomicIntervalList.add(
 							new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
 									mappedReadList));
