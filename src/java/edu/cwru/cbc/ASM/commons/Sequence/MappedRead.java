@@ -14,7 +14,6 @@ import java.util.Map;
  * Created by lancelothk on 11/12/14.
  * Used to represent mapped read.
  */
-//TODO double check unit test
 public class MappedRead extends Sequence {
 	private final String chr;
 	private final char strand;

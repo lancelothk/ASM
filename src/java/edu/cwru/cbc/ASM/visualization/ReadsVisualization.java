@@ -1,7 +1,6 @@
 package edu.cwru.cbc.ASM.visualization;
 
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
-import edu.cwru.cbc.ASM.commons.Sequence.MappedReadComparator;
 import org.apache.commons.cli.*;
 
 import java.io.*;
@@ -11,7 +10,7 @@ import java.util.List;
 /**
  * Align reads to readable format with padding.
  */
-
+// TODO refactor & test sort
 public class ReadsVisualization {
 	private static String ref;
 
@@ -26,7 +25,7 @@ public class ReadsVisualization {
 		ReadsVisualization.align(inputFileName);
 	}
 
-	public static void align(String fileName) throws IOException {
+	private static void align(String fileName) throws IOException {
 		File targetFile = new File(fileName);
 		if (targetFile.isDirectory()) {
 			File[] files = targetFile.listFiles();
@@ -45,7 +44,7 @@ public class ReadsVisualization {
 		}
 	}
 
-	public static ArrayList<MappedRead> readMappedReads(File inputFile) throws IOException {
+	private static ArrayList<MappedRead> readMappedReads(File inputFile) throws IOException {
 		ArrayList<MappedRead> readsList = new ArrayList<>();
 		BufferedReader bufferedReader;
 		bufferedReader = new BufferedReader(new FileReader(inputFile));
@@ -71,9 +70,9 @@ public class ReadsVisualization {
 		return readsList;
 	}
 
-	public static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) throws IOException {
+	private static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) throws IOException {
 		// sort reads first
-		readsList.sort(new MappedReadComparator());
+		sortMappedReads(readsList);
 		// set initial position
 		int initialPos = readsList.get(0).getStart();
 		BufferedWriter bufferedWriter;
@@ -91,7 +90,7 @@ public class ReadsVisualization {
 		List<MappedRead> allReads = new ArrayList<>();
 		readGroups.forEach(allReads::addAll);
 		// sort reads first
-		allReads.sort(new MappedReadComparator());
+		sortMappedReads(allReads);
 		// set initial position
 		int initialPos = allReads.get(0).getStart();
 		BufferedWriter bufferedWriter;
@@ -100,12 +99,19 @@ public class ReadsVisualization {
 			bufferedWriter.write(String.format("ref:\t%s\n", ref));
 		}
 		for (List<MappedRead> readGroup : readGroups) {
-			readGroup.sort(new MappedReadComparator());
+			sortMappedReads(readGroup);
 			for (MappedRead read : readGroup) {
 				bufferedWriter.write(read.toVisualizationString(initialPos) + "\n");
 			}
 			bufferedWriter.write("\n");
 		}
 		bufferedWriter.close();
+	}
+
+	private static void sortMappedReads(List<MappedRead> mappedReadList) {
+		mappedReadList.sort((r1, r2) -> {
+			int startCompare = Integer.compare(r1.getStart(), r2.getStart());
+			return startCompare != 0 ? startCompare : Integer.compare(r1.getEnd(), r2.getEnd());
+		});
 	}
 }
