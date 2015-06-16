@@ -1,7 +1,7 @@
 package edu.cwru.cbc.ASM.commons.Methylation;
 
-import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -63,14 +63,14 @@ public class RefCpGTest {
 	@Test
 	public void testGetMajorMethylStatus() throws Exception {
 		RefCpG rfCpG = new RefCpG(1);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), rfCpG, 4);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), rfCpG, 8);
+		FieldUtils.writeField(rfCpG, "methylCount", 4, true);
+		FieldUtils.writeField(rfCpG, "coveredCount", 8, true);
 		assertEquals("incorrect MajorMethylStatus!", MethylStatus.E, rfCpG.getMajorMethylStatus());
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), rfCpG, 1);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), rfCpG, 8);
+		FieldUtils.writeField(rfCpG, "methylCount", 1, true);
+		FieldUtils.writeField(rfCpG, "coveredCount", 8, true);
 		assertEquals("incorrect MajorMethylStatus!", MethylStatus.T, rfCpG.getMajorMethylStatus());
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), rfCpG, 7);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), rfCpG, 8);
+		FieldUtils.writeField(rfCpG, "methylCount", 7, true);
+		FieldUtils.writeField(rfCpG, "coveredCount", 8, true);
 		assertEquals("incorrect MajorMethylStatus!", MethylStatus.C, rfCpG.getMajorMethylStatus());
 	}
 }

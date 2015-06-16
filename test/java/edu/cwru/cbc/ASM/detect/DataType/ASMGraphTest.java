@@ -4,9 +4,9 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
-import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 import edu.cwru.cbc.ASM.detect.DetectionUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,8 +35,8 @@ public class ASMGraphTest {
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);
-		List edgeList = (List) (ReflectionUtils.getPrivateField(ASMGraph.class.getDeclaredField("edgeList"), asmGraph));
-		Map vertexMap = (Map) (ReflectionUtils.getPrivateField(ASMGraph.class.getDeclaredField("vertexMap"), asmGraph));
+		List edgeList = (List) FieldUtils.readDeclaredField(asmGraph, "edgeList", true);
+		Map vertexMap = (Map) FieldUtils.readDeclaredField(asmGraph, "vertexMap", true);
 		assertEquals("incorrect edge number", 43, edgeList.size());
 		assertEquals("incorrect edge number", 10, vertexMap.size());
 

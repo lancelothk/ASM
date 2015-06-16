@@ -3,8 +3,8 @@ package edu.cwru.cbc.ASM.detect.DataType;
 import edu.cwru.cbc.ASM.commons.Methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
-import edu.cwru.cbc.ASM.commons.ReflectionUtils;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -29,10 +29,10 @@ public class VertexTest {
 
 	@Test
 	public void testGetMECScore() throws Exception {
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), vertex.getRefCpGMap().get(1), 4);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), vertex.getRefCpGMap().get(1), 8);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("methylCount"), vertex.getRefCpGMap().get(3), 5);
-		ReflectionUtils.setPrivateField(RefCpG.class.getDeclaredField("coveredCount"), vertex.getRefCpGMap().get(3), 8);
+		FieldUtils.writeField(vertex.getRefCpGMap().get(1), "methylCount", 4, true);
+		FieldUtils.writeField(vertex.getRefCpGMap().get(1), "coveredCount", 8, true);
+		FieldUtils.writeField(vertex.getRefCpGMap().get(3), "methylCount", 5, true);
+		FieldUtils.writeField(vertex.getRefCpGMap().get(3), "coveredCount", 8, true);
 		assertEquals("incorrect MEC score", 1.5, vertex.getMECScore(), 0.00001);
 	}
 
