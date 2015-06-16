@@ -3,13 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ASM.iml" filepath="$PROJECT_DIR$/ASM.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-CPMR/ASM-CPMR.iml" filepath="$PROJECT_DIR$/ASM-CPMR/ASM-CPMR.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-commons/ASM-commons.iml" filepath="$PROJECT_DIR$/ASM-commons/ASM-commons.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-conversion/ASM-conversion.iml" filepath="$PROJECT_DIR$/ASM-conversion/ASM-conversion.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-detect/ASM-detect.iml" filepath="$PROJECT_DIR$/ASM-detect/ASM-detect.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-intersect/ASM-intersect.iml" filepath="$PROJECT_DIR$/ASM-intersect/ASM-intersect.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-simulation/ASM-simulation.iml" filepath="$PROJECT_DIR$/ASM-simulation/ASM-simulation.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ASM-visualization/ASM-visualization.iml" filepath="$PROJECT_DIR$/ASM-visualization/ASM-visualization.iml" />
     </modules>
   </component>
 </project>
