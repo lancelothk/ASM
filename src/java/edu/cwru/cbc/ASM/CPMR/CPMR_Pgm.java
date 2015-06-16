@@ -36,7 +36,6 @@ public class CPMR_Pgm {
 		options.addOption("o", true, "Output Path");
 		options.addOption("p", true, "Partial methylation threshold");
 		options.addOption("mcc", true, "Minimum adjacent CpG coverage");
-		options.addOption("mrc", true, "Minimum read CpG number");
 		options.addOption("mic", true, "Minimum interval CpG number");
 		options.addOption("mir", true, "Minimum interval read number");
 
@@ -48,7 +47,6 @@ public class CPMR_Pgm {
 		String outputPath = cmd.getOptionValue("o");
 		double partial_methyl_threshold = Double.valueOf(cmd.getOptionValue("p"));
 		int min_cpg_coverage = Integer.valueOf(cmd.getOptionValue("mcc"));
-		int min_read_cpg = Integer.valueOf(cmd.getOptionValue("mrc"));
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
 		int min_interval_reads = Integer.valueOf(cmd.getOptionValue("mir"));
 
@@ -71,6 +69,13 @@ public class CPMR_Pgm {
 		InputReadsSummary inputReadsSummary = new InputReadsSummary(refChr.getRefString().length());
 		mappedReadList.forEach(inputReadsSummary::addMappedRead);
 
+		InputReadsSummary cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+		mappedReadList.forEach(mr -> {
+			if (mr.getCpgList().size() > 0) {
+				cpgReadsSummary.addMappedRead(mr);
+			}
+		});
+
 		String summaryFileName = outputPath + "/CPMR.bed";
 		String reportFileName = outputPath + "/CPMR.report";
 		File intervalFolder = new File(outputPath);
@@ -80,8 +85,8 @@ public class CPMR_Pgm {
 			}
 		}
 
-		CPMR cpmr = new CPMR(refCpGList, min_cpg_coverage, min_read_cpg,
-				min_interval_cpg, min_interval_reads, partial_methyl_threshold);
+		CPMR cpmr = new CPMR(refCpGList, min_cpg_coverage, min_interval_cpg, min_interval_reads,
+				partial_methyl_threshold);
 		List<List<RefCpG>> cpgIntervalList = cpmr.getIntervals();
 		List<ImmutableGenomicInterval> immutableGenomicIntervals = cpmr.getGenomicIntervals(refChr, cpgIntervalList);
 		writeIntervals(outputPath, summaryFileName, immutableGenomicIntervals);
@@ -91,7 +96,8 @@ public class CPMR_Pgm {
 				i -> i.getRefCpGList().stream()).collect(Collectors.toList());
 		writeReport(reportFileName,
 				inputReadsSummary.getSummaryString(
-						"Summary of raw input reads:\n") + intervalReadsSummary.getSummaryString(
+						"Summary of raw input reads:\n") + cpgReadsSummary.getSummaryString(
+						"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
 						"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
 						refCpGCollection), cpgIntervalList.size(), immutableGenomicIntervals.size());
 	}

@@ -7,7 +7,10 @@ import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -16,16 +19,14 @@ import java.util.stream.Collectors;
  */
 public class CPMR {
 	private int min_cpg_coverage;
-	private int min_read_cpg;
 	private int min_interval_cpg;
 	private int min_interval_reads;
 	private double partial_methyl_threshold;
 	private List<RefCpG> refCpGList;
 
-	public CPMR(List<RefCpG> refCpGList, int min_cpg_coverage, int min_read_cpg,
-	            int min_interval_cpg, int min_interval_reads, double partial_methyl_threshold) throws IOException {
+	public CPMR(List<RefCpG> refCpGList, int min_cpg_coverage, int min_interval_cpg, int min_interval_reads, double partial_methyl_threshold) throws
+			IOException {
 		this.min_cpg_coverage = min_cpg_coverage;
-		this.min_read_cpg = min_read_cpg;
 		this.min_interval_cpg = min_interval_cpg;
 		this.min_interval_reads = min_interval_reads;
 		this.partial_methyl_threshold = partial_methyl_threshold;
@@ -70,7 +71,8 @@ public class CPMR {
 			Set<MappedRead> mappedReadSet = getReadsFromRefCpGs(min_cpg_coverage, list);
 			// only pass high quality result for next step.
 			if (list.size() >= min_interval_cpg) {
-				List<MappedRead> mappedReadList = mappedReadSet.stream().filter(mr -> mr.getCpgList().size() > 0)
+				// since mappedReadSet is collected from refCpG, all reads contains at least one CpG.
+				List<MappedRead> mappedReadList = mappedReadSet.stream()
 						.sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
 						.sorted((m1, m2) -> m1.getStart() - m2.getStart())
 						.collect(Collectors.toList());
@@ -87,18 +89,6 @@ public class CPMR {
 			}
 		});
 		return immutableGenomicIntervalList;
-	}
-
-	private int countOverlapCpG(MappedRead read, List<RefCpG> refCpGList) {
-		Map<Integer, RefCpG> refCpGMap = refCpGList.stream().collect(
-				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
-		int count = 0;
-		for (CpG cpG : read.getCpgList()) {
-			if (refCpGMap.containsKey(cpG.getPos())) {
-				count++;
-			}
-		}
-		return count;
 	}
 
 	private Set<MappedRead> getReadsFromRefCpGs(int min_cpg_coverage, List<RefCpG> list) {
