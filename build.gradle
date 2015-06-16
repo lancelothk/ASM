@@ -54,10 +54,32 @@ CreateStartScripts buildStartScript(String appName, String mainClass) {
     }
 }
 
+@SuppressWarnings("GroovyAssignabilityCheck")
+CreateStartScripts buildStartScript(String appName, String mainClass, Iterable<String> jvmOpts) {
+    task "${appName}StartScript"(type: CreateStartScripts) {
+        mainClassName = mainClass
+        applicationName = appName
+        defaultJvmOpts = jvmOpts
+        outputDir = new File(project.buildDir, 'scripts');
+        classpath = jar.outputs.files + project.configurations.runtime
+        group = "scripts"
+    }
+}
+
 task addAllStartSctipts (dependsOn: jar) {
     group = "scripts"
-    buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm").execute()
-    buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm").execute()
+    def userName = System.getProperty('user.name')
+    if (userName == "kehu") {
+        def cpmrJVM = ["-Xms4g", "-Xms10g"]
+        def detectJVM = ["-Xms2g", "-Xms4g"]
+        buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
+        buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
+    } else if (userName == "lancelothk") {
+        def cpmrJVM = ["-Xms3g", "-Xms6g"]
+        def detectJVM = ["-Xms1g", "-Xms3g"]
+        buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
+        buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
+    }
     buildStartScript("convert", "edu.cwru.cbc.ASM.tools.conversion.FormatConversionPgm").execute()
     buildStartScript("intersect", "edu.cwru.cbc.ASM.tools.intersect.IntersectRegionsPgm").execute()
     buildStartScript("simulate", "edu.cwru.cbc.ASM.tools.simulation.SimulationPgm").execute()
@@ -138,3 +160,5 @@ task updateInstall(dependsOn: installDist) {
         }
     }
 }
+
+installDist.dependsOn build
