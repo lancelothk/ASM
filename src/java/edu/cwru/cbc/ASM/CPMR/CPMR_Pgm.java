@@ -3,13 +3,13 @@ package edu.cwru.cbc.ASM.CPMR;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
-import edu.cwru.cbc.ASM.commons.GenomicInterval.ImmutableGenomicInterval;
-import edu.cwru.cbc.ASM.commons.IO.IOUtils;
-import edu.cwru.cbc.ASM.commons.IO.InputReadsSummary;
-import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessor;
-import edu.cwru.cbc.ASM.commons.Methylation.RefChr;
-import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
-import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
+import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
+import edu.cwru.cbc.ASM.commons.io.IOUtils;
+import edu.cwru.cbc.ASM.commons.io.InputReadsSummary;
+import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.methylation.RefChr;
+import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
 /**
  * Created by lancelothk on 5/26/14.

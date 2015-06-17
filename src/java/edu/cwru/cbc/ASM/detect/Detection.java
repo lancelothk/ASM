@@ -5,11 +5,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
-import edu.cwru.cbc.ASM.commons.IO.MappedReadLineProcessor;
-import edu.cwru.cbc.ASM.commons.Methylation.RefCpG;
-import edu.cwru.cbc.ASM.commons.Sequence.MappedRead;
-import edu.cwru.cbc.ASM.detect.DataType.*;
-import edu.cwru.cbc.ASM.visualization.ReadsVisualization;
+import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
+import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import edu.cwru.cbc.ASM.detect.dataType.*;
+import edu.cwru.cbc.ASM.visualization.ReadsVisualizationPgm;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static edu.cwru.cbc.ASM.commons.Methylation.MethylationUtils.extractCpGSite;
+import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
 /**
  * Created by lancelothk on 6/8/15.
@@ -104,7 +104,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(
 				Vertex::getMappedReadList).collect(
 				Collectors.toList());
-		ReadsVisualization.alignReadsIntoGroups(readGroups, reference, inputFile.getAbsolutePath() + ".groups.aligned");
+		ReadsVisualizationPgm.alignReadsIntoGroups(readGroups, reference,
+				inputFile.getAbsolutePath() + ".groups.aligned");
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
