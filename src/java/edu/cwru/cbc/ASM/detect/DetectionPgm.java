@@ -2,7 +2,7 @@ package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.collect.ImmutableList;
 import edu.cwru.cbc.ASM.commons.Constant;
-import edu.cwru.cbc.ASM.detect.DataType.IntervalDetectionSummary;
+import edu.cwru.cbc.ASM.detect.dataType.IntervalDetectionSummary;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
