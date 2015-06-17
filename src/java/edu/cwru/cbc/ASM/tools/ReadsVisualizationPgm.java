@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.visualization;
+package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
