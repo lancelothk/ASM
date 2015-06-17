@@ -16,7 +16,7 @@ public class FASTALineProcessorTest {
 
 	@DataProvider(name = "invalidCharacters")
 	public static Object[][] invalidCharacters() {
-		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
+		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?<,:;\"\' ";
 		Object[][] result = new Object[invalidCharacters.length()][];
 		for (int i = 0; i < invalidCharacters.length(); i++) {
 			result[i] = new Object[]{invalidCharacters.charAt(i)};
@@ -34,28 +34,30 @@ public class FASTALineProcessorTest {
 		return result;
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*missing '>' in the beginning of file.*")
 	public void test_processLine_missingIdInBeginning() throws Exception {
 		String missingIdInBeginning = "AAAAA";
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(missingIdInBeginning);
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*empty id!.*")
 	public void test_processLine_emptyId() throws Exception {
 		String emptyId = ">";
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(emptyId);
 	}
 
-	@Test(expectedExceptions = RuntimeException.class, dataProvider = "invalidCharacters")
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*invalid character in sequence!.*", dataProvider = "invalidCharacters")
 	public void test_processLine_invalidCharacter(final char c) throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
 		flp.processLine("" + c);
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*duplicate id.*")
 	public void test_processLine_duplicateID() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		// Since the last sequence unit is put into map only when getResult called, processLine cannot detect duplicate
@@ -68,14 +70,14 @@ public class FASTALineProcessorTest {
 		flp.processLine("ACGTN");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*missing sequence line.*")
 	public void test_processLine_missingSequence() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");
 		flp.processLine(">test");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*missing sequence line.*")
 	public void test_getResult_MissingSequence() throws Exception {
 		FASTALineProcessor flp = new FASTALineProcessor();
 		flp.processLine(">test");

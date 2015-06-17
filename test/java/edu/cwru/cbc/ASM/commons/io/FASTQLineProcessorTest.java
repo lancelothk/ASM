@@ -42,13 +42,13 @@ public class FASTQLineProcessorTest {
 		return result;
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*unexpected line.*")
 	public void test_processLine_missingIDInTheBeginnning() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("ACGT");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*unexpected line.*")
 	public void test_processLine_missingID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
@@ -58,7 +58,7 @@ public class FASTQLineProcessorTest {
 		flp.processLine("ACGT");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*duplicate id detected.*")
 	public void test_processLine_DuplicateID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
@@ -72,14 +72,15 @@ public class FASTQLineProcessorTest {
 	}
 
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*invalid character in sequence.*")
 	public void test_processLine_missingSequence() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
 		flp.processLine("+test");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*unexpected line.*")
 	public void test_processLine_missingPlus() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
@@ -87,16 +88,18 @@ public class FASTQLineProcessorTest {
 		flp.processLine("ffff");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*length of quality String does not match length of sequence.*")
 	public void test_processLine_missingQuality() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
 		flp.processLine("ACGT");
 		flp.processLine("+test");
-		flp.processLine("@test2");
+		flp.processLine("@test");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class, dataProvider = "invalidCharacters")
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*invalid character in sequence.*", dataProvider = "invalidCharacters")
 	public void test_processLine_invalidSequenceCharacter(final char c) throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@" + c);
@@ -106,7 +109,8 @@ public class FASTQLineProcessorTest {
 	}
 
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*ID in plus line is not same to ID in ID line.*")
 	public void test_processLine_invalidPlusID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
@@ -114,7 +118,9 @@ public class FASTQLineProcessorTest {
 		flp.processLine("+something");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class, dataProvider = "invalidQualityScores")
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*invalid quality score character.*",
+			dataProvider = "invalidQualityScores")
 	public void test_processLine_invalidQualityScore(final int c) throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
@@ -124,7 +130,7 @@ public class FASTQLineProcessorTest {
 	}
 
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*empty ID line.*")
 	public void test_processLine_emptyID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@");
@@ -141,14 +147,16 @@ public class FASTQLineProcessorTest {
 		assertEquals(resultSet.iterator().next().getSequence().charAt(0), c, "incorrect character!");
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*missing sequence line in the end of file!.*")
 	public void test_getResult_missingSequence() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
 		flp.getResult();
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*missing plus line in the end of file!.*")
 	public void test_getResult_missingPlus() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");
@@ -156,7 +164,8 @@ public class FASTQLineProcessorTest {
 		flp.getResult();
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*missing quality line in the end of file!.*")
 	public void test_getResult_missingQuality() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@test");

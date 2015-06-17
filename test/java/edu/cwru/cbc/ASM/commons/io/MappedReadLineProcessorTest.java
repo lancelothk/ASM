@@ -9,8 +9,6 @@ import java.util.List;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class MappedReadLineProcessorTest {
-	//TODO add more unit tests
-
 	@DataProvider(name = "invalidCharacters")
 	public static Object[][] invalidCharacters() {
 		String invalidCharacters = "acgtnQWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
@@ -31,10 +29,10 @@ public class MappedReadLineProcessorTest {
 		return result;
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = ".*invalid strand!.*")
 	public void test_invalidStrand() throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
-		String mappedReadStr1 = "20\tplus\t17207806\t17207874\tcccccc\t815505";
+		String mappedReadStr1 = "20\tplus\t17207806\t17207874\taaaaaa\t815505";
 		mlp.processLine(mappedReadStr1);
 	}
 
@@ -47,10 +45,44 @@ public class MappedReadLineProcessorTest {
 		assertEquals("incorrect character!", c, mappedReadList.get(0).getSequence().charAt(0));
 	}
 
-	@Test(expectedExceptions = RuntimeException.class, dataProvider = "invalidCharacters")
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*invalid character in sequence!.*", dataProvider = "invalidCharacters")
 	public void test_processLine_invalidCharacter(final char c) throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
 		String mappedReadStr1 = "20\t+\t17207806\t17207874\t" + c + "\t815505";
 		mlp.processLine(mappedReadStr1);
+	}
+
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*columns is not correct for mapped read format.*")
+	public void test_invalidColumnNumber() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
+		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\teeeeee\t815505";
+		mlp.processLine(mappedReadStr1);
+	}
+
+	@Test
+	public void test_readsOrder() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
+		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\t815505";
+		String mappedReadStr2 = "20\t-\t17207806\t17207874\tAAAAAA\t815506";
+		String mappedReadStr3 = "20\t-\t17207806\t17207874\tAAAAAA\t815507";
+		mlp.processLine(mappedReadStr1);
+		mlp.processLine(mappedReadStr2);
+		mlp.processLine(mappedReadStr3);
+		List<MappedRead> mappedReadList = mlp.getResult();
+		assertEquals("815505", mappedReadList.get(0).getId());
+		assertEquals("815506", mappedReadList.get(1).getId());
+		assertEquals("815507", mappedReadList.get(2).getId());
+	}
+
+	@Test(expectedExceptions = RuntimeException.class,
+			expectedExceptionsMessageRegExp = ".*found duplicate mapped read!.*")
+	public void test_duplicate() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
+		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\t815505";
+		String mappedReadStr2 = "20\t-\t17207806\t17207874\tAAAAAA\t815505";
+		mlp.processLine(mappedReadStr1);
+		mlp.processLine(mappedReadStr2);
 	}
 }
