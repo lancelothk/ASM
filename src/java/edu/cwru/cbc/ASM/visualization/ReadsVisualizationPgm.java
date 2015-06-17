@@ -1,16 +1,22 @@
 package edu.cwru.cbc.ASM.visualization;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.io.IOUtils;
+import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import org.apache.commons.cli.*;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Align reads to readable format with padding.
  */
-// TODO refactor & test sort
 public class ReadsVisualizationPgm {
 	private static String ref;
 
@@ -34,43 +40,23 @@ public class ReadsVisualizationPgm {
 				if (file.isFile() && !file.isHidden() && !file.getName().endsWith(".aligned")) {
 					String outputFileName = file.getAbsolutePath() + ".aligned";
 					List<MappedRead> readsList = readMappedReads(file);
-					alignReads(readsList, ref, outputFileName);
+					writeAlignedReads(readsList, ref, outputFileName);
 				}
 			}
 		} else {
 			String outputFileName = fileName + ".aligned";
 			List<MappedRead> readsList = readMappedReads(targetFile);
-			alignReads(readsList, ref, outputFileName);
+			writeAlignedReads(readsList, ref, outputFileName);
 		}
 	}
 
-	private static ArrayList<MappedRead> readMappedReads(File inputFile) throws IOException {
-		ArrayList<MappedRead> readsList = new ArrayList<>();
-		BufferedReader bufferedReader;
-		bufferedReader = new BufferedReader(new FileReader(inputFile));
-		String line;
-		while ((line = bufferedReader.readLine()) != null) {
-			if (line.startsWith("ref")) {
-				ref = line.split("\t")[1];
-				continue;
-			}
-			String[] items = line.split("\t");
-			if (items.length < 2) {
-				System.out.println(line);
-			}
-			if (!items[1].equals("+") && !items[1].equals("-")) {
-				System.err.println(line);
-				System.err.println("invalid strand symbol!");
-			}
-			readsList.add(
-					new MappedRead(items[0], items[1].charAt(0), Integer.parseInt(items[2]),
-							items[4], items[5]));
-		}
-		bufferedReader.close();
-		return readsList;
+	private static List<MappedRead> readMappedReads(File inputFile) throws IOException {
+		ref = IOUtils.readRefFromIntervalReadsFile(inputFile);
+		return Files.readLines(inputFile, Charsets.UTF_8, new MappedReadLineProcessor());
 	}
 
-	private static void alignReads(List<MappedRead> readsList, String ref, String outputFileName) throws IOException {
+	private static void writeAlignedReads(List<MappedRead> readsList, String ref, String outputFileName) throws
+			IOException {
 		// sort reads first
 		sortMappedReads(readsList);
 		// set initial position
@@ -86,7 +72,8 @@ public class ReadsVisualizationPgm {
 		bufferedWriter.close();
 	}
 
-	public static void alignReadsIntoGroups(List<List<MappedRead>> readGroups, String ref, String outputFileName) throws IOException {
+	public static void writeAlignedReadsIntoGroups(List<List<MappedRead>> readGroups, String ref, String outputFileName) throws
+			IOException {
 		List<MappedRead> allReads = new ArrayList<>();
 		readGroups.forEach(allReads::addAll);
 		// sort reads first

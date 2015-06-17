@@ -2,10 +2,10 @@ package edu.cwru.cbc.ASM.detect.dataType;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import edu.cwru.cbc.ASM.detect.DetectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.Test;
 
@@ -30,7 +30,7 @@ public class ASMGraphTest {
 		int startPos = Integer.parseInt(inputFile.getName().split("-")[1]);
 
 		// load input
-		String reference = DetectionUtils.readRefFromIntervalFile(inputFile);
+		String reference = IOUtils.readRefFromIntervalReadsFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
 				.readLines(new MappedReadLineProcessor());
