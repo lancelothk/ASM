@@ -10,7 +10,7 @@ import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import edu.cwru.cbc.ASM.detect.dataType.*;
-import edu.cwru.cbc.ASM.visualization.ReadsVisualizationPgm;
+import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;

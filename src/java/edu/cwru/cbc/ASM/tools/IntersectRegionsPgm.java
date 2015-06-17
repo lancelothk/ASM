@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.intersect;
+package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Strings;
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
