@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
+import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
@@ -57,7 +58,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		extractIntervalPosition(inputFile);
 
 		// load input
-		String reference = DetectionUtils.readRefFromIntervalFile(inputFile);
+		String reference = IOUtils.readRefFromIntervalReadsFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		// filter out reads which only cover 1 or no CpG sites
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
@@ -104,7 +105,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(
 				Vertex::getMappedReadList).collect(
 				Collectors.toList());
-		ReadsVisualizationPgm.alignReadsIntoGroups(readGroups, reference,
+		ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
 				inputFile.getAbsolutePath() + ".groups.aligned");
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
