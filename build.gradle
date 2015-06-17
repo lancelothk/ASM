@@ -66,20 +66,12 @@ CreateStartScripts buildStartScript(String appName, String mainClass, Iterable<S
     }
 }
 
-task addAllStartSctipts (dependsOn: jar) {
+task addAllStartSctipts(dependsOn: jar) {
     group = "scripts"
-    def userName = System.getProperty('user.name')
-    if (userName == "kehu") {
-        def cpmrJVM = ["-Xms4g", "-Xms10g"]
-        def detectJVM = ["-Xms2g", "-Xms4g"]
-        buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
-        buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
-    } else if (userName == "lancelothk") {
-        def cpmrJVM = ["-Xms3g", "-Xms6g"]
-        def detectJVM = ["-Xms1g", "-Xms3g"]
-        buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
-        buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
-    }
+    def cpmrJVM = ["-Xms4g", "-Xms10g"]
+    def detectJVM = ["-Xms2g", "-Xms4g"]
+    buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
+    buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
     buildStartScript("convert", "edu.cwru.cbc.ASM.tools.conversion.FormatConversionPgm").execute()
     buildStartScript("intersect", "edu.cwru.cbc.ASM.tools.intersect.IntersectRegionsPgm").execute()
     buildStartScript("simulate", "edu.cwru.cbc.ASM.tools.simulation.SimulationPgm").execute()
@@ -112,7 +104,7 @@ remotes {
     }
 }
 
-task updateBin(dependsOn: jar) {
+task updateBin(dependsOn: installDist) {
     doLast {
         if (jar.state.skipped == false) {
             def userName = System.getProperty('user.name')
@@ -128,6 +120,7 @@ task updateBin(dependsOn: jar) {
             } else if (userName == "lancelothk") {
                 ssh.run {
                     session(remotes.lab) {
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
                         put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
                     }
                 }
@@ -152,8 +145,8 @@ task updateInstall(dependsOn: installDist) {
             } else if (userName == "lancelothk") {
                 ssh.run {
                     session(remotes.lab) {
-                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM/bin'
-                        put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM/lib'
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+                        put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM'
                     }
                 }
             }
