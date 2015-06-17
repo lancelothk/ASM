@@ -5,6 +5,7 @@ import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -15,32 +16,33 @@ import java.util.regex.Pattern;
  * Mapped reads start pos is 0-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
-	protected List<MappedRead> mappedReadList = new ArrayList<>();
+	protected LinkedHashMap<String, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
 
 	// TODO check duplicates, keep order of reads as in original file.
 	@Override
 	public boolean processLine(String line) throws IOException {
-		try {
-			if (line.startsWith("chr") || line.startsWith("ref") || line.startsWith("assembly")) {
-				return true;
+		if (line.startsWith("chr") || line.startsWith("ref") || line.startsWith("assembly")) {
+			return true;
+		} else {
+			MappedRead mr = processRead(line);
+			if (mappedReadLinkedHashMap.containsKey(mr.getId())) {
+				throw new RuntimeException("found duplicate mapped read! in line:\t" + line);
 			} else {
-				mappedReadList.add(processRead(line));
-				return true;
+				mappedReadLinkedHashMap.put(mr.getId(), mr);
 			}
-		} catch (Exception e) {
-			throw new RuntimeException("Problem line: " + line + "\n", e);
+			return true;
 		}
 	}
 
 	@Override
 	public List<MappedRead> getResult() {
-		return mappedReadList;
+		return new ArrayList<>(mappedReadLinkedHashMap.values());
 	}
 
-	protected MappedRead processRead(String line) {
+	private MappedRead processRead(String line) {
 		String[] items = line.split("\t");
 		if (!items[1].equals("+") && !items[1].equals("-")) {
-			throw new RuntimeException("invalid strand!");
+			throw new RuntimeException("invalid strand! in line:\t" + line);
 		}
 		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
 
@@ -51,11 +53,8 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		if (items.length == 6) {
 			// for h1/i90 dataset
 			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
-		} else if (items.length == 7) {
-			// for h9 and other dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[6]);
 		} else {
-			throw new RuntimeException("columns is not correct for mapped read format");
+			throw new RuntimeException("columns is not correct for mapped read format in line:\t" + line);
 		}
 		return mappedRead;
 	}

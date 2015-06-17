@@ -1,4 +1,4 @@
-package edu.cwru.cbc.ASM.commons.io;
+package edu.cwru.cbc.ASM.CPMR;
 
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;

@@ -5,7 +5,6 @@ import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
-import edu.cwru.cbc.ASM.commons.io.InputReadsSummary;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
@@ -61,7 +60,8 @@ public class CPMR_Pgm {
 		start = System.currentTimeMillis();
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
 				new MappedReadLineProcessor());
-		System.out.println("load mappedReadList complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+		System.out.println(
+				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(
 				refMap)); // TODO double check if it is neccesary to exclude read with CpGs < 2

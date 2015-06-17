@@ -22,6 +22,9 @@ public abstract class Sequence {
 		return sequence;
 	}
 
+	/**
+	 * The uniqueness of Sequence type is kept by id.
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
