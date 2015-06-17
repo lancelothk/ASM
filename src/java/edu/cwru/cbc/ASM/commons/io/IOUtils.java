@@ -43,7 +43,7 @@ public class IOUtils {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
 		String line = bufferedReader.readLine();
 		String[] items = line.split("\t");
-		if (items.length != 2 || !items[0].equals("ref")) {
+		if (items.length != 2 || !items[0].contains("ref")) {
 			throw new RuntimeException(
 					"invalid reference line in interval read file!\t" + line + "\t" + inputFile.getName());
 		} else {
