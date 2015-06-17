@@ -8,14 +8,14 @@ import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by lancelothk on 6/8/15.
- * CPMR stands for Consecutive covered partial methylation region.
+ * CPMR stands for Consecutively covered partial methylation region.
  */
 public class CPMR {
 	private int min_cpg_coverage;
@@ -23,6 +23,7 @@ public class CPMR {
 	private int min_interval_reads;
 	private double partial_methyl_threshold;
 	private List<RefCpG> refCpGList;
+	private int rawIntervalCount;
 
 	public CPMR(List<RefCpG> refCpGList, int min_cpg_coverage, int min_interval_cpg, int min_interval_reads, double partial_methyl_threshold) throws
 			IOException {
@@ -38,7 +39,7 @@ public class CPMR {
 		}
 	}
 
-	public List<List<RefCpG>> getIntervals() {
+	private List<List<RefCpG>> getRefCpGIntervals() {
 		// split regions by continuous CpG coverage
 		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
 		boolean cont = false;
@@ -62,41 +63,37 @@ public class CPMR {
 		if (resultRefCpGList.size() > 0) {
 			cpgSiteIntervalList.add(resultRefCpGList);
 		}
+		rawIntervalCount = cpgSiteIntervalList.size();
 		return cpgSiteIntervalList;
 	}
 
-	public List<ImmutableGenomicInterval> getGenomicIntervals(RefChr refChr, List<List<RefCpG>> cpgSiteIntervalList) {
+	public List<ImmutableGenomicInterval> getGenomicIntervals(RefChr refChr) {
 		List<ImmutableGenomicInterval> immutableGenomicIntervalList = new ArrayList<>();
-		cpgSiteIntervalList.forEach((list) -> {
-			Set<MappedRead> mappedReadSet = getReadsFromRefCpGs(min_cpg_coverage, list);
-			// only pass high quality result for next step.
-			if (list.size() >= min_interval_cpg) {
-				// since mappedReadSet is collected from refCpG, all reads contains at least one CpG.
-				List<MappedRead> mappedReadList = mappedReadSet.stream()
-						.sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
-						.sorted((m1, m2) -> m1.getStart() - m2.getStart())
-						.collect(Collectors.toList());
-				if (mappedReadList.size() >= min_interval_reads) {
-					int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
-					int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
-					@SuppressWarnings("UnnecessaryLocalVariable") // since it makes clear pos and CpGPos is different.
-							int startPos = startCpGPos;
-					int endPos = endCpGPos + 1;// +1 to include whole CpG in plus strand
-					immutableGenomicIntervalList.add(
-							new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
-									mappedReadList));
+		getRefCpGIntervals().stream().filter(list -> list.size() >= min_interval_cpg).forEach(list -> {
+			// since reads are collected from refCpG, all reads contains at least one CpG.
+			List<MappedRead> mappedReadList = getDistinctReadsFromRefCpGs(list)
+					.sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
+					.sorted((m1, m2) -> m1.getStart() - m2.getStart())
+					.collect(Collectors.toList());
+			if (mappedReadList.size() >= min_interval_reads) {
+				int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+				int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+				@SuppressWarnings("UnnecessaryLocalVariable") // since it makes clear pos and CpGPos is different.
+						int startPos = startCpGPos;
+				int endPos = endCpGPos + 1;// +1 to include whole CpG in plus strand
+				immutableGenomicIntervalList.add(
+						new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
+								mappedReadList));
 				}
-			}
 		});
 		return immutableGenomicIntervalList;
 	}
 
-	private Set<MappedRead> getReadsFromRefCpGs(int min_cpg_coverage, List<RefCpG> list) {
-		Set<MappedRead> mappedReadSet = new HashSet<>();
-		list.forEach((refCpG) -> {
-			refCpG.getCpGList().forEach((CpG cpg) -> mappedReadSet.add(cpg.getMappedRead()));
-			assert refCpG.getCpGList().size() >= min_cpg_coverage; // make sure coverage is correct
-		});
-		return mappedReadSet;
+	private Stream<MappedRead> getDistinctReadsFromRefCpGs(List<RefCpG> list) {
+		return list.stream().map(RefCpG::getCpGList).flatMap(Collection::stream).map(CpG::getMappedRead).distinct();
+	}
+
+	public int getRawIntervalCount() {
+		return rawIntervalCount;
 	}
 }

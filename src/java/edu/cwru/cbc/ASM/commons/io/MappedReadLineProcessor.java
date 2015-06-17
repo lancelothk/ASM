@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
 	protected LinkedHashMap<String, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
 
-	// TODO check duplicates, keep order of reads as in original file.
 	@Override
 	public boolean processLine(String line) throws IOException {
 		if (line.startsWith("chr") || line.startsWith("ref") || line.startsWith("assembly")) {
