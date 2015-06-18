@@ -83,9 +83,9 @@ public class CPMR_Pgm {
 			}
 		}
 
-		CPMR cpmr = new CPMR(refCpGList, min_cpg_coverage, min_interval_cpg, min_interval_reads,
+		CPMR cpmr = new CPMR(refCpGList, refChr, min_cpg_coverage, min_interval_cpg, min_interval_reads,
 				partial_methyl_threshold);
-		List<ImmutableGenomicInterval> immutableGenomicIntervals = cpmr.getGenomicIntervals(refChr);
+		List<ImmutableGenomicInterval> immutableGenomicIntervals = cpmr.getGenomicIntervals();
 		writeIntervals(outputPath, summaryFileName, immutableGenomicIntervals);
 		InputReadsSummary intervalReadsSummary = new InputReadsSummary(refChr.getRefString().length());
 		immutableGenomicIntervals.forEach(i -> i.getMappedReadList().forEach(intervalReadsSummary::addMappedRead));

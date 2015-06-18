@@ -23,20 +23,17 @@ public class CPMR {
 	private int min_interval_reads;
 	private double partial_methyl_threshold;
 	private List<RefCpG> refCpGList;
+	private RefChr refChr;
 	private int rawIntervalCount;
 
-	public CPMR(List<RefCpG> refCpGList, int min_cpg_coverage, int min_interval_cpg, int min_interval_reads, double partial_methyl_threshold) throws
+	public CPMR(List<RefCpG> refCpGList, RefChr refChr, int min_cpg_coverage, int min_interval_cpg, int min_interval_reads, double partial_methyl_threshold) throws
 			IOException {
+		this.refChr = refChr;
 		this.min_cpg_coverage = min_cpg_coverage;
 		this.min_interval_cpg = min_interval_cpg;
 		this.min_interval_reads = min_interval_reads;
 		this.partial_methyl_threshold = partial_methyl_threshold;
 		this.refCpGList = refCpGList;
-		refCpGList.sort((RefCpG c1, RefCpG c2) -> c1.getPos() - c2.getPos());
-		// assign cpg id after sorted
-		for (int i = 0; i < refCpGList.size(); i++) {
-			refCpGList.get(i).assignIndex(i);
-		}
 	}
 
 	private List<List<RefCpG>> getRefCpGIntervals() {
@@ -56,7 +53,9 @@ public class CPMR {
 				resultRefCpGList.add(next);
 			} else {
 				cont = false;
-				cpgSiteIntervalList.add(resultRefCpGList);
+				if (resultRefCpGList.size() > 0) {
+					cpgSiteIntervalList.add(resultRefCpGList);
+				}
 				resultRefCpGList = new ArrayList<>();
 			}
 		}
@@ -67,7 +66,7 @@ public class CPMR {
 		return cpgSiteIntervalList;
 	}
 
-	public List<ImmutableGenomicInterval> getGenomicIntervals(RefChr refChr) {
+	public List<ImmutableGenomicInterval> getGenomicIntervals() {
 		List<ImmutableGenomicInterval> immutableGenomicIntervalList = new ArrayList<>();
 		getRefCpGIntervals().stream().filter(list -> list.size() >= min_interval_cpg).forEach(list -> {
 			// since reads are collected from refCpG, all reads contains at least one CpG.

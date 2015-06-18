@@ -10,7 +10,6 @@ import java.util.Collection;
  * Created by lancelothk on 6/9/15.
  * Store and construct summary info about mapped reads.
  */
-//TODO add unit test
 public class InputReadsSummary {
 	private long totalLength;
 	private long count;
