@@ -58,7 +58,7 @@ public class ReadsVisualizationPgm {
 	private static void writeAlignedReads(List<MappedRead> readsList, String ref, String outputFileName) throws
 			IOException {
 		// sort reads first
-		sortMappedReads(readsList);
+		readsList.sort(MappedRead::compareTo);
 		// set initial position
 		int initialPos = readsList.get(0).getStart();
 		BufferedWriter bufferedWriter;
@@ -77,7 +77,7 @@ public class ReadsVisualizationPgm {
 		List<MappedRead> allReads = new ArrayList<>();
 		readGroups.forEach(allReads::addAll);
 		// sort reads first
-		sortMappedReads(allReads);
+		allReads.sort(MappedRead::compareTo);
 		// set initial position
 		int initialPos = allReads.get(0).getStart();
 		BufferedWriter bufferedWriter;
@@ -86,19 +86,12 @@ public class ReadsVisualizationPgm {
 			bufferedWriter.write(String.format("ref:\t%s\n", ref));
 		}
 		for (List<MappedRead> readGroup : readGroups) {
-			sortMappedReads(readGroup);
+			readGroup.sort(MappedRead::compareTo);
 			for (MappedRead read : readGroup) {
 				bufferedWriter.write(read.toVisualizationString(initialPos) + "\n");
 			}
 			bufferedWriter.write("\n");
 		}
 		bufferedWriter.close();
-	}
-
-	private static void sortMappedReads(List<MappedRead> mappedReadList) {
-		mappedReadList.sort((r1, r2) -> {
-			int startCompare = Integer.compare(r1.getStart(), r2.getStart());
-			return startCompare != 0 ? startCompare : Integer.compare(r1.getEnd(), r2.getEnd());
-		});
 	}
 }

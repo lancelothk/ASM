@@ -14,7 +14,7 @@ import java.util.Map;
  * Created by lancelothk on 11/12/14.
  * Used to represent mapped read.
  */
-public class MappedRead extends Sequence {
+public class MappedRead extends Sequence implements Comparable<MappedRead> {
 	private final String chr;
 	private final char strand;
 	private int start;
@@ -202,4 +202,16 @@ public class MappedRead extends Sequence {
 		return lastCpG;
 	}
 
+	@Override
+	public int compareTo(MappedRead other) {
+		int startCompare = Integer.compare(this.getStart(), other.getStart());
+		if (startCompare != 0) {
+			return startCompare;
+		}
+		int endCompare = Integer.compare(this.getEnd(), other.getEnd());
+		if (endCompare != 0) {
+			return endCompare;
+		}
+		return this.getId().compareTo(other.getId());
+	}
 }

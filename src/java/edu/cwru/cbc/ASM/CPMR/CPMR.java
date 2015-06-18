@@ -72,9 +72,7 @@ public class CPMR {
 		getRefCpGIntervals().stream().filter(list -> list.size() >= min_interval_cpg).forEach(list -> {
 			// since reads are collected from refCpG, all reads contains at least one CpG.
 			List<MappedRead> mappedReadList = getDistinctReadsFromRefCpGs(list)
-					.sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
-					.sorted((m1, m2) -> m1.getStart() - m2.getStart())
-					.collect(Collectors.toList());
+					.sorted(MappedRead::compareTo).collect(Collectors.toList());
 			if (mappedReadList.size() >= min_interval_reads) {
 				int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
 				int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
