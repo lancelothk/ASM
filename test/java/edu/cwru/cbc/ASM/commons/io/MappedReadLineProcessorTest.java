@@ -57,9 +57,17 @@ public class MappedReadLineProcessorTest {
 			expectedExceptionsMessageRegExp = ".*columns is not correct for mapped read format.*")
 	public void test_invalidColumnNumber() throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
+		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\teeeeee\t\t815505";
+		mlp.processLine(mappedReadStr1);
+	}
+
+	@Test
+	public void test_sevenColumnNumber() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
 		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\teeeeee\t815505";
 		mlp.processLine(mappedReadStr1);
 	}
+
 
 	@Test
 	public void test_readsOrder() throws Exception {
