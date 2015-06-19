@@ -96,7 +96,8 @@ public class CPMR_Pgm {
 						"Summary of raw input reads:\n") + cpgReadsSummary.getSummaryString(
 						"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
 						"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
-						refCpGCollection), cpmr.getRawIntervalCount(), immutableGenomicIntervals.size());
+						refCpGCollection), refCpGList.size(), cpmr.getRawIntervalCount(),
+				immutableGenomicIntervals.size());
 	}
 
 	/**
@@ -139,11 +140,12 @@ public class CPMR_Pgm {
 		intervalSummaryWriter.close();
 	}
 
-	private static void writeReport(String reportFileName, String reportString, int rawIntervalCount,
+	private static void writeReport(String reportFileName, String reportString, int cpgCount, int rawIntervalCount,
 	                                int outputIntervalCount) throws
 			IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(reportFileName));
 		writer.write(reportString);
+		writer.write("Total #CpG in reference:\t" + cpgCount + "\n");
 		writer.write("Raw Interval count:\t" + rawIntervalCount + "\n");
 		writer.write("Output Interval count:\t" + outputIntervalCount + "\n");
 		writer.close();
