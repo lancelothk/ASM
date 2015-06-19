@@ -52,6 +52,9 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		if (items.length == 6) {
 			// for h1/i90 dataset
 			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
+		} else if (items.length == 7) {
+			// for h9 dataset
+			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[6]);
 		} else {
 			throw new RuntimeException("columns is not correct for mapped read format in line:\t" + line);
 		}
