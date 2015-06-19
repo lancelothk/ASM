@@ -15,7 +15,7 @@ public class FormatConversionPgm {
 		options.addOption("i", true, "input file/path");
 		options.addOption("o", true, "output file/path");
 
-		CommandLineParser parser = new BasicParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String mode = cmd.getOptionValue("m");

@@ -33,7 +33,7 @@ public class SimulationPgm {
 		options.addOption("o", true, "Output file");
 		options.addOption("a", true, "Alpha");
 
-		CommandLineParser parser = new BasicParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String referenceGenomeFileName = cmd.getOptionValue("r");

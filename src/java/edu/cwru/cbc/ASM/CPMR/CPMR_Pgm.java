@@ -38,7 +38,7 @@ public class CPMR_Pgm {
 		options.addOption("mic", true, "Minimum interval CpG number");
 		options.addOption("mir", true, "Minimum interval read number");
 
-		CommandLineParser parser = new BasicParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String referenceGenomeFileName = cmd.getOptionValue("r");

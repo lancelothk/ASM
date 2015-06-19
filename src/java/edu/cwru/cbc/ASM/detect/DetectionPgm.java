@@ -36,7 +36,7 @@ public class DetectionPgm {
 		options.addOption("f", true, "FDR threshold");
 		options.addOption("t", false, "Thread number to execute the program.");
 
-		CommandLineParser parser = new BasicParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String inputPath = cmd.getOptionValue("i");

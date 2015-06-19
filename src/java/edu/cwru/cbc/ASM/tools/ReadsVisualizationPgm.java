@@ -24,7 +24,7 @@ public class ReadsVisualizationPgm {
 		Options options = new Options();
 		options.addOption("i", true, "input file");
 
-		CommandLineParser parser = new BasicParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String inputFileName = cmd.getOptionValue("i");
