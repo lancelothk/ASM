@@ -108,7 +108,7 @@ public class DetectionPgm {
 		}
 		executor.shutdown();
 
-		double regionP_threshold = DetectionUtils.getBHYFDRCutoff(
+		double regionP_threshold = FDRControl.getBHYFDRCutoff(
 				resultList.stream()
 						.map(IntervalDetectionSummary::getRegionP)
 						.filter(p -> p <= 1 && p >= 0)
