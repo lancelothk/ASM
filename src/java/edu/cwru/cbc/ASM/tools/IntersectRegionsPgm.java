@@ -5,7 +5,6 @@ import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import edu.cwru.cbc.ASM.commons.genomicInterval.BedInterval;
 import org.apache.commons.cli.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -16,30 +15,58 @@ import java.util.Collection;
 public class IntersectRegionsPgm {
 	public static void main(String[] args) throws IOException, ParseException {
 		Options options = new Options();
-		options.addOption("a", true, "bed file A");
-		options.addOption("b", true, "bed file B");
-		options.addOption("o", true, "output file name");
+		options.addOption(Option.builder("a").hasArg().desc("bed file A").build());
+		options.addOption(Option.builder("b").hasArg().desc("bed file B").build());
+		options.addOption(Option.builder("o")
+				.hasArg()
+				.desc("output file name prefix(without .bed)")
+				.build());
+		options.addOption(Option.builder("e")
+				.hasArg()
+				.desc("extra output except intersection file. 'a':annotated A; 'b':annotated B;'c':both annotated A&B ")
+				.required(false)
+				.build());
 
-		CommandLineParser parser = new BasicParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String aFileName = cmd.getOptionValue("a");
 		String bFileName = cmd.getOptionValue("b");
 		String outputFileName = cmd.getOptionValue("o");
-
-		execution(aFileName, bFileName, outputFileName);
+		String extraOption = "";
+		if (cmd.hasOption("e")) {
+			extraOption = cmd.getOptionValue("e");
+			if (!extraOption.equals("a") && !extraOption.equals("b") && !extraOption.equals("c")) {
+				System.err.println(
+						"unknown parameter \"" + extraOption + "\" for -e.\n'a':annotated A; 'b':annotated B;'c':both annotated A&B");
+			}
+		}
+		execution(aFileName, bFileName, outputFileName, extraOption);
 	}
 
-	private static void execution(String aFileName, String bFileName, String outputFileName) throws IOException {
-		Collection<BedInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName, true);
-		Collection<BedInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName, true);
+	private static void execution(String aFileName, String bFileName, String outputFileName, String extraOption) throws
+			IOException {
+		Collection<BedInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName);
+		Collection<BedInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName);
 		Collection<BedInterval> intersections = BedUtils.intersect(regionsA, regionsB);
-		BedUtils.writeBedRegions(intersections, outputFileName);
-		BedUtils.writeBedWithIntersection(regionsA,
-				new File(aFileName).getAbsolutePath() + "_intersected.bed");
-		BedUtils.writeBedWithIntersection(regionsB,
-				new File(bFileName).getAbsolutePath() + "_intersected.bed");
+		BedUtils.writeBedRegions(intersections, outputFileName + ".bed");
+		switch (extraOption) {
+			case "a":
+				BedUtils.writeBedWithIntersection(regionsA, outputFileName + "_A.bed");
+				break;
+			case "b":
+				BedUtils.writeBedWithIntersection(regionsB, outputFileName + "_B.bed");
+				break;
+			case "c":
+				BedUtils.writeBedWithIntersection(regionsA, outputFileName + "_A.bed");
+				BedUtils.writeBedWithIntersection(regionsB, outputFileName + "_B.bed");
+				break;
+			default:
+		}
+		printSummary(aFileName, bFileName, regionsA, regionsB, intersections);
+	}
 
+	private static void printSummary(String aFileName, String bFileName, Collection<BedInterval> regionsA, Collection<BedInterval> regionsB, Collection<BedInterval> intersections) {
 		long intersectedCount_regionA = regionsA.stream().filter(BedInterval::isIntersected).count();
 		long nonIntersectedCount_regionA = regionsA.stream().filter(r -> !r.isIntersected()).count();
 		long intersectedCount_regionB = regionsB.stream().filter(BedInterval::isIntersected).count();
@@ -63,7 +90,8 @@ public class IntersectRegionsPgm {
 				(double) intersectedCount_regionA / regionsA.size());
 		System.out.printf("#non-covered regions in A:%d(%.4f)\n", nonIntersectedCount_regionA,
 				(double) nonIntersectedCount_regionA / regionsA.size());
-		System.out.printf("percent of intersected length of A:%.4f\n", (double) intersectionLength / totalLengthRegionA);
+		System.out.printf("percent of intersected length of A:%.4f\n",
+				(double) intersectionLength / totalLengthRegionA);
 		assert intersectedCount_regionA + nonIntersectedCount_regionA == regionsA.size();
 
 		System.out.println(Strings.padStart("", 80, '*'));
@@ -73,7 +101,8 @@ public class IntersectRegionsPgm {
 				(double) intersectedCount_regionB / regionsB.size());
 		System.out.printf("#non-covered regions in B:%d(%.4f)\n", nonIntersectedCount_regionB,
 				(double) nonIntersectedCount_regionB / regionsB.size());
-		System.out.printf("percent of intersected length of B:%.4f\n", (double) intersectionLength / totalLengthRegionB);
+		System.out.printf("percent of intersected length of B:%.4f\n",
+				(double) intersectionLength / totalLengthRegionB);
 		assert intersectedCount_regionB + nonIntersectedCount_regionB == regionsB.size();
 
 		System.out.println(Strings.padStart("", 80, '*'));
