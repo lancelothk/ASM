@@ -81,7 +81,7 @@ public class CPMR {
 				immutableGenomicIntervalList.add(
 						new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
 								mappedReadList));
-				}
+			}
 		});
 		return immutableGenomicIntervalList;
 	}

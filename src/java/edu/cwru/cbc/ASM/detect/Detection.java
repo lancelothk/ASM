@@ -44,7 +44,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 	/**
 	 * Detection constructor.
-	 *  @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 *
+	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
 	 */
@@ -137,21 +138,15 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
-		try {
-			return refCpGList.stream().filter(
-					refCpG -> clusterRefCpGMap.get(refCpG.getPos())
-							.getClusterCount() == 2 && clusterRefCpGMap.containsKey(
-							refCpG.getPos())).collect(Collectors.toList());
-		} catch (Exception e) {
-			System.out.println();
-			throw e;
-		}
+		return refCpGList.stream().filter(
+				refCpG -> clusterRefCpGMap.get(refCpG.getPos())
+						.getClusterCount() == 2 && clusterRefCpGMap.containsKey(
+						refCpG.getPos())).collect(Collectors.toList());
 	}
 
 	private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
 		if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
 			for (RefCpG refCpG : twoClusterRefCpGList) {
-				assert refCpG.getCpGCoverage() == 2;
 				int j = 0;
 				int[][] matrix = new int[2][2];
 				for (Vertex vertex : graph.getClusterResult().values()) {

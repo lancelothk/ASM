@@ -63,48 +63,4 @@ public class DetectionUtils {
 		System.out.printf("all P values(%d) <= a*k/m. Use the last p as cutoff.\n", pvalueList.size());
 		return pvalueList.get(pvalueList.size() - 1);
 	}
-
-	public static double correctPbyBonferroni(double p, int count) {
-		return p * count;
-	}
-
-	public static double correctPbySidak(double p, int count) {
-		return 1 - Math.pow(1 - p, count);
-	}
-
-	//	public static List<Double> correctPbyBonferroni(List<Double> pvalueList){
-	//		return pvalueList.stream().map(p->p*pvalueList.size()).collect(Collectors.toList());
-	//	}
-	//
-	//	public static List<Double> correctPbySidak(List<Double> pvalueList){
-	//		return pvalueList.stream().map(p -> 1 - Math.pow(1 - p, pvalueList.size())).collect(Collectors.toList());
-	//	}
-
-	//	public static List<Double> correctPbyBenjaminiHochberg(List<Double> pvalueList){
-	//		List<Double> correctedPvalues = new ArrayList<>(pvalueList.size());
-	//		for (int i = 0; i < pvalueList.size(); i++) {
-	//			correctedPvalues.add(pvalueList.get(i)*pvalueList.size()/i);
-	//		}
-	//		return correctedPvalues;
-	//	}
-	//
-	//	public static List<Double> correctPbyBenjaminiHochbergYekutieli(List<Double> pvalueList){
-	//		List<Double> correctedPvalues = new ArrayList<>(pvalueList.size());
-	//		double cm = 0;
-	//		for (double i = 1; i < pvalueList.size(); i++) {
-	//			cm += 1 / i;
-	//		}
-	//		for (int i = 0; i < pvalueList.size(); i++) {
-	//			correctedPvalues.add(pvalueList.get(i)*pvalueList.size()/(i*cm));
-	//		}
-	//		return correctedPvalues;
-	//	}
-	//
-	//	public static List<Double> correctPbyBonferroniHolm(List<Double> pvalueList){
-	//		List<Double> correctedPvalues = new ArrayList<>(pvalueList.size());
-	//		for (int i = 0; i < pvalueList.size(); i++) {
-	//			correctedPvalues.add(pvalueList.get(i)*(pvalueList.size()-i+1));
-	//		}
-	//		return correctedPvalues;
-	//	}
 }

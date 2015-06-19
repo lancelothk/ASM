@@ -6,6 +6,7 @@ import org.apache.commons.math3.special.Gamma;
  * Created by kehu on 2/25/15.
  * Fisher's exact test.
  */
+//TODO refactor and test
 public class FisherExactTest {
 	/**
 	 * Calculate Fisher's exact test from the four cell counts.
