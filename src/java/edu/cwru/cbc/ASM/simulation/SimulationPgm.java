@@ -53,7 +53,8 @@ public class SimulationPgm {
 	 * @throws IOException
 	 */
 	public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
-			String targetRegionFileName, String outputFileName, double alpha) throws IOException {
+	                                     String targetRegionFileName, String outputFileName, double alpha) throws
+			IOException {
 		File outputFile = new File(outputFileName);
 		if (!outputFile.getParentFile().exists()) {
 			if (!outputFile.getParentFile().mkdirs()) {
@@ -77,12 +78,9 @@ public class SimulationPgm {
 		attachRefCpGToRegions(refCpGList, targetRegionsMap, nonASMRegions);
 
 		// read input sequences
-		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor());
-
 		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
-		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
-
+		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
+				.readLines(new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) >= 0));
 		System.out.println("load reads finished");
 
 		// assign methyl status

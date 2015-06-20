@@ -33,7 +33,7 @@ public class MappedRead extends Sequence implements Comparable<MappedRead> {
 	/**
 	 * This method associate RefCpG <-> CpG <-> MappedRead
 	 */
-	public void generateCpGsInRead(Map<Integer, RefCpG> refMap) {
+	public int generateCpGsInRead(Map<Integer, RefCpG> refMap) {
 		int start = this.strand == '+' ? this.getStart() : this.getStart() - 1;
 		int end = this.strand == '+' ? this.getEnd() : this.getEnd() - 1;
 		for (int i = start; i <= end; i++) {
@@ -47,6 +47,7 @@ public class MappedRead extends Sequence implements Comparable<MappedRead> {
 				}
 			}
 		}
+		return this.getCpgList().size();
 	}
 
 	public String getChr() {

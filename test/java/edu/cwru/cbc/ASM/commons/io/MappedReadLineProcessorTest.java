@@ -93,4 +93,15 @@ public class MappedReadLineProcessorTest {
 		mlp.processLine(mappedReadStr1);
 		mlp.processLine(mappedReadStr2);
 	}
+
+	@Test
+	public void test_readsFiltering() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor(mr -> mr.getId().equals("815505"));
+		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\t815505";
+		String mappedReadStr2 = "20\t-\t17207806\t17207874\tAAAAAA\t815506";
+		mlp.processLine(mappedReadStr1);
+		mlp.processLine(mappedReadStr2);
+		assertEquals(1, mlp.getResult().size());
+		assertEquals("815505", mlp.getResult().get(0).getId());
+	}
 }

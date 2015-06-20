@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -17,6 +18,15 @@ import java.util.regex.Pattern;
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
 	protected LinkedHashMap<String, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
+	protected Predicate<MappedRead> criteria;
+
+	public MappedReadLineProcessor() {
+		criteria = mr -> true;
+	}
+
+	public MappedReadLineProcessor(Predicate<MappedRead> criteria) {
+		this.criteria = criteria;
+	}
 
 	@Override
 	public boolean processLine(String line) throws IOException {
@@ -26,7 +36,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 			MappedRead mr = processRead(line);
 			if (mappedReadLinkedHashMap.containsKey(mr.getId())) {
 				throw new RuntimeException("found duplicate mapped read! in line:\t" + line);
-			} else {
+			} else if (criteria.test(mr)) {
 				mappedReadLinkedHashMap.put(mr.getId(), mr);
 			}
 			return true;

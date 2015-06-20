@@ -57,12 +57,11 @@ public class CPMR_Pgm {
 
 		// load mapped reads
 		start = System.currentTimeMillis();
+		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessor());
+				new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));
 		System.out.println(
 				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
-		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
-		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		InputReadsSummary inputReadsSummary = new InputReadsSummary(refChr.getRefString().length());
 		mappedReadList.forEach(inputReadsSummary::addMappedRead);
