@@ -17,6 +17,12 @@ public class SplitFileByChr {
 	}
 
 	public static void split(String inputFileName, String outputFilePath) throws IOException {
+		File outputPath = new File(outputFilePath);
+		if (!outputPath.exists()) {
+			if (!outputPath.mkdir()) {
+				throw new RuntimeException("failed to create folder:" + outputFilePath);
+			}
+		}
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFileName));
 		BufferedWriter bufferedWriter = null;
 		String line, chr = "";
@@ -32,7 +38,7 @@ public class SplitFileByChr {
 					bufferedWriter.close();
 				}
 				chr = items[0];
-				bufferedWriter = new BufferedWriter(new FileWriter(String.format("%schr%s", outputFilePath, chr)));
+				bufferedWriter = new BufferedWriter(new FileWriter(String.format("%s/chr%s", outputFilePath, chr)));
 				bufferedWriter.write(String.format("%s\n", line));
 			} else {
 				assert bufferedWriter != null;
