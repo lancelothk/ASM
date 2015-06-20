@@ -168,8 +168,21 @@ task updateInstall(dependsOn: installDist) {
                     into '/home/kehu/experiments/ASM/lib'
                 }
             } else if (userName == "lancelothk") {
+                def curRemote;
+                if ("$remote".toString() == "ngs") {
+                    curRemote = remotes.ngs;
+                    println "use ngs as remote"
+                } else if ("$remote".toString() == "lab") {
+                    curRemote = remotes.lab;
+                    println "use lab as remote"
+                } else if ("$remote".toString() == "osc") {
+                    curRemote = remotes.osc;
+                    println "use osc as remote"
+                } else {
+                    println "invalid remote name!"
+                }
                 ssh.run {
-                    session(remotes.lab) {
+                    session(curRemote) {
                         put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
                         put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM'
                     }
