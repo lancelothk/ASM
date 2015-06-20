@@ -103,11 +103,20 @@ remotes {
         user = 'kehu'
         identity = file('/home/lancelothk/.ssh/id_rsa')
     }
+    ngs {
+        host = 'ngs.case.edu'
+        user = 'ke'
+        identity = file('/home/lancelothk/.ssh/id_rsa')
+    }
+    osc {
+        host = 'oakley.osc.edu'
+    }
 }
 
 task updateBin(dependsOn: installDist) {
+    group = 'update'
     doLast {
-        if (jar.state.skipped == false) {
+        if (!jar.state.skipped) {
             def userName = System.getProperty('user.name')
             if (userName == "kehu") {
                 copy {
@@ -119,8 +128,21 @@ task updateBin(dependsOn: installDist) {
                     into '/home/kehu/experiments/ASM/lib'
                 }
             } else if (userName == "lancelothk") {
+                def curRemote;
+                if ("$remote".toString() == "ngs") {
+                    curRemote = remotes.ngs;
+                    println "use ngs as remote"
+                } else if ("$remote".toString() == "lab") {
+                    curRemote = remotes.lab;
+                    println "use lab as remote"
+                } else if ("$remote".toString() == "osc") {
+                    curRemote = remotes.osc;
+                    println "use osc as remote"
+                } else {
+                    println "invalid remote name!"
+                }
                 ssh.run {
-                    session(remotes.lab) {
+                    session(curRemote) {
                         put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
                         put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
                     }
@@ -130,7 +152,9 @@ task updateBin(dependsOn: installDist) {
     }
 }
 
+
 task updateInstall(dependsOn: installDist) {
+    group = 'update'
     doLast {
         if (installDist.state.skipped == false) {
             def userName = System.getProperty('user.name')
