@@ -46,13 +46,7 @@ wrapper.gradleVersion = '2.4'
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 CreateStartScripts buildStartScript(String appName, String mainClass) {
-    task "${appName}StartScript"(type: CreateStartScripts) {
-        mainClassName = mainClass
-        applicationName = appName
-        outputDir = new File(project.buildDir, 'scripts');
-        classpath = jar.outputs.files + project.configurations.runtime
-        group = "scripts"
-    }
+    return buildStartScript(appName, mainClass, []);
 }
 
 @SuppressWarnings("GroovyAssignabilityCheck")
