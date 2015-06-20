@@ -31,6 +31,7 @@ public class FormatConversionPgm {
 				break;
 			case "3":
 				SplitFileByChr.split(inputFileName, outputFileName);
+				break;
 			default:
 				System.err.println("Unknown mode!");
 		}
