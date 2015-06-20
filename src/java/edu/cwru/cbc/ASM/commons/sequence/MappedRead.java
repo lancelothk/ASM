@@ -14,16 +14,17 @@ import java.util.Map;
  * Created by lancelothk on 11/12/14.
  * Used to represent mapped read.
  */
-public class MappedRead extends Sequence implements Comparable<MappedRead> {
+public class MappedRead implements Comparable<MappedRead> {
+	private final int id;
+	private final String sequence;
 	private final String chr;
 	private final char strand;
 	private int start;
 	private List<CpG> cpgList;
-	private CpG firstCpG;
-	private CpG lastCpG;
 
-	public MappedRead(String chr, char strand, int start, String sequence, String id) {
-		super(id, sequence.toUpperCase());
+	public MappedRead(String chr, char strand, int start, String sequence, int id) {
+		this.id = id;
+		this.sequence = sequence;
 		this.chr = chr;
 		this.strand = strand;
 		this.start = start;
@@ -41,7 +42,7 @@ public class MappedRead extends Sequence implements Comparable<MappedRead> {
 				MethylStatus methylStatus = this.getMethylStatus(i);
 				if (methylStatus != MethylStatus.N) {
 					CpG cpg = new CpG(this, refMap.get(i), methylStatus);
-					this.addCpG(cpg);
+					this.cpgList.add(cpg);
 					refMap.get(i).addCpG(cpg);
 					i++;
 				}
@@ -167,19 +168,6 @@ public class MappedRead extends Sequence implements Comparable<MappedRead> {
 				this.strand, this.sequence, new String(qualityStrArray));
 	}
 
-	private void addCpG(CpG cpg) {
-		if (cpgList.size() == 0) {
-			this.cpgList.add(cpg);
-			firstCpG = cpg;
-			lastCpG = cpg;
-		} else {
-			this.cpgList.add(cpg);
-			if (cpg.getPos() > lastCpG.getPos()) {
-				lastCpG = cpg;
-			}
-		}
-	}
-
 	public String toMappedReadString() {
 		return String.format("%s\t%s\t%d\t%d\t%s\t%s\n", chr, strand, start, this.getEnd(), sequence, id);
 	}
@@ -196,11 +184,23 @@ public class MappedRead extends Sequence implements Comparable<MappedRead> {
 	}
 
 	public CpG getFirstCpG() {
-		return firstCpG;
+		return this.cpgList.get(0);
 	}
 
 	public CpG getLastCpG() {
-		return lastCpG;
+		return this.cpgList.get(this.cpgList.size() - 1);
+	}
+
+	public char getStrand() {
+		return strand;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getSequence() {
+		return sequence;
 	}
 
 	@Override
@@ -213,6 +213,6 @@ public class MappedRead extends Sequence implements Comparable<MappedRead> {
 		if (endCompare != 0) {
 			return endCompare;
 		}
-		return this.getId().compareTo(other.getId());
+		return Integer.compare(this.getId(), other.getId());
 	}
 }

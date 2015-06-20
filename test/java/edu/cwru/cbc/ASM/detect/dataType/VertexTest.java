@@ -21,7 +21,7 @@ public class VertexTest {
 
 	@BeforeMethod
 	public void setUp() throws Exception {
-		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", "test-1");
+		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", 1);
 		mappedRead.generateCpGsInRead(MethylationUtils.extractCpGSite("ACGCGTGCAG", 0).stream().collect(
 				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG)));
 		vertex = new Vertex(mappedRead);

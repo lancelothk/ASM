@@ -12,7 +12,7 @@ import java.util.*;
  * Vertex in graph.
  */
 public class Vertex {
-	private String id;
+	private int id;
 	private List<Edge> adjEdges;
 	private List<MappedRead> mappedReadList;
 	private Map<Integer, RefCpG> refCpGMap; // position-RefCpG
@@ -59,7 +59,7 @@ public class Vertex {
 		this.mappedReadList.addAll(mappedReadList);
 	}
 
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 

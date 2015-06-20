@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Mapped reads start pos is 0-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
-	protected LinkedHashMap<String, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
+	protected LinkedHashMap<Integer, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
 	protected Predicate<MappedRead> criteria;
 
 	public MappedReadLineProcessor() {
@@ -61,10 +61,10 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		MappedRead mappedRead;
 		if (items.length == 6) {
 			// for h1/i90 dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
+			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], Integer.parseInt(items[5]));
 		} else if (items.length == 7) {
 			// for h9 dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[6]);
+			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], Integer.parseInt(items[6]));
 		} else {
 			throw new RuntimeException("columns is not correct for mapped read format in line:\t" + line);
 		}

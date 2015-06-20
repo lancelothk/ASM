@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
  */
 public class ASMGraph {
 	private List<Edge> edgeList;
-	private Map<String, Vertex> vertexMap;
+	private Map<Integer, Vertex> vertexMap;
 	private Map<Integer, ClusterRefCpG> clusterRefCpGMap; // pos <--> count
-	private Map<String, Vertex> clusterResult;
+	private Map<Integer, Vertex> clusterResult;
 	// count how many tie situation occurs. For analysis use
 	private int tieWeightCounter, tieIdCountCounter;
 	private int originalVertexCount, originalEdgeCount;
@@ -32,7 +32,7 @@ public class ASMGraph {
 			for (int j = i + 1; j < mappedReadList.size(); j++) {
 				double score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
 				if (score != Double.MIN_VALUE) {
-					String idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
+					int idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
 					if (!vertexMap.containsKey(idI)) {
 						vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
 					}
@@ -299,7 +299,7 @@ public class ASMGraph {
 		return clusterRefCpGMap;
 	}
 
-	public Map<String, Vertex> getClusterResult() {
+	public Map<Integer, Vertex> getClusterResult() {
 		return clusterResult;
 	}
 
