@@ -50,7 +50,7 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequ
 		if (line.length() != sequence.length()) {
 			throw new RuntimeException("length of quality String does not match length of sequence!");
 		}
-		/** There are different quality score systems. But all start from ASCII {@link #MIN_QUALITY_SCORE} **/
+		/** There are different quality score systems. But all start from ASCII {@link #MIN_QUALITY_SCORE} and end before {@link #MAX_QUALITY_SCORE} **/
 		for (char c : line.toCharArray()) {
 			if (c < MIN_QUALITY_SCORE || c > MAX_QUALITY_SCORE) {
 				throw new RuntimeException("invalid quality score character:" + c);
@@ -73,7 +73,7 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequ
 
 	private void processSequenceLine(String line) {
 		if (!IUPACCode.validateNucleotideCode(line)) {
-			throw new RuntimeException("invalid character in sequence! only acgtnACGTN and '.' are allowed!:\t" + line);
+			throw new RuntimeException("invalid character in sequence!\t" + line);
 		}
 		sequence = line;
 	}

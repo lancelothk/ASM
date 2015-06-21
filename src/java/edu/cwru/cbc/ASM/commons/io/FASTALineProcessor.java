@@ -34,7 +34,7 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashSet<FASTASequ
 	/**
 	 * 1. Support both single/multi fasta format.
 	 * 2. When meet multiple sequence lines, combine them into one line.
-	 * 3. Sequence should not contain character other than acgtnACGTN and '.'.
+	 * 3. Sequence should not contain character other than IUPAC codes.
 	 * Notice: this method shouldn't be used individually without calling {@link #getResult()} to finish the file
 	 * processing.
 	 */
@@ -57,7 +57,7 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashSet<FASTASequ
 			}
 			if (!IUPACCode.validateNucleotideCode(line) || !IUPACCode.validateAminoAcidCode(line)) {
 				throw new RuntimeException(
-						"invalid character in sequence! only acgtnACGTN and '.' are allowed!:\t" + line);
+						"invalid character in sequence! \t" + line);
 			}
 			sb.append(line);
 		}

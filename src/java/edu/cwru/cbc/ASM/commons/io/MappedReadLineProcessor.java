@@ -56,7 +56,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
 
 		if (!IUPACCode.validateNucleotideCode(items[4])) {
-			throw new RuntimeException("invalid character in sequence! only ACGTN and '.' are allowed!:\t" + line);
+			throw new RuntimeException("invalid character in sequence!\t" + line);
 		}
 		MappedRead mappedRead;
 		if (items.length == 6) {
