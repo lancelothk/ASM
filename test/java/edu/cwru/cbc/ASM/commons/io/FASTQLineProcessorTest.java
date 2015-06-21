@@ -13,31 +13,14 @@ import static org.testng.Assert.assertEquals;
  */
 public class FASTQLineProcessorTest {
 
-	@DataProvider(name = "invalidCharacters")
-	public static Object[][] invalidCharacters() {
-		String invalidCharacters = "QWERYUIOPSDFHJKLZXVBMqweryuiopsdfhjklzxvbm@#$%+_=-~!^&*()/\\?><,:;\"\' ";
-		Object[][] result = new Object[invalidCharacters.length()][];
-		for (int i = 0; i < invalidCharacters.length(); i++) {
-			result[i] = new Object[]{invalidCharacters.charAt(i)};
-		}
-		return result;
-	}
-
 	@DataProvider(name = "invalidQualityScores")
 	public static Object[][] invalidQualityScores() {
-		Object[][] result = new Object[33][];
+		Object[][] result = new Object[40][];
 		for (int i = 0; i < 33; i++) {
 			result[i] = new Object[]{i};
 		}
-		return result;
-	}
-
-	@DataProvider(name = "validCharacters")
-	public static Object[][] validCharacters() {
-		String validCharacters = "acgtnACGTN.";
-		Object[][] result = new Object[validCharacters.length()][];
-		for (int i = 0; i < validCharacters.length(); i++) {
-			result[i] = new Object[]{validCharacters.charAt(i)};
+		for (int i = 33; i < 40; i++) {
+			result[i] = new Object[]{i + 94};
 		}
 		return result;
 	}
@@ -99,17 +82,6 @@ public class FASTQLineProcessorTest {
 	}
 
 	@Test(expectedExceptions = RuntimeException.class,
-			expectedExceptionsMessageRegExp = ".*invalid character in sequence.*", dataProvider = "invalidCharacters")
-	public void test_processLine_invalidSequenceCharacter(final char c) throws Exception {
-		FASTQLineProcessor flp = new FASTQLineProcessor();
-		flp.processLine("@" + c);
-		flp.processLine("" + c);
-		flp.processLine("+" + c);
-		flp.processLine("f");
-	}
-
-
-	@Test(expectedExceptions = RuntimeException.class,
 			expectedExceptionsMessageRegExp = ".*ID in plus line is not same to ID in ID line.*")
 	public void test_processLine_invalidPlusID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
@@ -134,17 +106,6 @@ public class FASTQLineProcessorTest {
 	public void test_processLine_emptyID() throws Exception {
 		FASTQLineProcessor flp = new FASTQLineProcessor();
 		flp.processLine("@");
-	}
-
-	@Test(dataProvider = "validCharacters")
-	public void test_processLine_validCharacter(char c) throws Exception {
-		FASTQLineProcessor flp = new FASTQLineProcessor();
-		flp.processLine("@" + c);
-		flp.processLine("" + c);
-		flp.processLine("+" + c);
-		flp.processLine("f");
-		LinkedHashSet<FASTQSequence> resultSet = flp.getResult();
-		assertEquals(resultSet.iterator().next().getSequence().charAt(0), c, "incorrect character!");
 	}
 
 	@Test(expectedExceptions = RuntimeException.class,

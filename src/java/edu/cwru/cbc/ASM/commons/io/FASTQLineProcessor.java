@@ -2,17 +2,22 @@ package edu.cwru.cbc.ASM.commons.io;
 
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.FASTQSequence;
+import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
-import java.util.regex.Pattern;
 
 /**
  * Created by lancelothk on 6/10/15.
  * LineProcessor for reading FASTQ format file.
  */
 public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequence>> {
+	/**
+	 * quality score range get from:
+	 * Cock, Peter JA, et al. "The Sanger FASTQ file format for sequences with quality scores, and the Solexa/Illumina FASTQ variants." Nucleic acids research 38.6 (2010): 1767-1771.
+	 **/
 	public static final int MIN_QUALITY_SCORE = 33;
+	public static final int MAX_QUALITY_SCORE = 126;
 	int lineCount = 0;
 	// used to check if id is unique and also keep order of sequence as reading order.
 	private LinkedHashSet<FASTQSequence> resultSet = new LinkedHashSet<>();
@@ -47,7 +52,7 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequ
 		}
 		/** There are different quality score systems. But all start from ASCII {@link #MIN_QUALITY_SCORE} **/
 		for (char c : line.toCharArray()) {
-			if (c < MIN_QUALITY_SCORE) {
+			if (c < MIN_QUALITY_SCORE || c > MAX_QUALITY_SCORE) {
 				throw new RuntimeException("invalid quality score character:" + c);
 			}
 		}
@@ -61,12 +66,13 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequ
 			throw new RuntimeException("unexpected line!:" + line);
 		}
 		if (!line.substring(1, line.length()).equals(id)) {
-			throw new RuntimeException(String.format("ID in plus line is not same to ID in ID line: plus:%s\tid:%s", line, id));
+			throw new RuntimeException(
+					String.format("ID in plus line is not same to ID in ID line: plus:%s\tid:%s", line, id));
 		}
 	}
 
 	private void processSequenceLine(String line) {
-		if (Pattern.compile("[^ACGTNacgtn\\.]").matcher(line).find()) {
+		if (!IUPACCode.validateNucleotideCode(line)) {
 			throw new RuntimeException("invalid character in sequence! only acgtnACGTN and '.' are allowed!:\t" + line);
 		}
 		sequence = line;

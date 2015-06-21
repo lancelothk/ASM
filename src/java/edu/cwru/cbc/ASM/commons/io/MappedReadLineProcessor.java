@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.commons.io;
 
 import com.google.common.io.LineProcessor;
+import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Created by lancelothk on 6/8/15.
@@ -55,7 +55,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		}
 		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
 
-		if (Pattern.compile("[^ACGTN\\.]").matcher(items[4]).find()) {
+		if (!IUPACCode.validateNucleotideCode(items[4])) {
 			throw new RuntimeException("invalid character in sequence! only ACGTN and '.' are allowed!:\t" + line);
 		}
 		MappedRead mappedRead;

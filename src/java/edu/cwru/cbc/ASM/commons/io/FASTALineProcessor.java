@@ -2,10 +2,10 @@ package edu.cwru.cbc.ASM.commons.io;
 
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.FASTASequence;
+import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
-import java.util.regex.Pattern;
 
 /**
  * Created by lancelothk on 6/10/15.
@@ -55,8 +55,9 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashSet<FASTASequ
 			if (id == null) {
 				throw new RuntimeException("missing '>' in the beginning of file!");
 			}
-			if (Pattern.compile("[^ACGTNacgtn\\.]").matcher(line).find()) {
-				throw new RuntimeException("invalid character in sequence! only acgtnACGTN and '.' are allowed!:\t" + line);
+			if (!IUPACCode.validateNucleotideCode(line) || !IUPACCode.validateAminoAcidCode(line)) {
+				throw new RuntimeException(
+						"invalid character in sequence! only acgtnACGTN and '.' are allowed!:\t" + line);
 			}
 			sb.append(line);
 		}
