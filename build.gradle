@@ -63,8 +63,8 @@ CreateStartScripts buildStartScript(String appName, String mainClass, Iterable<S
 
 task addAllStartSctipts(dependsOn: jar) {
     group = "scripts"
-    def cpmrJVM = ["-Xms2g", "-Xmx4g"]
-    def detectJVM = ["-Xms2g", "-Xmx4g"]
+    def cpmrJVM = []
+    def detectJVM = []
     buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
     buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
     buildStartScript("convert", "edu.cwru.cbc.ASM.tools.conversion.FormatConversionPgm").execute()
