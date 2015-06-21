@@ -46,8 +46,8 @@ public class ASMGraphTest {
 
 		for (Object o : edgeList) {
 			Edge e = (Edge) o;
-			if ((e.getLeft().getId().equals("10040340") && e.getRight().getId().equals("5087521")) ||
-					(e.getLeft().getId().equals("5087521") && e.getRight().getId().equals("10040340"))) {
+			if ((e.getLeft().getId() == 10040340 && e.getRight().getId() == 5087521) ||
+					(e.getLeft().getId() == 5087521 && e.getRight().getId() == 10040340)) {
 				assertEquals("incorrect edge weight!", -2, e.getWeight(), 0.0001);
 			}
 		}

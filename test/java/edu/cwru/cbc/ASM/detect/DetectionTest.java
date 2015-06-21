@@ -47,7 +47,7 @@ public class DetectionTest {
 		Detection detection = new Detection(new File(file.getFile()), 5, 4);
 		IntervalDetectionSummary intervalDetectionSummary = detection.call();
 		assertEquals(
-				"20\t25795835\t25796072\t238\t474\t46\t10\t10\t2\t133\t28.000000\t0.210526\t0.073355\t4.595401e-05\t21\t25\t0.528889\t0.528690\t-\n",
+				"20\t25795835\t25796072\t238\t474\t46\t10\t10\t2\t133\t28.000000\t0.210526\t0.073355\t4.595401e-05\t25\t21\t0.528690\t0.528889\t-\n",
 				intervalDetectionSummary.getSummaryString(0));
 	}
 }

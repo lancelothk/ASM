@@ -18,6 +18,10 @@ public class FDRControl {
 	 * @return p value cutoff.
 	 */
 	public static double getBHYFDRCutoff(List<Double> pValueList, double fdr) {
+		if (pValueList.size() == 0) {
+			System.out.println("empty p value list!");
+			return -1;
+		}
 		pValueList.sort(Double::compare);
 		double cm = 0;
 		for (double i = 1; i < pValueList.size(); i++) {

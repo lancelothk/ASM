@@ -61,12 +61,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// load input
 		String reference = IOUtils.readRefFromIntervalReadsFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
-		// filter out reads which only cover 1 or no CpG sites
-		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor());
-
 		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
-		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
+		// filter out reads which covers no CpG sites
+		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
+				.readLines(new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));
 
 		// construct graph
 		ASMGraph graph = new ASMGraph(mappedReadList);

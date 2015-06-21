@@ -57,22 +57,14 @@ public class CPMR_Pgm {
 
 		// load mapped reads
 		start = System.currentTimeMillis();
+		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessor());
+				new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));
 		System.out.println(
 				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
-		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
-		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
-
-		InputReadsSummary inputReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-		mappedReadList.forEach(inputReadsSummary::addMappedRead);
 
 		InputReadsSummary cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-		mappedReadList.forEach(mr -> {
-			if (mr.getCpgList().size() > 0) {
-				cpgReadsSummary.addMappedRead(mr);
-			}
-		});
+		mappedReadList.forEach(cpgReadsSummary::addMappedRead);
 
 		String summaryFileName = outputPath + "/CPMR.bed";
 		String reportFileName = outputPath + "/CPMR.report";
@@ -91,13 +83,11 @@ public class CPMR_Pgm {
 		immutableGenomicIntervals.forEach(i -> i.getMappedReadList().forEach(intervalReadsSummary::addMappedRead));
 		List<RefCpG> refCpGCollection = immutableGenomicIntervals.stream().flatMap(
 				i -> i.getRefCpGList().stream()).collect(Collectors.toList());
-		writeReport(reportFileName,
-				inputReadsSummary.getSummaryString(
-						"Summary of raw input reads:\n") + cpgReadsSummary.getSummaryString(
+		writeReport(reportFileName, cpgReadsSummary.getSummaryString(
 						"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
 						"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
-						refCpGCollection), refCpGList.size(), cpmr.getRawIntervalCount(),
-				immutableGenomicIntervals.size());
+						refCpGCollection),
+				refCpGList.size(), cpmr.getRawIntervalCount(), immutableGenomicIntervals.size());
 	}
 
 	/**

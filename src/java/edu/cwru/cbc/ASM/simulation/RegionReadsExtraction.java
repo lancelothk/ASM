@@ -60,7 +60,8 @@ public class RegionReadsExtraction {
             int start = Integer.parseInt(items[2]);
             int end = Integer.parseInt(items[3]);
 
-            MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], items[5]);
+            MappedRead mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4],
+                    Integer.parseInt(items[5]));
             mappedRead.generateCpGsInRead(refMap);
             if (mappedRead.getCpgList().size() >= MIN_READ_CPG) {
                 targetRegionsMap.keySet()
