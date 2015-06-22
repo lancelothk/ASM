@@ -23,15 +23,19 @@ public class BedUtils {
 	}
 
 	public static List<BedInterval> readSingleChromBedRegions(String bedFileName,
-	                                                              boolean readLabel) throws IOException {
+	                                                          boolean readLabel) throws IOException {
 		Map<String, List<BedInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
 		if (regionsMap.size() == 0) {
 			return new ArrayList<>();
 		} else if (regionsMap.size() == 1) {
 			return Iterables.get(regionsMap.values(), 0);
 		} else {
-			throw new RuntimeException("Bed file should only contain regions from single chromosome!");
+			throw new RuntimeException("Bed file contains regions from multiple chromosomes!");
 		}
+	}
+
+	public static Map<String, List<BedInterval>> readBedRegions(String bedFileName) throws IOException {
+		return readBedRegions(bedFileName, false);
 	}
 
 	/**
@@ -40,7 +44,7 @@ public class BedUtils {
 	 * And the last column label if readLabel is true.
 	 */
 	public static Map<String, List<BedInterval>> readBedRegions(String bedFileName,
-	                                                                boolean readLabel) throws IOException {
+	                                                            boolean readLabel) throws IOException {
 		return Files.readLines(new File(bedFileName), Charsets.UTF_8,
 				new LineProcessor<Map<String, List<BedInterval>>>() {
 					private Map<String, List<BedInterval>> genomicIntervalMap = new HashMap<>();
@@ -99,24 +103,6 @@ public class BedUtils {
 		}
 	}
 
-	private static boolean hasOverlap(BedInterval region, Map<String, List<BedInterval>> genomicIntervalMap) {
-		return genomicIntervalMap.get(region.getChr()).stream().anyMatch(r -> hasOverlap(region, r));
-	}
-
-	/**
-	 * Check if there exists any overlap between given region and regions
-	 */
-	private static boolean hasOverlap(BedInterval region, Collection<BedInterval> regions) {
-		return regions.stream().anyMatch(r -> hasOverlap(region, r));
-	}
-
-	/**
-	 * Check if there exists overlap in given regions.
-	 */
-	private static boolean hasOverlap(Collection<BedInterval> regions) {
-		return regions.stream().anyMatch(r -> hasOverlap(r, regions));
-	}
-
 	private static boolean hasOverlap(BedInterval regionA, BedInterval regionB) {
 		return regionA.getChr().equals(regionB.getChr()) &&
 				(regionA.getStart() <= regionB.getEnd() && regionA.getEnd() >= regionB.getStart());
@@ -141,18 +127,19 @@ public class BedUtils {
 	}
 
 
-	public static void writeBedRegions(Collection<BedInterval> regions, String bedFileName) throws IOException {
+	public static void writeBedRegions(List<BedInterval> regions, String bedFileName) throws IOException {
 		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(bedFileName));
+		regions.sort(BedInterval::compareTo);
 		for (BedInterval region : regions) {
 			bedWriter.write(region.toBedString() + "\n");
 		}
 		bedWriter.close();
 	}
 
-	public static void writeBedWithIntersection(Collection<BedInterval> regions, String bedFileName) throws
+	public static void writeBedWithIntersection(List<BedInterval> regionsList, String bedFileName) throws
 			IOException {
 		BufferedWriter bedWriter = new BufferedWriter(new FileWriter(bedFileName));
-		for (BedInterval region : regions) {
+		for (BedInterval region : regionsList) {
 			bedWriter.write(region.toBedWithIntersectionString() + "\n");
 		}
 		bedWriter.close();

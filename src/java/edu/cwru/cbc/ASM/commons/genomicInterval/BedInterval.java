@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * Created by kehu on 2/12/15.
  * Genomic Region in Bed format.
  */
-public class BedInterval extends GenomicIntervalBase implements Comparable<BedInterval> {
+public class BedInterval extends GenomicIntervalBase {
 	private String name;
 	private List<RefCpG> refCpGList;
 	private boolean[] allelePattern;
@@ -101,12 +101,5 @@ public class BedInterval extends GenomicIntervalBase implements Comparable<BedIn
 			sb.append(s).append(',');
 		}
 		return sb.toString();
-	}
-
-	@Override
-	public int compareTo(BedInterval o) {
-		int startDiff = this.getStart() - o.getStart();
-		int endDiff = this.getEnd() - o.getEnd();
-		return startDiff == 0 ? endDiff : startDiff;
 	}
 }

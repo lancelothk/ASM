@@ -6,7 +6,11 @@ import edu.cwru.cbc.ASM.commons.genomicInterval.BedInterval;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by kehu on 2/16/15.
@@ -20,6 +24,7 @@ public class IntersectRegionsPgm {
 		options.addOption(Option.builder("o")
 				.hasArg()
 				.desc("output file name prefix(without .bed)")
+				.required()
 				.build());
 		options.addOption(Option.builder("e")
 				.hasArg()
@@ -46,27 +51,33 @@ public class IntersectRegionsPgm {
 
 	private static void execution(String aFileName, String bFileName, String outputFileName, String extraOption) throws
 			IOException {
-		Collection<BedInterval> regionsA = BedUtils.readSingleChromBedRegions(aFileName);
-		Collection<BedInterval> regionsB = BedUtils.readSingleChromBedRegions(bFileName);
-		Collection<BedInterval> intersections = BedUtils.intersect(regionsA, regionsB);
+		Map<String, List<BedInterval>> regionsMapA = BedUtils.readBedRegions(aFileName);
+		Map<String, List<BedInterval>> regionsMapB = BedUtils.readBedRegions(bFileName);
+		List<BedInterval> intersections = new ArrayList<>();
+		regionsMapA.keySet().stream().filter(regionsMapB::containsKey).forEach(keyA ->
+				intersections.addAll(BedUtils.intersect(regionsMapA.get(keyA), regionsMapB.get(keyA))));
 		BedUtils.writeBedRegions(intersections, outputFileName + ".bed");
+		List<BedInterval> regionsListA = regionsMapA.values().stream().flatMap(Collection::stream).sorted(
+				BedInterval::compareTo).collect(Collectors.toList());
+		List<BedInterval> regionsListB = regionsMapB.values().stream().flatMap(Collection::stream).sorted(
+				BedInterval::compareTo).collect(Collectors.toList());
 		switch (extraOption) {
 			case "a":
-				BedUtils.writeBedWithIntersection(regionsA, outputFileName + "_A.bed");
+				BedUtils.writeBedWithIntersection(regionsListA, outputFileName + "_A.bed");
 				break;
 			case "b":
-				BedUtils.writeBedWithIntersection(regionsB, outputFileName + "_B.bed");
+				BedUtils.writeBedWithIntersection(regionsListB, outputFileName + "_B.bed");
 				break;
 			case "c":
-				BedUtils.writeBedWithIntersection(regionsA, outputFileName + "_A.bed");
-				BedUtils.writeBedWithIntersection(regionsB, outputFileName + "_B.bed");
+				BedUtils.writeBedWithIntersection(regionsListA, outputFileName + "_A.bed");
+				BedUtils.writeBedWithIntersection(regionsListB, outputFileName + "_B.bed");
 				break;
 			default:
 		}
-		printSummary(aFileName, bFileName, regionsA, regionsB, intersections);
+		printSummary(aFileName, bFileName, regionsListA, regionsListB, intersections);
 	}
 
-	private static void printSummary(String aFileName, String bFileName, Collection<BedInterval> regionsA, Collection<BedInterval> regionsB, Collection<BedInterval> intersections) {
+	private static void printSummary(String aFileName, String bFileName, Collection<BedInterval> regionsA, Collection<BedInterval> regionsB, List<BedInterval> intersections) {
 		long intersectedCount_regionA = regionsA.stream().filter(BedInterval::isIntersected).count();
 		long nonIntersectedCount_regionA = regionsA.stream().filter(r -> !r.isIntersected()).count();
 		long intersectedCount_regionB = regionsB.stream().filter(BedInterval::isIntersected).count();
