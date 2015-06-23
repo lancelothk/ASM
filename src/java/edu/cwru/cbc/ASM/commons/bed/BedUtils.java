@@ -19,12 +19,7 @@ import java.util.*;
 //TODO refactor & unit test
 public class BedUtils {
 	public static List<BedInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
-		return readSingleChromBedRegions(bedFileName, false);
-	}
-
-	public static List<BedInterval> readSingleChromBedRegions(String bedFileName,
-	                                                          boolean readLabel) throws IOException {
-		Map<String, List<BedInterval>> regionsMap = readBedRegions(bedFileName, readLabel);
+		Map<String, List<BedInterval>> regionsMap = readBedRegions(bedFileName);
 		if (regionsMap.size() == 0) {
 			return new ArrayList<>();
 		} else if (regionsMap.size() == 1) {
@@ -34,17 +29,12 @@ public class BedUtils {
 		}
 	}
 
-	public static Map<String, List<BedInterval>> readBedRegions(String bedFileName) throws IOException {
-		return readBedRegions(bedFileName, false);
-	}
-
 	/**
 	 * read Bed format regions.
 	 * Only include first 4 columns: chr, start, end, name.
 	 * And the last column label if readLabel is true.
 	 */
-	public static Map<String, List<BedInterval>> readBedRegions(String bedFileName,
-	                                                            boolean readLabel) throws IOException {
+	public static Map<String, List<BedInterval>> readBedRegions(String bedFileName) throws IOException {
 		return Files.readLines(new File(bedFileName), Charsets.UTF_8,
 				new LineProcessor<Map<String, List<BedInterval>>>() {
 					private Map<String, List<BedInterval>> genomicIntervalMap = new HashMap<>();
@@ -56,31 +46,16 @@ public class BedUtils {
 							// skip column name
 							return true;
 						}
-						if (items.length > 4 && readLabel) {
-							boolean isPositive;
-							switch (line.charAt(line.length() - 1)) {
-								case '+':
-									isPositive = true;
-									break;
-								case '-':
-									isPositive = false;
-									break;
-								case '*':
-									isPositive = false;
-									break;
-								default:
-									throw new RuntimeException("invalid label!\t" + line);
-							}
-							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]), items[3], isPositive), genomicIntervalMap);
-						} else if (items.length >= 4) {
-							// more than 3 columns bed format
-							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
-						} else {
+						if (items.length < 3) {
+							throw new RuntimeException("less than 3 columns in bed file!");
+						} else if (items.length == 3) {
 							// 3 columns bed format
 							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]), ""), genomicIntervalMap);
+						} else {
+							// more than 3 columns bed format
+							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
+									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
 						}
 						return true;
 					}

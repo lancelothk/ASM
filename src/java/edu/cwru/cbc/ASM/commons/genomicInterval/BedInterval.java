@@ -14,13 +14,7 @@ public class BedInterval extends GenomicIntervalBase {
 	private String name;
 	private List<RefCpG> refCpGList;
 	private boolean[] allelePattern;
-	private boolean isPositive;
 	private Set<BedInterval> intersectedRegions;
-
-	public BedInterval(String chr, int start, int end, String name, boolean isPositive) {
-		this(chr, start, end, name);
-		this.isPositive = isPositive;
-	}
 
 	public BedInterval(String chr, int start, int end, String name) {
 		super(chr, start, end);
@@ -30,14 +24,6 @@ public class BedInterval extends GenomicIntervalBase {
 		this.name = name;
 		this.refCpGList = new ArrayList<>();
 		this.intersectedRegions = new HashSet<>();
-	}
-
-	public boolean isPositive() {
-		return isPositive;
-	}
-
-	public void setPositive(boolean isPositive) {
-		this.isPositive = isPositive;
 	}
 
 	public void addIntersectedRegion(BedInterval region) {
