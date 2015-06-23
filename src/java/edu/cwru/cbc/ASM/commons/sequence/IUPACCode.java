@@ -13,16 +13,20 @@ public class IUPACCode {
 	public static final String nucleotideCode_LowerCase = "acgturyswkmbdhvn.-";
 	public static final String aminoAcidCode_UpperCase = "ACDEFGHIKLMNPQRSTVWY";
 	public static final String aminoAcidCode_LowerCase = "acdefghiklmnpqrstvwy";
+	private static final Pattern nucleotideCode_pattern = Pattern.compile(
+			"[^" + Pattern.quote(nucleotideCode_UpperCase + nucleotideCode_LowerCase) + "]");
+	private static final Pattern aminoAcidCode_pattern = Pattern.compile(
+			"[^" + Pattern.quote(aminoAcidCode_UpperCase + aminoAcidCode_LowerCase) + "]");
 
 	public static boolean validateNucleotideCode(String sequence) {
-		return validate(sequence, nucleotideCode_UpperCase + nucleotideCode_LowerCase);
+		return validate(nucleotideCode_pattern, sequence);
 	}
 
 	public static boolean validateAminoAcidCode(String sequence) {
-		return validate(sequence, aminoAcidCode_UpperCase + aminoAcidCode_LowerCase);
+		return validate(aminoAcidCode_pattern, sequence);
 	}
 
-	private static boolean validate(String sequence, String code) {
-		return !Pattern.compile("[^" + Pattern.quote(code) + "]").matcher(sequence).find();
+	private static boolean validate(Pattern pattern, String sequence) {
+		return !pattern.matcher(sequence).find();
 	}
 }
