@@ -105,8 +105,6 @@ remotes {
     }
     osc {
         host = 'oakley.osc.edu'
-        user = 'cwr0411'
-        identity = file('/home/lancelothk/.ssh/id_rsa')
     }
 }
 
@@ -150,10 +148,10 @@ task updateBin(dependsOn: installDist) {
 }
 
 
-task updateAll(dependsOn: installDist) {
+task updateInstall(dependsOn: installDist) {
     group = 'update'
     doLast {
-        if (!installDist.state.skipped) {
+        if (installDist.state.skipped == false) {
             def userName = System.getProperty('user.name')
             if (userName == "kehu") {
                 copy {
