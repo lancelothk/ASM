@@ -11,6 +11,7 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import edu.cwru.cbc.ASM.detect.dataType.*;
 import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -61,7 +62,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// load input
 		String reference = IOUtils.readRefFromIntervalReadsFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
-		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
 		// filter out reads which covers no CpG sites
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
 				.readLines(new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));

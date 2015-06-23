@@ -9,6 +9,7 @@ import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -16,7 +17,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
@@ -57,7 +57,10 @@ public class CPMR_Pgm {
 
 		// load mapped reads
 		start = System.currentTimeMillis();
-		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
 				new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));
 		System.out.println(

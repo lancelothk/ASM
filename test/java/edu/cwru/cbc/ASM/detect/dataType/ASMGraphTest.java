@@ -6,6 +6,7 @@ import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.Test;
 
@@ -13,7 +14,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 import static org.testng.AssertJUnit.assertEquals;
@@ -34,8 +34,10 @@ public class ASMGraphTest {
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
 				.readLines(new MappedReadLineProcessor());
-		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(
-				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);

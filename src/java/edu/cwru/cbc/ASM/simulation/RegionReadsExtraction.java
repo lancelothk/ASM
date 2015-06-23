@@ -7,6 +7,7 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -35,7 +36,9 @@ public class RegionReadsExtraction {
 
         File outputFolderFile = new File(outputFolder);
         if (!outputFolderFile.exists()) {
-            outputFolderFile.mkdir();
+	        if (!outputFolderFile.mkdir()) {
+		        throw new RuntimeException("failed to create folder\t" + outputFolder);
+	        }
         }
 
         BufferedReader readReader = new BufferedReader(new FileReader(inputReadsPath));
@@ -46,7 +49,10 @@ public class RegionReadsExtraction {
 
         RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(refChr.getRefString(), 0);
-        Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+	    TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+	    for (RefCpG refCpG : refCpGList) {
+		    refMap.put(refCpG.getPos(), refCpG);
+	    }
 
         List<BedInterval> targetRegions = BedUtils.readSingleChromBedRegions(
                 targetRegionFile);

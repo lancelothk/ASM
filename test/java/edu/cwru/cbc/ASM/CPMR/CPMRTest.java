@@ -5,13 +5,12 @@ import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,8 +42,10 @@ public class CPMRTest {
 		mlp.processLine("20\t+\t4\t7\tTGTG\t4");
 		mlp.processLine("20\t+\t6\t9\tTGTG\t5");
 		List<MappedRead> mappedReadList = mlp.getResult();
-		Map<Integer, RefCpG> refCpGMap = refCpGList.stream().collect(
-				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		TIntObjectHashMap<RefCpG> refCpGMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refCpGMap.put(refCpG.getPos(), refCpG);
+		}
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refCpGMap));
 
 		CPMR cpmr = new CPMR(refCpGList, refChr, 2, 3, 4, 0.2);
@@ -72,8 +73,10 @@ public class CPMRTest {
 		mlp.processLine("20\t+\t8\t11\tCGCG\t4");
 		mlp.processLine("20\t+\t0\t3\tCGCG\t5");
 		List<MappedRead> mappedReadList = mlp.getResult();
-		Map<Integer, RefCpG> refCpGMap = refCpGList.stream().collect(
-				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		TIntObjectHashMap<RefCpG> refCpGMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refCpGMap.put(refCpG.getPos(), refCpG);
+		}
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refCpGMap));
 
 		CPMR cpmr = new CPMR(refCpGList, refChr, 2, 2, 2, 0.2);

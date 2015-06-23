@@ -4,13 +4,13 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -22,8 +22,12 @@ public class VertexTest {
 	@BeforeMethod
 	public void setUp() throws Exception {
 		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", 1);
-		mappedRead.generateCpGsInRead(MethylationUtils.extractCpGSite("ACGCGTGCAG", 0).stream().collect(
-				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG)));
+		List<RefCpG> refCpGList = MethylationUtils.extractCpGSite("ACGCGTGCAG", 0);
+		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
+		mappedRead.generateCpGsInRead(refMap);
 		vertex = new Vertex(mappedRead);
 	}
 

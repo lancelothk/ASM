@@ -8,6 +8,7 @@ import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.*;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -78,7 +79,10 @@ public class SimulationPgm {
 		attachRefCpGToRegions(refCpGList, targetRegionsMap, nonASMRegions);
 
 		// read input sequences
-		Map<Integer, RefCpG> refMap = refCpGList.stream().collect(Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
 		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
 				.readLines(new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) >= 0));
 		System.out.println("load reads finished");

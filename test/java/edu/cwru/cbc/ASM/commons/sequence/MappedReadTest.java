@@ -3,21 +3,21 @@ package edu.cwru.cbc.ASM.commons.sequence;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 
 public class MappedReadTest {
-	private Map<Integer, RefCpG> refCpGMap;
+	private TIntObjectHashMap<RefCpG> refCpGMap;
 
 	@BeforeMethod
 	public void setUp() throws Exception {
-		refCpGMap = MethylationUtils.extractCpGSite("CGATCGACGACG", 0).stream().collect(
-				Collectors.toMap(RefCpG::getPos, refCpG -> refCpG));
+		refCpGMap = new TIntObjectHashMap<>();
+		for (RefCpG refCpG : MethylationUtils.extractCpGSite("CGATCGACGACG", 0)) {
+			refCpGMap.put(refCpG.getPos(), refCpG);
+		}
 	}
 
 	@Test

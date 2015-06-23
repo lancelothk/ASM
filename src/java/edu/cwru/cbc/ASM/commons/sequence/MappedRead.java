@@ -4,8 +4,12 @@ import com.google.common.base.Strings;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by lancelothk on 11/12/14.
@@ -31,7 +35,7 @@ public class MappedRead implements Comparable<MappedRead> {
 	/**
 	 * This method associate RefCpG <-> CpG <-> MappedRead
 	 */
-	public int generateCpGsInRead(Map<Integer, RefCpG> refMap) {
+	public int generateCpGsInRead(TIntObjectHashMap<RefCpG> refMap) {
 		int start = this.strand == '+' ? this.getStart() : this.getStart() - 1;
 		int end = this.strand == '+' ? this.getEnd() : this.getEnd() - 1;
 		for (int i = start; i <= end; i++) {
