@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.commons.methylation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by lancelothk on 5/27/14.
@@ -129,6 +130,19 @@ public class RefCpG implements Comparable<RefCpG> {
 	@Override
 	public int compareTo(RefCpG o) {
 		return this.getPos() - o.getPos();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof RefCpG)) return false;
+		RefCpG refCpG = (RefCpG) o;
+		return Objects.equals(pos, refCpG.pos);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(pos);
 	}
 
 	public int getPos() {

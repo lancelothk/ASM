@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.detect.dataType;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -21,6 +22,19 @@ public class ClusterRefCpG implements Comparable<ClusterRefCpG> {
 	@Override
 	public int compareTo(ClusterRefCpG o) {
 		return this.pos - o.pos;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ClusterRefCpG)) return false;
+		ClusterRefCpG that = (ClusterRefCpG) o;
+		return Objects.equals(pos, that.pos);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(pos);
 	}
 
 	public int getClusterCount() {

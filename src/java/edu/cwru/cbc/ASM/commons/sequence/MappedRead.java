@@ -5,10 +5,7 @@ import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lancelothk on 11/12/14.
@@ -214,5 +211,18 @@ public class MappedRead implements Comparable<MappedRead> {
 			return endCompare;
 		}
 		return Integer.compare(this.getId(), other.getId());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof MappedRead)) return false;
+		MappedRead that = (MappedRead) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }

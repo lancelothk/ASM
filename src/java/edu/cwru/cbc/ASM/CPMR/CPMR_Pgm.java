@@ -45,9 +45,9 @@ public class CPMR_Pgm {
 		String mappedReadFileName = cmd.getOptionValue("m");
 		String outputPath = cmd.getOptionValue("o");
 		double partial_methyl_threshold = Double.valueOf(cmd.getOptionValue("p"));
-		int min_cpg_coverage = Integer.valueOf(cmd.getOptionValue("mcc"));
-		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
-		int min_interval_reads = Integer.valueOf(cmd.getOptionValue("mir"));
+		int min_cpg_coverage = Integer.parseInt(cmd.getOptionValue("mcc"));
+		int min_interval_cpg = Integer.parseInt(cmd.getOptionValue("mic"));
+		int min_interval_reads = Integer.parseInt(cmd.getOptionValue("mir"));
 
 		// load reference
 		long start = System.currentTimeMillis();

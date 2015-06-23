@@ -56,14 +56,14 @@
         <entry key="ConfusionBetweenInheritedAndOuterMethod" value="true" />
         <entry key="CovariantArrayAssignment" value="false" />
         <entry key="CrossSiteScripting" value="true" />
-        <entry key="DefaultEncodingDetector" value="true" />
+        <entry key="DefaultEncodingDetector" value="false" />
         <entry key="DoInsideDoPrivileged" value="true" />
         <entry key="DontCatchIllegalMonitorStateException" value="true" />
         <entry key="DontIgnoreResultOfPutIfAbsent" value="true" />
         <entry key="DontUseEnum" value="true" />
         <entry key="DroppedException" value="true" />
         <entry key="DumbMethodInvocations" value="true" />
-        <entry key="DumbMethods" value="true" />
+        <entry key="DumbMethods" value="false" />
         <entry key="DuplicateBranches" value="true" />
         <entry key="EmptyZipFileEntry" value="false" />
         <entry key="EqualsOperandShouldHaveClassCompatibleWithThis" value="true" />
@@ -206,7 +206,7 @@
         <entry key="BAD_PRACTICE" value="true" />
         <entry key="CORRECTNESS" value="true" />
         <entry key="EXPERIMENTAL" value="true" />
-        <entry key="I18N" value="true" />
+        <entry key="I18N" value="false" />
         <entry key="MALICIOUS_CODE" value="true" />
         <entry key="MT_CORRECTNESS" value="true" />
         <entry key="PERFORMANCE" value="true" />

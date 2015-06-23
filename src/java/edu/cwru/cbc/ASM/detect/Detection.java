@@ -34,7 +34,7 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * ASM Detection with whole read info.
  */
 public class Detection implements Callable<IntervalDetectionSummary> {
-	private final int ALIGN_COL_SIZE = 12;
+	private static final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
 	private String chr;
 	private int startPos;

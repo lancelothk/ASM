@@ -42,6 +42,10 @@ public class IOUtils {
 	public static String readRefFromIntervalReadsFile(File inputFile) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
 		String line = bufferedReader.readLine();
+		bufferedReader.close();
+		if (line == null) {
+			throw new RuntimeException("file is empty!" + inputFile.getName());
+		}
 		String[] items = line.split("\t");
 		if (items.length != 2 || !items[0].contains("ref")) {
 			throw new RuntimeException(

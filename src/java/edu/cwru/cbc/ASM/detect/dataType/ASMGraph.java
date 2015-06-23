@@ -31,7 +31,7 @@ public class ASMGraph {
 		for (int i = 0; i < mappedReadList.size(); i++) {
 			for (int j = i + 1; j < mappedReadList.size(); j++) {
 				double score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
-				if (score != Double.MIN_VALUE) {
+				if (Double.compare(score, Double.MIN_VALUE) != 0) {
 					int idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
 					if (!vertexMap.containsKey(idI)) {
 						vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
