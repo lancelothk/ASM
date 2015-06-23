@@ -4,7 +4,7 @@ package edu.cwru.cbc.ASM.commons.genomicInterval;
  * Created by kehu on 3/27/15.
  * Base class of Genomic interval.
  */
-public class GenomicIntervalBase implements Comparable<GenomicIntervalBase> {
+public abstract class GenomicIntervalBase implements Comparable<GenomicIntervalBase> {
 	protected String chr;
 	protected int start;
 	protected int end;
@@ -27,7 +27,6 @@ public class GenomicIntervalBase implements Comparable<GenomicIntervalBase> {
 		return end;
 	}
 
-	// TODO add unit test for compareTo
 	@Override
 	public int compareTo(GenomicIntervalBase o) {
 		int chrCompare = this.chr.compareTo(o.chr);
