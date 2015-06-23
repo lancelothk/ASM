@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.commons.io;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
@@ -17,6 +18,7 @@ import java.util.function.Predicate;
  * Mapped reads start pos is 0-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
+	private static final Splitter tabSplitter = Splitter.on("\t");
 	protected LinkedHashMap<Integer, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
 	protected Predicate<MappedRead> criteria;
 
@@ -49,24 +51,25 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 	}
 
 	private MappedRead processRead(String line) {
-		String[] items = line.split("\t");
-		if (!items[1].equals("+") && !items[1].equals("-")) {
+		List<String> itemList = tabSplitter.splitToList(line);
+		if (itemList.size() != 6 & itemList.size() != 7) {
+			throw new RuntimeException("columns is not correct for mapped read format in line:\t" + line);
+		}
+		if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
 			throw new RuntimeException("invalid strand! in line:\t" + line);
 		}
-		int start = Integer.parseInt(items[2]);// mapped read is 0 based start.
+		int start = Integer.parseInt(itemList.get(2));// mapped read is 0 based start.
 
-		if (!IUPACCode.validateNucleotideCode(items[4])) {
+		if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
 			throw new RuntimeException("invalid character in sequence!\t" + line);
 		}
 		MappedRead mappedRead;
-		if (items.length == 6) {
-			// for h1/i90 dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], Integer.parseInt(items[5]));
-		} else if (items.length == 7) {
-			// for h9 dataset
-			mappedRead = new MappedRead(items[0], items[1].charAt(0), start, items[4], Integer.parseInt(items[6]));
+		if (itemList.size() == 6) {
+			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0), start, itemList.get(4),
+					Integer.parseInt(itemList.get(5)));
 		} else {
-			throw new RuntimeException("columns is not correct for mapped read format in line:\t" + line);
+			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0), start, itemList.get(4),
+					Integer.parseInt(itemList.get(6)));
 		}
 		return mappedRead;
 	}
