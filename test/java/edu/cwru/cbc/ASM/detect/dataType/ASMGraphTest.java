@@ -6,7 +6,8 @@ import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.Test;
 
@@ -34,7 +35,7 @@ public class ASMGraphTest {
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
 				.readLines(new MappedReadLineProcessor());
-		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}

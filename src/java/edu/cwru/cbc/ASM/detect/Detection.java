@@ -11,7 +11,8 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import edu.cwru.cbc.ASM.detect.dataType.*;
 import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
@@ -62,7 +63,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// load input
 		String reference = IOUtils.readRefFromIntervalReadsFile(inputFile);
 		List<RefCpG> refCpGList = extractCpGSite(reference, startPos);
-		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}

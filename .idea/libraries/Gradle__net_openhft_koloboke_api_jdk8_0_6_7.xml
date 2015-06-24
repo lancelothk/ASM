@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: net.openhft:koloboke-api-jdk8:0.6.7">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.openhft/koloboke-api-jdk8/0.6.7/6ea15563b1aeeaa24cc98eb4464b7cef51cd7f3d/koloboke-api-jdk8-0.6.7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.openhft/koloboke-api-jdk8/0.6.7/fd1de63f18f290df74449f58b64653c93ab770e/koloboke-api-jdk8-0.6.7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

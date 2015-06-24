@@ -3,18 +3,19 @@ package edu.cwru.cbc.ASM.commons.sequence;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
 public class MappedReadTest {
-	private TIntObjectHashMap<RefCpG> refCpGMap;
+	private HashIntObjMap<RefCpG> refCpGMap;
 
 	@BeforeMethod
 	public void setUp() throws Exception {
-		refCpGMap = new TIntObjectHashMap<>();
+		refCpGMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : MethylationUtils.extractCpGSite("CGATCGACGACG", 0)) {
 			refCpGMap.put(refCpG.getPos(), refCpG);
 		}

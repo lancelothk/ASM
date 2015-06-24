@@ -9,7 +9,8 @@ import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -57,7 +58,7 @@ public class CPMR_Pgm {
 
 		// load mapped reads
 		start = System.currentTimeMillis();
-		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}

@@ -8,7 +8,8 @@ import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.*;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -79,7 +80,7 @@ public class SimulationPgm {
 		attachRefCpGToRegions(refCpGList, targetRegionsMap, nonASMRegions);
 
 		// read input sequences
-		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}

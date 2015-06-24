@@ -5,7 +5,8 @@ import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -42,7 +43,7 @@ public class CPMRTest {
 		mlp.processLine("20\t+\t4\t7\tTGTG\t4");
 		mlp.processLine("20\t+\t6\t9\tTGTG\t5");
 		List<MappedRead> mappedReadList = mlp.getResult();
-		TIntObjectHashMap<RefCpG> refCpGMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refCpGMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refCpGMap.put(refCpG.getPos(), refCpG);
 		}
@@ -73,7 +74,7 @@ public class CPMRTest {
 		mlp.processLine("20\t+\t8\t11\tCGCG\t4");
 		mlp.processLine("20\t+\t0\t3\tCGCG\t5");
 		List<MappedRead> mappedReadList = mlp.getResult();
-		TIntObjectHashMap<RefCpG> refCpGMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refCpGMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refCpGMap.put(refCpG.getPos(), refCpG);
 		}

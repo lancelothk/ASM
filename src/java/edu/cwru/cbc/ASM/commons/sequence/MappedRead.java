@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,16 +35,17 @@ public class MappedRead implements Comparable<MappedRead> {
 	/**
 	 * This method associate RefCpG <-> CpG <-> MappedRead
 	 */
-	public int generateCpGsInRead(TIntObjectHashMap<RefCpG> refMap) {
+	public int generateCpGsInRead(HashIntObjMap<RefCpG> refMap) {
 		int start = this.strand == '+' ? this.getStart() : this.getStart() - 1;
 		int end = this.strand == '+' ? this.getEnd() : this.getEnd() - 1;
 		for (int i = start; i <= end; i++) {
 			if (refMap.containsKey(i)) {
 				MethylStatus methylStatus = this.getMethylStatus(i);
-				if (methylStatus != MethylStatus.N) {
-					CpG cpg = new CpG(this, refMap.get(i), methylStatus);
+				RefCpG refCpG = refMap.get(i);
+				if (refCpG != null && methylStatus != MethylStatus.N) {
+					CpG cpg = new CpG(this, refCpG, methylStatus);
 					this.cpgList.add(cpg);
-					refMap.get(i).addCpG(cpg);
+					refCpG.addCpG(cpg);
 					i++;
 				}
 			}

@@ -7,7 +7,8 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -49,8 +50,8 @@ public class RegionReadsExtraction {
 
         RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
         List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(refChr.getRefString(), 0);
-	    TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
-	    for (RefCpG refCpG : refCpGList) {
+        HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+        for (RefCpG refCpG : refCpGList) {
 		    refMap.put(refCpG.getPos(), refCpG);
 	    }
 

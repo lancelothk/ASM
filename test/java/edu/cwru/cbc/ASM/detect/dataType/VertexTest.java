@@ -4,7 +4,8 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -23,7 +24,7 @@ public class VertexTest {
 	public void setUp() throws Exception {
 		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", 1);
 		List<RefCpG> refCpGList = MethylationUtils.extractCpGSite("ACGCGTGCAG", 0);
-		TIntObjectHashMap<RefCpG> refMap = new TIntObjectHashMap<>();
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
