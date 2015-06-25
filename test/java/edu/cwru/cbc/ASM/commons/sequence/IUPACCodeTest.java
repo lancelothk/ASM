@@ -74,22 +74,22 @@ public class IUPACCodeTest {
 
 	@Test(dataProvider = "validNucleotideCode")
 	public void testValidateNucleotideCode(char c) throws Exception {
-		assertTrue(IUPACCode.validateNucleotideCode(c + ""));
+		assertTrue(IUPACCode.validateNucleotideCode(String.valueOf(c)));
 
 	}
 
 	@Test(dataProvider = "invalidNucleotideCode")
 	public void testInvalidNucleotideCode(char c) throws Exception {
-		assertFalse(IUPACCode.validateNucleotideCode(c + ""));
+		assertFalse(IUPACCode.validateNucleotideCode(String.valueOf(c)));
 	}
 
 	@Test(dataProvider = "validAminoAcidCode")
 	public void testValidateAminoAcidCode(char c) throws Exception {
-		assertTrue(IUPACCode.validateAminoAcidCode(c + ""));
+		assertTrue(IUPACCode.validateAminoAcidCode(String.valueOf(c)));
 	}
 
 	@Test(dataProvider = "invalidAminoAcidCode")
 	public void testInvalidAminoAcidCode(char c) throws Exception {
-		assertFalse(IUPACCode.validateAminoAcidCode(c + ""));
+		assertFalse(IUPACCode.validateAminoAcidCode(String.valueOf(c)));
 	}
 }

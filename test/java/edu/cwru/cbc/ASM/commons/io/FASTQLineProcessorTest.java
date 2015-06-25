@@ -98,7 +98,7 @@ public class FASTQLineProcessorTest {
 		flp.processLine("@test");
 		flp.processLine("a");
 		flp.processLine("+test");
-		flp.processLine("" + (char) c);
+		flp.processLine(String.valueOf((char) c));
 	}
 
 
