@@ -82,9 +82,9 @@ public class IntersectRegionsPgm {
 		long nonIntersectedCount_regionA = regionsA.stream().filter(r -> !r.isIntersected()).count();
 		long intersectedCount_regionB = regionsB.stream().filter(BedInterval::isIntersected).count();
 		long nonIntersectedCount_regionB = regionsB.stream().filter(r -> !r.isIntersected()).count();
-		int intersectionLength = intersections.stream().mapToInt(BedInterval::length).sum();
-		int totalLengthRegionA = regionsA.stream().mapToInt(BedInterval::length).sum();
-		int totalLengthRegionB = regionsB.stream().mapToInt(BedInterval::length).sum();
+		long intersectionLength = intersections.stream().mapToLong(BedInterval::length).sum();
+		long totalLengthRegionA = regionsA.stream().mapToLong(BedInterval::length).sum();
+		long totalLengthRegionB = regionsB.stream().mapToLong(BedInterval::length).sum();
 
 		System.out.println(Strings.padStart("", 80, '*'));
 		System.out.printf("A is %s\n", aFileName);
