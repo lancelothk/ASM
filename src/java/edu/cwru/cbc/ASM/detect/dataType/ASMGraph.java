@@ -86,7 +86,7 @@ public class ASMGraph {
 			}
 
 			List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
-			// if max weight <= 0, stop merge.
+			// if max weight < 0, stop merge.
 			if (maxEdgeList.get(0).getWeight() < 0) {
 				break;
 			} else {
