@@ -35,7 +35,7 @@ public class BedInterval extends GenomicIntervalBase {
 	}
 
 	public boolean isIntersected() {
-		return intersectedRegions.size() != 0;
+		return intersectedRegions.size() > 0;
 	}
 
 	public String getName() {
