@@ -42,7 +42,7 @@ public class BedUtils {
 					@Override
 					public boolean processLine(String line) throws IOException {
 						String[] items = line.split("\t");
-						if (items[0].equals("chr") || line.equals("")) {
+						if (items[0].equals("chr") || line.equals("") || items[0].startsWith("#")) {
 							// skip column name
 							return true;
 						}
