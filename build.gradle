@@ -73,6 +73,7 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("intersect", "edu.cwru.cbc.ASM.tools.IntersectRegionsPgm").execute()
     buildStartScript("simulate", "edu.cwru.cbc.ASM.tools.simulation.SimulationPgm").execute()
     buildStartScript("visualize", "edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm").execute()
+    buildStartScript("bedMerge", "edu.cwru.cbc.ASM.tools.MergeBedRegion").execute()
 }
 
 distributions {

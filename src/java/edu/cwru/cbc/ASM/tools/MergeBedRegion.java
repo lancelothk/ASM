@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.tools;
 
 import edu.cwru.cbc.ASM.commons.bed.BedUtils;
 import edu.cwru.cbc.ASM.commons.genomicInterval.BedInterval;
+import org.apache.commons.cli.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,9 +17,18 @@ import java.util.stream.Collectors;
  */
 public class MergeBedRegion {
 
-	public static void main(String[] args) throws IOException {
-		int range = 1000;
-		String bedFileName = "/home/lancelothk/result/h1.detection.summary.combined.chr.bed";
+	public static void main(String[] args) throws IOException, ParseException {
+		Options options = new Options();
+		options.addOption(Option.builder("i").hasArg().desc("input bed file").build());
+		options.addOption(Option.builder("r").hasArg().desc("range to merge").build());
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse(options, args);
+		String bedFileName = cmd.getOptionValue("i");
+		int range = Integer.parseInt(cmd.getOptionValue("r"));
+		execute(range, bedFileName);
+	}
+
+	private static void execute(int range, String bedFileName) throws IOException {
 		Map<String, List<BedInterval>> bedRegionMap = BedUtils.readBedRegions(bedFileName);
 		mergeBedRegions(bedRegionMap, range);
 		BedUtils.writeBedRegions(bedRegionMap.values()
@@ -27,6 +37,7 @@ public class MergeBedRegion {
 				.sorted(BedInterval::compareTo)
 				.collect(Collectors.toList()), bedFileName + ".merged");
 	}
+
 
 	private static void mergeBedRegions(Map<String, List<BedInterval>> bedRegionMap, int range) {
 		for (Map.Entry<String, List<BedInterval>> bedRegionListEntry : bedRegionMap.entrySet()) {
@@ -37,7 +48,7 @@ public class MergeBedRegion {
 				BedInterval next = iter.next();
 				if (next.getStart() - curr.getEnd() <= range) {
 					curr.setEnd(next.getEnd());
-//					curr.setName(curr.getName() + "," + next.getName());
+					curr.setName(curr.getName() + "," + next.getName());
 					iter.remove();
 				} else {
 					curr = next;
