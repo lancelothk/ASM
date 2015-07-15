@@ -1,7 +1,6 @@
 package edu.cwru.cbc.ASM.commons.genomicInterval;
 
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,9 +17,6 @@ public class BedInterval extends GenomicIntervalBase {
 
 	public BedInterval(String chr, int start, int end, String name) {
 		super(chr, start, end);
-		if (!chr.startsWith("chr") && NumberUtils.isNumber(chr)) {
-			this.chr = "chr" + chr;
-		}
 		this.name = name;
 		this.refCpGList = new ArrayList<>();
 		this.intersectedRegions = new HashSet<>();
