@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
 	private static final Splitter tabSplitter = Splitter.on("\t");
-	protected LinkedHashMap<Integer, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
+	protected LinkedHashMap<String, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
 	protected Predicate<MappedRead> criteria;
 
 	public MappedReadLineProcessor() {
@@ -52,24 +52,42 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 
 	private MappedRead processRead(String line) {
 		List<String> itemList = tabSplitter.splitToList(line);
-		if (itemList.size() != 6 & itemList.size() != 7) {
-			throw new RuntimeException("columns is not correct for mapped read format in line:\t" + line);
-		}
-		if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
-			throw new RuntimeException("invalid strand! in line:\t" + line);
-		}
-		int start = Integer.parseInt(itemList.get(2));// mapped read is 0 based start.
-
-		if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
-			throw new RuntimeException("invalid character in sequence!\t" + line);
-		}
 		MappedRead mappedRead;
 		if (itemList.size() == 6) {
-			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0), start, itemList.get(4),
-					Integer.parseInt(itemList.get(5)));
+			if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
+				throw new RuntimeException("invalid strand! in line:\t" + line);
+			}
+			if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
+				throw new RuntimeException("invalid character in sequence!\t" + line);
+			}
+			// h1, i90
+			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0), Integer.parseInt(itemList.get(2)),
+					itemList.get(4),
+					itemList.get(5));
+		} else if (itemList.size() == 7) {
+			if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
+				throw new RuntimeException("invalid strand! in line:\t" + line);
+			}
+			if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
+				throw new RuntimeException("invalid character in sequence!\t" + line);
+			}
+			// ads
+			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0), Integer.parseInt(itemList.get(2)),
+					itemList.get(4),
+					itemList.get(6));
+		} else if (itemList.size() == 10) {
+			if (!itemList.get(4).equals("+") && !itemList.get(4).equals("-")) {
+				throw new RuntimeException("invalid strand! in line:\t" + line);
+			}
+			if (!IUPACCode.validateNucleotideCode(itemList.get(8))) {
+				throw new RuntimeException("invalid character in sequence!\t" + line);
+			}
+			// ff, h9_laurent
+			mappedRead = new MappedRead(itemList.get(3), itemList.get(4).charAt(0), Integer.parseInt(itemList.get(5)),
+					itemList.get(8),
+					itemList.get(6));
 		} else {
-			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0), start, itemList.get(4),
-					Integer.parseInt(itemList.get(6)));
+			throw new RuntimeException("incompatible format detected! column number is " + itemList.size());
 		}
 		return mappedRead;
 	}

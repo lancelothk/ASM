@@ -16,14 +16,14 @@ import java.util.Objects;
  * Used to represent mapped read.
  */
 public class MappedRead implements Comparable<MappedRead> {
-	private final int id;
+	private final String id;
 	private final String sequence;
 	private final String chr;
 	private final char strand;
 	private int start;
 	private List<CpG> cpgList;
 
-	public MappedRead(String chr, char strand, int start, String sequence, int id) {
+	public MappedRead(String chr, char strand, int start, String sequence, String id) {
 		this.id = id;
 		this.sequence = sequence;
 		this.chr = chr;
@@ -197,7 +197,7 @@ public class MappedRead implements Comparable<MappedRead> {
 		return strand;
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -215,7 +215,7 @@ public class MappedRead implements Comparable<MappedRead> {
 		if (endCompare != 0) {
 			return endCompare;
 		}
-		return Integer.compare(this.getId(), other.getId());
+		return this.getId().compareTo(other.getId());
 	}
 
 	@Override

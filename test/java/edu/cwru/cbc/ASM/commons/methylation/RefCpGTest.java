@@ -24,11 +24,11 @@ public class RefCpGTest {
 		rc2 = new RefCpG(2);
 		rc3 = new RefCpG(4);
 
-		MappedRead mappedRead1 = new MappedRead("test", '+', 0, "TG", 1);
-		MappedRead mappedRead2 = new MappedRead("test", '+', 0, "TGTG", 2);
-		MappedRead mappedRead3 = new MappedRead("test", '+', 2, "CGNG", 2);
-		MappedRead mappedRead4 = new MappedRead("test", '+', 2, "CG", 2);
-		MappedRead mappedRead5 = new MappedRead("test", '+', 4, "TG", 2);
+		MappedRead mappedRead1 = new MappedRead("test", '+', 0, "TG", "1");
+		MappedRead mappedRead2 = new MappedRead("test", '+', 0, "TGTG", "2");
+		MappedRead mappedRead3 = new MappedRead("test", '+', 2, "CGNG", "3");
+		MappedRead mappedRead4 = new MappedRead("test", '+', 2, "CG", "4");
+		MappedRead mappedRead5 = new MappedRead("test", '+', 4, "TG", "5");
 
 		CpG ca = new CpG(mappedRead1, rc1, MethylStatus.T);
 		rc1.addCpG(ca);

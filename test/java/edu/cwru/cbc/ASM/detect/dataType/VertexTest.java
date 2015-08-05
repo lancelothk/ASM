@@ -22,7 +22,7 @@ public class VertexTest {
 
 	@BeforeMethod
 	public void setUp() throws Exception {
-		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", 1);
+		mappedRead = new MappedRead("test", '+', 0, "ACGTGTGCAG", "1");
 		List<RefCpG> refCpGList = MethylationUtils.extractCpGSite("ACGCGTGCAG", 0);
 		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
