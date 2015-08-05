@@ -1,5 +1,7 @@
 package edu.cwru.cbc.ASM.tools.conversion;
 
+import org.apache.commons.cli.*;
+
 import java.io.*;
 import java.util.logging.Logger;
 
@@ -10,9 +12,15 @@ import java.util.logging.Logger;
 public class SplitFileByChr {
 	private static final Logger logger = Logger.getLogger(SplitFileByChr.class.getName());
 
-	public static void main(String[] args) throws IOException {
-		String inputFileName = "/media/ke/win-data/Dataset/WholeGenomeMethylation/reads_bs_i90_r1.mapped";
-		String outputFilePath = "/media/ke/win-data/Dataset/WholeGenomeMethylation/i90_r1/";
+	public static void main(String[] args) throws IOException, ParseException {
+		Options options = new Options();
+		options.addOption(Option.builder("i").hasArg().desc("input file").build());
+		options.addOption(Option.builder("o").hasArg().desc("output path").build());
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse(options, args);
+
+		String inputFileName = cmd.getOptionValue("a");
+		String outputFilePath = cmd.getOptionValue("b");
 		split(inputFileName, outputFilePath);
 	}
 
