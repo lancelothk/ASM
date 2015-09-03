@@ -76,6 +76,7 @@ public class Vertex {
 		for (MappedRead mappedRead : mappedReadList) {
 			for (CpG cpG : mappedRead.getCpgList()) {
 				MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
+				// TODO currently don't consider N as mis-align
 				assert cpG.getMethylStatus() != MethylStatus.N;
 				assert refMethylStatus != MethylStatus.N;
 				if (refMethylStatus == MethylStatus.E) {
