@@ -319,8 +319,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {
 		NormalDistribution stdNorm = new NormalDistribution(0, 1);
 		double z = twoClusterRefCpGList.stream()
-				.mapToDouble(refCpG -> stdNorm.inverseCumulativeProbability(1 - refCpG.getP_value()))
-				.sum() / Math.sqrt(twoClusterRefCpGList.size());
+				.mapToDouble(refCpG -> refCpG.getP_value() == 1 ? 0 : stdNorm.inverseCumulativeProbability(
+						1 - refCpG.getP_value())).sum() / Math.sqrt(twoClusterRefCpGList.size());
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
