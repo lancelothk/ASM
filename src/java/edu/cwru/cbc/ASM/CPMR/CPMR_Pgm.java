@@ -35,6 +35,7 @@ public class CPMR_Pgm {
 		options.addOption("m", true, "MappedRead File");
 		options.addOption("o", true, "Output Path");
 		options.addOption("p", true, "Partial methylation threshold");
+		options.addOption("pe", false, "pair end mode");
 		options.addOption("mcc", true, "Minimum adjacent CpG coverage");
 		options.addOption("mic", true, "Minimum interval CpG number");
 		options.addOption("mir", true, "Minimum interval read number");
@@ -46,6 +47,7 @@ public class CPMR_Pgm {
 		String mappedReadFileName = cmd.getOptionValue("m");
 		String outputPath = cmd.getOptionValue("o");
 		double partial_methyl_threshold = Double.valueOf(cmd.getOptionValue("p"));
+		boolean isPairEnd = cmd.hasOption("pe");
 		int min_cpg_coverage = Integer.parseInt(cmd.getOptionValue("mcc"));
 		int min_interval_cpg = Integer.parseInt(cmd.getOptionValue("mic"));
 		int min_interval_reads = Integer.parseInt(cmd.getOptionValue("mir"));
@@ -63,7 +65,7 @@ public class CPMR_Pgm {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));
+				new MappedReadLineProcessor(isPairEnd, mr -> mr.generateCpGsInRead(refMap) > 0));
 		System.out.println(
 				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 

@@ -85,7 +85,7 @@ public class SimulationPgm {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
 		List<MappedRead> mappedReadList = Files.asCharSource(new File(readsFileName), Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) >= 0));
+				.readLines(new MappedReadLineProcessor(false, mr -> mr.generateCpGsInRead(refMap) >= 0));
 		System.out.println("load reads finished");
 
 		// assign methyl status

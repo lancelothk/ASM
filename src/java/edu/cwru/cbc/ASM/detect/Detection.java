@@ -69,7 +69,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		}
 		// filter out reads which covers no CpG sites
 		List<MappedRead> mappedReadList = Files.asCharSource(inputFile, Charsets.UTF_8)
-				.readLines(new MappedReadLineProcessor(mr -> mr.generateCpGsInRead(refMap) > 0));
+				.readLines(new MappedReadLineProcessor(false, mr -> mr.generateCpGsInRead(refMap) > 0));
 
 		// construct graph
 		ASMGraph graph = new ASMGraph(mappedReadList);

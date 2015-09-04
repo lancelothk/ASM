@@ -25,14 +25,6 @@ public class MappedReadLineProcessorTest {
 	}
 
 	@Test
-	public void test_sevenColumnNumber() throws Exception {
-		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
-		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\teeeeee\t815505";
-		mlp.processLine(mappedReadStr1);
-	}
-
-
-	@Test
 	public void test_readsOrder() throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor();
 		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\t815505";
@@ -59,12 +51,20 @@ public class MappedReadLineProcessorTest {
 
 	@Test
 	public void test_readsFiltering() throws Exception {
-		MappedReadLineProcessor mlp = new MappedReadLineProcessor(mr -> mr.getId().equals("815505"));
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor(false, mr -> mr.getId().equals("815505"));
 		String mappedReadStr1 = "20\t-\t17207806\t17207874\tAAAAAA\t815505";
 		String mappedReadStr2 = "20\t-\t17207806\t17207874\tAAAAAA\t815506";
 		mlp.processLine(mappedReadStr1);
 		mlp.processLine(mappedReadStr2);
 		assertEquals(1, mlp.getResult().size());
 		assertEquals("815505", mlp.getResult().get(0).getId());
+	}
+
+	@Test
+	public void test_pairEnd() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor(true, mr -> mr.getId().equals("815505"));
+		String mappedReadStr1 = "20\t+\t17207806\t17207826\tAAAAAA\tBBBBBB\t815505";
+		mlp.processLine(mappedReadStr1);
+		assertEquals("AAAAAA--------BBBBBB", mlp.getResult().get(0).getSequence());
 	}
 }
