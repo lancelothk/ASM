@@ -125,6 +125,9 @@ public class MappedRead implements Comparable<MappedRead> {
 				case 'N':
 					c = 'N';
 					break;
+				case '-':
+					c = '-';
+					break;
 				default:
 					throw new RuntimeException("invalid character in sequence!");
 			}
