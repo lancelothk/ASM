@@ -18,12 +18,14 @@ public class RegionQueryPgm {
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
-		options.addOption("i", true, "input File");
-		options.addOption("s", true, "start pos");
-		options.addOption("e", true, "end pos(inclusive)");
+		options.addOption(Option.builder("c").hasArg().desc("chromosome of input").required().build());
+		options.addOption(Option.builder("i").hasArg().desc("input File").required().build());
+		options.addOption(Option.builder("s").hasArg().desc("start").required().build());
+		options.addOption(Option.builder("e").hasArg().desc("end").required().build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String inputFileName = cmd.getOptionValue("i");
+		String inputChr = cmd.getOptionValue("c");
 		int startPos = Integer.parseInt(cmd.getOptionValue("s"));
 		int endPos = Integer.parseInt(cmd.getOptionValue("e"));
 
@@ -37,10 +39,11 @@ public class RegionQueryPgm {
 			@Override
 			public boolean processLine(String line) throws IOException {
 				List<String> itemList = tabSplitter.splitToList(line);
-				int pos = Integer.parseInt(itemList.get(0));
-				int coverage = Integer.parseInt(itemList.get(1));
-				double methylLevel = Double.parseDouble(itemList.get(3));
-				if (pos >= startPos && pos <= endPos && coverage > 0) {
+				String chr = itemList.get(0);
+				int pos = Integer.parseInt(itemList.get(1));
+				int coverage = Integer.parseInt(itemList.get(2));
+				double methylLevel = Double.parseDouble(itemList.get(4));
+				if (inputChr.equals(chr) && pos >= startPos && pos <= endPos && coverage > 0) {
 					CpGCount++;
 					avgCoverage += coverage;
 					avgmethylLevel += methylLevel;

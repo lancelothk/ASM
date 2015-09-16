@@ -30,11 +30,14 @@ public class MethylStatPgm {
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
-		options.addOption("r", true, "Reference File");
-		options.addOption("m", true, "MappedRead File");
-		options.addOption("o", true, "Output File");
+		options.addOption(Option.builder("c").hasArg().desc("chromosome of input").required().build());
+		options.addOption(Option.builder("r").hasArg().desc("Reference File").required().build());
+		options.addOption(Option.builder("m").hasArg().desc("MappedRead File").required().build());
+		options.addOption(Option.builder("o").hasArg().desc("Output File").required().build());
+//		options.addOption(Option.builder("p").desc("pair end mode").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
+		String chr = cmd.getOptionValue("c");
 		String referenceGenomeFileName = cmd.getOptionValue("r");
 		String mappedReadFileName = cmd.getOptionValue("m");
 		String outputFileName = cmd.getOptionValue("o");
@@ -76,7 +79,7 @@ public class MethylStatPgm {
 
 		List<String> resultList = refCpGList.stream()
 				.sorted(RefCpG::compareTo)
-				.map(r -> String.format("%d\t%d\t%d\t%f", r.getPos(), r.getCpGCoverage(), r.getMethylCount(),
+				.map(r -> String.format("%s\t%d\t%d\t%d\t%f", chr, r.getPos(), r.getCpGCoverage(), r.getMethylCount(),
 						r.getMethylLevel()))
 				.collect(Collectors.toList());
 
