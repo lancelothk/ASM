@@ -30,11 +30,12 @@ public class DetectionPgm {
 		long start = System.currentTimeMillis();
 
 		Options options = new Options();
-		options.addOption("i", true, "Input intervals folder or interval file name");
-		options.addOption("mic", true, "Minimum interval cpg number");
-		options.addOption("mcc", true, "Minimum adjacent CpG coverage");
-		options.addOption("f", true, "FDR threshold");
-		options.addOption("t", false, "Thread number to execute the program.");
+		options.addOption(
+				Option.builder("i").hasArg().desc("Input intervals folder or interval file name").required().build());
+		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
+		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
+		options.addOption(Option.builder("f").hasArg().desc("FDR threshold").required().build());
+		options.addOption(Option.builder("t").hasArg().desc("Thread number to execute the program").required().build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
