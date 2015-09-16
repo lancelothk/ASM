@@ -76,6 +76,7 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("bedMerge", "edu.cwru.cbc.ASM.tools.MergeBedRegion").execute()
     buildStartScript("parseResult", "edu.cwru.cbc.ASM.tools.ParseResult").execute()
     buildStartScript("MethylStatPgm", "edu.cwru.cbc.ASM.tools.MethylStatPgm").execute()
+    buildStartScript("RegionQueryPgm", "edu.cwru.cbc.ASM.tools.RegionQueryPgm").execute()
 }
 
 distributions {
