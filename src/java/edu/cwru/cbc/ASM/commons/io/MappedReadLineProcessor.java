@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,74 +38,67 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		if (line.startsWith("chr\t") || line.startsWith("ref") || line.startsWith("assembly")) {
 			return true;
 		} else {
-			MappedRead mr = processRead(line);
-			if (mappedReadLinkedHashMap.containsKey(mr.getId())) {
-				throw new RuntimeException("found duplicate mapped read! in line:\t" + line);
-			} else if (criteria.test(mr)) {
-				mappedReadLinkedHashMap.put(mr.getId(), mr);
+			List<String> itemList = tabSplitter.splitToList(line);
+			if (isPairEnd) {
+				if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
+					throw new RuntimeException("invalid strand! in line:\t" + line);
+				}
+				if (!IUPACCode.validateNucleotideCode(itemList.get(4)) || !IUPACCode.validateNucleotideCode(
+						itemList.get(5))) {
+					throw new RuntimeException("invalid character in sequence!\t" + line);
+				}
+				addMappedReadToMap(line, new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+						Integer.parseInt(itemList.get(2)),
+						itemList.get(4),
+						itemList.get(6) + "_1"));
+				addMappedReadToMap(line, new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+						Integer.parseInt(itemList.get(3)) - itemList.get(5).length(),
+						itemList.get(5),
+						itemList.get(6) + "_2"));
+			} else {
+				if (itemList.size() == 6) {
+					if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
+						throw new RuntimeException("invalid strand! in line:\t" + line);
+					}
+					if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
+						throw new RuntimeException("invalid character in sequence!\t" + line);
+					}
+					// h1, i90
+					addMappedReadToMap(line, new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+							Integer.parseInt(itemList.get(2)),
+							itemList.get(4),
+							itemList.get(5)));
+				} else if (itemList.size() == 10) {
+					if (!itemList.get(4).equals("+") && !itemList.get(4).equals("-")) {
+						throw new RuntimeException("invalid strand! in line:\t" + line);
+					}
+					if (!IUPACCode.validateNucleotideCode(itemList.get(8))) {
+						throw new RuntimeException("invalid character in sequence!\t" + line);
+					}
+					// ff, h9_laurent
+					addMappedReadToMap(line, new MappedRead(itemList.get(3), itemList.get(4).charAt(0),
+							Integer.parseInt(itemList.get(5)),
+							itemList.get(8),
+							itemList.get(6)));
+				} else {
+					throw new RuntimeException("incompatible format detected! column number is " + itemList.size());
+				}
 			}
 			return true;
+		}
+	}
+
+	private void addMappedReadToMap(String line, MappedRead mappedRead) {
+		if (mappedReadLinkedHashMap.containsKey(mappedRead.getId())) {
+			throw new RuntimeException("found duplicate mapped read! in line:\t" + line);
+		} else if (criteria.test(mappedRead)) {
+			mappedReadLinkedHashMap.put(mappedRead.getId(), mappedRead);
 		}
 	}
 
 	@Override
 	public List<MappedRead> getResult() {
 		return new ArrayList<>(mappedReadLinkedHashMap.values());
-	}
-
-	private String combinePERead(String p1, String p2, int length) {
-		StringBuilder sb = new StringBuilder(length);
-		sb.append(p1).append(StringUtils.repeat('-', length - p1.length() - p2.length())).append(p2);
-		return sb.toString();
-	}
-
-	private MappedRead processRead(String line) {
-		List<String> itemList = tabSplitter.splitToList(line);
-		MappedRead mappedRead;
-		if (isPairEnd) {
-			if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
-				throw new RuntimeException("invalid strand! in line:\t" + line);
-			}
-			if (!IUPACCode.validateNucleotideCode(itemList.get(4)) || !IUPACCode.validateNucleotideCode(
-					itemList.get(5))) {
-				throw new RuntimeException("invalid character in sequence!\t" + line);
-			}
-			// h1, i90
-			mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-					Integer.parseInt(itemList.get(2)),
-					combinePERead(itemList.get(4), itemList.get(5),
-							Integer.parseInt(itemList.get(3)) - Integer.parseInt(itemList.get(2))),
-					itemList.get(6));
-		} else {
-			if (itemList.size() == 6) {
-				if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
-					throw new RuntimeException("invalid strand! in line:\t" + line);
-				}
-				if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
-					throw new RuntimeException("invalid character in sequence!\t" + line);
-				}
-				// h1, i90
-				mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-						Integer.parseInt(itemList.get(2)),
-						itemList.get(4),
-						itemList.get(5));
-			} else if (itemList.size() == 10) {
-				if (!itemList.get(4).equals("+") && !itemList.get(4).equals("-")) {
-					throw new RuntimeException("invalid strand! in line:\t" + line);
-				}
-				if (!IUPACCode.validateNucleotideCode(itemList.get(8))) {
-					throw new RuntimeException("invalid character in sequence!\t" + line);
-				}
-				// ff, h9_laurent
-				mappedRead = new MappedRead(itemList.get(3), itemList.get(4).charAt(0),
-						Integer.parseInt(itemList.get(5)),
-						itemList.get(8),
-						itemList.get(6));
-			} else {
-				throw new RuntimeException("incompatible format detected! column number is " + itemList.size());
-			}
-		}
-		return mappedRead;
 	}
 
 }
