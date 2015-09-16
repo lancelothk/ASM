@@ -29,7 +29,11 @@ public class Vertex {
 	public void addCpG(Collection<CpG> cpgList) {
 		cpgList.stream()
 				.filter(cpg -> !refCpGMap.containsKey(cpg.getPos()))
-				.forEach(cpg -> refCpGMap.put(cpg.getPos(), new RefCpG(cpg.getPos(), cpg.getMethylStatus())));
+				.forEach(cpg -> {
+					RefCpG refCpG = new RefCpG(cpg.getPos());
+					refCpG.addCpG(cpg);
+					refCpGMap.put(cpg.getPos(), refCpG);
+				});
 	}
 
 	public void addRefCpG(Collection<RefCpG> refCpgList) {
