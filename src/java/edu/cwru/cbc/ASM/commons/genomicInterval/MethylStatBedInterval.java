@@ -20,18 +20,6 @@ public class MethylStatBedInterval extends GenomicIntervalBase {
 		this.name = name;
 	}
 
-	public void intersect(String chr, int pos, int coverage, double methylLevel) {
-		if (this.chr.equals(chr) && pos >= this.start && pos <= this.end) {
-			if (coverage > 0) {
-				this.coveredCount++;
-				this.sumCoverage += coverage;
-				this.sumMethylLevel += methylLevel;
-				this.weightedSumMethylLevel += coverage * methylLevel;
-			}
-			this.totalCount++;
-		}
-	}
-
 	public void queryRefMap(HashIntObjMap<RefCpGStat> refMap) {
 		if (refMap != null) {
 			for (int i = start; i <= end; i++) {
