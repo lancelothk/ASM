@@ -66,10 +66,10 @@ public class RegionQueryPgm {
 						HashIntObjMap<RefCpGStat> refCpGMap = refMap.get(chr);
 						if (refCpGMap == null) {
 							refCpGMap = HashIntObjMaps.newMutableMap();
-							refCpGMap.put(pos, new RefCpGStat(chr, pos, coverage, methylLevel));
+							refCpGMap.put(pos, new RefCpGStat(pos, coverage, methylLevel));
 							refMap.put(chr, refCpGMap);
 						} else {
-							refCpGMap.put(pos, new RefCpGStat(chr, pos, coverage, methylLevel));
+							refCpGMap.put(pos, new RefCpGStat(pos, coverage, methylLevel));
 						}
 						return true;
 					}
