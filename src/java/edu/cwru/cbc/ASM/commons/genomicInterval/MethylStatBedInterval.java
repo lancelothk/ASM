@@ -33,16 +33,18 @@ public class MethylStatBedInterval extends GenomicIntervalBase {
 	}
 
 	public void queryRefMap(HashIntObjMap<RefCpGStat> refMap) {
-		for (int i = start; i <= end; i++) {
-			RefCpGStat refCpGStat = refMap.get(i);
-			if (refCpGStat != null) {
-				if (refCpGStat.getCoveredCount() > 0) {
-					this.coveredCount++;
-					this.sumCoverage += refCpGStat.getCoveredCount();
-					this.sumMethylLevel += refCpGStat.getMethylLevel();
-					this.weightedSumMethylLevel += refCpGStat.getCoveredCount() * refCpGStat.getMethylLevel();
+		if (refMap != null) {
+			for (int i = start; i <= end; i++) {
+				RefCpGStat refCpGStat = refMap.get(i);
+				if (refCpGStat != null) {
+					if (refCpGStat.getCoveredCount() > 0) {
+						this.coveredCount++;
+						this.sumCoverage += refCpGStat.getCoveredCount();
+						this.sumMethylLevel += refCpGStat.getMethylLevel();
+						this.weightedSumMethylLevel += refCpGStat.getCoveredCount() * refCpGStat.getMethylLevel();
+					}
+					this.totalCount++;
 				}
-				this.totalCount++;
 			}
 		}
 	}
