@@ -18,8 +18,8 @@ public class RegionQueryPgm {
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
-		options.addOption(Option.builder("c").hasArg().desc("chromosome of input").required().build());
 		options.addOption(Option.builder("i").hasArg().desc("input File").required().build());
+		options.addOption(Option.builder("c").hasArg().desc("chromosome of input").required().build());
 		options.addOption(Option.builder("s").hasArg().desc("start").required().build());
 		options.addOption(Option.builder("e").hasArg().desc("end").required().build());
 		CommandLineParser parser = new DefaultParser();
@@ -32,9 +32,9 @@ public class RegionQueryPgm {
 
 		Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor() {
 			private int CpGCount = 0;
-			private double avgCoverage = 0;
-			private double avgmethylLevel = 0;
-			private double weightedAvgMethylLevel = 0;
+			private double sumCoverage = 0;
+			private double sumMethylLevel = 0;
+			private double weightedSumMethylLevel = 0;
 
 			@Override
 			public boolean processLine(String line) throws IOException {
@@ -45,19 +45,17 @@ public class RegionQueryPgm {
 				double methylLevel = Double.parseDouble(itemList.get(4));
 				if (inputChr.equals(chr) && pos >= startPos && pos <= endPos && coverage > 0) {
 					CpGCount++;
-					avgCoverage += coverage;
-					avgmethylLevel += methylLevel;
-					weightedAvgMethylLevel += coverage * methylLevel;
+					sumCoverage += coverage;
+					sumMethylLevel += methylLevel;
+					weightedSumMethylLevel += coverage * methylLevel;
 				}
 				return true;
 			}
 
 			@Override
 			public Object getResult() {
-				System.out.println("cpg count:" + CpGCount);
-				System.out.println("avg coverage:" + avgCoverage / CpGCount);
-				System.out.println("avg methyl level:" + avgmethylLevel / CpGCount);
-				System.out.println("weighted avg methyl level:" + weightedAvgMethylLevel / avgCoverage);
+				System.out.printf("%s\t%d\t%d\t%d\t%f\t%f\t%f\n", inputChr, startPos, endPos, CpGCount,
+						sumCoverage / CpGCount, sumMethylLevel / CpGCount, weightedSumMethylLevel / sumCoverage);
 				return null;
 			}
 		});
