@@ -1,5 +1,8 @@
 package edu.cwru.cbc.ASM.commons.genomicInterval;
 
+import edu.cwru.cbc.ASM.commons.methylation.RefCpGStat;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+
 /**
  * Created by kehu on 9/17/15.
  * BedInterval for MethylStat query
@@ -26,6 +29,21 @@ public class MethylStatBedInterval extends GenomicIntervalBase {
 				this.weightedSumMethylLevel += coverage * methylLevel;
 			}
 			this.totalCount++;
+		}
+	}
+
+	public void queryRefMap(HashIntObjMap<RefCpGStat> refMap) {
+		for (int i = start; i <= end; i++) {
+			RefCpGStat refCpGStat = refMap.get(i);
+			if (refCpGStat != null) {
+				if (refCpGStat.getCoveredCount() > 0) {
+					this.coveredCount++;
+					this.sumCoverage += refCpGStat.getCoveredCount();
+					this.sumMethylLevel += refCpGStat.getMethylLevel();
+					this.weightedSumMethylLevel += refCpGStat.getCoveredCount() * refCpGStat.getMethylLevel();
+				}
+				this.totalCount++;
+			}
 		}
 	}
 

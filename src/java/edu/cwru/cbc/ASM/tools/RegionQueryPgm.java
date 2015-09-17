@@ -5,6 +5,9 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.genomicInterval.MethylStatBedInterval;
+import edu.cwru.cbc.ASM.commons.methylation.RefCpGStat;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -33,25 +36,19 @@ public class RegionQueryPgm {
 
 		List<MethylStatBedInterval> regions = getMethylStatBedIntervals(bedFileName);
 
-		List<String> lines = Files.readLines(new File(inputFileName), Charsets.UTF_8);
-		lines.stream().forEach(line -> {
-			List<String> itemList = tabSplitter.splitToList(line);
-			String chr = itemList.get(0);
-			int pos = Integer.parseInt(itemList.get(1));
-			int coverage = Integer.parseInt(itemList.get(2));
-			double methylLevel = Double.parseDouble(itemList.get(4));
-			regions.forEach(r -> r.intersect(chr, pos, coverage, methylLevel));
-		});
-//				checkEachCpG(inputFileName, regions);
+		HashIntObjMap<RefCpGStat> refMap = getRefCpGStatHashIntObjMap(inputFileName);
+
+		regions.parallelStream().forEach(r -> r.queryRefMap(refMap));
 
 		Files.asCharSink(new File(outputFileName), Charsets.UTF_8).writeLines(regions.stream().map(
 				MethylStatBedInterval::toString).collect(
 				Collectors.toList()));
 	}
 
-	private static void checkEachCpG(String inputFileName, final List<MethylStatBedInterval> regions) throws
+	private static HashIntObjMap<RefCpGStat> getRefCpGStatHashIntObjMap(String inputFileName) throws
 			IOException {
-		Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor() {
+		return Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor<HashIntObjMap<RefCpGStat>>() {
+			private HashIntObjMap<RefCpGStat> refMap = HashIntObjMaps.newMutableMap();
 
 			@Override
 			public boolean processLine(String line) throws IOException {
@@ -60,13 +57,13 @@ public class RegionQueryPgm {
 				int pos = Integer.parseInt(itemList.get(1));
 				int coverage = Integer.parseInt(itemList.get(2));
 				double methylLevel = Double.parseDouble(itemList.get(4));
-				regions.forEach(r -> r.intersect(chr, pos, coverage, methylLevel));
+				refMap.put(pos, new RefCpGStat(chr, pos, coverage, methylLevel));
 				return true;
 			}
 
 			@Override
-			public Object getResult() {
-				return null;
+			public HashIntObjMap<RefCpGStat> getResult() {
+				return refMap;
 			}
 		});
 	}
