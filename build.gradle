@@ -108,6 +108,11 @@ remotes {
         user = 'ke'
         identity = file('/home/lancelothk/.ssh/id_rsa')
     }
+    ngs_lab {
+        host = 'ngs.case.edu'
+        user = 'ke'
+        identity = file('/home/kehu/.ssh/id_rsa')
+    }
     osc {
         host = 'oakley.osc.edu'
         user = 'cwr0411'
@@ -120,13 +125,32 @@ task updateBin(dependsOn: installDist) {
     doLast {
         def userName = System.getProperty('user.name')
         if (userName == "kehu") {
-            copy {
-                from 'build/install/ASM/bin'
-                into '/home/kehu/experiments/ASM/bin'
-            }
-            copy {
-                from 'build/libs/ASM.jar'
-                into '/home/kehu/experiments/ASM/lib'
+            def curRemote;
+            if ("$remote".toString() == "ngs") {
+                curRemote = remotes.ngs_lab;
+                println "use ngs as remote"
+                ssh.run {
+                    session(curRemote) {
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+                    }
+                }
+            } else if ("$remote".toString() == "local") {
+                copy {
+                    from 'build/install/ASM/bin'
+                    into '/home/kehu/experiments/ASM/bin'
+                }
+                copy {
+                    from 'build/libs/ASM.jar'
+                    into '/home/kehu/experiments/ASM/lib'
+                }
+            } else {
+                ssh.run {
+                    session(curRemote) {
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+                    }
+                }
             }
         } else if (userName == "lancelothk") {
             def curRemote;
