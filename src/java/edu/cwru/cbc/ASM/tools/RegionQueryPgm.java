@@ -32,7 +32,8 @@ public class RegionQueryPgm {
 
 
 		Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor() {
-			private int CpGCount = 0;
+			private int coveredCount = 0;
+			private int totalCount = 0;
 			private double sumCoverage = 0;
 			private double sumMethylLevel = 0;
 			private double weightedSumMethylLevel = 0;
@@ -44,19 +45,24 @@ public class RegionQueryPgm {
 				int pos = Integer.parseInt(itemList.get(1));
 				int coverage = Integer.parseInt(itemList.get(2));
 				double methylLevel = Double.parseDouble(itemList.get(4));
-				if (inputChr.equals(chr) && pos >= startPos && pos <= endPos && coverage > 0) {
-					CpGCount++;
-					sumCoverage += coverage;
-					sumMethylLevel += methylLevel;
-					weightedSumMethylLevel += coverage * methylLevel;
+				if (inputChr.equals(chr) && pos >= startPos && pos <= endPos) {
+					if (coverage > 0) {
+						coveredCount++;
+						sumCoverage += coverage;
+						sumMethylLevel += methylLevel;
+						weightedSumMethylLevel += coverage * methylLevel;
+					}
+					totalCount++;
 				}
 				return true;
 			}
 
 			@Override
 			public Object getResult() {
-				System.out.printf("%s\t%d\t%d\t%d\t%f\t%f\t%f\n", inputChr, startPos, endPos, CpGCount,
-						sumCoverage / CpGCount, sumMethylLevel / CpGCount, weightedSumMethylLevel / sumCoverage);
+				System.out.printf("%s\t%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\n", inputChr, startPos, endPos, totalCount,
+						coveredCount, sumCoverage / coveredCount, sumCoverage / totalCount,
+						sumMethylLevel / coveredCount, sumMethylLevel / totalCount,
+						weightedSumMethylLevel / sumCoverage);
 				return null;
 			}
 		});
