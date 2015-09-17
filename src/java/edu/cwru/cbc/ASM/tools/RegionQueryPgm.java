@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Created by kehu on 9/16/15.
+ * Similar to bigWigAverageOverBed, get stat over a bed region.
  */
 public class RegionQueryPgm {
 	private static final Splitter tabSplitter = Splitter.on("\t");

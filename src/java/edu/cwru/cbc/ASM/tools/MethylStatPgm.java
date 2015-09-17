@@ -22,7 +22,7 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
 
 /**
  * Created by kehu on 9/16/15.
- * s
+ * Generate coverage and methyl count of mapped BS-seq data.
  */
 public class MethylStatPgm {
 	public static final int INIT_POS = 0;
