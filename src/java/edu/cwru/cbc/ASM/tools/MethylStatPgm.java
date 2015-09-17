@@ -5,6 +5,7 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
+import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
@@ -69,14 +70,11 @@ public class MethylStatPgm {
 							itemList.get(5))) {
 						throw new RuntimeException("invalid character in sequence!\t" + line);
 					}
-					new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-							Integer.parseInt(itemList.get(2)),
-							itemList.get(4),
-							itemList.get(6) + "_1").generateCpGsInRead(refMap);
-					new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+					MappedRead.CpGInRead(itemList.get(1).charAt(0), itemList.get(4), Integer.parseInt(itemList.get(2)),
+							refMap, (refCpG, methylStatus) -> refCpG.addCpG(new CpG(null, refCpG, methylStatus)));
+					MappedRead.CpGInRead(itemList.get(1).charAt(0), itemList.get(5),
 							Integer.parseInt(itemList.get(3)) - itemList.get(5).length(),
-							itemList.get(5),
-							itemList.get(6) + "_2").generateCpGsInRead(refMap);
+							refMap, (refCpG, methylStatus) -> refCpG.addCpG(new CpG(null, refCpG, methylStatus)));
 				} else {
 					if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
 						throw new RuntimeException("invalid strand! in line:\t" + line);
@@ -84,9 +82,8 @@ public class MethylStatPgm {
 					if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
 						throw new RuntimeException("invalid character in sequence!\t" + line);
 					}
-					new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-							Integer.parseInt(itemList.get(2)),
-							itemList.get(4), itemList.get(5)).generateCpGsInRead(refMap);
+					MappedRead.CpGInRead(itemList.get(1).charAt(0), itemList.get(4), Integer.parseInt(itemList.get(2)),
+							refMap, (refCpG, methylStatus) -> refCpG.addCpG(new CpG(null, refCpG, methylStatus)));
 				}
 				return true;
 			}
