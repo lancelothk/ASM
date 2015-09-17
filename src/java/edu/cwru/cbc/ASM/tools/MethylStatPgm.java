@@ -34,13 +34,14 @@ public class MethylStatPgm {
 		options.addOption(Option.builder("r").hasArg().desc("Reference File").required().build());
 		options.addOption(Option.builder("m").hasArg().desc("MappedRead File").required().build());
 		options.addOption(Option.builder("o").hasArg().desc("Output File").required().build());
-//		options.addOption(Option.builder("p").desc("pair end mode").build());
+		options.addOption(Option.builder("p").desc("pair end mode").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String chr = cmd.getOptionValue("c");
 		String referenceGenomeFileName = cmd.getOptionValue("r");
 		String mappedReadFileName = cmd.getOptionValue("m");
 		String outputFileName = cmd.getOptionValue("o");
+		boolean pairEnd = cmd.hasOption("p");
 
 		// load reference
 		long start = System.currentTimeMillis();
@@ -56,18 +57,37 @@ public class MethylStatPgm {
 		Files.readLines(new File(mappedReadFileName), Charsets.UTF_8, new LineProcessor() {
 			@Override
 			public boolean processLine(String line) throws IOException {
+				if (line.startsWith("chr") || line.startsWith("ref") || line.startsWith("assembly")) {
+					return true;
+				}
 				List<String> itemList = tabSplitter.splitToList(line);
-				if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
-					throw new RuntimeException("invalid strand! in line:\t" + line);
+				if (pairEnd) {
+					if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
+						throw new RuntimeException("invalid strand! in line:\t" + line);
+					}
+					if (!IUPACCode.validateNucleotideCode(itemList.get(4)) || !IUPACCode.validateNucleotideCode(
+							itemList.get(5))) {
+						throw new RuntimeException("invalid character in sequence!\t" + line);
+					}
+					new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+							Integer.parseInt(itemList.get(2)),
+							itemList.get(4),
+							itemList.get(6) + "_1").generateCpGsInRead(refMap);
+					new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+							Integer.parseInt(itemList.get(3)) - itemList.get(5).length(),
+							itemList.get(5),
+							itemList.get(6) + "_2").generateCpGsInRead(refMap);
+				} else {
+					if (!itemList.get(1).equals("+") && !itemList.get(1).equals("-")) {
+						throw new RuntimeException("invalid strand! in line:\t" + line);
+					}
+					if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
+						throw new RuntimeException("invalid character in sequence!\t" + line);
+					}
+					new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+							Integer.parseInt(itemList.get(2)),
+							itemList.get(4), itemList.get(5)).generateCpGsInRead(refMap);
 				}
-				if (!IUPACCode.validateNucleotideCode(itemList.get(4))) {
-					throw new RuntimeException("invalid character in sequence!\t" + line);
-				}
-				// h1, i90
-				MappedRead mappedRead = new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-						Integer.parseInt(itemList.get(2)),
-						itemList.get(4), itemList.get(5));
-				mappedRead.generateCpGsInRead(refMap);
 				return true;
 			}
 
