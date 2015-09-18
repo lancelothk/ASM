@@ -21,17 +21,6 @@ public class RefCpG implements Comparable<RefCpG> {
 		this.cpGList = new ArrayList<>();
 	}
 
-	public RefCpG(int pos, MethylStatus methylStatus) {
-		this.pos = pos;
-		this.cpGList = new ArrayList<>();
-		if (methylStatus == MethylStatus.C) {
-			methylCount++;
-			coveredCount++;
-		} else {
-			coveredCount++;
-		}
-	}
-
 	public double getP_value() {
 		return p_value;
 	}
@@ -72,6 +61,12 @@ public class RefCpG implements Comparable<RefCpG> {
 
 	public void addCpG(CpG cpg) {
 		this.cpGList.add(cpg);
+		if (cpg.getMethylStatus() == MethylStatus.C) {
+			methylCount++;
+			coveredCount++;
+		} else {
+			coveredCount++;
+		}
 	}
 
 	public int getCpGCoverage() {
