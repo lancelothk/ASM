@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 /**
  * Created by lancelothk on 11/12/14.
@@ -32,43 +33,23 @@ public class MappedRead implements Comparable<MappedRead> {
 		this.cpgList = new ArrayList<>();
 	}
 
-	/**
-	 * This method associate RefCpG <-> CpG <-> MappedRead
-	 */
-	public int generateCpGsInRead(HashIntObjMap<RefCpG> refMap) {
-		int start = this.strand == '+' ? this.getStart() : this.getStart() - 1;
-		int end = this.strand == '+' ? this.getEnd() : this.getEnd() - 1;
+	public static void CpGInRead(char strand, String sequence, int startPos, HashIntObjMap<RefCpG> refMap,
+	                             BiConsumer<RefCpG, MethylStatus> action) {
+		int start = strand == '+' ? startPos : startPos - 1;
+		int end = strand == '+' ? startPos + sequence.length() - 1 : startPos + sequence.length() - 2;
 		for (int i = start; i <= end; i++) {
 			if (refMap.containsKey(i)) {
-				MethylStatus methylStatus = this.getMethylStatus(i);
+				MethylStatus methylStatus = getMethylStatus(i, strand, sequence, startPos);
 				RefCpG refCpG = refMap.get(i);
 				if (refCpG != null && methylStatus != MethylStatus.N) {
-					CpG cpg = new CpG(this, refCpG, methylStatus);
-					this.cpgList.add(cpg);
-					refCpG.addCpG(cpg);
+					action.accept(refCpG, methylStatus);
 					i++;
 				}
 			}
 		}
-		return this.getCpgList().size();
 	}
 
-	public String getChr() {
-		return chr;
-	}
-
-	public int getStart() {
-		return start;
-	}
-
-	/**
-	 * 0-based (inclusive the last base pair)
-	 */
-	public int getEnd() {
-		return start + sequence.length() - 1;
-	}
-
-	private MethylStatus getMethylStatus(int pos) {
+	public static MethylStatus getMethylStatus(int pos, char strand, String sequence, int start) {
 		// minus strand is the complementary string of plus strand.
 		// only consider 'C' position in CpG. Ignore the char in 'G' position
 		switch (strand) {
@@ -97,6 +78,33 @@ public class MappedRead implements Comparable<MappedRead> {
 			default:
 				throw new RuntimeException("illegal strand!");
 		}
+	}
+
+	/**
+	 * This method associate RefCpG <-> CpG <-> MappedRead
+	 */
+	public int generateCpGsInRead(HashIntObjMap<RefCpG> refMap) {
+		CpGInRead(strand, sequence, start, refMap, (refCpG, methylStatus) -> {
+			CpG cpg = new CpG(this, refCpG, methylStatus);
+			this.cpgList.add(cpg);
+			refCpG.addCpG(cpg);
+		});
+		return this.getCpgList().size();
+	}
+
+	public String getChr() {
+		return chr;
+	}
+
+	public int getStart() {
+		return start;
+	}
+
+	/**
+	 * 0-based (inclusive the last base pair)
+	 */
+	public int getEnd() {
+		return start + sequence.length() - 1;
 	}
 
 	public String toVisualizationString(int initialPos) throws IllegalArgumentException {

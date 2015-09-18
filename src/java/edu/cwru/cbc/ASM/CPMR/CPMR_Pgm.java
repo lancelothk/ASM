@@ -31,14 +31,14 @@ public class CPMR_Pgm {
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
-		options.addOption("r", true, "Reference File");
-		options.addOption("m", true, "MappedRead File");
-		options.addOption("o", true, "Output Path");
-		options.addOption("p", true, "Partial methylation threshold");
-		options.addOption("pe", false, "pair end mode");
-		options.addOption("mcc", true, "Minimum adjacent CpG coverage");
-		options.addOption("mic", true, "Minimum interval CpG number");
-		options.addOption("mir", true, "Minimum interval read number");
+		options.addOption(Option.builder("r").hasArg().desc("Reference File").required().build());
+		options.addOption(Option.builder("m").hasArg().desc("MappedRead File").required().build());
+		options.addOption(Option.builder("o").hasArg().desc("Output Path").required().build());
+		options.addOption(Option.builder("p").hasArg().desc("Partial methylation threshold").required().build());
+		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
+		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
+		options.addOption(Option.builder("mir").hasArg().desc("Minimum interval read number").required().build());
+		options.addOption(Option.builder("pe").hasArg().desc("pair end mode").build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);

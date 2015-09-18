@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.detect.dataType;
 
+import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
@@ -49,9 +50,15 @@ public class VertexTest {
 	@Test
 	public void testAddRefCpG() throws Exception {
 		List<RefCpG> refCpGList = new ArrayList<>();
-		refCpGList.add(new RefCpG(1, MethylStatus.T));
-		refCpGList.add(new RefCpG(3, MethylStatus.T));
-		refCpGList.add(new RefCpG(5, MethylStatus.C));
+		RefCpG refCpG1 = new RefCpG(1);
+		refCpG1.addCpG(new CpG(null, null, MethylStatus.T));
+		refCpGList.add(refCpG1);
+		RefCpG refCpG2 = new RefCpG(3);
+		refCpG2.addCpG(new CpG(null, null, MethylStatus.T));
+		refCpGList.add(refCpG2);
+		RefCpG refCpG3 = new RefCpG(5);
+		refCpG3.addCpG(new CpG(null, null, MethylStatus.C));
+		refCpGList.add(refCpG3);
 		vertex.addRefCpG(refCpGList);
 		assertEquals("incorrect RefCpG size", vertex.getRefCpGMap().size(), 3);
 	}
