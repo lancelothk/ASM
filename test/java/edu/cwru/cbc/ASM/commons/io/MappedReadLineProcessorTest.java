@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.commons.io;
 
+import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import org.testng.annotations.Test;
 
@@ -71,5 +72,17 @@ public class MappedReadLineProcessorTest {
 		assertEquals("BBBBBB", mlp.getResult().get(1).getSequence());
 		assertEquals(17207821, mlp.getResult().get(1).getStart());
 		assertEquals("815505_2", mlp.getResult().get(1).getId());
+	}
+
+	@Test
+	public void testSAMFormat() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor(false, mr -> mr.getId().startsWith("815505"),
+				MappedReadFileFormat.SAM);
+		String mappedReadStr1 = "815505\t16\tchr20\t17207806\t255\t82M\t*\t0\t0\tAAAAAA";
+		mlp.processLine(mappedReadStr1);
+		assertEquals("AAAAAA", mlp.getResult().get(0).getSequence());
+		assertEquals(17207806, mlp.getResult().get(0).getStart());
+		assertEquals("815505", mlp.getResult().get(0).getId());
+		assertEquals('-', mlp.getResult().get(0).getStrand());
 	}
 }

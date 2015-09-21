@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.CPMR;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
+import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
@@ -39,6 +40,13 @@ public class CPMR_Pgm {
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("mir").hasArg().desc("Minimum interval read number").required().build());
 		options.addOption(Option.builder("pe").hasArg().desc("pair end mode").build());
+		options.addOption(
+				Option.builder()
+						.longOpt("format")
+						.hasArg()
+						.desc("specify format of input: mappedread, sam")
+						.required()
+						.build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
@@ -51,6 +59,17 @@ public class CPMR_Pgm {
 		int min_cpg_coverage = Integer.parseInt(cmd.getOptionValue("mcc"));
 		int min_interval_cpg = Integer.parseInt(cmd.getOptionValue("mic"));
 		int min_interval_reads = Integer.parseInt(cmd.getOptionValue("mir"));
+		MappedReadFileFormat mappedReadFileFormat;
+		switch (cmd.getOptionValue("format")) {
+			case "mappedread":
+				mappedReadFileFormat = MappedReadFileFormat.MAPPEDREAD;
+				break;
+			case "sam":
+				mappedReadFileFormat = MappedReadFileFormat.SAM;
+				break;
+			default:
+				throw new RuntimeException("unknown input format:\t" + cmd.getOptionValue("format"));
+		}
 
 		// load reference
 		long start = System.currentTimeMillis();
@@ -65,7 +84,7 @@ public class CPMR_Pgm {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
-				new MappedReadLineProcessor(isPairEnd, mr -> mr.generateCpGsInRead(refMap) > 0));
+				new MappedReadLineProcessor(isPairEnd, mr -> mr.generateCpGsInRead(refMap) > 0, mappedReadFileFormat));
 		System.out.println(
 				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
