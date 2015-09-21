@@ -71,8 +71,10 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 						strand = '+';
 					}
 					validateRead(itemList.get(9));
+					// sam format position is 1-based
 					addMappedReadToMap(
-							new MappedRead(itemList.get(2), strand, Integer.parseInt(itemList.get(3)), itemList.get(9),
+							new MappedRead(itemList.get(2), strand, Integer.parseInt(itemList.get(3)) - 1,
+									itemList.get(9),
 									itemList.get(0)));
 				}
 				return true;

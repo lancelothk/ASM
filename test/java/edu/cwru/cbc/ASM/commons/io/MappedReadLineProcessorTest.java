@@ -78,7 +78,7 @@ public class MappedReadLineProcessorTest {
 	public void testSAMFormat() throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor(false, mr -> mr.getId().startsWith("815505"),
 				MappedReadFileFormat.SAM);
-		String mappedReadStr1 = "815505\t16\tchr20\t17207806\t255\t82M\t*\t0\t0\tAAAAAA";
+		String mappedReadStr1 = "815505\t16\tchr20\t17207807\t255\t82M\t*\t0\t0\tAAAAAA";
 		mlp.processLine(mappedReadStr1);
 		assertEquals("AAAAAA", mlp.getResult().get(0).getSequence());
 		assertEquals(17207806, mlp.getResult().get(0).getStart());
