@@ -80,6 +80,36 @@ public class MappedRead implements Comparable<MappedRead> {
 		}
 	}
 
+	public static String getComplementarySequence(String sequence) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (char c : sequence.toCharArray()) {
+			switch (c) {
+				case 'A':
+					c = 'T';
+					break;
+				case 'T':
+					c = 'A';
+					break;
+				case 'C':
+					c = 'G';
+					break;
+				case 'G':
+					c = 'C';
+					break;
+				case 'N':
+					c = 'N';
+					break;
+				case '-':
+					c = '-';
+					break;
+				default:
+					throw new RuntimeException("invalid character in sequence!");
+			}
+			stringBuilder.append(c);
+		}
+		return stringBuilder.toString();
+	}
+
 	/**
 	 * This method associate RefCpG <-> CpG <-> MappedRead
 	 */
@@ -115,33 +145,7 @@ public class MappedRead implements Comparable<MappedRead> {
 	}
 
 	public String getComplementarySequence() {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (char c : sequence.toCharArray()) {
-			switch (c) {
-				case 'A':
-					c = 'T';
-					break;
-				case 'T':
-					c = 'A';
-					break;
-				case 'C':
-					c = 'G';
-					break;
-				case 'G':
-					c = 'C';
-					break;
-				case 'N':
-					c = 'N';
-					break;
-				case '-':
-					c = '-';
-					break;
-				default:
-					throw new RuntimeException("invalid character in sequence!");
-			}
-			stringBuilder.append(c);
-		}
-		return stringBuilder.toString();
+		return getComplementarySequence(sequence);
 	}
 
 	// + strand     CG  TG
