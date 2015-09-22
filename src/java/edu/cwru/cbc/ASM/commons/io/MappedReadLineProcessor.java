@@ -108,6 +108,12 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 						// h1, i90
 						addMappedReadToMap(new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
 								Integer.parseInt(itemList.get(2)), itemList.get(4), itemList.get(5)));
+					} else if (itemList.size() == 7) {
+						validateStrand(itemList.get(1));
+						validateRead(itemList.get(4));
+						// h9
+						addMappedReadToMap(new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
+								Integer.parseInt(itemList.get(2)), itemList.get(4), itemList.get(6)));
 					} else if (itemList.size() == 10) {
 						validateStrand(itemList.get(4));
 						validateRead(itemList.get(8));
