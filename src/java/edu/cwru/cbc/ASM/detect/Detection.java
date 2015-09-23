@@ -43,6 +43,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private int endPos;
 	private int min_interval_cpg;
 	private int min_cpg_coverage;
+	private double min_fisher_P;
 
 	/**
 	 * Detection constructor.
@@ -55,6 +56,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
 		this.min_cpg_coverage = min_cpg_coverage;
+		this.min_fisher_P = calcMinFisherP(min_cpg_coverage);
 	}
 
 	public IntervalDetectionSummary call() throws Exception {
@@ -85,7 +87,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			regionP = 3;
 		} else if (fisherTest(graph, twoClusterRefCpGList)) {
 			if (twoClusterRefCpGList.stream()
-					.filter(refCpG -> refCpG.getP_value() <= calcMinFisherP(min_cpg_coverage))
+					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
 					.count() < min_interval_cpg) {
 				regionP = 3;
 			} else {
