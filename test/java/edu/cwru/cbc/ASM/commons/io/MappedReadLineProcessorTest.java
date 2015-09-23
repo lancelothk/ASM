@@ -62,19 +62,6 @@ public class MappedReadLineProcessorTest {
 	}
 
 	@Test
-	public void test_pairEnd() throws Exception {
-		MappedReadLineProcessor mlp = new MappedReadLineProcessor(true, mr -> mr.getId().startsWith("815505"));
-		String mappedReadStr1 = "20\t+\t17207806\t17207827\tAAAAAA\tBBBBBB\t815505";
-		mlp.processLine(mappedReadStr1);
-		assertEquals("AAAAAA", mlp.getResult().get(0).getSequence());
-		assertEquals(17207806, mlp.getResult().get(0).getStart());
-		assertEquals("815505_1", mlp.getResult().get(0).getId());
-		assertEquals("BBBBBB", mlp.getResult().get(1).getSequence());
-		assertEquals(17207821, mlp.getResult().get(1).getStart());
-		assertEquals("815505_2", mlp.getResult().get(1).getId());
-	}
-
-	@Test
 	public void testSAMFormat() throws Exception {
 		MappedReadLineProcessor mlp = new MappedReadLineProcessor(false, mr -> mr.getId().startsWith("815505"),
 				MappedReadFileFormat.SAM);
@@ -84,5 +71,13 @@ public class MappedReadLineProcessorTest {
 		assertEquals(17207806, mlp.getResult().get(0).getStart());
 		assertEquals("815505", mlp.getResult().get(0).getId());
 		assertEquals('-', mlp.getResult().get(0).getStrand());
+	}
+
+	@Test
+	public void test_pairEnd() throws Exception {
+		MappedReadLineProcessor mlp = new MappedReadLineProcessor(true, mr -> mr.getId().equals("815505"));
+		String mappedReadStr1 = "20\t+\t17207806\t17207826\tAAAAAA\tBBBBBB\t815505";
+		mlp.processLine(mappedReadStr1);
+		assertEquals("AAAAAA--------BBBBBB", mlp.getResult().get(0).getSequence());
 	}
 }

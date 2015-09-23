@@ -5,6 +5,7 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,6 +87,12 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		}
 	}
 
+	private String combinePERead(String p1, String p2, int length) {
+		StringBuilder sb = new StringBuilder(length);
+		sb.append(p1).append(StringUtils.repeat('-', length - p1.length() - p2.length())).append(p2);
+		return sb.toString();
+	}
+
 	private boolean processMappedReadFormat(String line) {
 		try {
 			if (line.startsWith("chr\t") || line.startsWith("ref") || line.startsWith("assembly")) {
@@ -97,10 +104,8 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 					validateRead(itemList.get(4));
 					validateRead(itemList.get(5));
 					addMappedReadToMap(new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-							Integer.parseInt(itemList.get(2)), itemList.get(4), itemList.get(6) + "_1"));
-					addMappedReadToMap(new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-							Integer.parseInt(itemList.get(3)) - itemList.get(5).length(), itemList.get(5),
-							itemList.get(6) + "_2"));
+							Integer.parseInt(itemList.get(2)), combinePERead(itemList.get(4), itemList.get(5),
+							Integer.parseInt(itemList.get(3)) - Integer.parseInt(itemList.get(2))), itemList.get(6)));
 				} else {
 					if (itemList.size() == 6) {
 						validateStrand(itemList.get(1));
