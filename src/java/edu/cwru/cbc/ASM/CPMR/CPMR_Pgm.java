@@ -39,7 +39,7 @@ public class CPMR_Pgm {
 		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("mir").hasArg().desc("Minimum interval read number").required().build());
-		options.addOption(Option.builder("pe").hasArg().desc("pair end mode").build());
+		options.addOption(Option.builder("pe").desc("pair end mode").build());
 		options.addOption(
 				Option.builder()
 						.longOpt("format")
