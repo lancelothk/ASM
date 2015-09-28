@@ -92,7 +92,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				regionP = 3;
 			} else {
 				// get fisher test P values for each refCpG in clusters.
-				regionP = calcRegionP_StoufferComb(twoClusterRefCpGList);
+				regionP = calcRegionP_WeightedStoufferComb(twoClusterRefCpGList);
 
 				// calculate daviesBouldin index
 				dbIndex = calcDBIndex(graph, twoClusterRefCpGList);
@@ -340,6 +340,17 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double z = twoClusterRefCpGList.stream()
 				.mapToDouble(refCpG -> refCpG.getP_value() == 1 ? 0 : stdNorm.inverseCumulativeProbability(
 						1 - refCpG.getP_value())).sum() / Math.sqrt(twoClusterRefCpGList.size());
+		return 1 - stdNorm.cumulativeProbability(z);
+	}
+
+	private double calcRegionP_WeightedStoufferComb(List<RefCpG> twoClusterRefCpGList) {
+		NormalDistribution stdNorm = new NormalDistribution(0, 1);
+		double z = twoClusterRefCpGList.stream()
+				.mapToDouble(
+						refCpG -> refCpG.getCoveredCount() * (refCpG.getP_value() == 1 ? 0 : stdNorm.inverseCumulativeProbability(
+								1 - refCpG.getP_value()))).sum() / Math.sqrt(twoClusterRefCpGList.stream()
+				.mapToInt(refCpG -> refCpG.getCoveredCount() * refCpG.getCoveredCount())
+				.sum());
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
