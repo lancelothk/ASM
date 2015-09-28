@@ -81,7 +81,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
 
-		double regionP;
+		double regionP, dbIndex = -1;
 		if (twoClusterRefCpGList.size() < min_interval_cpg) {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
@@ -93,6 +93,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			} else {
 				// get fisher test P values for each refCpG in clusters.
 				regionP = calcRegionP_StoufferComb(twoClusterRefCpGList);
+
+				// calculate daviesBouldin index
+				dbIndex = calcDBIndex(graph, twoClusterRefCpGList);
 
 				// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
 				twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
@@ -117,12 +120,26 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
 				graph.getMECSum(), graph.getNormMECSum(),
-				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), regionP,
+				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), regionP, dbIndex,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
 				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
 				groupResultList.get(0).getAvgMethylLevel(),
 				groupResultList.get(1).getAvgMethylLevel(),
 				"<label>");
+	}
+
+	private double calcDBIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
+		double interClusterDistance = 0, intraClusterDistance = 0;
+		assert graph.getClusterResult().values().size() == 2;
+		Vertex cluster1 = Iterables.get(graph.getClusterResult().values(), 0);
+		Vertex cluster2 = Iterables.get(graph.getClusterResult().values(), 1);
+		intraClusterDistance += cluster1.getIntraClusterDistance(twoClusterRefCpGList);
+		intraClusterDistance += cluster2.getIntraClusterDistance(twoClusterRefCpGList);
+		for (RefCpG refCpG : twoClusterRefCpGList) {
+			interClusterDistance += Math.abs(cluster1.getRefCpGMap().get(refCpG.getPos()).getMethylLevel()
+					- cluster2.getRefCpGMap().get(refCpG.getPos()).getMethylLevel());
+		}
+		return intraClusterDistance / interClusterDistance;
 	}
 
 	private double calcMinFisherP(int min_cpg_coverage) {
@@ -150,7 +167,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
-		if (graph.getClusterResult().size() != 1) { // cluster size == 2 or more
+		if (graph.getClusterResult().size() == 2) { // cluster size == 2
 			for (RefCpG refCpG : twoClusterRefCpGList) {
 				int j = 0;
 				int[][] matrix = new int[2][2];

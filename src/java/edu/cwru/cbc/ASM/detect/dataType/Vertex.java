@@ -93,6 +93,30 @@ public class Vertex {
 		return mec;
 	}
 
+	public double getIntraClusterDistance(List<RefCpG> twoClusterRefCpGList) {
+		double distance = 0;
+		for (MappedRead mappedRead : mappedReadList) {
+			double readAvgDistance = 0, validCpGCount = 0;
+			for (CpG cpG : mappedRead.getCpgList()) {
+				for (RefCpG refCpG : twoClusterRefCpGList) {
+					if (cpG.getPos() == refCpG.getPos()) {
+						double majorMethylLevel = refCpGMap.get(cpG.getPos()).getMethylLevel();
+						if (cpG.getMethylStatus() == MethylStatus.C) {
+							readAvgDistance += 1 - majorMethylLevel;
+							validCpGCount++;
+						} else if (cpG.getMethylStatus() == MethylStatus.T) {
+							readAvgDistance += majorMethylLevel;
+							validCpGCount++;
+						}
+					}
+				}
+			}
+			readAvgDistance /= validCpGCount;
+			distance += readAvgDistance;
+		}
+		return distance / mappedReadList.size();
+	}
+
 	public int getCpGSum() {
 		int cpgSum = 0;
 		for (MappedRead mappedRead : mappedReadList) {
