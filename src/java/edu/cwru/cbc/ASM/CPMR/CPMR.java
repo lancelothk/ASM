@@ -36,9 +36,9 @@ public class CPMR {
 		this.refCpGList = refCpGList;
 	}
 
-	private List<List<RefCpG>> getRefCpGIntervals() {
+	public List<ImmutableGenomicInterval> getGenomicIntervals() {
+		List<ImmutableGenomicInterval> immutableGenomicIntervalList = new ArrayList<>();
 		// split regions by continuous CpG coverage
-		List<List<RefCpG>> cpgSiteIntervalList = new ArrayList<>();
 		boolean cont = false;
 		List<RefCpG> resultRefCpGList = new ArrayList<>();
 		for (int i = 0; i < refCpGList.size() - 1; i++) {
@@ -54,36 +54,35 @@ public class CPMR {
 			} else {
 				cont = false;
 				if (resultRefCpGList.size() > 0) {
-					cpgSiteIntervalList.add(resultRefCpGList);
+					filterInterval(resultRefCpGList, immutableGenomicIntervalList);
+
 				}
 				resultRefCpGList = new ArrayList<>();
 			}
 		}
 		if (resultRefCpGList.size() > 0) {
-			cpgSiteIntervalList.add(resultRefCpGList);
+			filterInterval(resultRefCpGList, immutableGenomicIntervalList);
 		}
-		rawIntervalCount = cpgSiteIntervalList.size();
-		return cpgSiteIntervalList;
+		return immutableGenomicIntervalList;
 	}
 
-	public List<ImmutableGenomicInterval> getGenomicIntervals() {
-		List<ImmutableGenomicInterval> immutableGenomicIntervalList = new ArrayList<>();
-		getRefCpGIntervals().stream().filter(list -> list.size() >= min_interval_cpg).forEach(list -> {
+	private void filterInterval(List<RefCpG> interval, List<ImmutableGenomicInterval> immutableGenomicIntervalList) {
+		rawIntervalCount++;
+		if (interval.size() >= min_interval_cpg) {
 			// since reads are collected from refCpG, all reads contains at least one CpG.
-			List<MappedRead> mappedReadList = getDistinctReadsFromRefCpGs(list)
+			List<MappedRead> mappedReadList = getDistinctReadsFromRefCpGs(interval)
 					.sorted(MappedRead::compareTo).collect(Collectors.toList());
 			if (mappedReadList.size() >= min_interval_reads) {
-				int startCpGPos = list.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
-				int endCpGPos = list.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+				int startCpGPos = interval.stream().min((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
+				int endCpGPos = interval.stream().max((cpg1, cpg2) -> cpg1.getPos() - cpg2.getPos()).get().getPos();
 				@SuppressWarnings("UnnecessaryLocalVariable") // since it makes clear pos and CpGPos is different.
 						int startPos = startCpGPos;
 				int endPos = endCpGPos + 1;// +1 to include whole CpG in plus strand
 				immutableGenomicIntervalList.add(
-						new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, list,
+						new ImmutableGenomicInterval(refChr.getChr(), refChr.getRefString(), startPos, endPos, interval,
 								mappedReadList));
 			}
-		});
-		return immutableGenomicIntervalList;
+		}
 	}
 
 	private Stream<MappedRead> getDistinctReadsFromRefCpGs(List<RefCpG> list) {
