@@ -146,7 +146,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			regionP = 3;
 		} else if (fisherTest(graph, twoClusterRefCpGList)) {
 			if (twoClusterRefCpGList.stream()
-					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
+					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P) // TODO calc minFisherP for each CpG site
 					.count() < min_interval_cpg) {
 				regionP = 3;
 			} else {
