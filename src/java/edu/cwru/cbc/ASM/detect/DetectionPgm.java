@@ -67,6 +67,7 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("errorProb", "%e"))
 						.add(new ImmutablePair<>("regionP", "%e"))
+						.add(new ImmutablePair<>("minRandP", "%e"))
 						.add(new ImmutablePair<>("dbindex", "%e"))
 						.add(new ImmutablePair<>("group1", "%d"))
 						.add(new ImmutablePair<>("group2", "%d"))

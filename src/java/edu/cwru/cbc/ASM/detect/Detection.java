@@ -7,6 +7,8 @@ import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.methylation.CpG;
+import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import edu.cwru.cbc.ASM.detect.dataType.*;
@@ -22,10 +24,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private int startPos;
 	private int endPos;
 	private int min_interval_cpg;
-	private int min_cpg_coverage;
 	private double min_fisher_P;
 
 	/**
@@ -55,7 +53,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
-		this.min_cpg_coverage = min_cpg_coverage;
 		this.min_fisher_P = calcMinFisherP(min_cpg_coverage);
 	}
 
@@ -81,7 +78,69 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
 
-		double regionP, dbIndex = -1;
+		double regionP = getRegionP(graph, twoClusterRefCpGList);
+
+		// calculate daviesBouldin index
+		double dbIndex = calcDBIndex(graph, twoClusterRefCpGList);
+
+		List<GroupResult> groupResultList = writeGroupResult(inputFile.getAbsolutePath(), refCpGList, graph);
+		if (graph.getClusterResult().values().size() != 2) {
+			throw new RuntimeException("clusters number is not 2!");
+		}
+		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(
+				Vertex::getMappedReadList).collect(
+				Collectors.toList());
+		ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
+				inputFile.getAbsolutePath() + ".groups.aligned");
+		double errorProbability = calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList);
+
+		// random group P value
+		ASMGraph randGraph;
+		double minP = 1;
+		int minPGraph = 0;
+		for (int i = 0; i < 1000; i++) {
+			randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+			randGraph.cluster();
+			List<RefCpG> randTwoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap());
+			double randP = getRegionP(randGraph, randTwoClusterRefCpGList);
+			if (minP > randP) {
+				minP = randP;
+				minPGraph = i;
+				groupResultList = writeGroupResult(inputFile.getAbsolutePath() + "-" + i, refCpGList, randGraph);
+				if (randGraph.getClusterResult().values().size() == 2) {
+					readGroups = randGraph.getClusterResult().values().stream().map(
+							Vertex::getMappedReadList).collect(
+							Collectors.toList());
+					ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
+							inputFile.getAbsolutePath() + "-" + i + ".groups.aligned");
+				}
+			}
+		}
+		System.out.println(minPGraph);
+		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
+				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
+				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
+				graph.getMECSum(), graph.getNormMECSum(),
+				errorProbability, regionP, minP, dbIndex,
+				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
+				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
+				groupResultList.get(0).getAvgMethylLevel(),
+				groupResultList.get(1).getAvgMethylLevel(),
+				"<label>");
+	}
+
+	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {
+		Random rand = new Random();
+		for (MappedRead mappedRead : mappedReadList) {
+			for (CpG cpG : mappedRead.getCpgList()) {
+				cpG.setMethylStatus(rand.nextBoolean() ? MethylStatus.C : MethylStatus.T);
+			}
+		}
+		return mappedReadList;
+	}
+
+	private double getRegionP(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
+		double regionP;
 		if (twoClusterRefCpGList.size() < min_interval_cpg) {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
@@ -94,9 +153,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				// get fisher test P values for each refCpG in clusters.
 				regionP = calcRegionP_WeightedStoufferComb(twoClusterRefCpGList);
 
-				// calculate daviesBouldin index
-				dbIndex = calcDBIndex(graph, twoClusterRefCpGList);
-
 				// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
 				twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
 				startPos = twoClusterRefCpGList.get(0).getPos();
@@ -106,26 +162,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			// give 2 if only one cluster
 			regionP = 2;
 		}
-
-		List<GroupResult> groupResultList = writeGroupResult(refCpGList, graph);
-		if (graph.getClusterResult().values().size() != 2) {
-			throw new RuntimeException("clusters number is not 2!");
-		}
-		List<List<MappedRead>> readGroups = graph.getClusterResult().values().stream().map(
-				Vertex::getMappedReadList).collect(
-				Collectors.toList());
-		ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
-				inputFile.getAbsolutePath() + ".groups.aligned");
-		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
-				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
-				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
-				graph.getMECSum(), graph.getNormMECSum(),
-				calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList), regionP, dbIndex,
-				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
-				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
-				groupResultList.get(0).getAvgMethylLevel(),
-				groupResultList.get(1).getAvgMethylLevel(),
-				"<label>");
+		return regionP;
 	}
 
 	private double calcDBIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
@@ -193,11 +230,12 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		}
 	}
 
-	private List<GroupResult> writeGroupResult(List<RefCpG> refCpGList, ASMGraph graph) throws IOException {
+	private List<GroupResult> writeGroupResult(String inputFilePath, List<RefCpG> refCpGList, ASMGraph graph) throws
+			IOException {
 		BufferedWriter groupResultWriter = new BufferedWriter(
-				new FileWriter(inputFile.getAbsolutePath() + ".detected"));
+				new FileWriter(inputFilePath + ".detected"));
 
-		groupResultWriter.write(inputFile.getName() + "\n");
+		groupResultWriter.write(inputFilePath + "\n");
 		groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
 		groupResultWriter.write(String.format("tied id counter:%d\n", graph.getTieIdCountCounter()));
 
