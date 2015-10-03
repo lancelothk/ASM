@@ -30,7 +30,7 @@ public class DetectionTest {
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("errorProb", "%f"))
 						.add(new ImmutablePair<>("regionP", "%e"))
-						.add(new ImmutablePair<>("minRandP", "%e"))
+						.add(new ImmutablePair<>("randPCount", "%d"))
 						.add(new ImmutablePair<>("dbindex", "%e"))
 						.add(new ImmutablePair<>("group1", "%d"))
 						.add(new ImmutablePair<>("group2", "%d"))

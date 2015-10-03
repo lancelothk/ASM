@@ -95,33 +95,31 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double errorProbability = calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList);
 
 		// random group P value
-		ASMGraph randGraph;
-		double minP = 1;
-		int minPGraph = 0;
-		for (int i = 0; i < 1000; i++) {
-			randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-			randGraph.cluster();
-			List<RefCpG> randTwoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap());
-			double randP = getRegionP(randGraph, randTwoClusterRefCpGList);
-			if (minP > randP) {
-				minP = randP;
-				minPGraph = i;
-				groupResultList = writeGroupResult(inputFile.getAbsolutePath() + "-" + i, refCpGList, randGraph);
-				if (randGraph.getClusterResult().values().size() == 2) {
-					readGroups = randGraph.getClusterResult().values().stream().map(
-							Vertex::getMappedReadList).collect(
-							Collectors.toList());
-					ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
-							inputFile.getAbsolutePath() + "-" + i + ".groups.aligned");
-				}
-			}
-		}
-		System.out.println(minPGraph);
+//		ASMGraph randGraph;
+		int minPCount = 0;
+//		for (int i = 0; i < 100; i++) {
+//			randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+//			randGraph.cluster();
+//			List<RefCpG> randTwoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap());
+//			double randP = getRegionP(randGraph, randTwoClusterRefCpGList);
+//			if (regionP>=0&&regionP<=1&&randP>=0&&randP<=1&&regionP >= randP) {
+//				System.out.println(randP);
+//				minPCount++;
+////				writeGroupResult(inputFile.getAbsolutePath() + "-" + i, refCpGList, randGraph);
+////				if (randGraph.getClusterResult().values().size() == 2) {
+////					readGroups = randGraph.getClusterResult().values().stream().map(
+////							Vertex::getMappedReadList).collect(
+////							Collectors.toList());
+////					ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
+////							inputFile.getAbsolutePath() + "-" + i + ".groups.aligned");
+////				}
+//			}
+//		}
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
 				graph.getMECSum(), graph.getNormMECSum(),
-				errorProbability, regionP, minP, dbIndex,
+				errorProbability, regionP, minPCount, dbIndex,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
 				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
 				groupResultList.get(0).getAvgMethylLevel(),

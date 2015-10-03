@@ -201,7 +201,6 @@ public class ASMGraph {
 				}
 
 				List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
-				// if max weight <= 0, stop merge.
 				if (maxCpGGroupCoverage() == 2) {
 					break;
 				} else {
