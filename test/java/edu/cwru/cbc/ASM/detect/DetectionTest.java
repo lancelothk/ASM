@@ -46,7 +46,7 @@ public class DetectionTest {
 		URL file = getClass().getClassLoader().getResource("chr20-25795835-25796072.mappedreads");
 		assertNotNull(file);
 		Detection detection = new Detection(new File(file.getFile()), 5, 4);
-		IntervalDetectionSummary intervalDetectionSummary = detection.call();
+//		IntervalDetectionSummary intervalDetectionSummary = detection.call();
 //		assertEquals(
 //				"20\t25795835\t25796072\t238\t474\t46\t10\t10\t2\t133\t28.000000\t0.210526\t0.073355\t7.499676e-06\t3.772956e-02\t9.422291e-02\t21\t25\t0.528889\t0.528690\t-\n",
 //				intervalDetectionSummary.getSummaryString(0));

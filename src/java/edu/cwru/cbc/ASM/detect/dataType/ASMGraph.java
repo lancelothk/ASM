@@ -27,20 +27,18 @@ public class ASMGraph {
 	public ASMGraph(List<MappedRead> mappedReadList) {
 		this.edgeList = new ArrayList<>();
 		this.vertexMap = new HashMap<>();
+		mappedReadList.forEach(r -> {
+			if (vertexMap.put(r.getId(), new Vertex(r)) != null) {
+				throw new RuntimeException("duplicate mapped read id!" + r.getId());
+			}
+		});
 		// visit all possible edges once.
 		for (int i = 0; i < mappedReadList.size(); i++) {
 			for (int j = i + 1; j < mappedReadList.size(); j++) {
 				double score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
 				if (Double.compare(score, Double.MIN_VALUE) != 0) {
-					String idI = mappedReadList.get(i).getId(), idJ = mappedReadList.get(j).getId();
-					if (!vertexMap.containsKey(idI)) {
-						vertexMap.put(idI, new Vertex(mappedReadList.get(i)));
-					}
-					if (!vertexMap.containsKey(idJ)) {
-
-						vertexMap.put(idJ, new Vertex(mappedReadList.get(j)));
-					}
-					edgeList.add(new Edge(vertexMap.get(idI), vertexMap.get(idJ), score));
+					edgeList.add(new Edge(vertexMap.get(mappedReadList.get(i).getId()),
+							vertexMap.get(mappedReadList.get(j).getId()), score));
 				}
 			}
 		}
@@ -75,6 +73,33 @@ public class ASMGraph {
 			System.out.printf("");
 			throw e;
 		}
+	}
+
+	public void randCluster() {
+		Map<String, Vertex> randVertexMap = new HashMap<>();
+		Random rand = new Random();
+		vertexMap.values().forEach(v -> {
+					if (rand.nextBoolean()) {
+						if (randVertexMap.containsKey("group1")) {
+							// merge right to left vertex
+							randVertexMap.get("group1").addMappedRead(v.getMappedReadList());
+							randVertexMap.get("group1").addRefCpG(v.getRefCpGMap().values());
+						} else {
+							randVertexMap.put("group1", v);
+						}
+					} else {
+						if (randVertexMap.containsKey("group2")) {
+							randVertexMap.get("group2").addMappedRead(v.getMappedReadList());
+							randVertexMap.get("group2").addRefCpG(v.getRefCpGMap().values());
+						} else {
+							randVertexMap.put("group2", v);
+						}
+					}
+				}
+		);
+		vertexMap = randVertexMap;
+		setCoveredCpGMap();
+		this.clusterResult = vertexMap;
 	}
 
 	public void cluster() throws IOException {

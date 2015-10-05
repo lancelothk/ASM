@@ -95,24 +95,19 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double errorProbability = calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList);
 
 		// random group P value
-//		ASMGraph randGraph;
 		int minPCount = 0;
-//		for (int i = 0; i < 100; i++) {
-//			randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-//			randGraph.cluster();
-//			List<RefCpG> randTwoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap());
-//			double randP = getRegionP(randGraph, randTwoClusterRefCpGList);
-//			if (regionP>=0&&regionP<=1&&randP>=0&&randP<=1&&regionP >= randP) {
-//				System.out.println(randP);
+//		for (int i = 0; i < 1000; i++) {
+//			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+//			randGraph.randCluster();
+////			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+//			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+//			System.out.println(inputFile.getName() + "\t" + randP);
+////			if (regionP>=0&&regionP<=1&&randP>=0&&randP<=1&&regionP >= randP) {
+////				System.out.println(randP);
+////				minPCount++;
+////			}
+//			if (dbIndex >= randP){
 //				minPCount++;
-////				writeGroupResult(inputFile.getAbsolutePath() + "-" + i, refCpGList, randGraph);
-////				if (randGraph.getClusterResult().values().size() == 2) {
-////					readGroups = randGraph.getClusterResult().values().stream().map(
-////							Vertex::getMappedReadList).collect(
-////							Collectors.toList());
-////					ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
-////							inputFile.getAbsolutePath() + "-" + i + ".groups.aligned");
-////				}
 //			}
 //		}
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
@@ -142,9 +137,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		if (twoClusterRefCpGList.size() < min_interval_cpg) {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
-		} else if (fisherTest(graph, twoClusterRefCpGList)) {
+		} else if (fisherTest(graph.getClusterResult(), twoClusterRefCpGList)) {
 			if (twoClusterRefCpGList.stream()
-					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P) // TODO calc minFisherP for each CpG site
+					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
 					.count() < min_interval_cpg) {
 				regionP = 3;
 			} else {
@@ -165,7 +160,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 	private double calcDBIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
 		double interClusterDistance = 0, intraClusterDistance = 0;
-		assert graph.getClusterResult().values().size() == 2;
+		if (graph.getClusterResult().values().size() != 2) {
+			return 1;
+		}
 		Vertex cluster1 = Iterables.get(graph.getClusterResult().values(), 0);
 		Vertex cluster2 = Iterables.get(graph.getClusterResult().values(), 1);
 		intraClusterDistance += cluster1.getIntraClusterDistance(twoClusterRefCpGList);
@@ -201,12 +198,12 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						refCpG.getPos())).collect(Collectors.toList());
 	}
 
-	private boolean fisherTest(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
-		if (graph.getClusterResult().size() == 2) { // cluster size == 2
+	private boolean fisherTest(Map<String, Vertex> graphResultMap, List<RefCpG> twoClusterRefCpGList) {
+		if (graphResultMap.size() == 2) { // cluster size == 2
 			for (RefCpG refCpG : twoClusterRefCpGList) {
 				int j = 0;
 				int[][] matrix = new int[2][2];
-				for (Vertex vertex : graph.getClusterResult().values()) {
+				for (Vertex vertex : graphResultMap.values()) {
 					if (vertex.getRefCpGMap().containsKey(refCpG.getPos())) {
 						matrix[j][0] = vertex.getRefCpGMap().get(refCpG.getPos()).getMethylCount();
 						matrix[j][1] = vertex.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount();

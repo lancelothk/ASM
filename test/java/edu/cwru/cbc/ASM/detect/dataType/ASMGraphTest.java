@@ -27,7 +27,6 @@ public class ASMGraphTest {
 		URL file = getClass().getClassLoader().getResource("chr20-56859339-56859404");
 		assertNotNull(file);
 		File inputFile = new File(file.getFile());
-
 		int startPos = Integer.parseInt(inputFile.getName().split("-")[1]);
 
 		// load input
