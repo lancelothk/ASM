@@ -79,15 +79,20 @@ public class Vertex {
 		double mec = 0;
 		for (MappedRead mappedRead : mappedReadList) {
 			for (CpG cpG : mappedRead.getCpgList()) {
-				MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
-				// TODO currently don't consider N as mis-align
-				assert cpG.getMethylStatus() != MethylStatus.N;
-				assert refMethylStatus != MethylStatus.N;
-				if (refMethylStatus == MethylStatus.E) {
-					mec += 0.5;
-				} else if (cpG.getMethylStatus() != refMethylStatus && cpG.getMethylStatus() != MethylStatus.E) {
-					mec++;
+				if (cpG.getMethylStatus() == MethylStatus.C) {
+					mec += (1 - refCpGMap.get(cpG.getPos()).getMethylLevel());
+				} else {
+					mec += refCpGMap.get(cpG.getPos()).getMethylLevel();
 				}
+//				MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
+//				// TODO currently don't consider N as mis-align
+//				assert cpG.getMethylStatus() != MethylStatus.N;
+//				assert refMethylStatus != MethylStatus.N;
+//				if (refMethylStatus == MethylStatus.E) {
+//					mec += 0.5;
+//				} else if (cpG.getMethylStatus() != refMethylStatus && cpG.getMethylStatus() != MethylStatus.E) {
+//					mec++;
+//				}
 			}
 		}
 		return mec;

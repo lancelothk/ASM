@@ -6,7 +6,6 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -102,7 +101,7 @@ public class ASMGraph {
 		this.clusterResult = vertexMap;
 	}
 
-	public void cluster() throws IOException {
+	public void cluster() {
 		// merge vertexes connected by positive weight edge
 		while (true) {
 			// if edgeList is empty

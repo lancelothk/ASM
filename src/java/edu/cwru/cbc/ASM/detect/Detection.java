@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
@@ -95,11 +96,13 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double errorProbability = calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList);
 
 		// random group P value
-		int minPCount = getMinPCount(refCpGList, mappedReadList);
+		double mec = graph.getMECSum();
+		double normMEC = graph.getNormMECSum();
+		int minPCount = getMinPCount(refCpGList, mappedReadList, normMEC);
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
-				graph.getMECSum(), graph.getNormMECSum(),
+				mec, normMEC,
 				errorProbability, regionP, minPCount, dbIndex,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
 				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
@@ -108,23 +111,24 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				"<label>");
 	}
 
-	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList) {
-		int minPCount = 0;
-//		for (int i = 0; i < 1000; i++) {
-//			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-//			randGraph.randCluster();
+	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
+		return IntStream.range(0, 1000).parallel().map(i -> {
+			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+			randGraph.cluster();
 //			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-////			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-////			System.out.println(inputFile.getName() + "\t" + randP);
-////			if (regionP>=0&&regionP<=1&&randP>=0&&randP<=1&&regionP >= randP) {
-////				System.out.println(randP);
-////				minPCount++;
-////			}
-////			if (dbIndex >= randP){
-////				minPCount++;
-////			}
-//		}
-		return minPCount;
+//			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+//			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
+//				return 1;
+//			} else {
+//				return 0;
+//			}
+//			if (regionP >= randP){
+//				return 1;
+//			}else {
+//				return 0;
+//			}
+			return regionP >= randGraph.getNormMECSum() ? 1 : 0;
+		}).sum();
 	}
 
 	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {
