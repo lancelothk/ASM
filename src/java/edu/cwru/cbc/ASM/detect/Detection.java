@@ -95,21 +95,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double errorProbability = calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList);
 
 		// random group P value
-		int minPCount = 0;
-//		for (int i = 0; i < 1000; i++) {
-//			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-//			randGraph.randCluster();
-////			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-//			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-//			System.out.println(inputFile.getName() + "\t" + randP);
-////			if (regionP>=0&&regionP<=1&&randP>=0&&randP<=1&&regionP >= randP) {
-////				System.out.println(randP);
-////				minPCount++;
-////			}
-//			if (dbIndex >= randP){
-//				minPCount++;
-//			}
-//		}
+		int minPCount = getMinPCount(refCpGList, mappedReadList);
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
@@ -120,6 +106,25 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				groupResultList.get(0).getAvgMethylLevel(),
 				groupResultList.get(1).getAvgMethylLevel(),
 				"<label>");
+	}
+
+	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList) {
+		int minPCount = 0;
+//		for (int i = 0; i < 1000; i++) {
+//			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+//			randGraph.randCluster();
+//			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+////			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+////			System.out.println(inputFile.getName() + "\t" + randP);
+////			if (regionP>=0&&regionP<=1&&randP>=0&&randP<=1&&regionP >= randP) {
+////				System.out.println(randP);
+////				minPCount++;
+////			}
+////			if (dbIndex >= randP){
+////				minPCount++;
+////			}
+//		}
+		return minPCount;
 	}
 
 	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {

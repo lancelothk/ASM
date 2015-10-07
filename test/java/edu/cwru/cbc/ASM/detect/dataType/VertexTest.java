@@ -51,13 +51,13 @@ public class VertexTest {
 	public void testAddRefCpG() throws Exception {
 		List<RefCpG> refCpGList = new ArrayList<>();
 		RefCpG refCpG1 = new RefCpG(1);
-		refCpG1.addCpG(new CpG(null, null, MethylStatus.T));
+		refCpG1.addCpG(new CpG(null, refCpG1, MethylStatus.T));
 		refCpGList.add(refCpG1);
 		RefCpG refCpG2 = new RefCpG(3);
-		refCpG2.addCpG(new CpG(null, null, MethylStatus.T));
+		refCpG2.addCpG(new CpG(null, refCpG2, MethylStatus.T));
 		refCpGList.add(refCpG2);
 		RefCpG refCpG3 = new RefCpG(5);
-		refCpG3.addCpG(new CpG(null, null, MethylStatus.C));
+		refCpG3.addCpG(new CpG(null, refCpG3, MethylStatus.C));
 		refCpGList.add(refCpG3);
 		vertex.addRefCpG(refCpGList);
 		assertEquals("incorrect RefCpG size", vertex.getRefCpGMap().size(), 3);

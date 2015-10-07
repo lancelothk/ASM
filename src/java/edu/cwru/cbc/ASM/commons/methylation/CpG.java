@@ -10,11 +10,13 @@ public class CpG {
 	private MappedRead mappedRead; // link to MappedRead
 	private RefCpG refCpG; // link to CpGSite
 	private MethylStatus methylStatus;
+	private int pos;
 
 	public CpG(MappedRead mappedRead, RefCpG refCpG, MethylStatus methylStatus) {
 		this.methylStatus = methylStatus;
 		this.mappedRead = mappedRead;
 		this.refCpG = refCpG;
+		this.pos = refCpG.getPos();
 	}
 
 	public MethylStatus getMethylStatus() {
@@ -34,6 +36,6 @@ public class CpG {
 	}
 
 	public int getPos() {
-		return this.refCpG.getPos();
+		return this.pos;
 	}
 }
