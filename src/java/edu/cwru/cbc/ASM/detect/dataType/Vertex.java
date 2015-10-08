@@ -79,24 +79,17 @@ public class Vertex {
 		double mec = 0;
 		for (MappedRead mappedRead : mappedReadList) {
 			for (CpG cpG : mappedRead.getCpgList()) {
-				// euclid distance
-				if (cpG.getMethylStatus() == MethylStatus.C) {
-					mec += Math.pow(1 - refCpGMap.get(cpG.getPos()).getMethylLevel(), 2);
-				} else {
-					mec += Math.pow(refCpGMap.get(cpG.getPos()).getMethylLevel(), 2);
+				MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
+				assert cpG.getMethylStatus() != MethylStatus.N;
+				assert refMethylStatus != MethylStatus.N;
+				if (refMethylStatus == MethylStatus.E) {
+					mec += 0.5;
+				} else if (cpG.getMethylStatus() != refMethylStatus && cpG.getMethylStatus() != MethylStatus.E) {
+					mec++;
 				}
-//				MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
-//				// TODO currently don't consider N as mis-align
-//				assert cpG.getMethylStatus() != MethylStatus.N;
-//				assert refMethylStatus != MethylStatus.N;
-//				if (refMethylStatus == MethylStatus.E) {
-//					mec += 0.5;
-//				} else if (cpG.getMethylStatus() != refMethylStatus && cpG.getMethylStatus() != MethylStatus.E) {
-//					mec++;
-//				}
 			}
 		}
-		return Math.sqrt(mec);
+		return mec;
 	}
 
 	public double getIntraClusterDistance(List<RefCpG> twoClusterRefCpGList) {
