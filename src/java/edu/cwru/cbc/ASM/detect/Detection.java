@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
@@ -112,23 +111,24 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
-		return IntStream.range(0, 1000).parallel().map(i -> {
-			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-			randGraph.cluster();
-//			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-//			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-//			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
-//				return 1;
-//			} else {
-//				return 0;
-//			}
-//			if (regionP >= randP){
-//				return 1;
-//			}else {
-//				return 0;
-//			}
-			return regionP >= randGraph.getNormMECSum() ? 1 : 0;
-		}).sum();
+		return 0;
+//		return IntStream.range(0, 1000).parallel().map(i -> {
+//			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+//			randGraph.cluster();
+////			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+////			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+////			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
+////				return 1;
+////			} else {
+////				return 0;
+////			}
+////			if (regionP >= randP){
+////				return 1;
+////			}else {
+////				return 0;
+////			}
+//			return regionP >= randGraph.getNormMECSum() ? 1 : 0;
+//		}).sum();
 	}
 
 	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {

@@ -79,10 +79,11 @@ public class Vertex {
 		double mec = 0;
 		for (MappedRead mappedRead : mappedReadList) {
 			for (CpG cpG : mappedRead.getCpgList()) {
+				// euclid distance
 				if (cpG.getMethylStatus() == MethylStatus.C) {
-					mec += (1 - refCpGMap.get(cpG.getPos()).getMethylLevel());
+					mec += Math.pow(1 - refCpGMap.get(cpG.getPos()).getMethylLevel(), 2);
 				} else {
-					mec += refCpGMap.get(cpG.getPos()).getMethylLevel();
+					mec += Math.pow(refCpGMap.get(cpG.getPos()).getMethylLevel(), 2);
 				}
 //				MethylStatus refMethylStatus = refCpGMap.get(cpG.getPos()).getMajorMethylStatus();
 //				// TODO currently don't consider N as mis-align
@@ -95,7 +96,7 @@ public class Vertex {
 //				}
 			}
 		}
-		return mec;
+		return Math.sqrt(mec);
 	}
 
 	public double getIntraClusterDistance(List<RefCpG> twoClusterRefCpGList) {
