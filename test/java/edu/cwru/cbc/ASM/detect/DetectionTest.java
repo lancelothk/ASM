@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.net.URL;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 public class DetectionTest {
@@ -31,7 +32,7 @@ public class DetectionTest {
 						.add(new ImmutablePair<>("errorProb", "%f"))
 						.add(new ImmutablePair<>("regionP", "%e"))
 						.add(new ImmutablePair<>("randPCount", "%d"))
-						.add(new ImmutablePair<>("dbindex", "%e"))
+						.add(new ImmutablePair<>("dbindex", "%f"))
 						.add(new ImmutablePair<>("group1", "%d"))
 						.add(new ImmutablePair<>("group2", "%d"))
 						.add(new ImmutablePair<>("group1Methyl", "%f"))
@@ -46,9 +47,16 @@ public class DetectionTest {
 		URL file = getClass().getClassLoader().getResource("chr20-25795835-25796072.mappedreads");
 		assertNotNull(file);
 		Detection detection = new Detection(new File(file.getFile()), 5, 4);
-//		IntervalDetectionSummary intervalDetectionSummary = detection.call();
-//		assertEquals(
-//				"20\t25795835\t25796072\t238\t474\t46\t10\t10\t2\t133\t28.000000\t0.210526\t0.073355\t7.499676e-06\t3.772956e-02\t9.422291e-02\t21\t25\t0.528889\t0.528690\t-\n",
-//				intervalDetectionSummary.getSummaryString(0));
+		IntervalDetectionSummary intervalDetectionSummary = detection.call();
+		String[] itemList = intervalDetectionSummary.getSummaryString(0).split("\t");
+		assertEquals("MEC", "28.000000", itemList[10]);
+		assertEquals("normMEC", "0.210526", itemList[11]);
+		assertEquals("errorProb", "0.073355", itemList[12]);
+		assertEquals("regionP", "7.499676e-06", itemList[13]);
+		assertEquals("dbindex", "0.094223", itemList[15]);
+		assertEquals("group1 size", "21", itemList[16]);
+		assertEquals("group2 size", "25", itemList[17]);
+		assertEquals("group1 methyl", "0.528889", itemList[18]);
+		assertEquals("group2 methyl", "0.528690", itemList[19]);
 	}
 }

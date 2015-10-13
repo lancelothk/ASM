@@ -74,33 +74,6 @@ public class ASMGraph {
 		}
 	}
 
-	public void randCluster() {
-		Map<String, Vertex> randVertexMap = new HashMap<>();
-		Random rand = new Random();
-		vertexMap.values().forEach(v -> {
-					if (rand.nextBoolean()) {
-						if (randVertexMap.containsKey("group1")) {
-							// merge right to left vertex
-							randVertexMap.get("group1").addMappedRead(v.getMappedReadList());
-							randVertexMap.get("group1").addRefCpG(v.getRefCpGMap().values());
-						} else {
-							randVertexMap.put("group1", v);
-						}
-					} else {
-						if (randVertexMap.containsKey("group2")) {
-							randVertexMap.get("group2").addMappedRead(v.getMappedReadList());
-							randVertexMap.get("group2").addRefCpG(v.getRefCpGMap().values());
-						} else {
-							randVertexMap.put("group2", v);
-						}
-					}
-				}
-		);
-		vertexMap = randVertexMap;
-		setCoveredCpGMap();
-		this.clusterResult = vertexMap;
-	}
-
 	public void cluster() {
 		// merge vertexes connected by positive weight edge
 		while (true) {

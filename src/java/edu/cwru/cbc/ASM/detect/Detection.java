@@ -36,6 +36,7 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * ASM Detection with whole read info.
  */
 public class Detection implements Callable<IntervalDetectionSummary> {
+	public static final int PERMUTATION_TIMES = 1000;
 	private static final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
 	private String chr;
@@ -98,7 +99,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// random group P value
 		double mec = graph.getMECSum();
 		double normMEC = graph.getNormMECSum();
-		int minPCount = getMinPCount(refCpGList, mappedReadList, normMEC);
+		int minPCount = getMinPCount(refCpGList, mappedReadList, regionP);
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
@@ -112,23 +113,15 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
-//		return 0;
-		return IntStream.range(0, 100).parallel().map(i -> {
+		return IntStream.range(0, PERMUTATION_TIMES).parallel().map(i -> {
 			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
 			randGraph.cluster();
-//			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-//			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
-//				return 1;
-//			} else {
-//				return 0;
-//			}
-//			double randP = calcDBIndex(randGraph,getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-//			if (regionP >= randP){
-//				return 1;
-//			}else {
-//				return 0;
-//			}
-			return regionP >= randGraph.getNormMECSum() ? 1 : 0;
+			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
+				return 1;
+			} else {
+				return 0;
+			}
 		}).sum();
 	}
 

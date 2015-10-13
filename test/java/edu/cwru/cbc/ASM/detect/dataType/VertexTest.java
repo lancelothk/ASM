@@ -39,7 +39,7 @@ public class VertexTest {
 		FieldUtils.writeField(vertex.getRefCpGMap().get(1), "coveredCount", 8, true);
 		FieldUtils.writeField(vertex.getRefCpGMap().get(3), "methylCount", 5, true);
 		FieldUtils.writeField(vertex.getRefCpGMap().get(3), "coveredCount", 8, true);
-//		assertEquals("incorrect MEC score", 1.5, vertex.getMECScore(), 0.00001);
+		assertEquals("incorrect MEC score", 1.5, vertex.getMECScore(), 0.00001);
 	}
 
 	@Test
