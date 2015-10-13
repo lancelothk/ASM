@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -83,7 +84,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double regionP = getRegionP(graph, twoClusterRefCpGList);
 
 		// calculate daviesBouldin index
-		double dbIndex = calcDBIndex(graph, twoClusterRefCpGList);
+		double clusterIndex = calcClusterIndex(graph, twoClusterRefCpGList);
 
 		List<GroupResult> groupResultList = writeGroupResult(inputFile.getAbsolutePath(), refCpGList, graph);
 		if (graph.getClusterResult().values().size() != 2) {
@@ -104,7 +105,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
 				mec, normMEC,
-				errorProbability, regionP, minPCount, dbIndex,
+				errorProbability, regionP, minPCount, clusterIndex,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
 				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
 				groupResultList.get(0).getAvgMethylLevel(),
@@ -161,20 +162,32 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return regionP;
 	}
 
-	private double calcDBIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
+	private double calcClusterIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
 		double interClusterDistance = 0, intraClusterDistance = 0;
 		if (graph.getClusterResult().values().size() != 2) {
 			return 1;
 		}
 		Vertex cluster1 = Iterables.get(graph.getClusterResult().values(), 0);
 		Vertex cluster2 = Iterables.get(graph.getClusterResult().values(), 1);
-		intraClusterDistance += cluster1.getIntraClusterDistance(twoClusterRefCpGList);
-		intraClusterDistance += cluster2.getIntraClusterDistance(twoClusterRefCpGList);
+		intraClusterDistance = (cluster1.getIntraClusterDistance(
+				twoClusterRefCpGList) + cluster2.getIntraClusterDistance(twoClusterRefCpGList)) / 2;
 		for (RefCpG refCpG : twoClusterRefCpGList) {
 			interClusterDistance += Math.abs(cluster1.getRefCpGMap().get(refCpG.getPos()).getMethylLevel()
 					- cluster2.getRefCpGMap().get(refCpG.getPos()).getMethylLevel());
 		}
 		return intraClusterDistance / interClusterDistance;
+	}
+
+	private <T> double calcEuclidDistance(List<T> itemListA, List<T> itemListB, Function<T, Double> getProperty) {
+		if (itemListA.size() != itemListB.size()) {
+			throw new RuntimeException("different size of list to calculate distance!");
+		}
+		// List A and B have same size
+		double distance = 0;
+		for (int i = 0; i < itemListA.size(); i++) {
+			distance += Math.pow(getProperty.apply(itemListA.get(i)) - getProperty.apply(itemListB.get(i)), 2);
+		}
+		return Math.sqrt(distance);
 	}
 
 	private double calcMinFisherP(int min_cpg_coverage) {
