@@ -163,18 +163,18 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private double calcClusterIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
-		double interClusterDistance = 0, intraClusterDistance = 0;
 		if (graph.getClusterResult().values().size() != 2) {
 			return 1;
 		}
 		Vertex cluster1 = Iterables.get(graph.getClusterResult().values(), 0);
 		Vertex cluster2 = Iterables.get(graph.getClusterResult().values(), 1);
-		intraClusterDistance = (cluster1.getIntraClusterDistance(
+		double interClusterDistance = 0, intraClusterDistance = (cluster1.getIntraClusterDistance(
 				twoClusterRefCpGList) + cluster2.getIntraClusterDistance(twoClusterRefCpGList)) / 2;
 		for (RefCpG refCpG : twoClusterRefCpGList) {
 			interClusterDistance += Math.abs(cluster1.getRefCpGMap().get(refCpG.getPos()).getMethylLevel()
 					- cluster2.getRefCpGMap().get(refCpG.getPos()).getMethylLevel());
 		}
+		// TODO: may consider to use Euclidean distance here
 		return intraClusterDistance / interClusterDistance;
 	}
 
