@@ -106,7 +106,7 @@ public class ASMGraph {
 
 		setCoveredCpGMap();
 		refineClusterResult();
-		mergeNonoverlappedClusters();
+		mergeNonOverlappedClusters();
 		this.clusterResult = vertexMap;
 	}
 
@@ -221,7 +221,7 @@ public class ASMGraph {
 		}
 	}
 
-	private void mergeNonoverlappedClusters() {
+	private void mergeNonOverlappedClusters() {
 		while (true) {
 			int prevSize = vertexMap.size();
 			Set<Vertex> curr, next;
@@ -241,12 +241,10 @@ public class ASMGraph {
 					break;
 				} //else if (diff.size() > 2) {
 				// more than 2 diff vertexes
-				// TODO how to merge?
+				// impossible since after refineClusterResult(), no refCpG contains more than 2 vertexes.
 				//}
 				// else:
-				// same set, do nothing
-				// or
-				// one set with 2 vertexes, one set with 1 vertex, do nothing
+				// same set, do nothing or one set with 2 vertexes, one set with 1 vertex, do nothing
 			}
 			setCoveredCpGMap();
 			// break loop when no more vertex can be merged.

@@ -53,7 +53,7 @@ public class DetectionTest {
 		assertEquals("normMEC", "0.210526", itemList[11]);
 		assertEquals("errorProb", "0.073355", itemList[12]);
 		assertEquals("regionP", "7.499676e-06", itemList[13]);
-		assertEquals("dbindex", "0.094223", itemList[15]);
+		assertEquals("dbindex", "0.047111", itemList[15]);
 		assertEquals("group1 size", "21", itemList[16]);
 		assertEquals("group2 size", "25", itemList[17]);
 		assertEquals("group1 methyl", "0.528889", itemList[18]);
