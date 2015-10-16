@@ -100,7 +100,11 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// random group P value
 		double mec = graph.getMECSum();
 		double normMEC = graph.getNormMECSum();
-		int minPCount = getMinPCount(refCpGList, mappedReadList, regionP);
+		int minPCount = 0;
+		if (regionP <= 1 && regionP >= 0) {
+			minPCount = getMinPCount(refCpGList, mappedReadList, regionP);
+		}
+
 		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
