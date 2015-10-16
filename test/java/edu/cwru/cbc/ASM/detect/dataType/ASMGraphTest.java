@@ -15,6 +15,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 import static org.testng.AssertJUnit.assertEquals;
@@ -41,7 +42,7 @@ public class ASMGraphTest {
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);
-		List edgeList = (List) FieldUtils.readDeclaredField(asmGraph, "edgeList", true);
+		Set edgeList = (Set) FieldUtils.readDeclaredField(asmGraph, "edgeList", true);
 		Map vertexMap = (Map) FieldUtils.readDeclaredField(asmGraph, "vertexMap", true);
 		assertEquals("incorrect edge number", 43, edgeList.size());
 		assertEquals("incorrect edge number", 10, vertexMap.size());

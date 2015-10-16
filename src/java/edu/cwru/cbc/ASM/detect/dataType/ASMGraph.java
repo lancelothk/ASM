@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * Graph for detecting ASM.
  */
 public class ASMGraph {
-	private List<Edge> edgeList;
+	private Set<Edge> edgeList;
 	private Map<String, Vertex> vertexMap; // id,read
 	private Map<Integer, ClusterRefCpG> clusterRefCpGMap; // pos <--> count
 	private Map<String, Vertex> clusterResult;// id,read
@@ -24,7 +24,7 @@ public class ASMGraph {
 	private int originalVertexCount, originalEdgeCount;
 
 	public ASMGraph(List<MappedRead> mappedReadList) {
-		this.edgeList = new ArrayList<>();
+		this.edgeList = new LinkedHashSet<>();
 		this.vertexMap = new HashMap<>();
 		mappedReadList.forEach(r -> {
 			if (vertexMap.put(r.getId(), new Vertex(r)) != null) {
@@ -115,9 +115,9 @@ public class ASMGraph {
 	 *
 	 * @return list contains items with max weight
 	 */
-	private <T> List<T> getMaxFromList(List<T> itemList, Function<T, Double> getProperty) {
+	private <T> List<T> getMaxFromList(Set<T> itemList, Function<T, Double> getProperty) {
 		List<T> maxItemList = new ArrayList<>();
-		double maxValue = getProperty.apply(itemList.get(0));
+		double maxValue = Double.NEGATIVE_INFINITY;
 		for (T item : itemList) {
 			if (getProperty.apply(item) > maxValue) {
 				maxItemList.clear();
@@ -254,7 +254,7 @@ public class ASMGraph {
 		}
 	}
 
-	private void updateAndRemoveDupEdge(List<Edge> edgeList) {
+	private void updateAndRemoveDupEdge(Set<Edge> edgeList) {
 		Map<String, Edge> edgeMap = new HashMap<>();
 		Iterator<Edge> edgeIterator = edgeList.iterator();
 		while (edgeIterator.hasNext()) {
