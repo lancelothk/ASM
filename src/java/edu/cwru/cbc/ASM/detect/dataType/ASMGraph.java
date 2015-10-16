@@ -170,8 +170,9 @@ public class ASMGraph {
 		}
 		// update left vertex with new edges
 		right.getAdjEdges().forEach(left::addEdge);
+		right.getAdjEdges().clear();
 		// update edges of vertex which connect both left and right
-		updateAndRemoveDupEdge(edgeList);
+		updateAndRemoveDupEdge(left.getAdjEdges(), edgeList);
 	}
 
 	private void setCoveredCpGMap() {
@@ -254,9 +255,9 @@ public class ASMGraph {
 		}
 	}
 
-	private void updateAndRemoveDupEdge(Set<Edge> edgeList) {
+	private void updateAndRemoveDupEdge(List<Edge> adjEdges, Set<Edge> edgeList) {
 		Map<String, Edge> edgeMap = new HashMap<>();
-		Iterator<Edge> edgeIterator = edgeList.iterator();
+		Iterator<Edge> edgeIterator = adjEdges.iterator();
 		while (edgeIterator.hasNext()) {
 			Edge edgeB = edgeIterator.next();
 			// duplicate edge
@@ -264,8 +265,8 @@ public class ASMGraph {
 				Edge edgeA = edgeMap.get(edgeB.getUniqueId());
 				// keep edgeA, remove edgeB.
 				edgeA.setWeight(edgeA.getWeight() + edgeB.getWeight());
-				edgeB.removeFromVertex();
-				edgeIterator.remove(); // remove from edgelist
+				edgeIterator.remove();
+				edgeList.remove(edgeB); // remove from edgelist
 			} else {
 				edgeMap.put(edgeB.getUniqueId(), edgeB);
 			}
