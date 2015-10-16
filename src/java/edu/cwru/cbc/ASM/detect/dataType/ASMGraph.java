@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * Graph for detecting ASM.
  */
 public class ASMGraph {
-	private Set<Edge> edgeList;
+	private Set<Edge> edgeSet;
 	private Map<String, Vertex> vertexMap; // id,read
 	private Map<Integer, ClusterRefCpG> clusterRefCpGMap; // pos <--> count
 	private Map<String, Vertex> clusterResult;// id,read
@@ -24,7 +24,7 @@ public class ASMGraph {
 	private int originalVertexCount, originalEdgeCount;
 
 	public ASMGraph(List<MappedRead> mappedReadList) {
-		this.edgeList = new LinkedHashSet<>();
+		this.edgeSet = new LinkedHashSet<>();
 		this.vertexMap = new HashMap<>();
 		mappedReadList.forEach(r -> {
 			if (vertexMap.put(r.getId(), new Vertex(r)) != null) {
@@ -36,13 +36,13 @@ public class ASMGraph {
 			for (int j = i + 1; j < mappedReadList.size(); j++) {
 				double score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
 				if (Double.compare(score, Double.MIN_VALUE) != 0) {
-					edgeList.add(new Edge(vertexMap.get(mappedReadList.get(i).getId()),
+					edgeSet.add(new Edge(vertexMap.get(mappedReadList.get(i).getId()),
 							vertexMap.get(mappedReadList.get(j).getId()), score));
 				}
 			}
 		}
 		this.originalVertexCount = vertexMap.size();
-		this.originalEdgeCount = edgeList.size();
+		this.originalEdgeCount = edgeSet.size();
 	}
 
 	private double checkCompatible(MappedRead readA, MappedRead readB) {
@@ -77,17 +77,17 @@ public class ASMGraph {
 	public void cluster() {
 		// merge vertexes connected by positive weight edge
 		while (true) {
-			// if edgeList is empty
-			if (edgeList.size() == 0) {
+			// if edgeSet is empty
+			if (edgeSet.size() == 0) {
 				break;
 			}
 
-			List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
+			List<Edge> maxEdgeList = getMaxFromList(edgeSet, Edge::getWeight);
 			// if max weight < 0, stop merge.
 			if (maxEdgeList.get(0).getWeight() < 0) {
 				break;
 			} else {
-				// since edgeList is not empty, getMaxFromList always returns at least one element
+				// since edgeSet is not empty, getMaxFromList always returns at least one element
 				if (maxEdgeList.size() != 1) {
 					// multiple equal max weight edges.
 					tieWeightCounter++;
@@ -161,7 +161,7 @@ public class ASMGraph {
 		left.addRefCpG(right.getRefCpGMap().values());
 		//remove this edge and right vertex from graph
 		edge.removeFromVertex();
-		edgeList.remove(edge);
+		edgeSet.remove(edge);
 		vertexMap.remove(right.getId());
 		// update right vertex adj edges
 		for (Edge edgeR : right.getAdjEdges()) {
@@ -172,7 +172,7 @@ public class ASMGraph {
 		right.getAdjEdges().forEach(left::addEdge);
 		right.getAdjEdges().clear();
 		// update edges of vertex which connect both left and right
-		updateAndRemoveDupEdge(left.getAdjEdges(), edgeList);
+		updateAndRemoveDupEdge(left.getAdjEdges(), edgeSet);
 	}
 
 	private void setCoveredCpGMap() {
@@ -193,16 +193,16 @@ public class ASMGraph {
 		if (maxCpGGroupCoverage() > 2) {
 			// merge vertexes connected by positive weight edge
 			while (true) {
-				// if edgeList is empty
-				if (edgeList.size() == 0) {
+				// if edgeSet is empty
+				if (edgeSet.size() == 0) {
 					break;
 				}
 
-				List<Edge> maxEdgeList = getMaxFromList(edgeList, Edge::getWeight);
+				List<Edge> maxEdgeList = getMaxFromList(edgeSet, Edge::getWeight);
 				if (maxCpGGroupCoverage() == 2) {
 					break;
 				} else {
-					// since edgeList is not empty, getMaxFromList always returns at least one element
+					// since edgeSet is not empty, getMaxFromList always returns at least one element
 					if (maxEdgeList.size() != 1) {
 						// multiple equal max weight edges.
 						tieWeightCounter++;
@@ -255,7 +255,7 @@ public class ASMGraph {
 		}
 	}
 
-	private void updateAndRemoveDupEdge(List<Edge> adjEdges, Set<Edge> edgeList) {
+	private void updateAndRemoveDupEdge(List<Edge> adjEdges, Set<Edge> edgeSet) {
 		Map<String, Edge> edgeMap = new HashMap<>();
 		Iterator<Edge> edgeIterator = adjEdges.iterator();
 		while (edgeIterator.hasNext()) {
@@ -266,7 +266,7 @@ public class ASMGraph {
 				// keep edgeA, remove edgeB.
 				edgeA.setWeight(edgeA.getWeight() + edgeB.getWeight());
 				edgeIterator.remove();
-				edgeList.remove(edgeB); // remove from edgelist
+				edgeSet.remove(edgeB); // remove from edgelist
 			} else {
 				edgeMap.put(edgeB.getUniqueId(), edgeB);
 			}
