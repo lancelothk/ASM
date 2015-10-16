@@ -96,6 +96,19 @@ public class DetectionPgm {
 						throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
 					}
 				}
+				for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
+					resultList.add(intervalDetectionSummaryFuture.get());
+				}
+				executor.shutdown();
+
+				double regionP_threshold = FDRControl.getBHYFDRCutoff(
+						resultList.stream()
+								.map(IntervalDetectionSummary::getRegionP)
+								.filter(p -> p <= 1 && p >= 0)
+								.collect(Collectors.toList()),
+						FDR_threshold);
+				System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
+				writeDetectionSummary(inputPath, resultList, regionP_threshold);
 			}
 		} else {
 			try {
@@ -105,20 +118,12 @@ public class DetectionPgm {
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
 			}
+			for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
+				resultList.add(intervalDetectionSummaryFuture.get());
+			}
+			executor.shutdown();
 		}
-		for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
-			resultList.add(intervalDetectionSummaryFuture.get());
-		}
-		executor.shutdown();
 
-		double regionP_threshold = FDRControl.getBHYFDRCutoff(
-				resultList.stream()
-						.map(IntervalDetectionSummary::getRegionP)
-						.filter(p -> p <= 1 && p >= 0)
-						.collect(Collectors.toList()),
-				FDR_threshold);
-		System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
-		writeDetectionSummary(inputPath, resultList, regionP_threshold);
 	}
 
 	private static void writeDetectionSummary(String outputPath, List<IntervalDetectionSummary> resultList,
