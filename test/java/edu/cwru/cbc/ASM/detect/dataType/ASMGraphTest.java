@@ -42,7 +42,7 @@ public class ASMGraphTest {
 		mappedReadList.forEach(mr -> mr.generateCpGsInRead(refMap));
 
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);
-		Set edgeList = (Set) FieldUtils.readDeclaredField(asmGraph, "edgeList", true);
+		Set edgeList = (Set) FieldUtils.readDeclaredField(asmGraph, "edgeSet", true);
 		Map vertexMap = (Map) FieldUtils.readDeclaredField(asmGraph, "vertexMap", true);
 		assertEquals("incorrect edge number", 43, edgeList.size());
 		assertEquals("incorrect edge number", 10, vertexMap.size());
