@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,7 +35,7 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * Created by lancelothk on 6/8/15.
  * ASM Detection with whole read info.
  */
-public class Detection {
+public class Detection implements Callable<IntervalDetectionSummary> {
 	public static final int PERMUTATION_TIMES = 1000;
 	private static final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
@@ -44,7 +44,6 @@ public class Detection {
 	private int endPos;
 	private int min_interval_cpg;
 	private double min_fisher_P;
-	private ExecutorService pool;
 
 	/**
 	 * Detection constructor.
@@ -53,14 +52,13 @@ public class Detection {
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
 	 */
-	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage, ExecutorService pool) {
+	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
 		this.min_fisher_P = calcMinFisherP(min_cpg_coverage);
-		this.pool = pool;
 	}
 
-	public IntervalDetectionSummary execute() throws Exception {
+	public IntervalDetectionSummary call() throws Exception {
 		extractIntervalPosition(inputFile);
 
 		// load input

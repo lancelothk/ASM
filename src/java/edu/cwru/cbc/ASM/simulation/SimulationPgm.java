@@ -49,7 +49,7 @@ public class SimulationPgm {
 	}
 
 	/**
-	 * execute data simulation
+	 * call data simulation
 	 *
 	 * @param alpha read will keep same pattern with chosen allele with probability alpha.
 	 * @throws IOException

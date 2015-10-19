@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +35,7 @@ public class DetectionPgm {
 		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("f").hasArg().desc("FDR threshold").required().build());
-		options.addOption(Option.builder("t").hasArg().desc("Thread number to execute the program").required().build());
+		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
@@ -76,8 +78,8 @@ public class DetectionPgm {
 
 		File inputFile = new File(inputPath);
 		List<IntervalDetectionSummary> resultList = new ArrayList<>();
-//		ExecutorService pool = Executors.newFixedThreadPool(threadNumber);
-		ForkJoinPool pool = new ForkJoinPool(threadNumber);
+		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
+		List<Future<IntervalDetectionSummary>> futureList = new ArrayList<>();
 		if (inputFile.isDirectory()) {
 			File[] files = inputFile.listFiles();
 			if (files == null) {
@@ -86,13 +88,19 @@ public class DetectionPgm {
 				for (File file : files) {
 					try {
 						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
-							Detection detection = new Detection(file, min_interval_cpg, min_cpg_coverage, pool);
-							resultList.add(detection.execute());
+							Future<IntervalDetectionSummary> future = executor.submit(
+									new Detection(file, min_interval_cpg, min_cpg_coverage));
+							futureList.add(future);
 						}
 					} catch (Exception e) {
 						throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
 					}
 				}
+				for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
+					resultList.add(intervalDetectionSummaryFuture.get());
+				}
+				executor.shutdown();
+
 				double regionP_threshold = FDRControl.getBHYFDRCutoff(
 						resultList.stream()
 								.map(IntervalDetectionSummary::getRegionP)
@@ -104,11 +112,16 @@ public class DetectionPgm {
 			}
 		} else {
 			try {
-				Detection detection = new Detection(inputFile, min_interval_cpg, min_cpg_coverage, pool);
-				detection.execute();
+				Future<IntervalDetectionSummary> future = executor.submit(
+						new Detection(inputFile, min_interval_cpg, min_cpg_coverage));
+				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
 			}
+			for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
+				resultList.add(intervalDetectionSummaryFuture.get());
+			}
+			executor.shutdown();
 		}
 
 	}

@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.net.URL;
-import java.util.concurrent.ForkJoinPool;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -47,8 +46,8 @@ public class DetectionTest {
 	public void test_detection() throws Exception {
 		URL file = getClass().getClassLoader().getResource("chr20-25795835-25796072.mappedreads");
 		assertNotNull(file);
-		Detection detection = new Detection(new File(file.getFile()), 5, 4, new ForkJoinPool(2));
-		IntervalDetectionSummary intervalDetectionSummary = detection.execute();
+		Detection detection = new Detection(new File(file.getFile()), 5, 4);
+		IntervalDetectionSummary intervalDetectionSummary = detection.call();
 		String[] itemList = intervalDetectionSummary.getSummaryString(0).split("\t");
 		assertEquals("MEC", "28.000000", itemList[10]);
 		assertEquals("normMEC", "0.210526", itemList[11]);
