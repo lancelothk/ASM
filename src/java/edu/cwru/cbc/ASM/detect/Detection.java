@@ -25,11 +25,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
@@ -121,23 +119,16 @@ public class Detection {
 	}
 
 	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
-		try {
-			return pool.submit(() ->
-					IntStream.range(0, PERMUTATION_TIMES).parallel().map(i -> {
-						ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-						randGraph.cluster();
-						double randP = getRegionP(randGraph,
-								getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-						if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}).sum()).get();
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+		for (int i = 1; i <= PERMUTATION_TIMES; i++) {
+			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+			randGraph.cluster();
+			double randP = getRegionP(randGraph,
+					getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
+				return i;
+			}
 		}
-		return -1;
+		return 0;
 	}
 
 	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {
