@@ -2,7 +2,6 @@ package edu.cwru.cbc.ASM.detect.dataType;
 
 import com.google.common.collect.Sets;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
-import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
@@ -40,36 +39,30 @@ public class ASMGraph {
 				}
 			}
 		}
+
 		this.originalVertexCount = vertexMap.size();
 		this.originalEdgeCount = edgeSet.size();
 	}
 
 	private double checkCompatible(MappedRead readA, MappedRead readB) {
-		try {
-			if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
-					readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
-				int score = 0;
-				for (CpG cpgA : readA.getCpgList()) {
-					for (CpG cpgB : readB.getCpgList()) {
-						if (cpgA.getPos() == cpgB.getPos()) {
-							if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
-								assert cpgA.getMethylStatus() != MethylStatus.N;
-								assert cpgB.getMethylStatus() != MethylStatus.N;
-								score--;
-							} else {
-								score++;
-							}
+		if (readA.getFirstCpG().getPos() <= readB.getLastCpG().getPos() &&
+				readA.getLastCpG().getPos() >= readB.getFirstCpG().getPos()) {
+			int score = 0;
+			for (CpG cpgA : readA.getCpgList()) {
+				for (CpG cpgB : readB.getCpgList()) {
+					if (cpgA.getPos() == cpgB.getPos()) {
+						if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
+							score--;
+						} else {
+							score++;
 						}
 					}
 				}
-				return score;
-			} else {
-				// don't have overlapped CpG, non-connected
-				return Double.MIN_VALUE;
 			}
-		} catch (Exception e) {
-			System.out.printf("");
-			throw e;
+			return score;
+		} else {
+			// don't have overlapped CpG, non-connected
+			return Double.MIN_VALUE;
 		}
 	}
 
@@ -152,16 +145,21 @@ public class ASMGraph {
 		edge.removeFromVertex();
 		edgeSet.remove(edge);
 		vertexMap.remove(right.getId());
+
+		updateAdjEdges(left, right);
+
+		// update edges of vertex which connect both left and right
+		updateAndRemoveDupEdge(left.getAdjEdges(), edgeSet);
+	}
+
+	private void updateAdjEdges(Vertex left, Vertex right) {
 		// update right vertex adj edges
 		for (Edge edgeR : right.getAdjEdges()) {
 			// update new vertex
 			edgeR.replaceVertex(right, left);
 		}
 		// update left vertex with new edges
-		right.getAdjEdges().forEach(left::addEdge);
-		right.getAdjEdges().clear();
-		// update edges of vertex which connect both left and right
-		updateAndRemoveDupEdge(left.getAdjEdges(), edgeSet);
+		left.getAdjEdges().addAll(right.getAdjEdges());
 	}
 
 	private void setCoveredCpGMap() {
