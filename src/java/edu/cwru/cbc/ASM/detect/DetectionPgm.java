@@ -14,8 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -77,8 +76,8 @@ public class DetectionPgm {
 
 		File inputFile = new File(inputPath);
 		List<IntervalDetectionSummary> resultList = new ArrayList<>();
-		ExecutorService pool = Executors.newFixedThreadPool(threadNumber);
-//		ForkJoinPool pool = new ForkJoinPool(threadNumber);
+//		ExecutorService pool = Executors.newFixedThreadPool(threadNumber);
+		ForkJoinPool pool = new ForkJoinPool(threadNumber);
 		if (inputFile.isDirectory()) {
 			File[] files = inputFile.listFiles();
 			if (files == null) {
