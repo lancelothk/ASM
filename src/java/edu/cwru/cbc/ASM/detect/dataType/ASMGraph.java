@@ -146,20 +146,36 @@ public class ASMGraph {
 		edgeSet.remove(edge);
 		vertexMap.remove(right.getId());
 
-		updateAdjEdges(left, right);
+		updateAdjEdges(left, right, edgeSet);
 
-		// update edges of vertex which connect both left and right
-		updateAndRemoveDupEdge(left.getAdjEdges(), edgeSet);
 	}
 
-	private void updateAdjEdges(Vertex left, Vertex right) {
+	private void updateAdjEdges(Vertex left, Vertex right, Set<Edge> edgeSet) {
+		HashMap<String, Edge> leftAdjEdgeMap = getStringEdgeHashMap(left);
 		// update right vertex adj edges
-		for (Edge edgeR : right.getAdjEdges()) {
+		for (Edge rightEdge : right.getAdjEdgeList()) {
 			// update new vertex
-			edgeR.replaceVertex(right, left);
+			rightEdge.replaceVertex(right, left);
+			updateEdges(left, edgeSet, leftAdjEdgeMap, rightEdge);
 		}
-		// update left vertex with new edges
-		left.getAdjEdges().addAll(right.getAdjEdges());
+	}
+
+	private void updateEdges(Vertex left, Set<Edge> edgeSet, HashMap<String, Edge> leftAdjEdgeMap, Edge rightEdge) {
+		if (leftAdjEdgeMap.containsKey(rightEdge.getUniqueId())) {
+			// update left edge weight
+			Edge leftEdge = leftAdjEdgeMap.get(rightEdge.getUniqueId());
+			leftEdge.setWeight(leftEdge.getWeight() + rightEdge.getWeight());
+			rightEdge.removeFromVertex();
+			edgeSet.remove(rightEdge);
+		} else {
+			left.addEdge(rightEdge);
+		}
+	}
+
+	private HashMap<String, Edge> getStringEdgeHashMap(Vertex left) {
+		HashMap<String, Edge> leftAdjEdgeMap = new HashMap<>();
+		left.getAdjEdgeList().forEach(e -> leftAdjEdgeMap.put(e.getUniqueId(), e));
+		return leftAdjEdgeMap;
 	}
 
 	private void setCoveredCpGMap() {
@@ -238,24 +254,6 @@ public class ASMGraph {
 			// break loop when no more vertex can be merged.
 			if (prevSize == vertexMap.size()) {
 				break;
-			}
-		}
-	}
-
-	private void updateAndRemoveDupEdge(List<Edge> adjEdges, Set<Edge> edgeSet) {
-		Map<String, Edge> edgeMap = new HashMap<>();
-		Iterator<Edge> edgeIterator = adjEdges.iterator();
-		while (edgeIterator.hasNext()) {
-			Edge edgeB = edgeIterator.next();
-			// duplicate edge
-			if (edgeMap.containsKey(edgeB.getUniqueId())) {
-				Edge edgeA = edgeMap.get(edgeB.getUniqueId());
-				// keep edgeA, remove edgeB.
-				edgeA.setWeight(edgeA.getWeight() + edgeB.getWeight());
-				edgeIterator.remove();
-				edgeSet.remove(edgeB); // remove from edgelist
-			} else {
-				edgeMap.put(edgeB.getUniqueId(), edgeB);
 			}
 		}
 	}

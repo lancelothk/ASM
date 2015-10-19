@@ -14,11 +14,11 @@ public class Edge {
 		if (left == right) {
 			throw new RuntimeException("same vertex in one edge!" + left.getId());
 		}
-		left.addEdge(this);
-		right.addEdge(this);
 		this.left = left;
 		this.right = right;
 		this.weight = weight;
+		left.addEdge(this);
+		right.addEdge(this);
 		calcId();
 	}
 
@@ -71,15 +71,5 @@ public class Edge {
 
 	public String getUniqueId() {
 		return id == null ? calcId() : id;
-	}
-
-	public Vertex getOtherVertex(Vertex v) {
-		if (v.getId().equals(left.getId())) {
-			return right;
-		} else if (v.getId().equals(right.getId())) {
-			return left;
-		} else {
-			return null;
-		}
 	}
 }

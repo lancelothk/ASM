@@ -13,13 +13,13 @@ import java.util.*;
  */
 public class Vertex {
 	private String id;
-	private List<Edge> adjEdges;
+	private List<Edge> adjEdgeList;
 	private List<MappedRead> mappedReadList;
 	private Map<Integer, RefCpG> refCpGMap; // position-RefCpG
 
 	public Vertex(MappedRead mappedRead) {
 		this.id = mappedRead.getId();
-		this.adjEdges = new ArrayList<>();
+		this.adjEdgeList = new ArrayList<>();
 		this.mappedReadList = new ArrayList<>();
 		this.mappedReadList.add(mappedRead);
 		this.refCpGMap = new HashMap<>();
@@ -52,11 +52,11 @@ public class Vertex {
 	}
 
 	public void addEdge(Edge edge) {
-		this.adjEdges.add(edge);
+		this.adjEdgeList.add(edge);
 	}
 
 	public void removeEdge(Edge edge) {
-		this.adjEdges.remove(edge);
+		this.adjEdgeList.remove(edge);
 	}
 
 	public void addMappedRead(List<MappedRead> mappedReadList) {
@@ -67,8 +67,8 @@ public class Vertex {
 		return id;
 	}
 
-	public List<Edge> getAdjEdges() {
-		return adjEdges;
+	public List<Edge> getAdjEdgeList() {
+		return adjEdgeList;
 	}
 
 	public List<MappedRead> getMappedReadList() {
