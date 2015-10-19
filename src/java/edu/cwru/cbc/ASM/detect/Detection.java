@@ -25,7 +25,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,7 +37,7 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * Created by lancelothk on 6/8/15.
  * ASM Detection with whole read info.
  */
-public class Detection implements Callable<IntervalDetectionSummary> {
+public class Detection {
 	public static final int PERMUTATION_TIMES = 1000;
 	private static final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
@@ -45,6 +46,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private int endPos;
 	private int min_interval_cpg;
 	private double min_fisher_P;
+	private ExecutorService pool;
 
 	/**
 	 * Detection constructor.
@@ -53,13 +55,14 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
 	 */
-	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage) {
+	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage, ExecutorService pool) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
 		this.min_fisher_P = calcMinFisherP(min_cpg_coverage);
+		this.pool = pool;
 	}
 
-	public IntervalDetectionSummary call() throws Exception {
+	public IntervalDetectionSummary execute() throws Exception {
 		extractIntervalPosition(inputFile);
 
 		// load input
@@ -118,16 +121,23 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
-		return IntStream.range(0, PERMUTATION_TIMES).parallel().map(i -> {
-			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
-			randGraph.cluster();
-			double randP = getRegionP(randGraph, getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
-			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}).sum();
+		try {
+			return pool.submit(() ->
+					IntStream.range(0, PERMUTATION_TIMES).parallel().map(i -> {
+						ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
+						randGraph.cluster();
+						double randP = getRegionP(randGraph,
+								getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+						if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}).sum()).get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {
