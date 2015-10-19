@@ -7,7 +7,6 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -82,19 +81,19 @@ public class ASMGraph {
 				break;
 			}
 
-			List<Edge> maxEdgeList = getMaxFromList(edgeSet, Edge::getWeight);
+			List<Edge> maxEdgeList = getMaxWeightEdge(edgeSet);
 			// if max weight < 0, stop merge.
 			if (maxEdgeList.get(0).getWeight() < 0) {
 				break;
 			} else {
-				// since edgeSet is not empty, getMaxFromList always returns at least one element
+				// since edgeSet is not empty, getMaxWeightEdge always returns at least one element
 				if (maxEdgeList.size() != 1) {
 					// multiple equal max weight edges.
 					tieWeightCounter++;
 
 					// First pick edge not connect to two clusters.
 					// sort edge by id count. Smaller first
-					maxEdgeList = getMinFromList(maxEdgeList, Edge::getIdCount);
+					maxEdgeList = getMinIdCountEdge(maxEdgeList);
 					if (maxEdgeList.size() != 1) {
 						tieIdCountCounter++;
 					}
@@ -110,20 +109,15 @@ public class ASMGraph {
 		this.clusterResult = vertexMap;
 	}
 
-	/**
-	 * select items with max property value in the list.
-	 *
-	 * @return list contains items with max weight
-	 */
-	private <T> List<T> getMaxFromList(Set<T> itemList, Function<T, Double> getProperty) {
-		List<T> maxItemList = new ArrayList<>();
+	private List<Edge> getMaxWeightEdge(Set<Edge> itemList) {
+		List<Edge> maxItemList = new ArrayList<>();
 		double maxValue = Double.NEGATIVE_INFINITY;
-		for (T item : itemList) {
-			if (getProperty.apply(item) > maxValue) {
+		for (Edge item : itemList) {
+			if (item.getWeight() > maxValue) {
 				maxItemList.clear();
 				maxItemList.add(item);
-				maxValue = getProperty.apply(item);
-			} else if (getProperty.apply(item) == maxValue) {
+				maxValue = item.getWeight();
+			} else if (item.getWeight() == maxValue) {
 				maxItemList.add(item);
 			}
 		}
@@ -133,20 +127,15 @@ public class ASMGraph {
 		return maxItemList;
 	}
 
-	/**
-	 * select items with min property value in the list.
-	 *
-	 * @return list contains items with min weight
-	 */
-	private <T> List<T> getMinFromList(List<T> itemList, Function<T, Integer> getProperty) {
-		List<T> minItemList = new ArrayList<>();
-		int minValue = getProperty.apply(itemList.get(0));
-		for (T item : itemList) {
-			if (getProperty.apply(item) < minValue) {
+	private List<Edge> getMinIdCountEdge(List<Edge> itemList) {
+		List<Edge> minItemList = new ArrayList<>();
+		int minValue = itemList.get(0).getIdCount();
+		for (Edge item : itemList) {
+			if (item.getIdCount() < minValue) {
 				minItemList.clear();
 				minItemList.add(item);
-				minValue = getProperty.apply(item);
-			} else if (getProperty.apply(item) == minValue) {
+				minValue = item.getIdCount();
+			} else if (item.getIdCount() == minValue) {
 				minItemList.add(item);
 			}
 		}
@@ -198,18 +187,18 @@ public class ASMGraph {
 					break;
 				}
 
-				List<Edge> maxEdgeList = getMaxFromList(edgeSet, Edge::getWeight);
+				List<Edge> maxEdgeList = getMaxWeightEdge(edgeSet);
 				if (maxCpGGroupCoverage() == 2) {
 					break;
 				} else {
-					// since edgeSet is not empty, getMaxFromList always returns at least one element
+					// since edgeSet is not empty, getMaxWeightEdge always returns at least one element
 					if (maxEdgeList.size() != 1) {
 						// multiple equal max weight edges.
 						tieWeightCounter++;
 
 						// First pick edge not connect to two clusters.
 						// sort edge by id count. Smaller first
-						maxEdgeList = getMinFromList(maxEdgeList, Edge::getIdCount);
+						maxEdgeList = getMinIdCountEdge(maxEdgeList);
 						if (maxEdgeList.size() != 1) {
 							tieIdCountCounter++;
 						}
