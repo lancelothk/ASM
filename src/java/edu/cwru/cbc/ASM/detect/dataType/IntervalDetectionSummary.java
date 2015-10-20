@@ -17,11 +17,12 @@ public class IntervalDetectionSummary {
 	private static String formatLine;
 	private Object[] arguments;
 	private double regionP;
+	private boolean random;
 
-
-	public IntervalDetectionSummary(double regionP, Object... arguments) {
+	public IntervalDetectionSummary(double regionP, boolean random, Object... arguments) {
 		this.regionP = regionP;
 		this.arguments = arguments;
+		this.random = random;
 	}
 
 	public static void initializeFormat(ImmutableList<Pair<String, String>> elementPairList) {
@@ -45,6 +46,10 @@ public class IntervalDetectionSummary {
 			throw new RuntimeException("uninitialized head line!");
 		}
 		return headLine;
+	}
+
+	public boolean isRandom() {
+		return random;
 	}
 
 	public double getRegionP() {
