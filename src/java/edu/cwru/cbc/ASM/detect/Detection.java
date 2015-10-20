@@ -36,7 +36,6 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * ASM Detection with whole read info.
  */
 public class Detection implements Callable<IntervalDetectionSummary> {
-	public static final int PERMUTATION_TIMES = 1000;
 	private static final int ALIGN_COL_SIZE = 12;
 	private File inputFile;
 	private String chr;
@@ -44,18 +43,20 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private int endPos;
 	private int min_interval_cpg;
 	private double min_fisher_P;
+	private int permTime;
 
 	/**
 	 * Detection constructor.
-	 *
-	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 *  @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
+	 * @param permTime  Time of random permutation
 	 */
-	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage) {
+	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage, int permTime) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
 		this.min_fisher_P = calcMinFisherP(min_cpg_coverage);
+		this.permTime = permTime;
 	}
 
 	public IntervalDetectionSummary call() throws Exception {
@@ -117,7 +118,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
-		for (int i = 1; i <= PERMUTATION_TIMES; i++) {
+		for (int i = 1; i <= permTime; i++) {
 			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
 			randGraph.cluster();
 			double randP = getRegionP(randGraph,

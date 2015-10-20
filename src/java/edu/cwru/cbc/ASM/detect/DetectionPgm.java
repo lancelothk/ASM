@@ -35,6 +35,7 @@ public class DetectionPgm {
 		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("f").hasArg().desc("FDR threshold").required().build());
+		options.addOption(Option.builder("p").hasArg().desc("Time of random permutation").required().build());
 		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
 
 		CommandLineParser parser = new DefaultParser();
@@ -44,13 +45,15 @@ public class DetectionPgm {
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
 		int min_cpg_coverage = Integer.valueOf(cmd.getOptionValue("mcc"));
 		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
+		int permTime = Integer.valueOf(cmd.getOptionValue("p"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
-		execute(inputPath, threadNumber, min_interval_cpg, min_cpg_coverage, FDR_threshold);
+		execute(inputPath, threadNumber, min_interval_cpg, min_cpg_coverage, FDR_threshold, permTime);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
 	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, int min_cpg_coverage,
-	                            double FDR_threshold) throws ExecutionException, InterruptedException, IOException {
+	                            double FDR_threshold, int permTime) throws ExecutionException, InterruptedException,
+			IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
 				new ImmutableList.Builder<Pair<String, String>>().add(new ImmutablePair<>("chr", "%s"))
@@ -89,7 +92,7 @@ public class DetectionPgm {
 					try {
 						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
 							Future<IntervalDetectionSummary> future = executor.submit(
-									new Detection(file, min_interval_cpg, min_cpg_coverage));
+									new Detection(file, min_interval_cpg, min_cpg_coverage, permTime));
 							futureList.add(future);
 						}
 					} catch (Exception e) {
@@ -113,7 +116,7 @@ public class DetectionPgm {
 		} else {
 			try {
 				Future<IntervalDetectionSummary> future = executor.submit(
-						new Detection(inputFile, min_interval_cpg, min_cpg_coverage));
+						new Detection(inputFile, min_interval_cpg, min_cpg_coverage, permTime));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
