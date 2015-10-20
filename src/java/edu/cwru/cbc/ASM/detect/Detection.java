@@ -15,8 +15,6 @@ import edu.cwru.cbc.ASM.detect.dataType.*;
 import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.math3.distribution.ChiSquaredDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.FastMath;
 
@@ -26,7 +24,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
@@ -81,10 +78,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
 
-		double regionP = getRegionP(graph, twoClusterRefCpGList);
+		double regionP = getRegionP(twoClusterRefCpGList, graph.getClusterResult().values());
 
 		// calculate daviesBouldin index
-		double clusterIndex = calcClusterIndex(graph, twoClusterRefCpGList);
+		double clusterIndex = DetectionUtils.calcClusterIndex(twoClusterRefCpGList, graph.getClusterResult().values());
 
 		List<GroupResult> groupResultList = writeGroupResult(inputFile.getAbsolutePath(), refCpGList, graph);
 		if (graph.getClusterResult().values().size() != 2) {
@@ -121,8 +118,9 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		for (int i = 1; i <= permTime; i++) {
 			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
 			randGraph.cluster();
-			double randP = getRegionP(randGraph,
-					getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()));
+			double randP = getRegionP(
+					getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()),
+					randGraph.getClusterResult().values());
 			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
 				return i;
 			}
@@ -140,19 +138,19 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return mappedReadList;
 	}
 
-	private double getRegionP(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
+	private double getRegionP(List<RefCpG> twoClusterRefCpGList, Collection<Vertex> clusterResults) {
 		double regionP;
 		if (twoClusterRefCpGList.size() < min_interval_cpg) {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
-		} else if (fisherTest(graph.getClusterResult(), twoClusterRefCpGList)) {
+		} else if (DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults)) {
 			if (twoClusterRefCpGList.stream()
 					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
 					.count() < min_interval_cpg) {
 				regionP = 3;
 			} else {
 				// get fisher test P values for each refCpG in clusters.
-				regionP = calcRegionP_WeightedStoufferComb(twoClusterRefCpGList);
+				regionP = DetectionUtils.calcRegionP_StoufferComb(twoClusterRefCpGList);
 
 				// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
 				twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
@@ -164,34 +162,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			regionP = 2;
 		}
 		return regionP;
-	}
-
-	private double calcClusterIndex(ASMGraph graph, List<RefCpG> twoClusterRefCpGList) {
-		if (graph.getClusterResult().values().size() != 2) {
-			return 1;
-		}
-		Vertex cluster1 = Iterables.get(graph.getClusterResult().values(), 0);
-		Vertex cluster2 = Iterables.get(graph.getClusterResult().values(), 1);
-		double interClusterDistance = 0, intraClusterDistance = (cluster1.getIntraClusterDistance(
-				twoClusterRefCpGList) + cluster2.getIntraClusterDistance(twoClusterRefCpGList)) / 2;
-		for (RefCpG refCpG : twoClusterRefCpGList) {
-			interClusterDistance += Math.abs(cluster1.getRefCpGMap().get(refCpG.getPos()).getMethylLevel()
-					- cluster2.getRefCpGMap().get(refCpG.getPos()).getMethylLevel());
-		}
-		// TODO: may consider to use Euclidean distance here
-		return intraClusterDistance / interClusterDistance;
-	}
-
-	private <T> double calcEuclidDistance(List<T> itemListA, List<T> itemListB, Function<T, Double> getProperty) {
-		if (itemListA.size() != itemListB.size()) {
-			throw new RuntimeException("different size of list to calculate distance!");
-		}
-		// List A and B have same size
-		double distance = 0;
-		for (int i = 0; i < itemListA.size(); i++) {
-			distance += Math.pow(getProperty.apply(itemListA.get(i)) - getProperty.apply(itemListB.get(i)), 2);
-		}
-		return Math.sqrt(distance);
 	}
 
 	private double calcMinFisherP(int min_cpg_coverage) {
@@ -218,33 +188,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 						refCpG.getPos())).collect(Collectors.toList());
 	}
 
-	private boolean fisherTest(Map<String, Vertex> graphResultMap, List<RefCpG> twoClusterRefCpGList) {
-		if (graphResultMap.size() == 2) { // cluster size == 2
-			for (RefCpG refCpG : twoClusterRefCpGList) {
-				int j = 0;
-				int[][] matrix = new int[2][2];
-				for (Vertex vertex : graphResultMap.values()) {
-					if (vertex.getRefCpGMap().containsKey(refCpG.getPos())) {
-						matrix[j][0] = vertex.getRefCpGMap().get(refCpG.getPos()).getMethylCount();
-						matrix[j][1] = vertex.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount();
-						j++;
-					}
-				}
-				double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
-						matrix[1][1])[0];  // [0] is two tail test.
-				if (fisher_P >= 0 && fisher_P <= 1) {
-					refCpG.setP_value(fisher_P);
-				} else {
-					throw new RuntimeException("p value is not in [0,1]!");
-				}
-
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	private List<GroupResult> writeGroupResult(String inputFilePath, List<RefCpG> refCpGList, ASMGraph graph) throws
 			IOException {
 		BufferedWriter groupResultWriter = new BufferedWriter(
@@ -254,9 +197,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		groupResultWriter.write(String.format("tied weight counter:%d\n", graph.getTieWeightCounter()));
 		groupResultWriter.write(String.format("tied id counter:%d\n", graph.getTieIdCountCounter()));
 
-		printRefCpGGroupCoverage(refCpGList, graph, groupResultWriter);
+		printRefCpGGroupCoverage(refCpGList, groupResultWriter, graph.getClusterRefCpGMap());
 
-		List<GroupResult> groupResultList = writeAlignedResult(refCpGList, graph, groupResultWriter);
+		List<GroupResult> groupResultList = writeAlignedResult(refCpGList, groupResultWriter, graph.getClusterResult()
+				.values());
 		writePvalues(refCpGList, groupResultWriter);
 
 		writeGroupReadList(groupResultWriter, groupResultList);
@@ -292,21 +236,21 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return p;
 	}
 
-	private void printRefCpGGroupCoverage(List<RefCpG> refCpGList, ASMGraph graph,
-	                                      BufferedWriter groupResultWriter) throws IOException {
+	private void printRefCpGGroupCoverage(List<RefCpG> refCpGList, BufferedWriter groupResultWriter,
+	                                      Map<Integer, ClusterRefCpG> clusterRefCpGMap) throws IOException {
 		// print refCpG's group coverage
 		for (RefCpG refCpG : refCpGList) {
-			if (graph.getClusterRefCpGMap().containsKey(refCpG.getPos())) {
+			if (clusterRefCpGMap.containsKey(refCpG.getPos())) {
 				groupResultWriter.write(String.format("pos: %d\tcount: %d\n", refCpG.getPos(),
-						graph.getClusterRefCpGMap().get(refCpG.getPos()).getClusterCount()));
+						clusterRefCpGMap.get(refCpG.getPos()).getClusterCount()));
 			}
 		}
 	}
 
-	private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, ASMGraph graph,
-	                                             BufferedWriter groupResultWriter) throws IOException {
-		List<GroupResult> groupResultList = graph.getClusterResult()
-				.values()
+	private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList,
+	                                             BufferedWriter groupResultWriter,
+	                                             Collection<Vertex> clusterResults) throws IOException {
+		List<GroupResult> groupResultList = clusterResults
 				.stream()
 				.map(vertex -> new GroupResult(new ArrayList<>(vertex.getRefCpGMap().values()),
 						vertex.getMappedReadList(), vertex.getMECScore()))
@@ -388,38 +332,4 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		return p;
 	}
 
-	private double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {
-		NormalDistribution stdNorm = new NormalDistribution(0, 1);
-		double z = twoClusterRefCpGList.stream()
-				.mapToDouble(refCpG -> refCpG.getP_value() == 1 ? 0 : stdNorm.inverseCumulativeProbability(
-						1 - refCpG.getP_value())).sum() / Math.sqrt(twoClusterRefCpGList.size());
-		return 1 - stdNorm.cumulativeProbability(z);
-	}
-
-	private double calcRegionP_WeightedStoufferComb(List<RefCpG> twoClusterRefCpGList) {
-		NormalDistribution stdNorm = new NormalDistribution(0, 1);
-		double z = twoClusterRefCpGList.stream()
-				.mapToDouble(
-						refCpG -> refCpG.getCoveredCount() * (refCpG.getP_value() == 1 ? 0 : stdNorm.inverseCumulativeProbability(
-								1 - refCpG.getP_value()))).sum() / Math.sqrt(twoClusterRefCpGList.stream()
-				.mapToInt(refCpG -> refCpG.getCoveredCount() * refCpG.getCoveredCount())
-				.sum());
-		return 1 - stdNorm.cumulativeProbability(z);
-	}
-
-	private double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
-		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
-		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
-		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
-	}
-
-	private double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
-		double minP = Double.MAX_VALUE;
-		for (RefCpG refCpG : twoClusterRefCpGList) {
-			if (minP > refCpG.getP_value()) {
-				minP = refCpG.getP_value();
-			}
-		}
-		return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
-	}
 }
