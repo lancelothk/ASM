@@ -46,7 +46,7 @@ public class DetectionPgm {
 		int min_cpg_coverage = Integer.valueOf(cmd.getOptionValue("mcc"));
 		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
 		int permTime = Integer.valueOf(cmd.getOptionValue("p"));
-		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "6"));
+		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "1"));
 		execute(inputPath, threadNumber, min_interval_cpg, min_cpg_coverage, FDR_threshold, permTime);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
