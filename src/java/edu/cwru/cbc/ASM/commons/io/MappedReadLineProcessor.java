@@ -62,23 +62,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 				return true;
 			} else {
 				List<String> itemList = tabSplitter.splitToList(line);
-				if (isPairEnd) {
-					//TODO
-				} else {
-					char strand;
-					if ((Integer.parseInt(itemList.get(1)) & 16) == 16) {
-						strand = '-';
-					} else {
-						strand = '+';
-					}
-					validateRead(itemList.get(9));
-					// sam format position is 1-based
-					addMappedReadToMap(
-							new MappedRead(itemList.get(2), strand, Integer.parseInt(itemList.get(3)) - 1,
-									strand == '-' ? MappedRead.getComplementarySequence(itemList.get(9)) : itemList.get(
-											9),
-									itemList.get(0)));
-				}
+				processSAMRead(itemList, isPairEnd);
 				return true;
 			}
 		} catch (Exception e) {
@@ -87,9 +71,89 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 		}
 	}
 
+	private void processSAMRead(List<String> itemList, boolean isPairEnd) {
+		char strand;
+		if (isPairEnd) {
+			if (Integer.parseInt(itemList.get(1)) == 99 || Integer.parseInt(itemList.get(1)) == 147) {
+				strand = '+';
+			} else if (Integer.parseInt(itemList.get(1)) == 83 || Integer.parseInt(itemList.get(1)) == 163) {
+				strand = '-';
+			} else {
+				throw new RuntimeException("invalid paired end bismark sam flag!");
+			}
+			validateRead(itemList.get(9));
+			// sam format position is 1-based
+			addPairedMappedReadToMap(
+					new MappedRead(itemList.get(2), strand, Integer.parseInt(itemList.get(3)) - 1,
+							strand == '-' ? MappedRead.getComplementarySequence(itemList.get(9)) : itemList.get(9),
+							itemList.get(0),
+							Integer.parseInt(itemList.get(1)) == 99 || Integer.parseInt(itemList.get(1)) == 83));
+		} else {
+			if (Integer.parseInt(itemList.get(1)) == 0) {
+				strand = '+';
+			} else if (Integer.parseInt(itemList.get(1)) == 16) {
+				strand = '-';
+			} else {
+				throw new RuntimeException("invalid single end bismark sam flag!");
+			}
+			validateRead(itemList.get(9));
+			// sam format position is 1-based
+			addMappedReadToMap(
+					new MappedRead(itemList.get(2), strand, Integer.parseInt(itemList.get(3)) - 1,
+							strand == '-' ? MappedRead.getComplementarySequence(itemList.get(9)) : itemList.get(9),
+							itemList.get(0)));
+		}
+	}
+
+	private void addPairedMappedReadToMap(MappedRead newRead) {
+		if (mappedReadLinkedHashMap.containsKey(newRead.getId())) {
+			MappedRead existRead = mappedReadLinkedHashMap.get(newRead.getId());
+			if (isInOrder(existRead, newRead)) {
+				// existRead is first
+				existRead.updateSequence(combinePERead(existRead.getSequence(), newRead.getSequence(),
+						newRead.getEnd() - existRead.getStart() + 1));
+			} else {
+				// mappedRead is first
+				existRead.updateSequence(combinePERead(newRead.getSequence(), existRead.getSequence(),
+						existRead.getEnd() - newRead.getStart() + 1));
+				existRead.setStart(newRead.getStart());
+			}
+			if (!criteria.test(existRead)) {
+				mappedReadLinkedHashMap.remove(existRead.getId());
+			}
+		} else {
+			mappedReadLinkedHashMap.put(newRead.getId(), newRead);
+		}
+	}
+
+	private boolean isInOrder(MappedRead existRead, MappedRead newRead) {
+		if (existRead.getStrand() != newRead.getStrand()) {
+			throw new RuntimeException("invalid paired end data!(from different strand)");
+		}
+		if (existRead.isFirstInPair() == newRead.isFirstInPair()) {
+			throw new RuntimeException("invalid paired end data!(have same flag)");
+		}
+		if (existRead.getStrand() == '+') {
+			return existRead.isFirstInPair();
+		} else if (existRead.getStrand() == '-') {
+			return !existRead.isFirstInPair();
+		} else {
+			throw new RuntimeException("invalid strand!");
+		}
+	}
+
 	private String combinePERead(String p1, String p2, int length) {
+		if (length < 0) {
+			throw new RuntimeException("invalid new length:" + length);
+		}
+		@SuppressWarnings("StringBufferReplaceableByString")
 		StringBuilder sb = new StringBuilder(length);
-		sb.append(p1).append(StringUtils.repeat('-', length - p1.length() - p2.length())).append(p2);
+		int offset = length - p1.length() - p2.length();
+		if (offset < 0) {
+			sb.append(p1).append(p2.substring(-1 * offset));
+		} else {
+			sb.append(p1).append(StringUtils.repeat('-', offset)).append(p2);
+		}
 		return sb.toString();
 	}
 

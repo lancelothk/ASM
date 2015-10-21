@@ -18,11 +18,12 @@ import java.util.function.BiConsumer;
  */
 public class MappedRead implements Comparable<MappedRead> {
 	private final String id;
-	private final String sequence;
 	private final String chr;
 	private final char strand;
 	private int start;
+	private String sequence;
 	private List<CpG> cpgList;
+	private boolean isFirstInPair;
 
 	public MappedRead(String chr, char strand, int start, String sequence, String id) {
 		this.id = id;
@@ -30,6 +31,12 @@ public class MappedRead implements Comparable<MappedRead> {
 		this.chr = chr;
 		this.strand = strand;
 		this.start = start;
+		this.cpgList = new ArrayList<>();
+	}
+
+	public MappedRead(String chr, char strand, int start, String sequence, String id, boolean isFirstInPair) {
+		this(chr, strand, start, sequence, id);
+		this.isFirstInPair = isFirstInPair;
 		this.cpgList = new ArrayList<>();
 	}
 
@@ -110,6 +117,10 @@ public class MappedRead implements Comparable<MappedRead> {
 		return stringBuilder.toString();
 	}
 
+	public boolean isFirstInPair() {
+		return isFirstInPair;
+	}
+
 	/**
 	 * This method associate RefCpG <-> CpG <-> MappedRead
 	 */
@@ -128,6 +139,14 @@ public class MappedRead implements Comparable<MappedRead> {
 
 	public int getStart() {
 		return start;
+	}
+
+	public void setStart(int start) {
+		this.start = start;
+	}
+
+	public void updateSequence(String newSeq) {
+		this.sequence = newSeq;
 	}
 
 	/**
