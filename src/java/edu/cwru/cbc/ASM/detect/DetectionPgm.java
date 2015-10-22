@@ -104,11 +104,12 @@ public class DetectionPgm {
 				}
 				executor.shutdown();
 
+				resultList = resultList.stream()
+						.filter(i -> i.getRegionP() <= 1 && i.getRegionP() >= 0 && !i.isRandom())
+						.collect(Collectors.toList());
 				double regionP_threshold = FDRControl.getBHYFDRCutoff(
-						resultList.stream().filter(i -> i.getRegionP() <= 1 && i.getRegionP() >= 0 && !i.isRandom())
-								.map(IntervalDetectionSummary::getRegionP)
-								.collect(Collectors.toList()),
-						FDR_threshold);
+						resultList.stream().map(IntervalDetectionSummary::getRegionP)
+								.collect(Collectors.toList()), FDR_threshold);
 				System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
 				writeDetectionSummary(inputPath, resultList, regionP_threshold);
 			}
