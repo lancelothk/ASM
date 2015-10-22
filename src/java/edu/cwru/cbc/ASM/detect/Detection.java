@@ -102,7 +102,8 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			minPCount = getMinPCount(refCpGList, mappedReadList, regionP);
 		}
 
-		return new IntervalDetectionSummary(regionP, chr.replace("chr", ""), startPos, endPos, endPos - startPos + 1,
+		return new IntervalDetectionSummary(regionP, minPCount > 0, chr.replace("chr", ""), startPos, endPos,
+				endPos - startPos + 1,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
 				mec, normMEC,
