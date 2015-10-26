@@ -6,6 +6,7 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import org.apache.commons.cli.ParseException;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,7 +30,7 @@ public class MappedReadToMR {
 		Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor() {
 
 			@Override
-			public boolean processLine(String line) throws IOException {
+			public boolean processLine(@Nonnull String line) throws IOException {
 				try {
 					if (line.startsWith("chr") || line.startsWith("ref")) {
 						return true;

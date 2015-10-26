@@ -4,6 +4,7 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.FASTASequence;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 
@@ -39,7 +40,7 @@ public class FASTALineProcessor implements LineProcessor<LinkedHashSet<FASTASequ
 	 * processing.
 	 */
 	@Override
-	public boolean processLine(String line) throws IOException {
+	public boolean processLine(@Nonnull String line) throws IOException {
 		if (line.charAt(0) == '>') {
 			if (line.length() == 1) {
 				throw new RuntimeException("empty id!");

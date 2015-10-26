@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.commons.methylation;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -123,7 +124,7 @@ public class RefCpG implements Comparable<RefCpG> {
 	}
 
 	@Override
-	public int compareTo(RefCpG o) {
+	public int compareTo(@Nonnull RefCpG o) {
 		return this.getPos() - o.getPos();
 	}
 

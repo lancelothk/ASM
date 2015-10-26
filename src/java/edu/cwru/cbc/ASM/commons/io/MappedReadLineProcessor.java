@@ -7,6 +7,7 @@ import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -46,7 +47,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 	}
 
 	@Override
-	public boolean processLine(String line) throws IOException {
+	public boolean processLine(@Nonnull String line) throws IOException {
 		if (inputFormat == MappedReadFileFormat.MAPPEDREAD) {
 			return processMappedReadFormat(line);
 		} else if (inputFormat == MappedReadFileFormat.SAM) {

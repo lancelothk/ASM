@@ -4,6 +4,7 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.FASTQSequence;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 
@@ -25,7 +26,7 @@ public class FASTQLineProcessor implements LineProcessor<LinkedHashSet<FASTQSequ
 	private String sequence;
 
 	@Override
-	public boolean processLine(String line) throws IOException {
+	public boolean processLine(@Nonnull String line) throws IOException {
 		switch (lineCount++) {
 			case 0:
 				processIdLine(line);

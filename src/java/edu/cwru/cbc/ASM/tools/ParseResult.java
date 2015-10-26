@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import org.apache.commons.cli.*;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 
@@ -24,7 +25,7 @@ public class ParseResult {
 					private StringBuilder sb = new StringBuilder();
 
 					@Override
-					public boolean processLine(String line) throws IOException {
+					public boolean processLine(@Nonnull String line) throws IOException {
 						if (line.startsWith("CGI") || line.startsWith("nonCGI")) {
 							sb.append(line).append("-");
 						} else if (line.startsWith("1")) {

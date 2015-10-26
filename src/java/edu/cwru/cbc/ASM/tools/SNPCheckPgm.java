@@ -6,6 +6,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import org.apache.commons.cli.*;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -44,7 +45,7 @@ public class SNPCheckPgm {
 					int snpIndex = snpPosition - startPos;
 
 					@Override
-					public boolean processLine(String line) throws IOException {
+					public boolean processLine(@Nonnull String line) throws IOException {
 						List<String> itemList = tabSplitter.splitToList(line);
 						if (line.startsWith("ref:")) {
 							ref = itemList.get(1);
@@ -161,18 +162,16 @@ public class SNPCheckPgm {
 						System.out.printf("expected allele pair for allele2:%s\t%s\n", expectedAlleles[1][0],
 								expectedAlleles[1][1]);
 
-						if ((isSubSet(observedAlleles[0][0], expectedAlleles[0][0]) && isSubSet(
-								observedAlleles[0][1], expectedAlleles[0][1])) || (isSubSet(
-								observedAlleles[1][0], expectedAlleles[1][0]) && isSubSet(observedAlleles[1][1],
-								expectedAlleles[1][1]))) {
-							return true;
-						} else if ((isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
-								observedAlleles[1][1], expectedAlleles[1][1])) || (isSubSet(
-								observedAlleles[1][0], expectedAlleles[0][0]) && isSubSet(observedAlleles[1][1],
-								expectedAlleles[0][1]))) {
-							return true;
-						}
-						return false;
+						return (isSubSet(observedAlleles[0][0], expectedAlleles[0][0]) && isSubSet(
+								observedAlleles[0][1], expectedAlleles[0][1]))  // observed allele 1 ~ expected allele 1
+								|| (isSubSet(observedAlleles[1][0], expectedAlleles[1][0]) && isSubSet(
+								observedAlleles[1][1],
+								expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
+								|| (isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
+								observedAlleles[1][1], expectedAlleles[1][1])) // observed allele 2 ~ expected allele 1
+								|| (isSubSet(observedAlleles[1][0], expectedAlleles[0][0]) && isSubSet(
+								observedAlleles[1][1],
+								expectedAlleles[0][1])); // observed allele 2 ~ expected allele 2
 					}
 
 					private boolean isSubSet(String s, String sBase) {

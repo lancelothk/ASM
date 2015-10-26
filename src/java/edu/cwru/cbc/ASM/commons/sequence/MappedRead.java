@@ -6,6 +6,7 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -240,7 +241,7 @@ public class MappedRead implements Comparable<MappedRead> {
 	}
 
 	@Override
-	public int compareTo(MappedRead other) {
+	public int compareTo(@Nonnull MappedRead other) {
 		int startCompare = Integer.compare(this.getStart(), other.getStart());
 		if (startCompare != 0) {
 			return startCompare;

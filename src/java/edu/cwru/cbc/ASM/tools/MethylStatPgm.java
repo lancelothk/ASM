@@ -14,6 +14,7 @@ import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -57,7 +58,7 @@ public class MethylStatPgm {
 
 		Files.readLines(new File(mappedReadFileName), Charsets.UTF_8, new LineProcessor() {
 			@Override
-			public boolean processLine(String line) throws IOException {
+			public boolean processLine(@Nonnull String line) throws IOException {
 				if (line.startsWith("chr") || line.startsWith("ref") || line.startsWith("assembly")) {
 					return true;
 				}

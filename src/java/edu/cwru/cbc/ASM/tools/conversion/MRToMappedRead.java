@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,7 +28,7 @@ public class MRToMappedRead {
 		Files.readLines(new File(input), Charsets.UTF_8, new LineProcessor() {
 
 			@Override
-			public boolean processLine(String line) throws IOException {
+			public boolean processLine(@Nonnull String line) throws IOException {
 				String[] items = line.split("\t");
 				if (items.length != 8) {
 					throw new RuntimeException("invalid mapped read format:" + line);

@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.detect.dataType;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class GroupResult implements Comparable<GroupResult> {
 	}
 
 	@Override
-	public int compareTo(GroupResult o) {
+	public int compareTo(@Nonnull GroupResult o) {
 		// sort by min position of refCpGList. Require refCpGList to be sorted.
 		return this.refCpGList.get(0).getPos() - o.refCpGList.get(0).getPos();
 	}

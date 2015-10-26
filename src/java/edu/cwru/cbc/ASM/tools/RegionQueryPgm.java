@@ -10,6 +10,7 @@ import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -57,7 +58,7 @@ public class RegionQueryPgm {
 					private Map<String, HashIntObjMap<RefCpGStat>> refMap = new HashMap<>();
 
 					@Override
-					public boolean processLine(String line) throws IOException {
+					public boolean processLine(@Nonnull String line) throws IOException {
 						List<String> itemList = tabSplitter.splitToList(line);
 						String chr = itemList.get(0);
 						int pos = Integer.parseInt(itemList.get(1));
@@ -88,7 +89,7 @@ public class RegionQueryPgm {
 					private Map<String, List<MethylStatBedInterval>> regionMap = new HashMap<>();
 
 					@Override
-					public boolean processLine(String line) throws IOException {
+					public boolean processLine(@Nonnull String line) throws IOException {
 						List<String> itemList = tabSplitter.splitToList(line);
 						String chr = itemList.get(0);
 						List<MethylStatBedInterval> regionList = regionMap.get(chr);
