@@ -54,31 +54,26 @@ public class DetectionUtils {
 		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
 	}
 
-	public static boolean fisherTest(List<RefCpG> twoClusterRefCpGList,
-	                                 Collection<Vertex> clusterResults) {
-		if (clusterResults.size() == 2) { // cluster size == 2
-			for (RefCpG refCpG : twoClusterRefCpGList) {
-				int j = 0;
-				int[][] matrix = new int[2][2];
-				for (Vertex vertex : clusterResults) {
-					if (vertex.getRefCpGMap().containsKey(refCpG.getPos())) {
-						matrix[j][0] = vertex.getRefCpGMap().get(refCpG.getPos()).getMethylCount();
-						matrix[j][1] = vertex.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount();
-						j++;
-					}
+	public static void fisherTest(List<RefCpG> twoClusterRefCpGList,
+	                              Collection<Vertex> clusterResults) {
+		for (RefCpG refCpG : twoClusterRefCpGList) {
+			int j = 0;
+			int[][] matrix = new int[2][2];
+			for (Vertex vertex : clusterResults) {
+				if (vertex.getRefCpGMap().containsKey(refCpG.getPos())) {
+					matrix[j][0] = vertex.getRefCpGMap().get(refCpG.getPos()).getMethylCount();
+					matrix[j][1] = vertex.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount();
+					j++;
 				}
-				double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
-						matrix[1][1])[0];  // [0] is two tail test.
-				if (fisher_P >= 0 && fisher_P <= 1) {
-					refCpG.setP_value(fisher_P);
-				} else {
-					throw new RuntimeException("p value is not in [0,1]!");
-				}
-
 			}
-			return true;
-		} else {
-			return false;
+			double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
+					matrix[1][1])[0];  // [0] is two tail test.
+			if (fisher_P >= 0 && fisher_P <= 1) {
+				refCpG.setP_value(fisher_P);
+			} else {
+				throw new RuntimeException("p value is not in [0,1]!");
+			}
+
 		}
 	}
 

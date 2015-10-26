@@ -75,6 +75,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// clustering
 		graph.cluster();
 
+		DetectionUtils.fisherTest(refCpGList, graph.getClusterResult().values());
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
 
 		double regionP = getRegionP(twoClusterRefCpGList, graph.getClusterResult().values());
@@ -138,19 +139,19 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 	private double getRegionP(List<RefCpG> twoClusterRefCpGList, Collection<Vertex> clusterResults) {
 		double regionP;
-		if (twoClusterRefCpGList.size() < min_interval_cpg) {
-			// give 3 if interval contain less #cpg than min_interval_cpg
-			regionP = 3;
-		} else if (DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults)) {
-			if (twoClusterRefCpGList.size() < min_interval_cpg) {
-				regionP = 3;
-			} else {
-				// get fisher test P values for each refCpG in clusters.
-				regionP = DetectionUtils.calcRegionP_StoufferComb(twoClusterRefCpGList);
-			}
-		} else {
-			// give 2 if only one cluster
+		if (clusterResults.size() > 2) {
+			// more than 2 clusters
+			regionP = 4;
+		} else if (clusterResults.size() < 2) {
+			// less than 2 clusters
 			regionP = 2;
+		} else if (twoClusterRefCpGList.stream()
+				.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
+				.count() < min_interval_cpg) {
+			// interval contain less #cpg than min_interval_cpg
+			regionP = 3;
+		} else {
+			regionP = DetectionUtils.calcRegionP_StoufferComb(twoClusterRefCpGList);
 		}
 		return regionP;
 	}
@@ -175,7 +176,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
 		return refCpGList.stream().filter(
 				refCpG -> clusterRefCpGMap.get(refCpG.getPos())
-						.getClusterCount() == 2 && refCpG.getP_value() <= min_fisher_P && clusterRefCpGMap.containsKey(
+						.getClusterCount() == 2 && clusterRefCpGMap.containsKey(
 						refCpG.getPos())).collect(Collectors.toList());
 	}
 

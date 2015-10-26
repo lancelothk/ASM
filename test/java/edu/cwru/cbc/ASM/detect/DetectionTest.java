@@ -21,6 +21,7 @@ public class DetectionTest {
 						.add(new ImmutablePair<>("startPos", "%d"))
 						.add(new ImmutablePair<>("endPos", "%d"))
 						.add(new ImmutablePair<>("length", "%d"))
+						.add(new ImmutablePair<>("oldRegion", "%s"))
 						.add(new ImmutablePair<>("#edge", "%d"))
 						.add(new ImmutablePair<>("#read", "%d"))
 						.add(new ImmutablePair<>("#refCpG", "%d"))
@@ -29,29 +30,26 @@ public class DetectionTest {
 						.add(new ImmutablePair<>("CpGsum", "%d"))
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
-						.add(new ImmutablePair<>("errorProb", "%f"))
 						.add(new ImmutablePair<>("regionP", "%e"))
-						.add(new ImmutablePair<>("randPCount", "%d"))
-						.add(new ImmutablePair<>("dbindex", "%f"))
-						.add(new ImmutablePair<>("group1", "%d"))
-						.add(new ImmutablePair<>("group2", "%d"))
+						.add(new ImmutablePair<>("randPIndex", "%d"))
+						.add(new ImmutablePair<>("clusterIndex", "%f"))
+						.add(new ImmutablePair<>("#group1", "%d"))
+						.add(new ImmutablePair<>("#group2", "%d"))
 						.add(new ImmutablePair<>("group1Methyl", "%f"))
 						.add(new ImmutablePair<>("group2Methyl", "%f"))
-						.add(new ImmutablePair<>("label", "%s"))
+						.add(new ImmutablePair<>("FDR_label", "%s"))
 						.build());
-
 	}
 
 	@Test
 	public void test_detection() throws Exception {
 		URL file = getClass().getClassLoader().getResource("chr20-25795835-25796072.mappedreads");
 		assertNotNull(file);
-		Detection detection = new Detection(new File(file.getFile()), 5, 4, 1000);
+		Detection detection = new Detection(new File(file.getFile()), 5, 6, 1000);
 		IntervalDetectionSummary intervalDetectionSummary = detection.call();
 		String[] itemList = intervalDetectionSummary.getSummaryString(0).split("\t");
-		assertEquals("MEC", "28.000000", itemList[10]);
-		assertEquals("normMEC", "0.210526", itemList[11]);
-		assertEquals("errorProb", "0.073355", itemList[12]);
+		assertEquals("MEC", "28.000000", itemList[11]);
+		assertEquals("normMEC", "0.210526", itemList[12]);
 		assertEquals("regionP", "4.595401e-05", itemList[13]);
 		assertEquals("dbindex", "0.047111", itemList[15]);
 		assertEquals("group1 size", "21", itemList[16]);
