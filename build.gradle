@@ -130,7 +130,16 @@ task updateBin(dependsOn: installDist) {
     group = 'update'
     doLast {
         def userName = System.getProperty('user.name')
-        if (userName == "kehu") {
+        if ("$remote".toString() == "local") {
+            copy {
+                from 'build/install/ASM/bin'
+                into '/home/' + "$userName" + '/experiments/ASM/bin'
+            }
+            copy {
+                from 'build/install/ASM/lib'
+                into '/home/' + "$userName" + '/experiments/ASM/lib'
+            }
+        } else if (userName == "kehu") {
             def curRemote;
             if ("$remote".toString() == "ngs") {
                 curRemote = remotes.ngs_lab;
@@ -149,15 +158,6 @@ task updateBin(dependsOn: installDist) {
                         put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
                         put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
                     }
-                }
-            } else if ("$remote".toString() == "local") {
-                copy {
-                    from 'build/install/ASM/bin'
-                    into '/home/kehu/experiments/ASM/bin'
-                }
-                copy {
-                    from 'build/libs/ASM.jar'
-                    into '/home/kehu/experiments/ASM/lib'
                 }
             } else {
                 ssh.run {
@@ -196,7 +196,16 @@ task updateAll(dependsOn: installDist) {
     group = 'update'
     doLast {
         def userName = System.getProperty('user.name')
-        if (userName == "kehu") {
+        if ("$remote".toString() == "local") {
+            copy {
+                from 'build/install/ASM/bin'
+                into '/home/' + "$userName" + '/experiments/ASM/bin'
+            }
+            copy {
+                from 'build/install/ASM/lib'
+                into '/home/' + "$userName" + '/experiments/ASM/lib'
+            }
+        } else if (userName == "kehu") {
             def curRemote;
             if ("$remote".toString() == "ngs") {
                 curRemote = remotes.ngs_lab;
@@ -217,14 +226,7 @@ task updateAll(dependsOn: installDist) {
                     }
                 }
             } else {
-                copy {
-                    from 'build/install/ASM/bin'
-                    into '/home/kehu/experiments/ASM/bin'
-                }
-                copy {
-                    from 'build/install/ASM/lib'
-                    into '/home/kehu/experiments/ASM/lib'
-                }
+                println "invalid remote name!"
             }
         } else if (userName == "lancelothk") {
             def curRemote;
