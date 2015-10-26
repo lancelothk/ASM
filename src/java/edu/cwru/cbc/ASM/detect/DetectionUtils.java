@@ -16,6 +16,7 @@ import java.util.List;
 
 public class DetectionUtils {
 
+	@SuppressWarnings("unused")
 	public static double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
 		double minP = Double.MAX_VALUE;
 		for (RefCpG refCpG : twoClusterRefCpGList) {
@@ -34,6 +35,7 @@ public class DetectionUtils {
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
+	@SuppressWarnings("unused")
 	public static double calcRegionP_WeightedStoufferComb(List<RefCpG> twoClusterRefCpGList) {
 		NormalDistribution stdNorm = new NormalDistribution(0, 1);
 		double z = twoClusterRefCpGList.stream()
@@ -45,6 +47,7 @@ public class DetectionUtils {
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
+	@SuppressWarnings("unused")
 	public static double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
 		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
 		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());

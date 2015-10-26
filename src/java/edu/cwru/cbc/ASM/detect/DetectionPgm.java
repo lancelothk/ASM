@@ -60,6 +60,7 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("startPos", "%d"))
 						.add(new ImmutablePair<>("endPos", "%d"))
 						.add(new ImmutablePair<>("length", "%d"))
+						.add(new ImmutablePair<>("oldRegion", "%s"))
 						.add(new ImmutablePair<>("#edge", "%d"))
 						.add(new ImmutablePair<>("#read", "%d"))
 						.add(new ImmutablePair<>("#refCpG", "%d"))
@@ -68,15 +69,14 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("CpGsum", "%d"))
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
-						.add(new ImmutablePair<>("errorProb", "%e"))
 						.add(new ImmutablePair<>("regionP", "%e"))
-						.add(new ImmutablePair<>("randPCount", "%d"))
-						.add(new ImmutablePair<>("dbindex", "%f"))
-						.add(new ImmutablePair<>("group1", "%d"))
-						.add(new ImmutablePair<>("group2", "%d"))
+						.add(new ImmutablePair<>("randPIndex", "%d"))
+						.add(new ImmutablePair<>("clusterIndex", "%f"))
+						.add(new ImmutablePair<>("#group1", "%d"))
+						.add(new ImmutablePair<>("#group2", "%d"))
 						.add(new ImmutablePair<>("group1Methyl", "%f"))
 						.add(new ImmutablePair<>("group2Methyl", "%f"))
-						.add(new ImmutablePair<>("label", "%s"))
+						.add(new ImmutablePair<>("FDR_label", "%s"))
 						.build());
 
 		File inputFile = new File(inputPath);

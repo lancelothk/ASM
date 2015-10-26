@@ -15,8 +15,6 @@ import edu.cwru.cbc.ASM.detect.dataType.*;
 import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.math3.util.CombinatoricsUtils;
-import org.apache.commons.math3.util.FastMath;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,10 +42,11 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 	/**
 	 * Detection constructor.
-	 *  @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 *
+	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
-	 * @param permTime  Time of random permutation
+	 * @param permTime         Time of random permutation
 	 */
 	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage, int permTime) {
 		this.inputFile = inputFile;
@@ -92,7 +91,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				Collectors.toList());
 		ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
 				inputFile.getAbsolutePath() + ".groups.aligned");
-		double errorProbability = calcErrorProbability(graph.getClusterResult().values(), twoClusterRefCpGList);
 
 		// random group P value
 		double mec = graph.getMECSum();
@@ -103,11 +101,10 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		}
 
 		return new IntervalDetectionSummary(regionP, minPCount > 0, chr.replace("chr", ""), startPos, endPos,
-				endPos - startPos + 1,
+				endPos - startPos + 1, startPos + "-" + endPos,
 				graph.getOriginalEdgeCount(), mappedReadList.size(), refCpGList.size(),
 				twoClusterRefCpGList.size(), graph.getClusterResult().size(), graph.getCpGSum(),
-				mec, normMEC,
-				errorProbability, regionP, minPCount, clusterIndex,
+				mec, normMEC, regionP, minPCount, clusterIndex,
 				Iterables.get(graph.getClusterResult().values(), 0).getMappedReadList().size(),
 				Iterables.get(graph.getClusterResult().values(), 1).getMappedReadList().size(),
 				groupResultList.get(0).getAvgMethylLevel(),
@@ -145,18 +142,11 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			// give 3 if interval contain less #cpg than min_interval_cpg
 			regionP = 3;
 		} else if (DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults)) {
-			if (twoClusterRefCpGList.stream()
-					.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
-					.count() < min_interval_cpg) {
+			if (twoClusterRefCpGList.size() < min_interval_cpg) {
 				regionP = 3;
 			} else {
 				// get fisher test P values for each refCpG in clusters.
 				regionP = DetectionUtils.calcRegionP_StoufferComb(twoClusterRefCpGList);
-
-				// update start/end position for detected AMR region. Excluding single cluster CpG in the boundary.
-				twoClusterRefCpGList.sort((r1, r2) -> r1.getPos() - r2.getPos());
-				startPos = twoClusterRefCpGList.get(0).getPos();
-				endPos = twoClusterRefCpGList.get(twoClusterRefCpGList.size() - 1).getPos() + 1;
 			}
 		} else {
 			// give 2 if only one cluster
@@ -185,7 +175,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private List<RefCpG> getTwoClustersRefCpG(List<RefCpG> refCpGList, Map<Integer, ClusterRefCpG> clusterRefCpGMap) {
 		return refCpGList.stream().filter(
 				refCpG -> clusterRefCpGMap.get(refCpG.getPos())
-						.getClusterCount() == 2 && clusterRefCpGMap.containsKey(
+						.getClusterCount() == 2 && refCpG.getP_value() <= min_fisher_P && clusterRefCpGMap.containsKey(
 						refCpG.getPos())).collect(Collectors.toList());
 	}
 
@@ -209,32 +199,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		groupResultWriter.close();
 
 		return groupResultList;
-	}
-
-	private double calcErrorProbability(Collection<Vertex> clusterResult, List<RefCpG> twoClusterRefCpGList) {
-		double p;
-		switch (clusterResult.size()) {
-			case 1:
-				p = -1; // one cluster case
-				break;
-			case 2:
-				List<Vertex> clusterResultList = clusterResult.stream().collect(Collectors.toList());
-				clusterResultList.sort(
-						(Vertex v1, Vertex v2) -> v1.getMappedReadList().size() - v2.getMappedReadList().size());
-				Vertex minorityCluster = clusterResultList.get(0);
-				Vertex majorityCluster = clusterResultList.get(1);
-
-				// overlapped CpG < GlobalParameter.MIN_INTERVAL_CPG
-				if (twoClusterRefCpGList.size() < this.min_interval_cpg) {
-					p = -3;
-				} else {
-					p = EPCaluculation_average_combine(minorityCluster, majorityCluster, twoClusterRefCpGList);
-				}
-				break;
-			default:
-				p = -2; // more than 2 clusters
-		}
-		return p;
 	}
 
 	private void printRefCpGGroupCoverage(List<RefCpG> refCpGList, BufferedWriter groupResultWriter,
@@ -314,23 +278,4 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			groupResultWriter.write("\n");
 		}
 	}
-
-	private double EPCaluculation_average_combine(Vertex minorityCluster, Vertex majorityCluster,
-	                                              List<RefCpG> twoClusterRefCpGList) {
-		double p = 0;
-		for (RefCpG refCpG : twoClusterRefCpGList) {
-			double majorMethylLevel = majorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylLevel();
-			double comb = CombinatoricsUtils.binomialCoefficientDouble(
-					minorityCluster.getRefCpGMap().get(refCpG.getPos()).getCoveredCount(),
-					minorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylCount());
-			p += comb *
-					FastMath.pow(majorMethylLevel,
-							minorityCluster.getRefCpGMap().get(refCpG.getPos()).getMethylCount()) *
-					FastMath.pow(1 - majorMethylLevel,
-							minorityCluster.getRefCpGMap().get(refCpG.getPos()).getNonMethylCount());
-		}
-		p /= twoClusterRefCpGList.size();
-		return p;
-	}
-
 }
