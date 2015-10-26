@@ -123,7 +123,7 @@ public class SNPCheckPgm {
 									// is in CpG
 									return "G/A";
 								} else {
-									return "G";
+									return "A";
 								}
 							case 'T':
 								return "T";
@@ -139,7 +139,7 @@ public class SNPCheckPgm {
 						String[][] observedAlleles = new String[2][2];
 						String[][] expectedAlleles = new String[2][2];
 						for (int i = 0; i < 2; i++) {
-							System.out.println("group" + i);
+							System.out.println("group" + (i + 1));
 							System.out.println("  A\tC\tG\tT\tN");
 							System.out.println(String.format("+:%d\t%d\t%d\t%d\t%d", observation[i][0][0],
 									observation[i][0][1], observation[i][0][2], observation[i][0][3],
@@ -162,16 +162,18 @@ public class SNPCheckPgm {
 						System.out.printf("expected allele pair for allele2:%s\t%s\n", expectedAlleles[1][0],
 								expectedAlleles[1][1]);
 
-						return (isSubSet(observedAlleles[0][0], expectedAlleles[0][0]) && isSubSet(
+						return ((isSubSet(observedAlleles[0][0], expectedAlleles[0][0]) && isSubSet(
 								observedAlleles[0][1], expectedAlleles[0][1]))  // observed allele 1 ~ expected allele 1
-								|| (isSubSet(observedAlleles[1][0], expectedAlleles[1][0]) && isSubSet(
-								observedAlleles[1][1],
-								expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
-								|| (isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
-								observedAlleles[1][1], expectedAlleles[1][1])) // observed allele 2 ~ expected allele 1
-								|| (isSubSet(observedAlleles[1][0], expectedAlleles[0][0]) && isSubSet(
-								observedAlleles[1][1],
-								expectedAlleles[0][1])); // observed allele 2 ~ expected allele 2
+								&& (isSubSet(observedAlleles[1][0], expectedAlleles[1][0]) && isSubSet(
+								observedAlleles[1][1], expectedAlleles[1][1]))) // observed allele 2 ~ expected allele 2
+								||
+								((isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
+										observedAlleles[0][1],
+										expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
+										&& (isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
+										observedAlleles[1][1],
+										expectedAlleles[1][1]))); // observed allele 2 ~ expected allele 1
+
 					}
 
 					private boolean isSubSet(String s, String sBase) {
