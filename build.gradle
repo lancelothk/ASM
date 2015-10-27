@@ -78,6 +78,7 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("MethylStat", "edu.cwru.cbc.ASM.tools.MethylStatPgm").execute()
     buildStartScript("RegionQuery", "edu.cwru.cbc.ASM.tools.RegionQueryPgm").execute()
     buildStartScript("SNPCheck", "edu.cwru.cbc.ASM.tools.SNPCheckPgm").execute()
+    buildStartScript("FDRControl", "edu.cwru.cbc.ASM.tools.FDRControlPgm").execute()
 }
 
 distributions {

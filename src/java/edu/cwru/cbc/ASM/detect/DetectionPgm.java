@@ -56,7 +56,8 @@ public class DetectionPgm {
 			IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
-				new ImmutableList.Builder<Pair<String, String>>().add(new ImmutablePair<>("chr", "%s"))
+				new ImmutableList.Builder<Pair<String, String>>()
+						.add(new ImmutablePair<>("chr", "%s"))
 						.add(new ImmutablePair<>("startPos", "%d"))
 						.add(new ImmutablePair<>("endPos", "%d"))
 						.add(new ImmutablePair<>("length", "%d"))
