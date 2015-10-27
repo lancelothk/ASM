@@ -28,7 +28,7 @@ public class FDRControlPgm {
 		CommandLine cmd = parser.parse(options, args);
 		String inputFile = cmd.getOptionValue("i");
 		double fdr = Double.parseDouble(cmd.getOptionValue("f"));
-		int column = Integer.parseInt(cmd.getOptionValue("c")) + 1;
+		int column = Integer.parseInt(cmd.getOptionValue("c")) - 1;
 
 		double correctedThreshold = Files.readLines(new File(inputFile), Charsets.UTF_8, new LineProcessor<Double>() {
 			private List<Double> pvalueList = new ArrayList<>();
