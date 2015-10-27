@@ -108,7 +108,8 @@ public class DetectionPgm {
 				resultList = resultList.stream()
 						.filter(i -> i.getRegionP() <= 1 && i.getRegionP() >= 0 && !i.isRandom())
 						.collect(Collectors.toList());
-				double regionP_threshold = -1;
+				double regionP_threshold = resultList.stream().map(IntervalDetectionSummary::getRegionP).max(
+						Double::compareTo).get();
 				if (FDR_threshold < 0) {
 					System.out.println("skip FDR control");
 				} else {
