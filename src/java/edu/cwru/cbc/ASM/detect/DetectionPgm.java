@@ -60,7 +60,7 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("startPos", "%d"))
 						.add(new ImmutablePair<>("endPos", "%d"))
 						.add(new ImmutablePair<>("length", "%d"))
-						.add(new ImmutablePair<>("oldRegion", "%s"))
+						.add(new ImmutablePair<>("originalRegion", "%s"))
 						.add(new ImmutablePair<>("#edge", "%d"))
 						.add(new ImmutablePair<>("#read", "%d"))
 						.add(new ImmutablePair<>("#refCpG", "%d"))

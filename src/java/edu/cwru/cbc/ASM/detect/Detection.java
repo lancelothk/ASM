@@ -75,7 +75,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		// clustering
 		graph.cluster();
 
-		DetectionUtils.fisherTest(refCpGList, graph.getClusterResult().values());
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
 
 		double regionP = getRegionP(twoClusterRefCpGList, graph.getClusterResult().values());
@@ -117,8 +116,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		for (int i = 1; i <= permTime; i++) {
 			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
 			randGraph.cluster();
-			double randP = getRegionP(
-					getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()),
+			double randP = getRegionP(getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()),
 					randGraph.getClusterResult().values());
 			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
 				return i;
@@ -138,6 +136,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	}
 
 	private double getRegionP(List<RefCpG> twoClusterRefCpGList, Collection<Vertex> clusterResults) {
+		DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults);
 		double regionP;
 		if (clusterResults.size() > 2) {
 			// more than 2 clusters
