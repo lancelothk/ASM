@@ -9,7 +9,7 @@ import org.apache.commons.cli.*;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by kehu on 10/22/15.
@@ -37,8 +37,8 @@ public class SNPCheckPgm {
 		}
 		int startPos = Integer.parseInt(items[1]);
 
-		boolean isConsistent = Files.readLines(new File(groupedReadFile), Charsets.UTF_8,
-				new LineProcessor<Boolean>() {
+		Files.readLines(new File(groupedReadFile), Charsets.UTF_8,
+				new LineProcessor() {
 					int[][][] observation = new int[2][2][5];
 					int group = 0;
 					String ref;
@@ -92,52 +92,66 @@ public class SNPCheckPgm {
 					}
 
 
-					private String plusStrandExpectedAllele(char allele) {
+					private Set<Character> plusStrandExpectedAllele(char allele) {
+						Set<Character> expectedSNPSet = new HashSet<>();
 						switch (allele) {
 							case 'A':
-								return "A";
+								expectedSNPSet.add('A');
+								break;
 							case 'C':
 								if (snpIndex < ref.length() - 1 && ref.charAt(snpIndex + 1) == 'G') {
 									// is in CpG
-									return "C/T";
+									expectedSNPSet.add('C');
+									expectedSNPSet.add('T');
 								} else {
-									return "T";
+									expectedSNPSet.add('T');
 								}
+								break;
 							case 'G':
-								return "G";
+								expectedSNPSet.add('G');
+								break;
 							case 'T':
-								return "T";
+								expectedSNPSet.add('T');
+								break;
 							default:
 								throw new RuntimeException("invalid allele!");
 						}
+						return expectedSNPSet;
 					}
 
-					private String minusStrandExpectedAllele(char allele) {
+					private Set<Character> minusStrandExpectedAllele(char allele) {
+						Set<Character> expectedSNPSet = new HashSet<>();
 						switch (allele) {
 							case 'A':
-								return "A";
+								expectedSNPSet.add('A');
+								break;
 							case 'C':
-								return "C";
+								expectedSNPSet.add('C');
+								break;
 							case 'G':
 								if (snpIndex > 1 && ref.charAt(snpIndex - 1) == 'C') {
 									// is in CpG
-									return "G/A";
+									expectedSNPSet.add('G');
+									expectedSNPSet.add('A');
 								} else {
-									return "A";
+									expectedSNPSet.add('A');
 								}
+								break;
 							case 'T':
-								return "T";
+								expectedSNPSet.add('T');
+								break;
 							default:
 								throw new RuntimeException("invalid allele!");
 						}
+						return expectedSNPSet;
 					}
 
 					@Override
 					public Boolean getResult() {
 						// first dimension is group
 						// second dimension is strand
-						String[][] observedAlleles = new String[2][2];
-						String[][] expectedAlleles = new String[2][2];
+						Map[][] observedAlleles = new Map[2][2];
+						Set[][] expectedAlleles = new Set[2][2];
 						for (int i = 0; i < 2; i++) {
 							System.out.println("group" + (i + 1));
 							System.out.println("  A\tC\tG\tT\tN");
@@ -162,59 +176,104 @@ public class SNPCheckPgm {
 						System.out.printf("expected allele pair for allele2:%s\t%s\n", expectedAlleles[1][0],
 								expectedAlleles[1][1]);
 
-						return ((isSubSet(observedAlleles[0][0], expectedAlleles[0][0]) && isSubSet(
+						boolean isConsistent = ((isConsistent(observedAlleles[0][0],
+								expectedAlleles[0][0]) && isConsistent(
 								observedAlleles[0][1], expectedAlleles[0][1]))  // observed allele 1 ~ expected allele 1
-								&& (isSubSet(observedAlleles[1][0], expectedAlleles[1][0]) && isSubSet(
+								&& (isConsistent(observedAlleles[1][0], expectedAlleles[1][0]) && isConsistent(
 								observedAlleles[1][1], expectedAlleles[1][1]))) // observed allele 2 ~ expected allele 2
 								||
-								((isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
+								((isConsistent(observedAlleles[0][0], expectedAlleles[1][0]) && isConsistent(
 										observedAlleles[0][1],
 										expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
-										&& (isSubSet(observedAlleles[0][0], expectedAlleles[1][0]) && isSubSet(
+										&& (isConsistent(observedAlleles[1][0], expectedAlleles[0][0]) && isConsistent(
 										observedAlleles[1][1],
-										expectedAlleles[1][1]))); // observed allele 2 ~ expected allele 1
+										expectedAlleles[0][1]))); // observed allele 2 ~ expected allele 1
 
-					}
+						if (isConsistent) {
+							System.out.println("SNP is consistent with grouping!");
+						} else {
+							System.out.println("SNP is inconsistent with grouping!");
+						}
 
-					private boolean isSubSet(String s, String sBase) {
-						for (char c : s.toCharArray()) {
-							if (sBase.indexOf(c) == -1) {
-								return false;
-							}
+						boolean isMajorityConsistent = ((isMajorityConsistent(observedAlleles[0][0],
+								expectedAlleles[0][0]) && isMajorityConsistent(
+								observedAlleles[0][1], expectedAlleles[0][1]))  // observed allele 1 ~ expected allele 1
+								&& (isMajorityConsistent(observedAlleles[1][0],
+								expectedAlleles[1][0]) && isMajorityConsistent(
+								observedAlleles[1][1], expectedAlleles[1][1]))) // observed allele 2 ~ expected allele 2
+								||
+								((isMajorityConsistent(observedAlleles[0][0],
+										expectedAlleles[1][0]) && isMajorityConsistent(
+										observedAlleles[0][1],
+										expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
+										&& (isMajorityConsistent(observedAlleles[1][0],
+										expectedAlleles[0][0]) && isMajorityConsistent(
+										observedAlleles[1][1],
+										expectedAlleles[0][1]))); // observed allele 2 ~ expected allele 1
+
+						if (isMajorityConsistent) {
+							System.out.println("Majority SNP is consistent with grouping!");
+						} else {
+							System.out.println("Majority SNP is inconsistent with grouping!");
 						}
 						return true;
 					}
 
-					private String observedAlleles(int[] obs) {
-						StringBuilder sb = new StringBuilder();
+					private boolean isConsistent(Map observed, Set expected) {
+						int inconsistentCount = 0;
+						@SuppressWarnings("unchecked")
+						Set<Character> expectedSNP = expected;
+						@SuppressWarnings("unchecked")
+						Map<Character, Integer> observedSNP = observed;
+						for (Map.Entry<Character, Integer> entry : observedSNP.entrySet()) {
+							if (!expectedSNP.contains(entry.getKey())) {
+								inconsistentCount += entry.getValue();
+							}
+						}
+						return inconsistentCount == 0;
+					}
+
+					private boolean isMajorityConsistent(Map observed, Set expected) {
+						int consistentCount = 0, inconsistentCount = 0;
+						@SuppressWarnings("unchecked")
+						Set<Character> expectedSNP = expected;
+						@SuppressWarnings("unchecked")
+						Map<Character, Integer> observedSNP = observed;
+						for (Map.Entry<Character, Integer> entry : observedSNP.entrySet()) {
+							if (expectedSNP.contains(entry.getKey())) {
+								consistentCount += entry.getValue();
+							} else {
+								inconsistentCount += entry.getValue();
+							}
+						}
+//						return inconsistentCount == 0;
+						return consistentCount >= inconsistentCount;
+					}
+
+					private Map<Character, Integer> observedAlleles(int[] obs) {
+						Map<Character, Integer> observedSNPMap = new HashMap<>();
 						for (int i = 0; i < obs.length; i++) {
 							if (obs[i] != 0) {
 								switch (i) {
 									case 0:
-										sb.append('A');
+										observedSNPMap.put('A', obs[i]);
 										break;
 									case 1:
-										sb.append('C');
+										observedSNPMap.put('C', obs[i]);
 										break;
 									case 2:
-										sb.append('G');
+										observedSNPMap.put('G', obs[i]);
 										break;
 									case 3:
-										sb.append('T');
+										observedSNPMap.put('T', obs[i]);
 										break;
 									default:
 								}
 							}
 						}
-						return sb.toString();
+						return observedSNPMap;
 					}
 
 				});
-
-		if (isConsistent) {
-			System.out.println("SNP is consistent with grouping!");
-		} else {
-			System.out.println("SNP is inconsistent with grouping!");
-		}
 	}
 }
