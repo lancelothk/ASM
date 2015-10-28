@@ -191,10 +191,10 @@ public class SNPCheckPgm {
 
 						if (isConsistent) {
 							System.out.println(
-									"SNP is consistent with grouping!\t" + allele1 + "" + allele2);
+									"SNP is consistent with grouping!\t" + allele1 + "\t" + allele2);
 						} else {
 							System.out.println(
-									"SNP is inconsistent with grouping!\t" + allele1 + "" + allele2);
+									"SNP is inconsistent with grouping!\t" + allele1 + "\t" + allele2);
 						}
 
 						boolean isMajorityConsistent = ((isMajorityConsistent(observedAlleles[0][0],
@@ -215,10 +215,10 @@ public class SNPCheckPgm {
 
 						if (isMajorityConsistent) {
 							System.out.println(
-									"Majority SNP is consistent with grouping!\t" + allele1 + "" + allele2);
+									"Majority SNP is consistent with grouping!\t" + allele1 + "\t" + allele2);
 						} else {
 							System.out.println(
-									"Majority SNP is inconsistent with grouping!\t" + allele1 + "" + allele2);
+									"Majority SNP is inconsistent with grouping!\t" + allele1 + "\t" + allele2);
 						}
 						return true;
 					}
