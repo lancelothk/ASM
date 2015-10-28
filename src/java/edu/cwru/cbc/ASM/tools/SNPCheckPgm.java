@@ -190,9 +190,11 @@ public class SNPCheckPgm {
 										expectedAlleles[0][1]))); // observed allele 2 ~ expected allele 1
 
 						if (isConsistent) {
-							System.out.println("SNP is consistent with grouping!");
+							System.out.println(
+									"SNP is consistent with grouping!" + ((allele1 > allele2) ? allele1 + "" + allele2 : allele2 + "" + allele1));
 						} else {
-							System.out.println("SNP is inconsistent with grouping!");
+							System.out.println(
+									"SNP is inconsistent with grouping!" + ((allele1 > allele2) ? allele1 + "" + allele2 : allele2 + "" + allele1));
 						}
 
 						boolean isMajorityConsistent = ((isMajorityConsistent(observedAlleles[0][0],
