@@ -6,6 +6,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.genomicInterval.BedInterval;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -40,7 +41,7 @@ public class BedUtils {
 					private Map<String, List<BedInterval>> genomicIntervalMap = new HashMap<>();
 
 					@Override
-					public boolean processLine(String line) throws IOException {
+					public boolean processLine(@Nonnull String line) throws IOException {
 						String[] items = line.split("\t");
 						if (items[0].equals("chr") || line.equals("") || items[0].startsWith("#")) {
 							// skip column name

@@ -250,7 +250,6 @@ public class SNPCheckPgm {
 								inconsistentCount += entry.getValue();
 							}
 						}
-//						return inconsistentCount == 0;
 						return consistentCount >= inconsistentCount;
 					}
 
