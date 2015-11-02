@@ -144,7 +144,7 @@ public class DetectionPgm {
 		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
 		for (IntervalDetectionSummary result : resultList) {
 			if (result.getRegionP() <= region_threshold) {
-				summaryWriter.write(result.getSummaryString(region_threshold));
+				summaryWriter.write("chr" + result.getSummaryString(region_threshold));
 			}
 		}
 		summaryWriter.close();
