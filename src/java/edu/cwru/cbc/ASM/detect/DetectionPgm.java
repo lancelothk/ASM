@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -108,8 +109,9 @@ public class DetectionPgm {
 				resultList = resultList.stream()
 						.filter(i -> i.getRegionP() <= 1 && i.getRegionP() >= 0 && !i.isRandom())
 						.collect(Collectors.toList());
-				double regionP_threshold = resultList.stream().map(IntervalDetectionSummary::getRegionP).max(
-						Double::compareTo).get();
+				Optional<Double> max = resultList.stream().map(IntervalDetectionSummary::getRegionP).max(
+						Double::compareTo);
+				double regionP_threshold = max.isPresent() ? max.get() : -1;
 				if (FDR_threshold < 0) {
 					System.out.println("skip FDR control");
 				} else {
