@@ -176,18 +176,15 @@ public class SNPCheckPgm {
 						System.out.printf("expected allele pair for allele2:%s\t%s\n", expectedAlleles[1][0],
 								expectedAlleles[1][1]);
 
-						boolean isConsistent = ((isConsistent(observedAlleles[0][0],
-								expectedAlleles[0][0]) && isConsistent(
-								observedAlleles[0][1], expectedAlleles[0][1]))  // observed allele 1 ~ expected allele 1
-								&& (isConsistent(observedAlleles[1][0], expectedAlleles[1][0]) && isConsistent(
-								observedAlleles[1][1], expectedAlleles[1][1]))) // observed allele 2 ~ expected allele 2
+						boolean isConsistent = (isConsistent(observedAlleles[0],
+								expectedAlleles[0]) // observed allele 1 ~ expected allele 1
+								&& isConsistent(observedAlleles[1],
+								expectedAlleles[1])) // observed allele 2 ~ expected allele 2
 								||
-								((isConsistent(observedAlleles[0][0], expectedAlleles[1][0]) && isConsistent(
-										observedAlleles[0][1],
-										expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
-										&& (isConsistent(observedAlleles[1][0], expectedAlleles[0][0]) && isConsistent(
-										observedAlleles[1][1],
-										expectedAlleles[0][1]))); // observed allele 2 ~ expected allele 1
+								(isConsistent(observedAlleles[0],
+										expectedAlleles[1]) // observed allele 1 ~ expected allele 2
+										&& isConsistent(observedAlleles[1],
+										expectedAlleles[0])); // observed allele 2 ~ expected allele 1
 
 						if (isConsistent) {
 							System.out.println(
@@ -197,21 +194,15 @@ public class SNPCheckPgm {
 									"SNP is inconsistent with grouping!\t" + allele1 + "\t" + allele2);
 						}
 
-						boolean isMajorityConsistent = ((isMajorityConsistent(observedAlleles[0][0],
-								expectedAlleles[0][0]) && isMajorityConsistent(
-								observedAlleles[0][1], expectedAlleles[0][1]))  // observed allele 1 ~ expected allele 1
-								&& (isMajorityConsistent(observedAlleles[1][0],
-								expectedAlleles[1][0]) && isMajorityConsistent(
-								observedAlleles[1][1], expectedAlleles[1][1]))) // observed allele 2 ~ expected allele 2
+						boolean isMajorityConsistent = (isMajorityConsistent(observedAlleles[0],
+								expectedAlleles[0])  // observed allele 1 ~ expected allele 1
+								&& isMajorityConsistent(observedAlleles[1],
+								expectedAlleles[1])) // observed allele 2 ~ expected allele 2
 								||
-								((isMajorityConsistent(observedAlleles[0][0],
-										expectedAlleles[1][0]) && isMajorityConsistent(
-										observedAlleles[0][1],
-										expectedAlleles[1][1])) // observed allele 1 ~ expected allele 2
-										&& (isMajorityConsistent(observedAlleles[1][0],
-										expectedAlleles[0][0]) && isMajorityConsistent(
-										observedAlleles[1][1],
-										expectedAlleles[0][1]))); // observed allele 2 ~ expected allele 1
+								(isMajorityConsistent(observedAlleles[0],
+										expectedAlleles[1])// observed allele 1 ~ expected allele 2
+										&& isMajorityConsistent(observedAlleles[1],
+										expectedAlleles[0])); // observed allele 2 ~ expected allele 1
 
 						if (isMajorityConsistent) {
 							System.out.println(
@@ -223,31 +214,37 @@ public class SNPCheckPgm {
 						return true;
 					}
 
-					private boolean isConsistent(Map observed, Set expected) {
+					private boolean isConsistent(Map[] observed, Set[] expected) {
 						int inconsistentCount = 0;
-						@SuppressWarnings("unchecked")
-						Set<Character> expectedSNP = expected;
-						@SuppressWarnings("unchecked")
-						Map<Character, Integer> observedSNP = observed;
-						for (Map.Entry<Character, Integer> entry : observedSNP.entrySet()) {
-							if (!expectedSNP.contains(entry.getKey())) {
-								inconsistentCount += entry.getValue();
+						// two strands
+						for (int i = 0; i < 2; i++) {
+							@SuppressWarnings("unchecked")
+							Set<Character> expectedSNP = expected[i];
+							@SuppressWarnings("unchecked")
+							Map<Character, Integer> observedSNP = observed[i];
+							for (Map.Entry<Character, Integer> entry : observedSNP.entrySet()) {
+								if (!expectedSNP.contains(entry.getKey())) {
+									inconsistentCount += entry.getValue();
+								}
 							}
 						}
 						return inconsistentCount == 0;
 					}
 
-					private boolean isMajorityConsistent(Map observed, Set expected) {
+					private boolean isMajorityConsistent(Map[] observed, Set[] expected) {
 						int consistentCount = 0, inconsistentCount = 0;
-						@SuppressWarnings("unchecked")
-						Set<Character> expectedSNP = expected;
-						@SuppressWarnings("unchecked")
-						Map<Character, Integer> observedSNP = observed;
-						for (Map.Entry<Character, Integer> entry : observedSNP.entrySet()) {
-							if (expectedSNP.contains(entry.getKey())) {
-								consistentCount += entry.getValue();
-							} else {
-								inconsistentCount += entry.getValue();
+						//two strands
+						for (int i = 0; i < 2; i++) {
+							@SuppressWarnings("unchecked")
+							Set<Character> expectedSNP = expected[i];
+							@SuppressWarnings("unchecked")
+							Map<Character, Integer> observedSNP = observed[i];
+							for (Map.Entry<Character, Integer> entry : observedSNP.entrySet()) {
+								if (expectedSNP.contains(entry.getKey())) {
+									consistentCount += entry.getValue();
+								} else {
+									inconsistentCount += entry.getValue();
+								}
 							}
 						}
 						return consistentCount >= inconsistentCount;
