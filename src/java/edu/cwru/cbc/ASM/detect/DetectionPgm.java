@@ -133,6 +133,7 @@ public class DetectionPgm {
 			for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
 				resultList.add(intervalDetectionSummaryFuture.get());
 			}
+			System.out.println(resultList.get(0).getSummaryString(-1));
 			executor.shutdown();
 		}
 
