@@ -5,6 +5,7 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.detect.dataType.Vertex;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,15 +17,16 @@ import java.util.List;
 
 public class DetectionUtils {
 
-	@SuppressWarnings("unused")
-	public static double calcRegionP_SidakComb(List<RefCpG> twoClusterRefCpGList) {
-		double minP = Double.MAX_VALUE;
+	public static double getPercentileFisherP(List<RefCpG> twoClusterRefCpGList, int percentile) {
+		DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics();
 		for (RefCpG refCpG : twoClusterRefCpGList) {
-			if (minP > refCpG.getP_value()) {
-				minP = refCpG.getP_value();
-			}
+			descriptiveStatistics.addValue(refCpG.getP_value());
 		}
-		return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
+		return sidakCorrection(descriptiveStatistics.getPercentile(percentile), twoClusterRefCpGList.size());
+	}
+
+	public static double sidakCorrection(double p, int n) {
+		return 1 - Math.pow(1 - p, n);
 	}
 
 	public static double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {

@@ -33,10 +33,11 @@ public class DetectionPgm {
 		Options options = new Options();
 		options.addOption(
 				Option.builder("i").hasArg().desc("Input intervals folder or interval file name").required().build());
-		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("f").hasArg().desc("FDR threshold").required().build());
-		options.addOption(Option.builder("p").hasArg().desc("Time of random permutation").required().build());
+		options.addOption(
+				Option.builder("p").hasArg().desc("p value threshold for fisher exact test").required().build());
+		options.addOption(Option.builder("r").hasArg().desc("Time of random permutation").required().build());
 		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
 
 		CommandLineParser parser = new DefaultParser();
@@ -44,16 +45,16 @@ public class DetectionPgm {
 
 		String inputPath = cmd.getOptionValue("i");
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
-		int min_cpg_coverage = Integer.valueOf(cmd.getOptionValue("mcc"));
 		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
-		int permTime = Integer.valueOf(cmd.getOptionValue("p"));
+		double fisher_p = Double.valueOf(cmd.getOptionValue("p"));
+		int permTime = Integer.valueOf(cmd.getOptionValue("r"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "1"));
-		execute(inputPath, threadNumber, min_interval_cpg, min_cpg_coverage, FDR_threshold, permTime);
+		execute(inputPath, threadNumber, min_interval_cpg, FDR_threshold, fisher_p, permTime);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, int min_cpg_coverage,
-	                            double FDR_threshold, int permTime) throws ExecutionException, InterruptedException,
+	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, double FDR_threshold,
+	                            double fisher_p, int permTime) throws ExecutionException, InterruptedException,
 			IOException {
 		// initialize IntervalDetectionSummary format
 		IntervalDetectionSummary.initializeFormat(
@@ -94,7 +95,7 @@ public class DetectionPgm {
 					try {
 						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
 							Future<IntervalDetectionSummary> future = executor.submit(
-									new Detection(file, min_interval_cpg, min_cpg_coverage, permTime));
+									new Detection(file, min_interval_cpg, fisher_p, permTime));
 							futureList.add(future);
 						}
 					} catch (Exception e) {
@@ -125,7 +126,7 @@ public class DetectionPgm {
 		} else {
 			try {
 				Future<IntervalDetectionSummary> future = executor.submit(
-						new Detection(inputFile, min_interval_cpg, min_cpg_coverage, permTime));
+						new Detection(inputFile, min_interval_cpg, fisher_p, permTime));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
