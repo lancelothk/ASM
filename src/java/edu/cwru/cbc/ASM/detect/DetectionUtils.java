@@ -27,6 +27,7 @@ public class DetectionUtils {
 		return 1 - Math.pow(1 - minP, twoClusterRefCpGList.size());
 	}
 
+	@SuppressWarnings("unused")
 	public static double calcRegionP_StoufferComb(List<RefCpG> twoClusterRefCpGList) {
 		NormalDistribution stdNorm = new NormalDistribution(0, 1);
 		double z = twoClusterRefCpGList.stream()
@@ -47,11 +48,15 @@ public class DetectionUtils {
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
+	public static double calcRegionP_FisherCombSum(List<RefCpG> twoClusterRefCpGList) {
+		return -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
+	}
+
 	@SuppressWarnings("unused")
 	public static double calcRegionP_FisherComb(List<RefCpG> twoClusterRefCpGList) {
-		double regionP = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
 		ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
-		return 1 - chiSquaredDistribution.cumulativeProbability(regionP);
+		double combSum = -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
+		return 1 - chiSquaredDistribution.cumulativeProbability(combSum);
 	}
 
 	public static void fisherTest(List<RefCpG> twoClusterRefCpGList,

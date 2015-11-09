@@ -15,6 +15,7 @@ import edu.cwru.cbc.ASM.detect.dataType.*;
 import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -77,7 +78,26 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
 
-		double regionP = getRegionP(twoClusterRefCpGList, graph.getClusterResult().values());
+		Collection<Vertex> clusterResults = graph.getClusterResult().values();
+		DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults);
+		double regionP;
+		double combSum = 0;
+		if (clusterResults.size() > 2) {
+			// more than 2 clusters
+			regionP = 4;
+		} else if (clusterResults.size() < 2) {
+			// less than 2 clusters
+			regionP = 2;
+		} else if (twoClusterRefCpGList.stream()
+				.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
+				.count() < min_interval_cpg) {
+			// interval contain less #cpg than min_interval_cpg
+			regionP = 3;
+		} else {
+			combSum = DetectionUtils.calcRegionP_FisherCombSum(twoClusterRefCpGList);
+			ChiSquaredDistribution chiSquaredDistribution = new ChiSquaredDistribution(2 * twoClusterRefCpGList.size());
+			regionP = 1 - chiSquaredDistribution.cumulativeProbability(combSum);
+		}
 
 		// calculate daviesBouldin index
 		double clusterIndex = DetectionUtils.calcClusterIndex(twoClusterRefCpGList, graph.getClusterResult().values());
@@ -97,7 +117,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double normMEC = graph.getNormMECSum();
 		int minPCount = 0;
 		if (regionP <= 1 && regionP >= 0) {
-			minPCount = getMinPCount(refCpGList, mappedReadList, regionP);
+			minPCount = getMinPCount(refCpGList, mappedReadList, combSum);
 		}
 
 		return new IntervalDetectionSummary(regionP, minPCount > 0, chr.replace("chr", ""), startPos, endPos,
@@ -112,13 +132,14 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				"<label>");
 	}
 
-	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double regionP) {
+	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double combSum) {
 		for (int i = 1; i <= permTime; i++) {
 			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
 			randGraph.cluster();
-			double randP = getRegionP(getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap()),
-					randGraph.getClusterResult().values());
-			if (regionP >= 0 && regionP <= 1 && randP >= 0 && randP <= 1 && regionP >= randP) {
+			List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap());
+			DetectionUtils.fisherTest(twoClusterRefCpGList, randGraph.getClusterResult().values());
+			double randCombSum = DetectionUtils.calcRegionP_FisherCombSum(twoClusterRefCpGList);
+			if (combSum <= randCombSum) {
 				return i;
 			}
 		}
@@ -133,26 +154,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			}
 		}
 		return mappedReadList;
-	}
-
-	private double getRegionP(List<RefCpG> twoClusterRefCpGList, Collection<Vertex> clusterResults) {
-		DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults);
-		double regionP;
-		if (clusterResults.size() > 2) {
-			// more than 2 clusters
-			regionP = 4;
-		} else if (clusterResults.size() < 2) {
-			// less than 2 clusters
-			regionP = 2;
-		} else if (twoClusterRefCpGList.stream()
-				.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
-				.count() < min_interval_cpg) {
-			// interval contain less #cpg than min_interval_cpg
-			regionP = 3;
-		} else {
-			regionP = DetectionUtils.calcRegionP_StoufferComb(twoClusterRefCpGList);
-		}
-		return regionP;
 	}
 
 	private double calcMinFisherP(int min_cpg_coverage) {
