@@ -117,7 +117,7 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		double normMEC = graph.getNormMECSum();
 		int minPCount = 0;
 		if (regionP <= 1 && regionP >= 0) {
-			minPCount = getMinPCount(refCpGList, mappedReadList, combSum);
+			minPCount = getRandScoreIndex(refCpGList, mappedReadList, combSum);
 		}
 
 		return new IntervalDetectionSummary(regionP, minPCount > 0, chr.replace("chr", ""), startPos, endPos,
@@ -132,14 +132,14 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 				"<label>");
 	}
 
-	private int getMinPCount(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double combSum) {
+	private int getRandScoreIndex(List<RefCpG> refCpGList, List<MappedRead> mappedReadList, double combSum) {
 		for (int i = 1; i <= permTime; i++) {
 			ASMGraph randGraph = new ASMGraph(randomizeMethylStatus(mappedReadList));
 			randGraph.cluster();
 			List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, randGraph.getClusterRefCpGMap());
 			DetectionUtils.fisherTest(twoClusterRefCpGList, randGraph.getClusterResult().values());
 			double randCombSum = DetectionUtils.calcRegionP_FisherCombSum(twoClusterRefCpGList);
-			if (combSum <= randCombSum) {
+			if (combSum < randCombSum) {
 				return i;
 			}
 		}

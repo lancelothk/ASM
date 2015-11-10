@@ -50,7 +50,7 @@ public class DetectionTest {
 		String[] itemList = intervalDetectionSummary.getSummaryString(0).split("\t");
 		assertEquals("MEC", "28.000000", itemList[11]);
 		assertEquals("normMEC", "0.210526", itemList[12]);
-		assertEquals("regionP", "4.595401e-05", itemList[13]);
+		assertEquals("regionP", "2.979701e-06", itemList[13]);
 		assertEquals("dbindex", "0.047111", itemList[15]);
 		assertEquals("group1 size", "21", itemList[16]);
 		assertEquals("group2 size", "25", itemList[17]);
