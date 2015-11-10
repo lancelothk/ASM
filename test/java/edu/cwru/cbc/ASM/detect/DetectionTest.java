@@ -45,7 +45,7 @@ public class DetectionTest {
 	public void test_detection() throws Exception {
 		URL file = getClass().getClassLoader().getResource("chr20-25795835-25796072.mappedreads");
 		assertNotNull(file);
-		Detection detection = new Detection(new File(file.getFile()), 5, 6, 1000);
+		Detection detection = new Detection(new File(file.getFile()), 5, 1000);
 		IntervalDetectionSummary intervalDetectionSummary = detection.call();
 		String[] itemList = intervalDetectionSummary.getSummaryString(0).split("\t");
 		assertEquals("MEC", "28.000000", itemList[11]);

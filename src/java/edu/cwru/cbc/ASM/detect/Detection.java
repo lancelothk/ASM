@@ -38,7 +38,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	private int startPos;
 	private int endPos;
 	private int min_interval_cpg;
-	private double min_fisher_P;
 	private int permTime;
 
 	/**
@@ -46,13 +45,11 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 	 *
 	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
-	 * @param min_cpg_coverage Minimum number of CpG coverage. Used to calculate minimum significant fisher exact test p value.
 	 * @param permTime         Time of random permutation
 	 */
-	public Detection(File inputFile, int min_interval_cpg, int min_cpg_coverage, int permTime) {
+	public Detection(File inputFile, int min_interval_cpg, int permTime) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
-		this.min_fisher_P = calcMinFisherP(min_cpg_coverage);
 		this.permTime = permTime;
 	}
 
@@ -77,19 +74,18 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 		graph.cluster();
 
 		List<RefCpG> twoClusterRefCpGList = getTwoClustersRefCpG(refCpGList, graph.getClusterRefCpGMap());
-
 		Collection<Vertex> clusterResults = graph.getClusterResult().values();
+
 		DetectionUtils.fisherTest(twoClusterRefCpGList, clusterResults);
 		double regionP;
 		double combSum = 0;
 		if (clusterResults.size() > 2) {
 			// more than 2 clusters
-			regionP = 4;
+			throw new RuntimeException("more than two clusters!");
 		} else if (clusterResults.size() < 2) {
 			// less than 2 clusters
 			regionP = 2;
 		} else if (twoClusterRefCpGList.stream()
-				.filter(refCpG -> refCpG.getP_value() <= min_fisher_P)
 				.count() < min_interval_cpg) {
 			// interval contain less #cpg than min_interval_cpg
 			regionP = 3;
@@ -154,13 +150,6 @@ public class Detection implements Callable<IntervalDetectionSummary> {
 			}
 		}
 		return mappedReadList;
-	}
-
-	private double calcMinFisherP(int min_cpg_coverage) {
-		int ceiling = (int) Math.ceil(min_cpg_coverage / 2.0);
-		int[][] matrix = {{ceiling, 0}, {0, min_cpg_coverage - ceiling}};
-		return FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
-				matrix[1][1])[0];
 	}
 
 	private void extractIntervalPosition(File inputFile) {
