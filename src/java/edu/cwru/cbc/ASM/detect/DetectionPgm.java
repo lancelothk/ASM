@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -83,17 +84,17 @@ public class DetectionPgm {
 		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
 		List<Future<IntervalDetectionSummary>> futureList = new ArrayList<>();
 		if (inputFile.isDirectory()) {
-			File[] files = inputFile.listFiles();
+			File[] files = inputFile.listFiles(
+					pathname -> pathname.isFile() && pathname.getName().endsWith(Constant.MAPPEDREADS_EXTENSION));
 			if (files == null) {
 				throw new RuntimeException("Empty folder!");
 			} else {
+				Arrays.sort(files, (o1, o2) -> Long.compare(o2.length(), o1.length()));
 				for (File file : files) {
 					try {
-						if (file.isFile() && file.getName().endsWith(Constant.MAPPEDREADS_EXTENSION)) {
-							Future<IntervalDetectionSummary> future = executor.submit(
-									new Detection(file, min_interval_cpg, permTime));
-							futureList.add(future);
-						}
+						Future<IntervalDetectionSummary> future = executor.submit(
+								new Detection(file, min_interval_cpg, permTime));
+						futureList.add(future);
 					} catch (Exception e) {
 						throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
 					}
