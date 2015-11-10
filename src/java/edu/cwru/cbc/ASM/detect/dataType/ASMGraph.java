@@ -19,7 +19,7 @@ public class ASMGraph {
 	private Map<String, Vertex> clusterResult;// id,read
 	// count how many tie situation occurs. For analysis use
 	private int tieWeightCounter, tieIdCountCounter;
-	private int originalVertexCount, originalEdgeCount;
+	private int originalEdgeCount;
 
 	public ASMGraph(List<MappedRead> mappedReadList) {
 		this.edgeSet = new LinkedHashSet<>();
@@ -40,7 +40,6 @@ public class ASMGraph {
 			}
 		}
 
-		this.originalVertexCount = vertexMap.size();
 		this.originalEdgeCount = edgeSet.size();
 	}
 
@@ -80,18 +79,7 @@ public class ASMGraph {
 				break;
 			} else {
 				// since edgeSet is not empty, getMaxWeightEdge always returns at least one element
-				if (maxEdgeList.size() != 1) {
-					// multiple equal max weight edges.
-					tieWeightCounter++;
-
-					// First pick edge not connect to two clusters.
-					// sort edge by id count. Smaller first
-					maxEdgeList = getMinIdCountEdge(maxEdgeList);
-					if (maxEdgeList.size() != 1) {
-						tieIdCountCounter++;
-					}
-					//                    }
-				}
+				maxEdgeList = tieBreak(maxEdgeList);
 				mergeVertex(maxEdgeList.get(0));
 			}
 		}
@@ -100,6 +88,22 @@ public class ASMGraph {
 		refineClusterResult();
 		mergeNonOverlappedClusters();
 		this.clusterResult = vertexMap;
+	}
+
+	private List<Edge> tieBreak(List<Edge> maxEdgeList) {
+		if (maxEdgeList.size() != 1) {
+			// multiple equal max weight edges.
+			tieWeightCounter++;
+
+			// First pick edge not connect to two clusters.
+			// sort edge by id count. Smaller first
+			maxEdgeList = getMinIdCountEdge(maxEdgeList);
+			if (maxEdgeList.size() != 1) {
+				tieIdCountCounter++;
+			}
+			//                    }
+		}
+		return maxEdgeList;
 	}
 
 	private List<Edge> getMaxWeightEdge(Set<Edge> itemList) {
@@ -183,7 +187,7 @@ public class ASMGraph {
 		for (Vertex vertex : vertexMap.values()) {
 			for (RefCpG refCpG : vertex.getRefCpGMap().values()) {
 				if (!clusterRefCpGMap.containsKey(refCpG.getPos())) {
-					clusterRefCpGMap.put(refCpG.getPos(), new ClusterRefCpG(refCpG.getPos(), vertex));
+					clusterRefCpGMap.put(refCpG.getPos(), new ClusterRefCpG(refCpG, vertex));
 				} else {
 					clusterRefCpGMap.get(refCpG.getPos()).addVertex(vertex);
 				}
@@ -206,18 +210,7 @@ public class ASMGraph {
 					break;
 				} else {
 					// since edgeSet is not empty, getMaxWeightEdge always returns at least one element
-					if (maxEdgeList.size() != 1) {
-						// multiple equal max weight edges.
-						tieWeightCounter++;
-
-						// First pick edge not connect to two clusters.
-						// sort edge by id count. Smaller first
-						maxEdgeList = getMinIdCountEdge(maxEdgeList);
-						if (maxEdgeList.size() != 1) {
-							tieIdCountCounter++;
-						}
-						//                    }
-					}
+					maxEdgeList = tieBreak(maxEdgeList);
 					mergeVertex(maxEdgeList.get(0));
 					setCoveredCpGMap();
 				}
@@ -232,8 +225,8 @@ public class ASMGraph {
 			List<ClusterRefCpG> clusterRefCpGList = clusterRefCpGMap.values()
 					.stream()
 					.filter(c -> c.getClusterCount() >= 2)
+					.sorted()
 					.collect(Collectors.toList());
-			clusterRefCpGList.sort(ClusterRefCpG::compareTo);
 			for (int i = 0; i < clusterRefCpGList.size() - 1; i++) {
 				curr = clusterRefCpGList.get(i).getClusterSet();
 				next = clusterRefCpGList.get(i + 1).getClusterSet();
@@ -289,10 +282,6 @@ public class ASMGraph {
 
 	public int getTieIdCountCounter() {
 		return tieIdCountCounter;
-	}
-
-	public int getOriginalVertexCount() {
-		return originalVertexCount;
 	}
 
 	public int getOriginalEdgeCount() {

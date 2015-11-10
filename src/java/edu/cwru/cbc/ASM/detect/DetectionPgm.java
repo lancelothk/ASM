@@ -2,7 +2,7 @@ package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.collect.ImmutableList;
 import edu.cwru.cbc.ASM.commons.Constant;
-import edu.cwru.cbc.ASM.detect.dataType.IntervalDetectionSummary;
+import edu.cwru.cbc.ASM.detect.dataType.IntervalDetectionSummaryFormatter;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -14,12 +14,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /**
  * Created by kehu on 11/12/14.
@@ -53,8 +51,8 @@ public class DetectionPgm {
 
 	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, double FDR_threshold,
 	                            int permTime) throws ExecutionException, InterruptedException, IOException {
-		// initialize IntervalDetectionSummary format
-		IntervalDetectionSummary.initializeFormat(
+		// initialize IntervalDetectionSummaryFormatter format
+		IntervalDetectionSummaryFormatter.initializeFormat(
 				new ImmutableList.Builder<Pair<String, String>>()
 						.add(new ImmutablePair<>("chr", "%s"))
 						.add(new ImmutablePair<>("startPos", "%d"))
@@ -63,26 +61,23 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("originalRegion", "%s"))
 						.add(new ImmutablePair<>("#edge", "%d"))
 						.add(new ImmutablePair<>("#read", "%d"))
-						.add(new ImmutablePair<>("#refCpG", "%d"))
-						.add(new ImmutablePair<>("#clusterCpG", "%d"))
+						.add(new ImmutablePair<>("#clusterRefCpG", "%d"))
 						.add(new ImmutablePair<>("#cluster", "%d"))
 						.add(new ImmutablePair<>("CpGsum", "%d"))
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("regionP", "%e"))
-						.add(new ImmutablePair<>("randPIndex", "%d"))
 						.add(new ImmutablePair<>("clusterIndex", "%f"))
 						.add(new ImmutablePair<>("#group1", "%d"))
 						.add(new ImmutablePair<>("#group2", "%d"))
 						.add(new ImmutablePair<>("group1Methyl", "%f"))
 						.add(new ImmutablePair<>("group2Methyl", "%f"))
-						.add(new ImmutablePair<>("FDR_label", "%s"))
 						.build());
 
 		File inputFile = new File(inputPath);
-		List<IntervalDetectionSummary> resultList = new ArrayList<>();
+		List<String> resultList = new ArrayList<>();
 		ExecutorService executor = Executors.newFixedThreadPool(threadNumber);
-		List<Future<IntervalDetectionSummary>> futureList = new ArrayList<>();
+		List<Future<String>> futureList = new ArrayList<>();
 		if (inputFile.isDirectory()) {
 			File[] files = inputFile.listFiles(
 					pathname -> pathname.isFile() && pathname.getName().endsWith(Constant.MAPPEDREADS_EXTENSION));
@@ -92,58 +87,40 @@ public class DetectionPgm {
 				Arrays.sort(files, (o1, o2) -> Long.compare(o2.length(), o1.length()));
 				for (File file : files) {
 					try {
-						Future<IntervalDetectionSummary> future = executor.submit(
+						Future<String> future = executor.submit(
 								new Detection(file, min_interval_cpg, permTime));
 						futureList.add(future);
 					} catch (Exception e) {
 						throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
 					}
 				}
-				for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
+				for (Future<String> intervalDetectionSummaryFuture : futureList) {
 					resultList.add(intervalDetectionSummaryFuture.get());
 				}
 				executor.shutdown();
-
-				resultList = resultList.stream()
-						.filter(i -> i.getRegionP() <= 1 && i.getRegionP() >= 0 && !i.isRandom())
-						.collect(Collectors.toList());
-				Optional<Double> max = resultList.stream().map(IntervalDetectionSummary::getRegionP).max(
-						Double::compareTo);
-				double regionP_threshold = max.isPresent() ? max.get() : -1;
-				if (FDR_threshold < 0) {
-					System.out.println("skip FDR control");
-				} else {
-					regionP_threshold = FDRControl.getBHYFDRCutoff(
-							resultList.stream().map(IntervalDetectionSummary::getRegionP)
-									.collect(Collectors.toList()), FDR_threshold);
-					System.out.println("regionP threshold calculated by FDR control:\t" + regionP_threshold);
-				}
-				writeDetectionSummary(inputPath, resultList, regionP_threshold);
 			}
 		} else {
 			try {
-				Future<IntervalDetectionSummary> future = executor.submit(
+				Future<String> future = executor.submit(
 						new Detection(inputFile, min_interval_cpg, permTime));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);
 			}
-			for (Future<IntervalDetectionSummary> intervalDetectionSummaryFuture : futureList) {
+			for (Future<String> intervalDetectionSummaryFuture : futureList) {
 				resultList.add(intervalDetectionSummaryFuture.get());
 			}
-			System.out.println(resultList.get(0).getSummaryString(-1));
 			executor.shutdown();
 		}
-
+		writeDetectionSummary(inputPath, resultList);
 	}
 
-	private static void writeDetectionSummary(String outputPath, List<IntervalDetectionSummary> resultList,
-	                                          double region_threshold) throws IOException {
+	private static void writeDetectionSummary(String outputPath, List<String> resultList) throws IOException {
 		BufferedWriter summaryWriter = new BufferedWriter(new FileWriter(outputPath + "/detection.summary"));
-		summaryWriter.write(IntervalDetectionSummary.getHeadLine());
-		for (IntervalDetectionSummary result : resultList) {
-			if (result.getRegionP() <= region_threshold) {
-				summaryWriter.write("chr" + result.getSummaryString(region_threshold));
+		summaryWriter.write(IntervalDetectionSummaryFormatter.getHeadLine() + "\n");
+		for (String result : resultList) {
+			if (!result.equals("")) {
+				summaryWriter.write(result + "\n");
 			}
 		}
 		summaryWriter.close();

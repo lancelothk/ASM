@@ -11,19 +11,10 @@ import java.util.ArrayList;
  * <p>
  * Class for format interval detection summary
  */
-public class IntervalDetectionSummary {
+public class IntervalDetectionSummaryFormatter {
 	private static int elementCount;
 	private static String headLine;
 	private static String formatLine;
-	private Object[] arguments;
-	private double regionP;
-	private boolean random;
-
-	public IntervalDetectionSummary(double regionP, boolean random, Object... arguments) {
-		this.regionP = regionP;
-		this.arguments = arguments;
-		this.random = random;
-	}
 
 	public static void initializeFormat(ImmutableList<Pair<String, String>> elementPairList) {
 		elementCount = elementPairList.size();
@@ -38,7 +29,7 @@ public class IntervalDetectionSummary {
 	}
 
 	private static String buildLine(ArrayList<String> formatLine) {
-		return StringUtils.join(formatLine, "\t") + "\n";
+		return StringUtils.join(formatLine, "\t");
 	}
 
 	public static String getHeadLine() {
@@ -48,24 +39,12 @@ public class IntervalDetectionSummary {
 		return headLine;
 	}
 
-	public boolean isRandom() {
-		return random;
-	}
-
-	public double getRegionP() {
-		return regionP;
-	}
-
-	public void setRegionP(double regionP) {
-		this.regionP = regionP;
-	}
-
-	public String getSummaryString(double region_threshold) {
+	public static String formatSummaryString(Object... arguments) {
 		if (elementCount != arguments.length) {
 			throw new RuntimeException(
 					String.format("unmatched number of elements in arguments list!:%d-%d", elementCount,
 							arguments.length + 1));
 		}
-		return String.format(formatLine, arguments).replace("<label>", regionP <= region_threshold ? "+" : "-");
+		return String.format(formatLine, arguments);
 	}
 }

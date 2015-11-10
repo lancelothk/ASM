@@ -1,8 +1,9 @@
 package edu.cwru.cbc.ASM.detect.dataType;
 
+import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
+
 import javax.annotation.Nonnull;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -10,32 +11,36 @@ import java.util.Set;
  * Used for record clusters in each RefCpG position.
  */
 public class ClusterRefCpG implements Comparable<ClusterRefCpG> {
-	private int pos;
+	private RefCpG refCpG;
 	private Set<Vertex> clusterSet;
 
 
-	public ClusterRefCpG(int pos, Vertex vertex) {
-		this.pos = pos;
+	public ClusterRefCpG(RefCpG refCpG, Vertex vertex) {
+		this.refCpG = refCpG;
 		this.clusterSet = new HashSet<>();
 		this.clusterSet.add(vertex);
 	}
 
 	@Override
 	public int compareTo(@Nonnull ClusterRefCpG o) {
-		return this.pos - o.pos;
+		return this.refCpG.compareTo(o.refCpG);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof ClusterRefCpG)) return false;
+
 		ClusterRefCpG that = (ClusterRefCpG) o;
-		return Objects.equals(pos, that.pos);
+		return refCpG.equals(that.refCpG) && clusterSet.equals(that.clusterSet);
+
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(pos);
+		int result = refCpG.hashCode();
+		result = 31 * result + clusterSet.hashCode();
+		return result;
 	}
 
 	public int getClusterCount() {
@@ -48,5 +53,9 @@ public class ClusterRefCpG implements Comparable<ClusterRefCpG> {
 
 	public void addVertex(Vertex vertex) {
 		clusterSet.add(vertex);
+	}
+
+	public RefCpG getRefCpG() {
+		return refCpG;
 	}
 }

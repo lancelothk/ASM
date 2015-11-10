@@ -6,6 +6,7 @@ import edu.cwru.cbc.ASM.detect.dataType.Vertex;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -48,8 +49,8 @@ public class DetectionUtils {
 		return 1 - stdNorm.cumulativeProbability(z);
 	}
 
-	public static double calcRegionP_FisherCombSum(List<RefCpG> twoClusterRefCpGList) {
-		return -2 * twoClusterRefCpGList.stream().mapToDouble(refCpG -> Math.log(refCpG.getP_value())).sum();
+	public static double calcRegionP_FisherCombSum(List<Double> pValueList) {
+		return -2 * pValueList.stream().mapToDouble(Math::log).sum();
 	}
 
 	@SuppressWarnings("unused")
@@ -59,8 +60,8 @@ public class DetectionUtils {
 		return 1 - chiSquaredDistribution.cumulativeProbability(combSum);
 	}
 
-	public static void fisherTest(List<RefCpG> twoClusterRefCpGList,
-	                              Collection<Vertex> clusterResults) {
+	public static List<Double> fisherExactTest(List<RefCpG> twoClusterRefCpGList, Collection<Vertex> clusterResults) {
+		List<Double> pValueList = new ArrayList<>();
 		for (RefCpG refCpG : twoClusterRefCpGList) {
 			int j = 0;
 			int[][] matrix = new int[2][2];
@@ -75,11 +76,12 @@ public class DetectionUtils {
 					matrix[1][1])[0];  // [0] is two tail test.
 			if (fisher_P >= 0 && fisher_P <= 1) {
 				refCpG.setP_value(fisher_P);
+				pValueList.add(fisher_P);
 			} else {
 				throw new RuntimeException("p value is not in [0,1]!");
 			}
-
 		}
+		return pValueList;
 	}
 
 	public static double calcClusterIndex(List<RefCpG> twoClusterRefCpGList,
