@@ -33,7 +33,6 @@ public class DetectionPgm {
 		options.addOption(
 				Option.builder("i").hasArg().desc("Input intervals folder or interval file name").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
-		options.addOption(Option.builder("f").hasArg().desc("FDR threshold").required().build());
 		options.addOption(Option.builder("p").hasArg().desc("Time of random permutation").required().build());
 		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
 
@@ -42,15 +41,14 @@ public class DetectionPgm {
 
 		String inputPath = cmd.getOptionValue("i");
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
-		double FDR_threshold = Double.valueOf(cmd.getOptionValue("f"));
 		int permTime = Integer.valueOf(cmd.getOptionValue("p"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "1"));
-		execute(inputPath, threadNumber, min_interval_cpg, FDR_threshold, permTime);
+		execute(inputPath, threadNumber, min_interval_cpg, permTime);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, double FDR_threshold,
-	                            int permTime) throws ExecutionException, InterruptedException, IOException {
+	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, int permTime) throws
+			ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummaryFormatter format
 		IntervalDetectionSummaryFormatter.initializeFormat(
 				new ImmutableList.Builder<Pair<String, String>>()
