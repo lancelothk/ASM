@@ -96,6 +96,7 @@ public class DetectionPgm {
 					resultList.add(intervalDetectionSummaryFuture.get());
 				}
 				executor.shutdown();
+				writeDetectionSummary(inputPath, resultList);
 			}
 		} else {
 			try {
@@ -109,8 +110,8 @@ public class DetectionPgm {
 				resultList.add(intervalDetectionSummaryFuture.get());
 			}
 			executor.shutdown();
+			System.out.println(resultList.get(0));
 		}
-		writeDetectionSummary(inputPath, resultList);
 	}
 
 	private static void writeDetectionSummary(String outputPath, List<String> resultList) throws IOException {
