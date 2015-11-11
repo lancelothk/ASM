@@ -7,6 +7,7 @@ import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.detect.FDRControl;
 import org.apache.commons.cli.*;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,9 +35,9 @@ public class FDRControlPgm {
 			private List<Double> pvalueList = new ArrayList<>();
 
 			@Override
-			public boolean processLine(String line) throws IOException {
+			public boolean processLine(@Nonnull String line) throws IOException {
 				List<String> itemList = tabSplitter.splitToList(line);
-				if (line.startsWith("ref:") || line.equals("")) {
+				if (line.startsWith("ref:") || line.equals("") || line.startsWith("chr\t")) {
 					return true;
 				} else {
 					pvalueList.add(Double.parseDouble(itemList.get(column)));
