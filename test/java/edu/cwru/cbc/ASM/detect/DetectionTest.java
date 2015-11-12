@@ -44,7 +44,7 @@ public class DetectionTest {
 	public void test_detection_FP_random() throws Exception {
 		URL file = getClass().getClassLoader().getResource("chr20-25795835-25796072.mappedreads");
 		assertNotNull(file);
-		Detection detection = new Detection(new File(file.getFile()), 5, 1000);
+		Detection detection = new Detection(new File(file.getFile()), ".", 5, 1000);
 		String summary = detection.call();
 		assertEquals("not empty summary", "", summary);
 	}
@@ -53,7 +53,7 @@ public class DetectionTest {
 	public void test_detection_TP_small() throws Exception {
 		URL file = getClass().getClassLoader().getResource("chrX-151807265-151807274.mappedreads");
 		assertNotNull(file);
-		Detection detection = new Detection(new File(file.getFile()), 5, 1000);
+		Detection detection = new Detection(new File(file.getFile()), ".", 5, 1000);
 		String summary = detection.call();
 
 		String[] itemList = summary.split("\t");

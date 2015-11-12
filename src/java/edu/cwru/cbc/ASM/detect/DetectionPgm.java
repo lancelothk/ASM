@@ -32,6 +32,8 @@ public class DetectionPgm {
 		Options options = new Options();
 		options.addOption(
 				Option.builder("i").hasArg().desc("Input intervals folder or interval file name").required().build());
+		options.addOption(
+				Option.builder("o").hasArg().desc("output folder. Will be create if not exist").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("p").hasArg().desc("Time of random permutation").required().build());
 		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
@@ -40,14 +42,21 @@ public class DetectionPgm {
 		CommandLine cmd = parser.parse(options, args);
 
 		String inputPath = cmd.getOptionValue("i");
+		String outputPath = cmd.getOptionValue("o");
+		File outputDir = new File(outputPath);
+		if (!outputDir.exists()) {
+			if (!outputDir.mkdirs()) {
+				throw new RuntimeException("unable to mkdir for " + outputPath);
+			}
+		}
 		int min_interval_cpg = Integer.valueOf(cmd.getOptionValue("mic"));
 		int permTime = Integer.valueOf(cmd.getOptionValue("p"));
 		int threadNumber = Integer.valueOf(cmd.getOptionValue("t", "1"));
-		execute(inputPath, threadNumber, min_interval_cpg, permTime);
+		execute(inputPath, outputPath, threadNumber, min_interval_cpg, permTime);
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 
-	private static void execute(String inputPath, int threadNumber, int min_interval_cpg, int permTime) throws
+	private static void execute(String inputPath, String outputPath, int threadNumber, int min_interval_cpg, int permTime) throws
 			ExecutionException, InterruptedException, IOException {
 		// initialize IntervalDetectionSummaryFormatter format
 		IntervalDetectionSummaryFormatter.initializeFormat(
@@ -86,7 +95,7 @@ public class DetectionPgm {
 				for (File file : files) {
 					try {
 						Future<String> future = executor.submit(
-								new Detection(file, min_interval_cpg, permTime));
+								new Detection(file, outputPath, min_interval_cpg, permTime));
 						futureList.add(future);
 					} catch (Exception e) {
 						throw new RuntimeException("Problem File name: " + file.getAbsolutePath() + "\n", e);
@@ -96,12 +105,12 @@ public class DetectionPgm {
 					resultList.add(intervalDetectionSummaryFuture.get());
 				}
 				executor.shutdown();
-				writeDetectionSummary(inputPath, resultList);
+				writeDetectionSummary(outputPath, resultList);
 			}
 		} else {
 			try {
 				Future<String> future = executor.submit(
-						new Detection(inputFile, min_interval_cpg, permTime));
+						new Detection(inputFile, outputPath, min_interval_cpg, permTime));
 				futureList.add(future);
 			} catch (Exception e) {
 				throw new RuntimeException("Problem File name:" + inputFile.getAbsolutePath(), e);

@@ -39,18 +39,20 @@ public class Detection implements Callable<String> {
 	private int endPos;
 	private int min_interval_cpg;
 	private int permTime;
+	private String outputPath;
 
 	/**
 	 * Detection constructor.
-	 *
-	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 *  @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 * @param outputPath Path for output files
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param permTime         Time of random permutation
 	 */
-	public Detection(File inputFile, int min_interval_cpg, int permTime) {
+	public Detection(File inputFile, String outputPath, int min_interval_cpg, int permTime) {
 		this.inputFile = inputFile;
 		this.min_interval_cpg = min_interval_cpg;
 		this.permTime = permTime;
+		this.outputPath = outputPath;
 	}
 
 
@@ -178,7 +180,7 @@ public class Detection implements Callable<String> {
 	private List<GroupResult> writeDetectedResults(Collection<Vertex> clusters, List<RefCpG> refCpGList) throws
 			IOException {
 		BufferedWriter groupResultWriter = new BufferedWriter(
-				new FileWriter(inputFile.getAbsolutePath() + ".detected"));
+				new FileWriter(outputPath + "/" + inputFile.getName() + ".detected"));
 		List<GroupResult> groupResultList = writeAlignedResult(refCpGList, groupResultWriter, clusters);
 		writePvalues(refCpGList, groupResultWriter);
 		writeGroupReadList(groupResultWriter, groupResultList);
@@ -191,7 +193,7 @@ public class Detection implements Callable<String> {
 				.map(Vertex::getMappedReadList)
 				.collect(Collectors.toList());
 		ReadsVisualizationPgm.writeAlignedReadsIntoGroups(readGroups, reference,
-				inputFile.getAbsolutePath() + ".groups.aligned");
+				outputPath + "/" + inputFile.getName() + ".groups.aligned");
 	}
 
 	private List<GroupResult> writeAlignedResult(List<RefCpG> refCpGList, BufferedWriter groupResultWriter,
