@@ -59,7 +59,7 @@ public class FDRControlPgm {
 					BufferedWriter outputWriter = new BufferedWriter(new FileWriter(outputFile));
 					for (int i = 0; i < lines.size(); i++) {
 						if (pvalueList.get(i) <= correctedThreshold) {
-							outputWriter.write(lines.get(i) + "\t");
+							outputWriter.write(lines.get(i) + "\n");
 						}
 					}
 					outputWriter.close();
