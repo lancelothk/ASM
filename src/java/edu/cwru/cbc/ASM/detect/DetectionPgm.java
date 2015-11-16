@@ -74,6 +74,7 @@ public class DetectionPgm {
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("regionP", "%e"))
+						.add(new ImmutablePair<>("regionFScore", "%f"))
 						.add(new ImmutablePair<>("clusterIndex", "%f"))
 						.add(new ImmutablePair<>("#group1", "%d"))
 						.add(new ImmutablePair<>("#group2", "%d"))

@@ -108,7 +108,7 @@ public class Detection implements Callable<String> {
 				startPos + "-" + endPos,
 				partitionedGraph.getOriginalEdgeCount(), mappedReadList.size(), twoClusterRefCpGList.size(),
 				clusters.size(), partitionedGraph.getCpGSum(), partitionedGraph.getMECSum(),
-				partitionedGraph.getNormMECSum(), regionP, clusterIndex,
+				partitionedGraph.getNormMECSum(), regionP, combSum, clusterIndex,
 				Iterables.get(clusters, 0).getMappedReadList().size(),
 				Iterables.get(clusters, 1).getMappedReadList().size(),
 				groupResultList.get(0).getAvgMethylLevel(),

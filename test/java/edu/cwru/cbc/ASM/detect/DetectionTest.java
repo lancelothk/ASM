@@ -32,6 +32,7 @@ public class DetectionTest {
 						.add(new ImmutablePair<>("MECsum", "%f"))
 						.add(new ImmutablePair<>("NormMEC", "%f"))
 						.add(new ImmutablePair<>("regionP", "%e"))
+						.add(new ImmutablePair<>("regionFScore", "%f"))
 						.add(new ImmutablePair<>("clusterIndex", "%f"))
 						.add(new ImmutablePair<>("#group1", "%d"))
 						.add(new ImmutablePair<>("#group2", "%d"))
@@ -55,15 +56,15 @@ public class DetectionTest {
 		assertNotNull(file);
 		Detection detection = new Detection(new File(file.getFile()), ".", 5, 1000);
 		String summary = detection.call();
-
 		String[] itemList = summary.split("\t");
 		assertEquals("MEC", "4.000000", itemList[10]);
 		assertEquals("normMEC", "0.083333", itemList[11]);
 		assertEquals("regionP", "1.415975e-04", itemList[12]);
-		assertEquals("clusterIndex", "0.032349", itemList[13]);
-		assertEquals("group1 size", "5", itemList[14]);
-		assertEquals("group2 size", "5", itemList[15]);
-		assertEquals("group1 methyl", "0.130000", itemList[16]);
-		assertEquals("group2 methyl", "0.960000", itemList[17]);
+		assertEquals("regionFScore", "34.679588", itemList[13]);
+		assertEquals("clusterIndex", "0.032349", itemList[14]);
+		assertEquals("group1 size", "5", itemList[15]);
+		assertEquals("group2 size", "5", itemList[16]);
+		assertEquals("group1 methyl", "0.130000", itemList[17]);
+		assertEquals("group2 methyl", "0.960000", itemList[18]);
 	}
 }
