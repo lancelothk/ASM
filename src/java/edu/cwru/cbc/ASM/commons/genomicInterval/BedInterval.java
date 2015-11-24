@@ -71,12 +71,17 @@ public class BedInterval extends GenomicIntervalBase {
 	}
 
 	public String toBedString() {
-		return String.format("%s\t%d\t%d\t%s", this.chr, this.start, this.end, this.name);
+		// output bed is 0-based start and 1-based end.
+		// internal representations of position are all 0-based.
+		return String.format("%s\t%d\t%d\t%s", this.chr, this.start, this.end + 1, this.name);
 	}
 
 
 	public String toBedWithIntersectionString() {
-		return String.format("%s\t%d\t%d\t%s\t%s\t%b", this.chr, this.start, this.end, this.name, uniqueRegionNames(intersectedRegions), isIntersected());
+		// output bed is 0-based start and 1-based end.
+		// internal representations of position are all 0-based.
+		return String.format("%s\t%d\t%d\t%s\t%s\t%b", this.chr, this.start, this.end + 1, this.name,
+				uniqueRegionNames(intersectedRegions), isIntersected());
 	}
 
 	private String uniqueRegionNames(Set<BedInterval> intersectedRegions) {

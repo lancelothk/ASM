@@ -51,12 +51,16 @@ public class BedUtils {
 							throw new RuntimeException("less than 3 columns in bed file!");
 						} else if (items.length == 3) {
 							// 3 columns bed format
+							// suppose input bed is 0-based start and 1-based end.
+							// internal representations of position are all 0-based.
 							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]), ""), genomicIntervalMap);
+									Integer.parseInt(items[2]) - 1, ""), genomicIntervalMap);
 						} else {
 							// more than 3 columns bed format
+							// suppose input bed is 0-based start and 1-based end.
+							// internal representations of position are all 0-based.
 							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]), items[3]), genomicIntervalMap);
+									Integer.parseInt(items[2]) - 1, items[3]), genomicIntervalMap);
 						}
 						return true;
 					}

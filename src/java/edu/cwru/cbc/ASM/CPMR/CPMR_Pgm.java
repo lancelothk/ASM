@@ -142,6 +142,7 @@ public class CPMR_Pgm {
 		intervalSummaryWriter.write("chr\tstart\tend\treadCount\tCpGCount\n");
 		for (ImmutableGenomicInterval immutableGenomicInterval : immutableGenomicIntervalList) {
 			try {
+				// bed file is 0-based start and end.
 				intervalSummaryWriter.write(
 						String.format("%s\t%d\t%d\t%d\t%d\n", immutableGenomicInterval.getChr(),
 								immutableGenomicInterval.getStart(),

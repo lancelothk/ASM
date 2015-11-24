@@ -129,6 +129,7 @@ public class DetectionPgm {
 		summaryWriter.write(IntervalDetectionSummaryFormatter.getHeadLine() + "\n");
 		for (String result : resultList) {
 			if (!result.equals("")) {
+				// detection summary is 0-based start and end
 				summaryWriter.write(result + "\n");
 			}
 		}
