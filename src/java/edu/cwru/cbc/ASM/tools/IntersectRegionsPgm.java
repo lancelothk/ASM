@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -17,10 +19,11 @@ import java.util.stream.Collectors;
  * check intersection of two region groups
  */
 public class IntersectRegionsPgm {
-	public static void main(String[] args) throws IOException, ParseException {
+	public static void main(String[] args) throws IOException, ParseException, ExecutionException,
+			InterruptedException {
 		Options options = new Options();
-		options.addOption(Option.builder("a").hasArg().desc("bed file A").build());
-		options.addOption(Option.builder("b").hasArg().desc("bed file B").build());
+		options.addOption(Option.builder("a").hasArg().desc("bed file A").required().build());
+		options.addOption(Option.builder("b").hasArg().desc("bed file B").required().build());
 		options.addOption(Option.builder("o")
 				.hasArg()
 				.desc("output file name prefix(without .bed)")
@@ -31,6 +34,7 @@ public class IntersectRegionsPgm {
 				.desc("extra output except intersection file. 'a':annotated A; 'b':annotated B;'c':both annotated A&B ")
 				.required(false)
 				.build());
+		options.addOption(Option.builder("t").hasArg().required(false).desc("number of threads to use").build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
@@ -38,6 +42,7 @@ public class IntersectRegionsPgm {
 		String aFileName = cmd.getOptionValue("a");
 		String bFileName = cmd.getOptionValue("b");
 		String outputFileName = cmd.getOptionValue("o");
+		int threadNumber = Integer.parseInt(cmd.getOptionValue("t", "1"));
 		String extraOption = "";
 		if (cmd.hasOption("e")) {
 			extraOption = cmd.getOptionValue("e");
@@ -46,16 +51,25 @@ public class IntersectRegionsPgm {
 						"unknown parameter \"" + extraOption + "\" for -e.\n'a':annotated A; 'b':annotated B;'c':both annotated A&B");
 			}
 		}
-		execution(aFileName, bFileName, outputFileName, extraOption);
+		execution(aFileName, bFileName, outputFileName, extraOption, threadNumber);
 	}
 
-	private static void execution(String aFileName, String bFileName, String outputFileName, String extraOption) throws
-			IOException {
+	private static void execution(String aFileName, String bFileName, String outputFileName, String extraOption,
+	                              int threadNumber) throws
+			IOException, ExecutionException, InterruptedException {
 		Map<String, List<BedInterval>> regionsMapA = BedUtils.readBedRegions(aFileName);
 		Map<String, List<BedInterval>> regionsMapB = BedUtils.readBedRegions(bFileName);
 		List<BedInterval> intersections = new ArrayList<>();
-		regionsMapA.keySet().stream().filter(regionsMapB::containsKey).forEach(keyA ->
-				intersections.addAll(BedUtils.intersect(regionsMapA.get(keyA), regionsMapB.get(keyA))));
+		if (threadNumber == 1) {
+			regionsMapA.keySet().stream().filter(regionsMapB::containsKey).forEach(keyA ->
+					intersections.addAll(BedUtils.intersect(regionsMapA.get(keyA), regionsMapB.get(keyA))));
+		} else {
+			ForkJoinPool forkJoinPool = new ForkJoinPool(threadNumber);
+			forkJoinPool.submit(
+					() -> regionsMapA.keySet().stream().parallel().filter(regionsMapB::containsKey).forEach(keyA ->
+							intersections.addAll(BedUtils.intersect(regionsMapA.get(keyA), regionsMapB.get(keyA))))
+			).get();
+		}
 		BedUtils.writeBedRegions(intersections, outputFileName + ".bed");
 		List<BedInterval> regionsListA = regionsMapA.values().stream().flatMap(Collection::stream).sorted(
 				BedInterval::compareTo).collect(Collectors.toList());
