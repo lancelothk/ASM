@@ -63,7 +63,9 @@ public class Detection implements Callable<String> {
 		}
 		chr = items[0];
 		startPos = Integer.parseInt(items[1]);
-		endPos = Integer.parseInt(items[2]);
+		// all internal representations of position is 0-based.
+		// input bed file is 0-based start and 1-based end.
+		endPos = Integer.parseInt(items[2]) - 1;
 	}
 
 
@@ -105,7 +107,9 @@ public class Detection implements Callable<String> {
 		List<GroupResult> groupResultList = writePartitionResult(clusters, reference, twoClusterRefCpGList);
 
 		return IntervalDetectionSummaryFormatter.formatSummaryString(chr, startPos, endPos, endPos - startPos + 1,
-				startPos + "-" + endPos,
+				// all internal representations of position is 0-based.
+				// input bed file is 0-based start and 1-based end.
+				startPos + "-" + (endPos + 1),
 				partitionedGraph.getOriginalEdgeCount(), mappedReadList.size(), twoClusterRefCpGList.size(),
 				clusters.size(), partitionedGraph.getCpGSum(), partitionedGraph.getMECSum(),
 				partitionedGraph.getNormMECSum(), regionP, combSum, clusterIndex,

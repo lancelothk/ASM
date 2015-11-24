@@ -121,9 +121,11 @@ public class CPMR_Pgm {
 	private static void writeMappedReadInInterval(String intervalFolderName,
 	                                              ImmutableGenomicInterval immutableGenomicInterval) throws
 			IOException {
+		// all internal representations of position is 0-based.
+		// output bed file is 0-based start and 1-based end.
 		BufferedWriter mappedReadWriter = new BufferedWriter(
 				new FileWriter(String.format("%s/%s-%d-%d%s", intervalFolderName, immutableGenomicInterval.getChr(),
-						immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd(),
+						immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd() + 1,
 						Constant.MAPPEDREADS_EXTENSION)));
 		mappedReadWriter.write(String.format("ref:\t%s\n",
 				immutableGenomicInterval.getRefString().substring(immutableGenomicInterval.getStart() - INIT_POS,
@@ -142,11 +144,13 @@ public class CPMR_Pgm {
 		intervalSummaryWriter.write("chr\tstart\tend\treadCount\tCpGCount\n");
 		for (ImmutableGenomicInterval immutableGenomicInterval : immutableGenomicIntervalList) {
 			try {
-				// bed file is 0-based start and end.
+				// all internal representations of position is 0-based.
+				// output bed file is 0-based start and 1-based end.
 				intervalSummaryWriter.write(
 						String.format("%s\t%d\t%d\t%d\t%d\n", immutableGenomicInterval.getChr(),
 								immutableGenomicInterval.getStart(),
-								immutableGenomicInterval.getEnd(), immutableGenomicInterval.getMappedReadList().size(),
+								immutableGenomicInterval.getEnd() + 1,
+								immutableGenomicInterval.getMappedReadList().size(),
 								immutableGenomicInterval.getRefCpGList().size()));
 				writeMappedReadInInterval(intervalFolderName, immutableGenomicInterval);
 			} catch (IOException e) {
