@@ -47,7 +47,7 @@ public class MergeBedRegion {
 			while (iter.hasNext()) {
 				BedInterval next = iter.next();
 				if (next.getStart() - curr.getEnd() <= range) {
-					curr.setEnd(next.getEnd());
+					curr.setEnd(next.getEnd() < curr.getEnd() ? curr.getEnd() : next.getEnd());
 					curr.setName(curr.getName() + "," + next.getName());
 					iter.remove();
 				} else {
