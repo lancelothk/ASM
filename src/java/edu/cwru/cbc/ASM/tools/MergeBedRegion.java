@@ -35,7 +35,7 @@ public class MergeBedRegion {
 				.stream()
 				.flatMap(Collection::stream)
 				.sorted(BedInterval::compareTo)
-				.collect(Collectors.toList()), bedFileName + ".merged");
+				.collect(Collectors.toList()), bedFileName + ".merged_range" + range);
 	}
 
 
