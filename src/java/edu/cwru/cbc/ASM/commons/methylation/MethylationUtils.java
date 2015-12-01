@@ -1,7 +1,12 @@
 package edu.cwru.cbc.ASM.commons.methylation;
 
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kehu on 11/13/14.
@@ -27,5 +32,22 @@ public class MethylationUtils {
 			}
 		}
 		return reFCpGList;
+	}
+
+	public static HashIntObjMap<RefCpG> initialzeRefCpGMap(RefChr refChr) {
+		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
+		return refMap;
+	}
+
+	public static Map<String, HashIntObjMap<RefCpG>> initializeGenomeRefCpGMap(Map<String, RefChr> genomeReferenceMap) {
+		Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap = new HashMap<>();
+		for (Map.Entry<String, RefChr> entry : genomeReferenceMap.entrySet()) {
+			genomeRefCpGMap.put(entry.getKey(), initialzeRefCpGMap(entry.getValue()));
+		}
+		return genomeRefCpGMap;
 	}
 }

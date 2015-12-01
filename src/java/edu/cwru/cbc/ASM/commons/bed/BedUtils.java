@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.commons.bed;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
@@ -19,6 +20,7 @@ import java.util.*;
  */
 //TODO refactor & unit test
 public class BedUtils {
+	private static final Splitter tabSplitter = Splitter.on("\t");
 	public static List<BedInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
 		Map<String, List<BedInterval>> regionsMap = readBedRegions(bedFileName);
 		if (regionsMap.size() == 0) {
