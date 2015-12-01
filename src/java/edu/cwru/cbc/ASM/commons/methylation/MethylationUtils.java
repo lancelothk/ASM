@@ -8,6 +8,7 @@ import java.util.List;
  * MethylationUtils for methods shared by modules under ASM project.
  */
 public class MethylationUtils {
+	public static final int REFERENCE_INIT_POS = 0;
 
 	/**
 	 * Extract reference CpG from reference string.

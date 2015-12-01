@@ -7,6 +7,7 @@ import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
+import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
@@ -28,7 +29,6 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * main entry of program.
  */
 public class CPMR_Pgm {
-	public static final int INIT_POS = 0;
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
@@ -74,7 +74,7 @@ public class CPMR_Pgm {
 		// load reference
 		long start = System.currentTimeMillis();
 		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
-		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
+		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		// load mapped reads
@@ -126,8 +126,9 @@ public class CPMR_Pgm {
 						immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd(),
 						Constant.MAPPEDREADS_EXTENSION)));
 		mappedReadWriter.write(String.format("ref:\t%s\n",
-				immutableGenomicInterval.getRefString().substring(immutableGenomicInterval.getStart() - INIT_POS,
-						immutableGenomicInterval.getEnd() + 1 - INIT_POS)));
+				immutableGenomicInterval.getRefString()
+						.substring(immutableGenomicInterval.getStart() - MethylationUtils.REFERENCE_INIT_POS,
+								immutableGenomicInterval.getEnd() + 1 - MethylationUtils.REFERENCE_INIT_POS)));
 		for (MappedRead mappedRead : immutableGenomicInterval.getMappedReadList()) {
 			mappedReadWriter.write(
 					mappedRead.toMappedReadString(immutableGenomicInterval.getStart(),

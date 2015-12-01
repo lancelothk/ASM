@@ -6,6 +6,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
+import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
@@ -27,7 +28,6 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * Generate coverage and methyl count of mapped BS-seq data.
  */
 public class MethylStatPgm {
-	public static final int INIT_POS = 0;
 	private static final Splitter tabSplitter = Splitter.on("\t");
 
 	public static void main(String[] args) throws ParseException, IOException {
@@ -48,7 +48,7 @@ public class MethylStatPgm {
 		// load reference
 		long start = System.currentTimeMillis();
 		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
-		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), INIT_POS);
+		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 
 		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
