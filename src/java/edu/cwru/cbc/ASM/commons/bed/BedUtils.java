@@ -55,12 +55,19 @@ public class BedUtils {
 							// internal representations of position are all 0-based.
 							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]) - 1, ""), genomicIntervalMap);
-						} else {
-							// more than 3 columns bed format
+						} else if (items.length == 4) {
+							// 4 columns bed format
 							// suppose input bed is 0-based start and 1-based end.
 							// internal representations of position are all 0-based.
 							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
 									Integer.parseInt(items[2]) - 1, items[3]), genomicIntervalMap);
+						} else {
+							// more than 4 columns bed format
+							// suppose input bed is 0-based start and 1-based end.
+							// internal representations of position are all 0-based.
+							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
+									Integer.parseInt(items[2]) - 1, items[3],
+									Arrays.asList(items).subList(4, items.length)), genomicIntervalMap);
 						}
 						return true;
 					}

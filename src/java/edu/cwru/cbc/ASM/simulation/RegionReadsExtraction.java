@@ -28,7 +28,7 @@ public class RegionReadsExtraction {
     public static void main(String[] args) throws IOException {
         long startTime = System.currentTimeMillis();
         String currUserHome = System.getProperty("user.home");
-        String referenceGenomeFileName = currUserHome + "/experiments/ASM/data/hg18_chr20.fa";
+        String referenceChromosomeFileName = currUserHome + "/experiments/ASM/data/hg18_chr20.fa";
         String inputReadsPath = currUserHome + "/experiments/ASM/data/i90_r1_chr20";
         String regionType = "CGI";
         String targetRegionFile = currUserHome +
@@ -48,7 +48,7 @@ public class RegionReadsExtraction {
         System.out.println("finished loading reads");
         System.out.println(System.currentTimeMillis() - startTime + "ms");
 
-        RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
+        RefChr refChr = IOUtils.readReferenceChromosome(referenceChromosomeFileName);
         List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(refChr.getRefString(), 0);
         HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
         for (RefCpG refCpG : refCpGList) {

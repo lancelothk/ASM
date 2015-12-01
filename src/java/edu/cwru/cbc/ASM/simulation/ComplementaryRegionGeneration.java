@@ -20,12 +20,12 @@ public class ComplementaryRegionGeneration {
 
     public static void main(String[] args) throws IOException {
         String currUserHome = System.getProperty("user.home");
-        String referenceGenomeFileName = currUserHome + "/experiments/ASM/data/hg18_chr20.fa";
+        String referenceChromosomeFileName = currUserHome + "/experiments/ASM/data/hg18_chr20.fa";
         String targetRegionFileName =
                 currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions" + "/cpgIslandExt_hg18_UCSCGB_chr20.bed";
 
         // read reference and refCpGs
-        RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
+        RefChr refChr = IOUtils.readReferenceChromosome(referenceChromosomeFileName);
 
         // read target regions
         List<BedInterval> targetRegionsMap = BedUtils.readSingleChromBedRegions(targetRegionFileName);

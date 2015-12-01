@@ -38,13 +38,13 @@ public class SimulationPgm {
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
-		String referenceGenomeFileName = cmd.getOptionValue("r");
+		String referenceChromosomeFileName = cmd.getOptionValue("r");
 		String readsFileName = cmd.getOptionValue("m");
 		String targetRegionFileName = cmd.getOptionValue("t");
 		String outputFileName = cmd.getOptionValue("o");
 		double alpha = Double.valueOf(cmd.getOptionValue("a"));
 
-		executeSimulation(referenceGenomeFileName, readsFileName, targetRegionFileName, outputFileName, alpha);
+		executeSimulation(referenceChromosomeFileName, readsFileName, targetRegionFileName, outputFileName, alpha);
 		System.out.println((System.currentTimeMillis() - start) / 1000.0 + "s");
 	}
 
@@ -54,7 +54,7 @@ public class SimulationPgm {
 	 * @param alpha read will keep same pattern with chosen allele with probability alpha.
 	 * @throws IOException
 	 */
-	public static void executeSimulation(String referenceGenomeFileName, String readsFileName,
+	public static void executeSimulation(String referenceChromosomeFileName, String readsFileName,
 	                                     String targetRegionFileName, String outputFileName, double alpha) throws
 			IOException {
 		File outputFile = new File(outputFileName);
@@ -66,7 +66,7 @@ public class SimulationPgm {
 
 		System.out.println("simulation start");
 		// read reference and refCpGs
-		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
+		RefChr refChr = IOUtils.readReferenceChromosome(referenceChromosomeFileName);
 		List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(refChr.getRefString(), 0);
 
 		// read target regions

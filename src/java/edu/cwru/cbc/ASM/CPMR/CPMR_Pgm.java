@@ -51,7 +51,7 @@ public class CPMR_Pgm {
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
-		String referenceGenomeFileName = cmd.getOptionValue("r");
+		String referenceChromosomeFileName = cmd.getOptionValue("r");
 		String mappedReadFileName = cmd.getOptionValue("m");
 		String outputPath = cmd.getOptionValue("o");
 		double partial_methyl_threshold = Double.valueOf(cmd.getOptionValue("p"));
@@ -73,7 +73,7 @@ public class CPMR_Pgm {
 
 		// load reference
 		long start = System.currentTimeMillis();
-		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
+		RefChr refChr = IOUtils.readReferenceChromosome(referenceChromosomeFileName);
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 

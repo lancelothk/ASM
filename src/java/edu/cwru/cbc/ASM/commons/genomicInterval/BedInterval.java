@@ -14,12 +14,19 @@ public class BedInterval extends GenomicIntervalBase {
 	private List<RefCpG> refCpGList;
 	private boolean[] allelePattern;
 	private Set<BedInterval> intersectedRegions;
+	private List<String> otherItems;
 
 	public BedInterval(String chr, int start, int end, String name) {
 		super(chr, start, end);
 		this.name = name;
 		this.refCpGList = new ArrayList<>();
 		this.intersectedRegions = new HashSet<>();
+	}
+
+	public BedInterval(String chr, int start, int end, String name, List<String> otherItems) {
+		super(chr, start, end);
+		this.name = name;
+		this.otherItems = otherItems;
 	}
 
 	public void addIntersectedRegion(BedInterval region) {

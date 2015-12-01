@@ -9,7 +9,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * Created by kehu on 6/11/15.
@@ -17,12 +19,25 @@ import java.util.LinkedHashSet;
  */
 public class IOUtils {
 
+	public static Map<String, RefChr> readReferenceGenome(String inputFilePath) throws IOException {
+		File[] faFiles = new File(inputFilePath).listFiles((dir, name) -> {
+			return name.endsWith(".fa");
+		});
+
+		Map<String, RefChr> genomeReferenceMap = new HashMap<>();
+		for (File faFile : faFiles) {
+			genomeReferenceMap.put(faFile.getName().replace(".fa", ""), readReferenceChromosome(faFile));
+		}
+
+		return genomeReferenceMap;
+	}
+
 	/**
 	 * Read Reference genome into RefChr type.
 	 * The ref string is concerted to upper case.
 	 */
-	public static RefChr readReferenceGenome(String inputFileName) throws IOException {
-		File refFile = new File(inputFileName);
+	public static RefChr readReferenceChromosome(File refFile) throws IOException {
+
 		int initCapacity;
 		if (refFile.length() <= Integer.MAX_VALUE) {
 			initCapacity = (int) refFile.length();
@@ -37,6 +52,11 @@ public class IOUtils {
 		}
 		FASTASequence fastaSequence = sequences.iterator().next();
 		return new RefChr(fastaSequence.getId(), fastaSequence.getSequence().toUpperCase());
+	}
+
+	public static RefChr readReferenceChromosome(String inputFileName) throws IOException {
+		File refFile = new File(inputFileName);
+		return readReferenceChromosome(refFile);
 	}
 
 	public static String readRefFromIntervalReadsFile(File inputFile) throws IOException {

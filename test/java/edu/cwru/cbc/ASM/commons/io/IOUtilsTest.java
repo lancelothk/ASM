@@ -24,7 +24,7 @@ public class IOUtilsTest {
 		// test for correct case
 		URL file = getClass().getClassLoader().getResource("testRefFile.fa");
 		assertNotNull(file);
-		RefChr refChr = IOUtils.readReferenceGenome(file.getPath());
+		RefChr refChr = IOUtils.readReferenceChromosome(file.getPath());
 		assertEquals("incorrect reference name", "chr20", refChr.getChr());
 		assertEquals("incorrecr ref string", "ACGCAATCGNNNNNNATTGCGACGACGCGACTGNNNACGCGTAACGN", refChr.getRefString());
 		assertEquals("incorrect start position", 0, refChr.getStart());

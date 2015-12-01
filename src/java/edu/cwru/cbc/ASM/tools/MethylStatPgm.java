@@ -40,14 +40,14 @@ public class MethylStatPgm {
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String chr = cmd.getOptionValue("c");
-		String referenceGenomeFileName = cmd.getOptionValue("r");
+		String referenceChromosomeFileName = cmd.getOptionValue("r");
 		String mappedReadFileName = cmd.getOptionValue("m");
 		String outputFileName = cmd.getOptionValue("o");
 		boolean pairEnd = cmd.hasOption("p");
 
 		// load reference
 		long start = System.currentTimeMillis();
-		RefChr refChr = IOUtils.readReferenceGenome(referenceGenomeFileName);
+		RefChr refChr = IOUtils.readReferenceChromosome(referenceChromosomeFileName);
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
 		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 

@@ -19,7 +19,7 @@ public class RegionSelectionOnCoverage {
 
 	public static void main(String[] args) throws IOException {
 		String currUserHome = System.getProperty("user.home");
-		RefChr refChr = IOUtils.readReferenceGenome(currUserHome + "/experiments/ASM/data/hg18_chr20.fa");
+		RefChr refChr = IOUtils.readReferenceChromosome(currUserHome + "/experiments/ASM/data/hg18_chr20.fa");
 		String regionType = "nonCGI";
 		String inputFolderName =
 				currUserHome + "/experiments/ASM/simulation/CpGIslandsRegions/" + regionType + "_regions";
