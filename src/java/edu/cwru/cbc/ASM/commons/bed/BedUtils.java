@@ -44,32 +44,32 @@ public class BedUtils {
 
 					@Override
 					public boolean processLine(@Nonnull String line) throws IOException {
-						String[] items = line.split("\t");
-						if (items[0].equals("chr") || line.equals("") || items[0].startsWith("#")) {
+						List<String> items = tabSplitter.splitToList(line);
+						if (items.get(0).equals("chr") || line.equals("") || items.get(0).startsWith("#")) {
 							// skip column name
 							return true;
 						}
-						if (items.length < 3) {
+						if (items.size() < 3) {
 							throw new RuntimeException("less than 3 columns in bed file!");
-						} else if (items.length == 3) {
+						} else if (items.size() == 3) {
 							// 3 columns bed format
 							// suppose input bed is 0-based start and 1-based end.
 							// internal representations of position are all 0-based.
-							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]) - 1, ""), genomicIntervalMap);
-						} else if (items.length == 4) {
+							addRegionToList(new BedInterval(items.get(0), Integer.parseInt(items.get(1)),
+									Integer.parseInt(items.get(2)) - 1, ""), genomicIntervalMap);
+						} else if (items.size() == 4) {
 							// 4 columns bed format
 							// suppose input bed is 0-based start and 1-based end.
 							// internal representations of position are all 0-based.
-							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]) - 1, items[3]), genomicIntervalMap);
+							addRegionToList(new BedInterval(items.get(0), Integer.parseInt(items.get(1)),
+									Integer.parseInt(items.get(2)) - 1, items.get(3)), genomicIntervalMap);
 						} else {
 							// more than 4 columns bed format
 							// suppose input bed is 0-based start and 1-based end.
 							// internal representations of position are all 0-based.
-							addRegionToList(new BedInterval(items[0], Integer.parseInt(items[1]),
-									Integer.parseInt(items[2]) - 1, items[3],
-									Arrays.asList(items).subList(4, items.length)), genomicIntervalMap);
+							addRegionToList(new BedInterval(items.get(0), Integer.parseInt(items.get(1)),
+									Integer.parseInt(items.get(2)) - 1, items.get(3),
+									items.subList(4, items.size())), genomicIntervalMap);
 						}
 						return true;
 					}
