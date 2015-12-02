@@ -13,6 +13,7 @@ import java.util.Map;
  * MethylationUtils for methods shared by modules under ASM project.
  */
 public class MethylationUtils {
+	// 0-based then it should be 0.
 	public static final int REFERENCE_INIT_POS = 0;
 
 	/**

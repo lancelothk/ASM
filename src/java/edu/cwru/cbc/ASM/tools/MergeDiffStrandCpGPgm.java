@@ -10,10 +10,15 @@ import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import org.apache.commons.cli.*;
 
 import javax.annotation.Nonnull;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Created by kehu on 12/1/15.
@@ -31,19 +36,39 @@ public class MergeDiffStrandCpGPgm {
 		CommandLine cmd = parser.parse(options, args);
 
 		String inputFileName = cmd.getOptionValue("i");
-		String referenceFileName = cmd.getOptionValue("r");
+		String referenceFilePath = cmd.getOptionValue("r");
 		String outputFileName = cmd.getOptionValue("o");
-		execution(inputFileName, referenceFileName, outputFileName);
+		execution(inputFileName, referenceFilePath, outputFileName);
 	}
 
-	private static void execution(String inputFileName, String referenceFileName, String outputFileName) throws
+	private static void execution(String inputFileName, String referenceFilePath, String outputFileName) throws
 			IOException {
 		Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap = MethylationUtils.initializeGenomeRefCpGMap(
-				IOUtils.readReferenceGenome(referenceFileName));
+				IOUtils.readReferenceGenome(referenceFilePath));
+		System.out.println("finished loading reference genome");
 		Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor<Object>() {
 			@Override
 			public boolean processLine(@Nonnull String line) throws IOException {
-				return false;
+				List<String> items = IOUtils.tabSplitter.splitToList(line);
+				// input cov is 1-based, convert to 0-based
+				int pos = Integer.parseInt(items.get(1)) - 1;
+				HashIntObjMap<RefCpG> chromosomeRefCpGMap = genomeRefCpGMap.get(items.get(0));
+				// check if cpg come from plus strand
+				RefCpG refCpG = chromosomeRefCpGMap.get(pos);
+				if (refCpG != null) {
+					refCpG.addMethylCount(Integer.parseInt(items.get(4)));
+					refCpG.addNonMethylCount(Integer.parseInt(items.get(5)));
+				} else {
+					// check if cpg come from minus strand
+					refCpG = chromosomeRefCpGMap.get(pos - 1);
+					if (refCpG != null) {
+						refCpG.addMethylCount(Integer.parseInt(items.get(4)));
+						refCpG.addNonMethylCount(Integer.parseInt(items.get(5)));
+					} else {
+						throw new RuntimeException("Non CpG Methyl site!");
+					}
+				}
+				return true;
 			}
 
 			@Override
@@ -52,6 +77,23 @@ public class MergeDiffStrandCpGPgm {
 			}
 		});
 
+		System.out.println("finished reading input file");
 
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
+		List<Map.Entry<String, HashIntObjMap<RefCpG>>> entryList = new ArrayList<>(genomeRefCpGMap.entrySet());
+		entryList.sort((e1, e2) -> e1.getKey().compareTo(e2.getKey()));
+		for (Map.Entry<String, HashIntObjMap<RefCpG>> entry : entryList) {
+			List<RefCpG> refCpGList = entry.getValue()
+					.values()
+					.stream()
+					.sorted(RefCpG::compareTo)
+					.collect(Collectors.toList());
+			for (RefCpG refCpG : refCpGList) {
+				bufferedWriter.write(
+						String.format("%s\t%d\t%d\t%f\t%d\t%d\n", entry.getKey(), refCpG.getPos(), refCpG.getPos() + 1,
+								refCpG.getMethylLevel() * 100, refCpG.getMethylCount(), refCpG.getNonMethylCount()));
+			}
+		}
+		bufferedWriter.close();
 	}
 }
