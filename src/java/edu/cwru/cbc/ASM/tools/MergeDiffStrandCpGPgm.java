@@ -55,10 +55,10 @@ public class MergeDiffStrandCpGPgm {
 		if (!alternativeInputFileName.equals("")) {
 			mergeDiffStrandCpG(alternativeInputFileName, genomeRefCpGMap);
 		}
-		writeOutput(outputFileName, genomeRefCpGMap);
+		writeSortedOutput(outputFileName, genomeRefCpGMap);
 	}
 
-	private static void writeOutput(String outputFileName, Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap) throws
+	private static void writeSortedOutput(String outputFileName, Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap) throws
 			IOException {
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
 		List<Map.Entry<String, HashIntObjMap<RefCpG>>> entryList = new ArrayList<>(genomeRefCpGMap.entrySet());
