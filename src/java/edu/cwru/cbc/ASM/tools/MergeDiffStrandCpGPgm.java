@@ -29,21 +29,57 @@ public class MergeDiffStrandCpGPgm {
 			InterruptedException {
 		Options options = new Options();
 		options.addOption(Option.builder("i").hasArg().desc("input cov file").required().build());
+		options.addOption(Option.builder("o").hasArg().desc("output cov file").required().build());
+		options.addOption(Option.builder("a")
+				.hasArg()
+				.desc("alternative input cov file. Will be merged together.E.g. r1/r2")
+				.build());
 		options.addOption(Option.builder("r").hasArg().desc("Reference File path").required().build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		String inputFileName = cmd.getOptionValue("i");
+		String alternativeInputFileName = cmd.getOptionValue("a", "");
+		String outputFileName = cmd.getOptionValue("o");
 		String referenceFilePath = cmd.getOptionValue("r");
-		execution(inputFileName, referenceFilePath);
+		execution(inputFileName, alternativeInputFileName, referenceFilePath, outputFileName);
 	}
 
-	private static void execution(String inputFileName, String referenceFilePath) throws
+	private static void execution(String inputFileName, String alternativeInputFileName, String referenceFilePath, String outputFileName) throws
 			IOException {
 		Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap = MethylationUtils.initializeGenomeRefCpGMap(
 				IOUtils.readReferenceGenome(referenceFilePath));
 		System.out.println("finished loading reference genome");
+		mergeDiffStrandCpG(inputFileName, genomeRefCpGMap);
+		if (!alternativeInputFileName.equals("")) {
+			mergeDiffStrandCpG(alternativeInputFileName, genomeRefCpGMap);
+		}
+		writeOutput(outputFileName, genomeRefCpGMap);
+	}
+
+	private static void writeOutput(String outputFileName, Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap) throws
+			IOException {
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName));
+		List<Map.Entry<String, HashIntObjMap<RefCpG>>> entryList = new ArrayList<>(genomeRefCpGMap.entrySet());
+		entryList.sort((e1, e2) -> e1.getKey().compareTo(e2.getKey()));
+		for (Map.Entry<String, HashIntObjMap<RefCpG>> entry : entryList) {
+			List<RefCpG> refCpGList = entry.getValue()
+					.values()
+					.stream()
+					.sorted(RefCpG::compareTo)
+					.collect(Collectors.toList());
+			for (RefCpG refCpG : refCpGList) {
+				bufferedWriter.write(
+						String.format("%s\t%d\t%d\t%f\t%d\t%d\n", entry.getKey(), refCpG.getPos(), refCpG.getPos() + 1,
+								refCpG.getMethylLevel() * 100, refCpG.getMethylCount(), refCpG.getNonMethylCount()));
+			}
+		}
+		bufferedWriter.close();
+	}
+
+	private static void mergeDiffStrandCpG(String inputFileName, final Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap) throws
+			IOException {
 		Files.readLines(new File(inputFileName), Charsets.UTF_8, new LineProcessor<Object>() {
 			@Override
 			public boolean processLine(@Nonnull String line) throws IOException {
@@ -76,22 +112,5 @@ public class MergeDiffStrandCpGPgm {
 		});
 
 		System.out.println("finished reading input file");
-
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(inputFileName + ".CpGmerged"));
-		List<Map.Entry<String, HashIntObjMap<RefCpG>>> entryList = new ArrayList<>(genomeRefCpGMap.entrySet());
-		entryList.sort((e1, e2) -> e1.getKey().compareTo(e2.getKey()));
-		for (Map.Entry<String, HashIntObjMap<RefCpG>> entry : entryList) {
-			List<RefCpG> refCpGList = entry.getValue()
-					.values()
-					.stream()
-					.sorted(RefCpG::compareTo)
-					.collect(Collectors.toList());
-			for (RefCpG refCpG : refCpGList) {
-				bufferedWriter.write(
-						String.format("%s\t%d\t%d\t%f\t%d\t%d\n", entry.getKey(), refCpG.getPos(), refCpG.getPos() + 1,
-								refCpG.getMethylLevel() * 100, refCpG.getMethylCount(), refCpG.getNonMethylCount()));
-			}
-		}
-		bufferedWriter.close();
 	}
 }
