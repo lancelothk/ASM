@@ -1,5 +1,6 @@
 package edu.cwru.cbc.ASM.commons.io;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.CharStreams;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.sequence.FASTASequence;
@@ -18,9 +19,10 @@ import java.util.Map;
  * Utils class for IO related methods.
  */
 public class IOUtils {
+	public static final Splitter tabSplitter = Splitter.on("\t");
 
-	public static Map<String, RefChr> readReferenceGenome(String inputFilePath) throws IOException {
-		File[] faFiles = new File(inputFilePath).listFiles((dir, name) -> {
+	public static Map<String, RefChr> readReferenceGenome(String referenceFilePath) throws IOException {
+		File[] faFiles = new File(referenceFilePath).listFiles((dir, name) -> {
 			return name.endsWith(".fa");
 		});
 

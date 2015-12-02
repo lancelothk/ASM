@@ -1,6 +1,5 @@
 package edu.cwru.cbc.ASM.commons.io;
 
-import com.google.common.base.Splitter;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.sequence.IUPACCode;
@@ -21,7 +20,6 @@ import java.util.function.Predicate;
  * Mapped reads start pos is 0-based, end pos is 0-based.
  */
 public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> {
-	private static final Splitter tabSplitter = Splitter.on("\t");
 	protected LinkedHashMap<String, MappedRead> mappedReadLinkedHashMap = new LinkedHashMap<>();
 	protected Predicate<MappedRead> criteria;
 	private boolean isPairEnd;
@@ -62,7 +60,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 			if (line.startsWith("@")) {
 				return true;
 			} else {
-				List<String> itemList = tabSplitter.splitToList(line);
+				List<String> itemList = IOUtils.tabSplitter.splitToList(line);
 				processSAMRead(itemList, isPairEnd);
 				return true;
 			}
@@ -163,7 +161,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 			if (line.startsWith("chr\t") || line.startsWith("ref") || line.startsWith("assembly")) {
 				return true;
 			} else {
-				List<String> itemList = tabSplitter.splitToList(line);
+				List<String> itemList = IOUtils.tabSplitter.splitToList(line);
 				if (isPairEnd) {
 					validateStrand(itemList.get(1));
 					validateRead(itemList.get(4));

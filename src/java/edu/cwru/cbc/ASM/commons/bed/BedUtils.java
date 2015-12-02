@@ -1,11 +1,11 @@
 package edu.cwru.cbc.ASM.commons.bed;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.genomicInterval.BedInterval;
+import edu.cwru.cbc.ASM.commons.io.IOUtils;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
@@ -20,7 +20,6 @@ import java.util.*;
  */
 //TODO refactor & unit test
 public class BedUtils {
-	private static final Splitter tabSplitter = Splitter.on("\t");
 	public static List<BedInterval> readSingleChromBedRegions(String bedFileName) throws IOException {
 		Map<String, List<BedInterval>> regionsMap = readBedRegions(bedFileName);
 		if (regionsMap.size() == 0) {
@@ -44,7 +43,7 @@ public class BedUtils {
 
 					@Override
 					public boolean processLine(@Nonnull String line) throws IOException {
-						List<String> items = tabSplitter.splitToList(line);
+						List<String> items = IOUtils.tabSplitter.splitToList(line);
 						if (items.get(0).equals("chr") || line.equals("") || items.get(0).startsWith("#")) {
 							// skip column name
 							return true;
