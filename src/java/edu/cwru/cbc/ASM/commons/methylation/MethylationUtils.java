@@ -44,6 +44,15 @@ public class MethylationUtils {
 		return refMap;
 	}
 
+	public static HashIntObjMap<RefCpG> initialzeRefCpGMap(String reference, int initPos) {
+		List<RefCpG> refCpGList = extractCpGSite(reference, initPos);
+		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+		for (RefCpG refCpG : refCpGList) {
+			refMap.put(refCpG.getPos(), refCpG);
+		}
+		return refMap;
+	}
+
 	public static Map<String, HashIntObjMap<RefCpG>> initializeGenomeRefCpGMap(Map<String, RefChr> genomeReferenceMap) {
 		Map<String, HashIntObjMap<RefCpG>> genomeRefCpGMap = new HashMap<>();
 		for (Map.Entry<String, RefChr> entry : genomeReferenceMap.entrySet()) {
