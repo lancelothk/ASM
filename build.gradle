@@ -128,65 +128,35 @@ remotes {
     }
 }
 
+
 task updateBin(dependsOn: installDist) {
     group = 'update'
     doLast {
         def userName = System.getProperty('user.name')
-        if ("$remote".toString() == "local") {
-            copy {
-                from 'build/install/ASM/bin'
-                into '/home/' + "$userName" + '/experiments/ASM/bin'
-            }
-            copy {
-                from 'build/install/ASM/lib'
-                into '/home/' + "$userName" + '/experiments/ASM/lib'
-            }
-        } else if (userName == "kehu") {
-            def curRemote;
-            if ("$remote".toString() == "ngs") {
-                curRemote = remotes.ngs_lab;
-                println "use ngs_lab as remote"
+        copy {
+            from 'build/install/ASM/bin'
+            into '/home/' + "$userName" + '/experiments/ASM/bin'
+        }
+        copy {
+            from 'build/install/ASM/lib/ASM.jar'
+            into '/home/' + "$userName" + '/experiments/ASM/lib'
+        }
+        if (userName == "kehu") {
+            [remotes.ngs_lab, remotes.osc_lab].each { item ->
                 ssh.run {
-                    session(curRemote) {
-                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
-                    }
-                }
-            } else if ("$remote".toString() == "osc") {
-                curRemote = remotes.osc_lab;
-                println "use osc_lab as remote"
-                ssh.run {
-                    session(curRemote) {
-                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
-                    }
-                }
-            } else {
-                ssh.run {
-                    session(curRemote) {
+                    session(item) {
                         put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
                         put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
                     }
                 }
             }
         } else if (userName == "lancelothk") {
-            def curRemote;
-            if ("$remote".toString() == "ngs") {
-                curRemote = remotes.ngs;
-                println "use ngs as remote"
-            } else if ("$remote".toString() == "lab") {
-                curRemote = remotes.lab;
-                println "use lab as remote"
-            } else if ("$remote".toString() == "osc") {
-                curRemote = remotes.osc;
-                println "use osc as remote"
-            } else {
-                println "invalid remote name!"
-            }
-            ssh.run {
-                session(curRemote) {
-                    put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                    put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+            [remotes.ngs, remotes.lab, remotes.osc].each { item ->
+                ssh.run {
+                    session(item) {
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+                    }
                 }
             }
         }
@@ -198,56 +168,30 @@ task updateAll(dependsOn: installDist) {
     group = 'update'
     doLast {
         def userName = System.getProperty('user.name')
-        if ("$remote".toString() == "local") {
-            copy {
-                from 'build/install/ASM/bin'
-                into '/home/' + "$userName" + '/experiments/ASM/bin'
-            }
-            copy {
-                from 'build/install/ASM/lib'
-                into '/home/' + "$userName" + '/experiments/ASM/lib'
-            }
-        } else if (userName == "kehu") {
-            def curRemote;
-            if ("$remote".toString() == "ngs") {
-                curRemote = remotes.ngs_lab;
-                println "use ngs_lab as remote"
+        copy {
+            from 'build/install/ASM/bin'
+            into '/home/' + "$userName" + '/experiments/ASM/bin'
+        }
+        copy {
+            from 'build/install/ASM/lib'
+            into '/home/' + "$userName" + '/experiments/ASM/lib'
+        }
+        if (userName == "kehu") {
+            [remotes.ngs_lab, remotes.osc_lab].each { item ->
                 ssh.run {
-                    session(curRemote) {
+                    session(item) {
                         put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
                         put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM'
                     }
                 }
-            } else if ("$remote".toString() == "osc") {
-                curRemote = remotes.osc_lab;
-                println "use osc_lab as remote"
-                ssh.run {
-                    session(curRemote) {
-                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                        put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM'
-                    }
-                }
-            } else {
-                println "invalid remote name!"
             }
         } else if (userName == "lancelothk") {
-            def curRemote;
-            if ("$remote".toString() == "ngs") {
-                curRemote = remotes.ngs;
-                println "use ngs as remote"
-            } else if ("$remote".toString() == "lab") {
-                curRemote = remotes.lab;
-                println "use lab as remote"
-            } else if ("$remote".toString() == "osc") {
-                curRemote = remotes.osc;
-                println "use osc as remote"
-            } else {
-                println "invalid remote name!"
-            }
-            ssh.run {
-                session(curRemote) {
-                    put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                    put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM'
+            [remotes.ngs, remotes.lab, remotes.osc].each { item ->
+                ssh.run {
+                    session(item) {
+                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+                        put from: buildDir.toString() + '/install/ASM/lib', into: 'experiments/ASM'
+                    }
                 }
             }
         }
