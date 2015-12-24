@@ -37,20 +37,10 @@ public class MethylFigurePgm {
 		Options options = new Options();
 		options.addOption(Option.builder("i").hasArg().desc("input grouped read file").build());
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
-//		options.addOption(Option.builder("a").hasArg().desc("allele pair, e.g. A-G").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
 		int snpPosition = Integer.parseInt(cmd.getOptionValue("p"));
-//		String allelePair = cmd.getOptionValue("a");
-//		char allele1 = allelePair.charAt(0);
-//		char allele2 = allelePair.charAt(2);
-
-//		String[] items = groupedReadFile.replace(".mappedreads.groups.aligned", "").split("-");
-//		if (items.length != 3) {
-//			throw new RuntimeException("invalid input file name format!\t" + groupedReadFile);
-//		}
-//		int startPos = Integer.parseInt(items[1]);
 
 		Files.readLines(new File(groupedReadFile), Charsets.UTF_8,
 				new LineProcessor() {
