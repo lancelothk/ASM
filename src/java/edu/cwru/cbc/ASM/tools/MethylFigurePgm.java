@@ -10,6 +10,7 @@ import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
 
 import javax.annotation.Nonnull;
@@ -86,17 +87,83 @@ public class MethylFigurePgm {
 								group2.stream().mapToInt(MappedRead::getStart).min().getAsInt());
 						int maxEnd = Math.max(group1.stream().mapToInt(MappedRead::getEnd).max().getAsInt(),
 								group2.stream().mapToInt(MappedRead::getEnd).max().getAsInt());
-						HashIntObjMap<RefCpG> refMap = MethylationUtils.initialzeRefCpGMap(ref, minStart);
+						List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
+						HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+						for (RefCpG refCpG : refCpGList) {
+							refMap.put(refCpG.getPos(), refCpG);
+						}
 						for (MappedRead mappedRead : group1) {
 							mappedRead.generateCpGsInRead(refMap);
 						}
 						for (MappedRead mappedRead : group2) {
 							mappedRead.generateCpGsInRead(refMap);
 						}
-						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
+						drawCompactFigure(group1, group2, snpPosition, refCpGList, groupedReadFile + ".compact.png");
+//						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
 						return null;
 					}
 				});
+	}
+
+	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition, List<RefCpG> refCpGList, String outputPNGFileName) {
+		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 2) * CG_RADIUS;
+		BufferedImage pngImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphWriter = pngImage.createGraphics();
+		graphWriter.setBackground(Color.WHITE);
+		graphWriter.clearRect(0, 0, imageWidth, imageHeight);
+		graphWriter.setPaint(Color.BLACK);
+		graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+
+		int height = 0;
+		height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+
+		// add line
+		graphWriter.setStroke(new BasicStroke(4.0f));
+		graphWriter.setPaint(Color.BLUE);
+		graphWriter.drawLine(0, height + HEIGHT_INTERVAL / 2, refCpGList.size() * CG_RADIUS,
+				height + HEIGHT_INTERVAL / 2);
+		graphWriter.setPaint(Color.orange);
+		graphWriter.drawLine(refCpGList.size() * CG_RADIUS + CG_RADIUS / 2, 0,
+				refCpGList.size() * CG_RADIUS + CG_RADIUS / 2, imageHeight);
+		graphWriter.setPaint(Color.BLACK);
+		height += HEIGHT_INTERVAL;
+		graphWriter.setStroke(new BasicStroke());
+
+		drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2);
+
+		File outputPNG = new File(outputPNGFileName);
+		try {
+			ImageIO.write(pngImage, "png", outputPNG);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height, int snpPosition, List<MappedRead> group) {
+		for (MappedRead mappedRead : group) {
+			// add cpg
+			for (CpG cpG : mappedRead.getCpgList()) {
+				if (cpG.getMethylStatus() == MethylStatus.C) {
+					graphWriter.fill(
+							new Ellipse2D.Double(refCpGList.indexOf(cpG.getRefCpG()) * CG_RADIUS, height, CG_RADIUS,
+									CG_RADIUS));
+				} else if (cpG.getMethylStatus() == MethylStatus.T) {
+					graphWriter.draw(
+							new Ellipse2D.Double(refCpGList.indexOf(cpG.getRefCpG()) * CG_RADIUS, height, CG_RADIUS,
+									CG_RADIUS));
+				}
+			}
+			String sequence = mappedRead.getStrand() == '+' ? mappedRead.getSequence() : mappedRead.getComplementarySequence();
+			if (snpPosition >= mappedRead.getStart() && snpPosition <= mappedRead.getEnd()) {
+				char snp = sequence.charAt(snpPosition - mappedRead.getStart());
+				if (snp != '-') {
+					graphWriter.drawString(String.valueOf(snp), (refCpGList.size() + 1) * CG_RADIUS,
+							height + HEIGHT_INTERVAL * 2 / 3);
+				}
+			}
+			height += HEIGHT_INTERVAL;
+		}
+		return height;
 	}
 
 	private static void drawFigure(List<MappedRead> group1, List<MappedRead> group2, int minStart, int maxEnd, int snpPosition, String outputPNGFileName) {
@@ -114,7 +181,7 @@ public class MethylFigurePgm {
 		// add line
 		graphWriter.setStroke(new BasicStroke(4.0f));
 		graphWriter.setPaint(Color.BLUE);
-		graphWriter.drawLine(0, height + HEIGHT_INTERVAL / 2, (maxEnd - minStart + 1) * BPWIDTH,
+		graphWriter.drawLine(0, height + HEIGHT_INTERVAL / 2, imageWidth,
 				height + HEIGHT_INTERVAL / 2);
 		graphWriter.setPaint(Color.BLACK);
 		height += HEIGHT_INTERVAL;
