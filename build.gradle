@@ -80,6 +80,7 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("SNPCheck", "edu.cwru.cbc.ASM.tools.SNPCheckPgm").execute()
     buildStartScript("FDRControl", "edu.cwru.cbc.ASM.tools.FDRControlPgm").execute()
     buildStartScript("MergeDiffStrandCpG", "edu.cwru.cbc.ASM.tools.MergeDiffStrandCpGPgm").execute()
+    buildStartScript("MethylFigure", "edu.cwru.cbc.ASM.tools.MethylFigurePgm").execute()
 }
 
 distributions {
