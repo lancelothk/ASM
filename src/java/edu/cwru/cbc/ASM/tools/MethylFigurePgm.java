@@ -83,30 +83,66 @@ public class MethylFigurePgm {
 
 					@Override
 					public Object getResult() {
-						int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
-								group2.stream().mapToInt(MappedRead::getStart).min().getAsInt());
-						int maxEnd = Math.max(group1.stream().mapToInt(MappedRead::getEnd).max().getAsInt(),
-								group2.stream().mapToInt(MappedRead::getEnd).max().getAsInt());
-						List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
-						HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
-						for (RefCpG refCpG : refCpGList) {
-							refMap.put(refCpG.getPos(), refCpG);
-						}
-						for (MappedRead mappedRead : group1) {
-							mappedRead.generateCpGsInRead(refMap);
-						}
-						for (MappedRead mappedRead : group2) {
-							mappedRead.generateCpGsInRead(refMap);
-						}
-						drawCompactFigure(group1, group2, snpPosition, refCpGList, groupedReadFile + ".compact.png");
+						if (group2.size() == 0) {
+							int minStart = group1.stream().mapToInt(MappedRead::getStart).min().getAsInt();
+							List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
+							HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+							for (RefCpG refCpG : refCpGList) {
+								refMap.put(refCpG.getPos(), refCpG);
+							}
+							for (MappedRead mappedRead : group1) {
+								mappedRead.generateCpGsInRead(refMap);
+							}
+							drawCompactFigure(group1, snpPosition, refCpGList, groupedReadFile + ".compact.png");
+							return null;
+						} else {
+							int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
+									group2.stream().mapToInt(MappedRead::getStart).min().getAsInt());
+							int maxEnd = Math.max(group1.stream().mapToInt(MappedRead::getEnd).max().getAsInt(),
+									group2.stream().mapToInt(MappedRead::getEnd).max().getAsInt());
+							List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
+							HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+							for (RefCpG refCpG : refCpGList) {
+								refMap.put(refCpG.getPos(), refCpG);
+							}
+							for (MappedRead mappedRead : group1) {
+								mappedRead.generateCpGsInRead(refMap);
+							}
+							for (MappedRead mappedRead : group2) {
+								mappedRead.generateCpGsInRead(refMap);
+							}
+							drawCompactFigure(group1, group2, snpPosition, refCpGList,
+									groupedReadFile + ".compact.png");
 //						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
-						return null;
+							return null;
+						}
 					}
 				});
 	}
 
+	private static void drawCompactFigure(List<MappedRead> group1, int snpPosition, List<RefCpG> refCpGList,
+	                                      String outputPNGFileName) {
+		int imageHeight = (group1.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
+		BufferedImage pngImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphWriter = pngImage.createGraphics();
+		graphWriter.setBackground(Color.WHITE);
+		graphWriter.clearRect(0, 0, imageWidth, imageHeight);
+		graphWriter.setPaint(Color.BLACK);
+		graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+
+		int height = 0;
+		drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+
+		File outputPNG = new File(outputPNGFileName);
+		try {
+			ImageIO.write(pngImage, "png", outputPNG);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition, List<RefCpG> refCpGList, String outputPNGFileName) {
-		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 2) * CG_RADIUS;
+		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
 		BufferedImage pngImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphWriter = pngImage.createGraphics();
 		graphWriter.setBackground(Color.WHITE);
@@ -157,7 +193,8 @@ public class MethylFigurePgm {
 			if (snpPosition >= mappedRead.getStart() && snpPosition <= mappedRead.getEnd()) {
 				char snp = sequence.charAt(snpPosition - mappedRead.getStart());
 				if (snp != '-') {
-					graphWriter.drawString(String.valueOf(snp), (refCpGList.size() + 1) * CG_RADIUS,
+					graphWriter.drawString(String.valueOf(snp) + " " + mappedRead.getStrand(),
+							(refCpGList.size() + 1) * CG_RADIUS,
 							height + HEIGHT_INTERVAL * 2 / 3);
 				}
 			}
