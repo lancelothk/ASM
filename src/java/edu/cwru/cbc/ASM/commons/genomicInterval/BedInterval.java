@@ -27,6 +27,8 @@ public class BedInterval extends GenomicIntervalBase {
 		super(chr, start, end);
 		this.name = name;
 		this.otherItems = otherItems;
+		this.refCpGList = new ArrayList<>();
+		this.intersectedRegions = new HashSet<>();
 	}
 
 	public void addIntersectedRegion(BedInterval region) {
