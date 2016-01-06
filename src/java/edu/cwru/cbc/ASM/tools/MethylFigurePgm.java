@@ -130,7 +130,7 @@ public class MethylFigurePgm {
 			graphWriter.setBackground(Color.WHITE);
 			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 			graphWriter.setPaint(Color.BLACK);
-			graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
 
 			int height = 0;
 			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
@@ -150,7 +150,7 @@ public class MethylFigurePgm {
 			graphWriter.setBackground(Color.WHITE);
 			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 			graphWriter.setPaint(Color.BLACK);
-			graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
 
 			int height = 0;
 			height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
@@ -194,9 +194,13 @@ public class MethylFigurePgm {
 			if (snpPosition >= mappedRead.getStart() && snpPosition <= mappedRead.getEnd()) {
 				char snp = sequence.charAt(snpPosition - mappedRead.getStart());
 				if (snp != '-') {
-					graphWriter.drawString(String.valueOf(snp) + " " + mappedRead.getStrand(),
-							(refCpGList.size() + 1) * CG_RADIUS,
-							height + HEIGHT_INTERVAL * 2 / 3);
+					FontMetrics fm = graphWriter.getFontMetrics();
+					graphWriter.drawString(String.valueOf(snp),
+							(float) ((refCpGList.size() + 1) * CG_RADIUS - fm.charWidth(snp) / 2.0),
+							(float) (height + HEIGHT_INTERVAL * 2 / 3.0));
+					graphWriter.drawString(String.valueOf(mappedRead.getStrand()),
+							(float) ((refCpGList.size() + 2) * CG_RADIUS - fm.charWidth(mappedRead.getStrand()) / 2.0),
+							(float) (height + HEIGHT_INTERVAL * 2 / 3.0));
 				}
 			}
 			height += HEIGHT_INTERVAL;
