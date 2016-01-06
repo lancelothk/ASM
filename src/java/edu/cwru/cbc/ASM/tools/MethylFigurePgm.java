@@ -93,7 +93,7 @@ public class MethylFigurePgm {
 							for (MappedRead mappedRead : group1) {
 								mappedRead.generateCpGsInRead(refMap);
 							}
-							drawCompactFigure(group1, snpPosition, refCpGList, groupedReadFile + ".compact.png");
+							drawCompactFigure(group1, snpPosition, refCpGList, groupedReadFile + ".compact");
 							return null;
 						} else {
 							int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
@@ -112,7 +112,7 @@ public class MethylFigurePgm {
 								mappedRead.generateCpGsInRead(refMap);
 							}
 							drawCompactFigure(group1, group2, snpPosition, refCpGList,
-									groupedReadFile + ".compact.png");
+									groupedReadFile + ".compact");
 //						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
 							return null;
 						}
@@ -121,61 +121,62 @@ public class MethylFigurePgm {
 	}
 
 	private static void drawCompactFigure(List<MappedRead> group1, int snpPosition, List<RefCpG> refCpGList,
-	                                      String outputPNGFileName) {
+	                                      String outputFileName) {
 		int imageHeight = (group1.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
-		BufferedImage pngImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D graphWriter = pngImage.createGraphics();
-		graphWriter.setBackground(Color.WHITE);
-		graphWriter.clearRect(0, 0, imageWidth, imageHeight);
-		graphWriter.setPaint(Color.BLACK);
-		graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
 
-		int height = 0;
-		drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
-
-		File outputPNG = new File(outputPNGFileName);
 		try {
-			ImageIO.write(pngImage, "png", outputPNG);
+			EPSWriter epsWriter = new EPSWriter(outputFileName, imageWidth, imageHeight);
+			Graphics2D graphWriter = epsWriter.getGraphWriter();
+			graphWriter.setBackground(Color.WHITE);
+			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
+			graphWriter.setPaint(Color.BLACK);
+			graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+
+			int height = 0;
+			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+
+			epsWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition, List<RefCpG> refCpGList, String outputPNGFileName) {
+	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition,
+	                                      List<RefCpG> refCpGList, String outputFileName) {
 		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
-		BufferedImage pngImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D graphWriter = pngImage.createGraphics();
-		graphWriter.setBackground(Color.WHITE);
-		graphWriter.clearRect(0, 0, imageWidth, imageHeight);
-		graphWriter.setPaint(Color.BLACK);
-		graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
-
-		int height = 0;
-		height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
-
-		// add line
-		graphWriter.setStroke(new BasicStroke(4.0f));
-		graphWriter.setPaint(Color.BLUE);
-		graphWriter.drawLine(0, height + HEIGHT_INTERVAL / 2, refCpGList.size() * CG_RADIUS,
-				height + HEIGHT_INTERVAL / 2);
-		graphWriter.setPaint(Color.orange);
-		graphWriter.drawLine(refCpGList.size() * CG_RADIUS + CG_RADIUS / 2, 0,
-				refCpGList.size() * CG_RADIUS + CG_RADIUS / 2, imageHeight);
-		graphWriter.setPaint(Color.BLACK);
-		height += HEIGHT_INTERVAL;
-		graphWriter.setStroke(new BasicStroke());
-
-		drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2);
-
-		File outputPNG = new File(outputPNGFileName);
 		try {
-			ImageIO.write(pngImage, "png", outputPNG);
+			EPSWriter epsWriter = new EPSWriter(outputFileName, imageWidth, imageHeight);
+			Graphics2D graphWriter = epsWriter.getGraphWriter();
+			graphWriter.setBackground(Color.WHITE);
+			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
+			graphWriter.setPaint(Color.BLACK);
+			graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+
+			int height = 0;
+			height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+
+			// add line
+			graphWriter.setStroke(new BasicStroke(4.0f));
+			graphWriter.setPaint(Color.BLUE);
+			graphWriter.drawLine(0, height + HEIGHT_INTERVAL / 2, refCpGList.size() * CG_RADIUS,
+					height + HEIGHT_INTERVAL / 2);
+			graphWriter.setPaint(Color.orange);
+			graphWriter.drawLine(refCpGList.size() * CG_RADIUS + CG_RADIUS / 2, 0,
+					refCpGList.size() * CG_RADIUS + CG_RADIUS / 2, imageHeight);
+			graphWriter.setPaint(Color.BLACK);
+			height += HEIGHT_INTERVAL;
+			graphWriter.setStroke(new BasicStroke());
+
+			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2);
+
+			epsWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height, int snpPosition, List<MappedRead> group) {
+	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height, int snpPosition,
+	                                    List<MappedRead> group) {
 		for (MappedRead mappedRead : group) {
 			// add cpg
 			for (CpG cpG : mappedRead.getCpgList()) {
@@ -203,7 +204,8 @@ public class MethylFigurePgm {
 		return height;
 	}
 
-	private static void drawFigure(List<MappedRead> group1, List<MappedRead> group2, int minStart, int maxEnd, int snpPosition, String outputPNGFileName) {
+	private static void drawFigure(List<MappedRead> group1, List<MappedRead> group2, int minStart, int maxEnd,
+	                               int snpPosition, String outputFileName) {
 		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (maxEnd - minStart + 1) * BPWIDTH;
 		BufferedImage pngImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphWriter = pngImage.createGraphics();
@@ -226,7 +228,7 @@ public class MethylFigurePgm {
 
 		drawGroup(graphWriter, minStart, height, snpPosition, group2);
 
-		File outputPNG = new File(outputPNGFileName);
+		File outputPNG = new File(outputFileName);
 		try {
 			ImageIO.write(pngImage, "png", outputPNG);
 		} catch (IOException e) {
@@ -234,7 +236,8 @@ public class MethylFigurePgm {
 		}
 	}
 
-	private static int drawGroup(Graphics2D graphWriter, int minStart, int height, int snpPosition, List<MappedRead> group) {
+	private static int drawGroup(Graphics2D graphWriter, int minStart, int height, int snpPosition,
+	                             List<MappedRead> group) {
 		for (MappedRead mappedRead : group) {
 			// add line
 			graphWriter.drawLine((mappedRead.getStart() - minStart) * BPWIDTH, height + HEIGHT_INTERVAL / 2,
