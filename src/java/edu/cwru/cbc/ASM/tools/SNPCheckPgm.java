@@ -67,7 +67,7 @@ public class SNPCheckPgm {
 					}
 
 					private void checkSNPPosition(String sequence, int strand) {
-						if (snpIndex > 0 && snpIndex < sequence.length()) {
+						if (snpIndex >= 0 && snpIndex < sequence.length()) {
 							char c = sequence.charAt(snpIndex);
 							switch (c) {
 								case 'A':
