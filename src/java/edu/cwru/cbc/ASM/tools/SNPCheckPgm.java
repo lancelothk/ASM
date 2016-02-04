@@ -129,7 +129,7 @@ public class SNPCheckPgm {
 								expectedSNPSet.add('C');
 								break;
 							case 'G':
-								if (snpIndex > 1 && ref.charAt(snpIndex - 1) == 'C') {
+								if (snpIndex >= 1 && ref.charAt(snpIndex - 1) == 'C') {
 									// is in CpG
 									expectedSNPSet.add('G');
 									expectedSNPSet.add('A');
