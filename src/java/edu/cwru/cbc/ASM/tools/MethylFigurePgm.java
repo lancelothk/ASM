@@ -145,6 +145,21 @@ public class MethylFigurePgm {
 
 	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition,
 	                                      String outputFileName) {
+		// always put methyl group first
+		long methylCountGroup1 = group1.stream()
+				.flatMap(r -> r.getCpgList().stream())
+				.filter(cpg -> cpg.getMethylStatus() == MethylStatus.C)
+				.count();
+		long methylCountGroup2 = group2.stream()
+				.flatMap(r -> r.getCpgList().stream())
+				.filter(cpg -> cpg.getMethylStatus() == MethylStatus.C)
+				.count();
+		if (methylCountGroup1 < methylCountGroup2) {
+			List<MappedRead> tmp = group1;
+			group1 = group2;
+			group2 = tmp;
+		}
+
 		group1 = selectValidReads(group1, snpPosition);
 		group2 = selectValidReads(group2, snpPosition);
 		List<RefCpG> refCpGList = selectValidSortedRefCpG(group1, group2);
