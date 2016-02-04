@@ -21,7 +21,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by lancelothk on 12/23/15.
@@ -111,8 +114,7 @@ public class MethylFigurePgm {
 							for (MappedRead mappedRead : group2) {
 								mappedRead.generateCpGsInRead(refMap);
 							}
-							drawCompactFigure(group1, group2, snpPosition, refCpGList,
-									groupedReadFile + ".compact");
+							drawCompactFigure(group1, group2, snpPosition, groupedReadFile + ".compact");
 //						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
 							return null;
 						}
@@ -142,9 +144,11 @@ public class MethylFigurePgm {
 	}
 
 	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition,
-	                                      List<RefCpG> refCpGList, String outputFileName) {
-		int validReadCount = countValidRead(group1, snpPosition) + countValidRead(group2, snpPosition);
-		int imageHeight = (validReadCount + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
+	                                      String outputFileName) {
+		group1 = selectValidReads(group1, snpPosition);
+		group2 = selectValidReads(group2, snpPosition);
+		List<RefCpG> refCpGList = selectValidSortedRefCpG(group1, group2);
+		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
 		try {
 			EPSWriter epsWriter = new EPSWriter(outputFileName, imageWidth, imageHeight);
 			Graphics2D graphWriter = epsWriter.getGraphWriter();
@@ -176,18 +180,25 @@ public class MethylFigurePgm {
 		}
 	}
 
-	private static int countValidRead(List<MappedRead> group, int snpPosition) {
-		int validReadCount = 0;
+	private static List<RefCpG> selectValidSortedRefCpG(List<MappedRead> group1, List<MappedRead> group2) {
+		Set<RefCpG> validRefCpGSet = new HashSet<>();
+		group1.forEach(mappedRead -> mappedRead.getCpgList().forEach(cpg -> validRefCpGSet.add(cpg.getRefCpG())));
+		group2.forEach(mappedRead -> mappedRead.getCpgList().forEach(cpg -> validRefCpGSet.add(cpg.getRefCpG())));
+		return validRefCpGSet.stream().sorted(RefCpG::compareTo).collect(Collectors.toList());
+	}
+
+	private static List<MappedRead> selectValidReads(List<MappedRead> group, int snpPosition) {
+		List<MappedRead> validGroup = new ArrayList<>();
 		for (MappedRead mappedRead : group) {
 			if (snpPosition >= mappedRead.getStart() && snpPosition <= mappedRead.getEnd()) {
 				String sequence = mappedRead.getStrand() == '+' ? mappedRead.getSequence() : mappedRead.getComplementarySequence();
 				char snp = sequence.charAt(snpPosition - mappedRead.getStart());
 				if (snp != '-') {
-					validReadCount++;
+					validGroup.add(mappedRead);
 				}
 			}
 		}
-		return validReadCount;
+		return validGroup;
 	}
 
 	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height, int snpPosition,
