@@ -40,12 +40,16 @@ public class MethylFigurePgm {
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
 		options.addOption(Option.builder("i").hasArg().desc("input grouped read file").build());
-		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
+		options.addOption(Option.builder("p").desc("SNP position").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
-		int snpPosition = Integer.parseInt(cmd.getOptionValue("p"));
+		int snpPosition = -1;
+		if (cmd.hasOption("p")) {
+			snpPosition = Integer.parseInt(cmd.getOptionValue("p"));
+		}
 
+		final int finalSnpPosition = snpPosition;
 		Files.readLines(new File(groupedReadFile), Charsets.UTF_8,
 				new LineProcessor() {
 					String ref;
@@ -96,7 +100,7 @@ public class MethylFigurePgm {
 							for (MappedRead mappedRead : group1) {
 								mappedRead.generateCpGsInRead(refMap);
 							}
-							drawCompactFigure(group1, snpPosition, refCpGList, groupedReadFile + ".compact");
+							drawCompactFigure(group1, finalSnpPosition, refCpGList, groupedReadFile + ".compact");
 							return null;
 						} else {
 							int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
@@ -114,7 +118,7 @@ public class MethylFigurePgm {
 							for (MappedRead mappedRead : group2) {
 								mappedRead.generateCpGsInRead(refMap);
 							}
-							drawCompactFigure(group1, group2, snpPosition, groupedReadFile + ".compact");
+							drawCompactFigure(group1, group2, finalSnpPosition, groupedReadFile + ".compact");
 //						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
 							return null;
 						}
@@ -160,8 +164,13 @@ public class MethylFigurePgm {
 			group2 = tmp;
 		}
 
-		group1 = selectValidReads(group1, snpPosition);
-		group2 = selectValidReads(group2, snpPosition);
+		if (snpPosition != -1) {
+			group1 = selectValidReads(group1, snpPosition);
+			group2 = selectValidReads(group2, snpPosition);
+		} else {
+			group1 = group1.stream().filter(r -> r.getCpgList().size() >= 2).collect(Collectors.toList());
+			group2 = group2.stream().filter(r -> r.getCpgList().size() >= 2).collect(Collectors.toList());
+		}
 		List<RefCpG> refCpGList = selectValidSortedRefCpG(group1, group2);
 		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
 		try {
@@ -173,7 +182,11 @@ public class MethylFigurePgm {
 			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
 
 			int height = 0;
-			height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+			if (snpPosition == -1) {
+				height = drawCompactGroup(graphWriter, refCpGList, height, group1);
+			} else {
+				height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+			}
 
 			// add line
 			graphWriter.setStroke(new BasicStroke(4.0f));
@@ -187,7 +200,11 @@ public class MethylFigurePgm {
 			height += HEIGHT_INTERVAL;
 			graphWriter.setStroke(new BasicStroke());
 
-			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2);
+			if (snpPosition == -1) {
+				height = drawCompactGroup(graphWriter, refCpGList, height, group2);
+			} else {
+				height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2);
+			}
 
 			epsWriter.close();
 		} catch (IOException e) {
@@ -214,6 +231,28 @@ public class MethylFigurePgm {
 			}
 		}
 		return validGroup;
+	}
+
+	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height,
+	                                    List<MappedRead> group) {
+		for (MappedRead mappedRead : group) {
+			// add cpg
+			for (CpG cpG : mappedRead.getCpgList()) {
+				if (cpG.getMethylStatus() == MethylStatus.C) {
+					graphWriter.fill(
+							new Ellipse2D.Double(refCpGList.indexOf(cpG.getRefCpG()) * CG_RADIUS, height,
+									CG_RADIUS,
+									CG_RADIUS));
+				} else if (cpG.getMethylStatus() == MethylStatus.T) {
+					graphWriter.draw(
+							new Ellipse2D.Double(refCpGList.indexOf(cpG.getRefCpG()) * CG_RADIUS, height,
+									CG_RADIUS,
+									CG_RADIUS));
+				}
+			}
+			height += HEIGHT_INTERVAL;
+		}
+		return height;
 	}
 
 	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height, int snpPosition,
