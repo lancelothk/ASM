@@ -39,8 +39,8 @@ public class MethylFigurePgm {
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
-		options.addOption(Option.builder("i").hasArg().desc("input grouped read file").build());
-		options.addOption(Option.builder("p").desc("SNP position").build());
+		options.addOption(Option.builder("i").hasArg().required().desc("input grouped read file").build());
+		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
