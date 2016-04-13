@@ -25,18 +25,19 @@ dependencies {
     testCompile 'org.testng:testng:6.9.4'
 }
 
+//noinspection GroovyAssignabilityCheck
 sourceSets {
     main {
         java {
-            srcDir 'src/java'
+            srcDir 'src/main/java'
         }
     }
     test {
         java {
-            srcDir 'test/java'
+            srcDir 'src/test/java'
         }
         resources {
-            srcDir 'test/resources'
+            srcDir 'src/test/resources'
         }
     }
 }
@@ -45,7 +46,7 @@ test.doFirst {
     useTestNG()
 }
 
-wrapper.gradleVersion = '2.4'
+wrapper.gradleVersion = '2.12'
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 CreateStartScripts buildStartScript(String appName, String mainClass) {
@@ -84,8 +85,8 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("MethylFigure", "edu.cwru.cbc.ASM.tools.MethylFigurePgm").execute()
 }
 
+//noinspection GroovyAssignabilityCheck
 distributions {
-    //noinspection GroovyAssignabilityCheck
     main {
         contents {
             addAllStartSctipts
