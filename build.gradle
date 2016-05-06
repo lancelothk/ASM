@@ -120,12 +120,12 @@ remotes {
         identity = file('/home/kehu/.ssh/id_rsa')
     }
     osc {
-        host = 'glenn.osc.edu'
+        host = 'sftp.osc.edu'
         user = 'cwr0411'
         identity = file('/home/lancelothk/.ssh/id_rsa')
     }
     osc_lab {
-        host = 'glenn.osc.edu'
+        host = 'sftp.osc.edu'
         user = 'cwr0411'
         identity = file('/home/kehu/.ssh/id_rsa')
     }
