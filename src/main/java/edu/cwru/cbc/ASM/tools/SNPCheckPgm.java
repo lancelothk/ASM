@@ -148,6 +148,16 @@ public class SNPCheckPgm {
 
 					@Override
 					public Boolean getResult() {
+						// if this SNP is in CpG site
+						if (snpIndex >= 0 && snpIndex < ref.length() - 1 && ref.charAt(snpIndex) == 'C' && ref.charAt(
+								snpIndex + 1) == 'G') {
+							System.out.println("SNP is in Cytosine of CpG site");
+						} else if (snpIndex >= 1 && snpIndex < ref.length() && ref.charAt(
+								snpIndex) == 'G' && ref.charAt(snpIndex - 1) == 'C') {
+							System.out.println("SNP is in Guanine of CpG site");
+						} else {
+							System.out.println("SNP is not in CpG site");
+						}
 						// first dimension is group
 						// second dimension is strand
 						Map[][] observedAlleles = new Map[2][2];
