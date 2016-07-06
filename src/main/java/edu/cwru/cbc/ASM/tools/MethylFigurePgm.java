@@ -1,9 +1,8 @@
 package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
 import com.google.common.io.Files;
-import com.google.common.io.LineProcessor;
+import edu.cwru.cbc.ASM.commons.io.GroupedReadsLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
@@ -12,8 +11,8 @@ import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
  * Visualize methylation pattern and SNP
  */
 public class MethylFigurePgm {
-	private static final Splitter tabSplitter = Splitter.on("\t");
 	private static final int COMMON_FONT_SIZE = 16;
 	private static final int CG_RADIUS = 20;
 	private static final int HEIGHT_INTERVAL = 24;
@@ -50,80 +48,42 @@ public class MethylFigurePgm {
 		}
 
 		final int finalSnpPosition = snpPosition;
-		Files.readLines(new File(groupedReadFile), Charsets.UTF_8,
-				new LineProcessor() {
-					String ref;
-					int group = 0;
-					List<MappedRead> group1 = new ArrayList<>();
-					List<MappedRead> group2 = new ArrayList<>();
-
-					@Override
-					public boolean processLine(@Nonnull String line) throws IOException {
-						List<String> itemList = tabSplitter.splitToList(line);
-						if (line.startsWith("ref:")) {
-							ref = itemList.get(1);
-						} else if (line.equals("")) {
-							group++;
-						} else {
-							// TODO add input data validation
-							switch (group) {
-								case 0:
-									group1.add(new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-											Integer.parseInt(itemList.get(2)),
-											itemList.get(1).charAt(0) == '+' ? itemList.get(4)
-													.replace(".", "") : MappedRead.getComplementarySequence(
-													itemList.get(4).replace(".", "")), itemList.get(5)));
-									break;
-								case 1:
-									group2.add(new MappedRead(itemList.get(0), itemList.get(1).charAt(0),
-											Integer.parseInt(itemList.get(2)),
-											itemList.get(1).charAt(0) == '+' ? itemList.get(4)
-													.replace(".", "") : MappedRead.getComplementarySequence(
-													itemList.get(4).replace(".", "")), itemList.get(5)));
-									break;
-								default:
-									throw new RuntimeException("more than 2 groups!");
-							}
-						}
-						return true;
-					}
-
-					@Override
-					public Object getResult() {
-						if (group2.size() == 0) {
-							int minStart = group1.stream().mapToInt(MappedRead::getStart).min().getAsInt();
-							List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
-							HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
-							for (RefCpG refCpG : refCpGList) {
-								refMap.put(refCpG.getPos(), refCpG);
-							}
-							for (MappedRead mappedRead : group1) {
-								mappedRead.generateCpGsInRead(refMap);
-							}
-							drawCompactFigure(group1, finalSnpPosition, refCpGList, groupedReadFile + ".compact");
-							return null;
-						} else {
-							int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
-									group2.stream().mapToInt(MappedRead::getStart).min().getAsInt());
-							int maxEnd = Math.max(group1.stream().mapToInt(MappedRead::getEnd).max().getAsInt(),
-									group2.stream().mapToInt(MappedRead::getEnd).max().getAsInt());
-							List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
-							HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
-							for (RefCpG refCpG : refCpGList) {
-								refMap.put(refCpG.getPos(), refCpG);
-							}
-							for (MappedRead mappedRead : group1) {
-								mappedRead.generateCpGsInRead(refMap);
-							}
-							for (MappedRead mappedRead : group2) {
-								mappedRead.generateCpGsInRead(refMap);
-							}
-							drawCompactFigure(group1, group2, finalSnpPosition, groupedReadFile + ".compact");
+		Pair<String, Pair<List<MappedRead>, List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
+				Charsets.UTF_8, new GroupedReadsLineProcessor());
+		String ref = result.getLeft();
+		List<MappedRead> group1 = result.getRight().getLeft();
+		List<MappedRead> group2 = result.getRight().getRight();
+		if (group2.size() == 0) {
+			int minStart = group1.stream().mapToInt(MappedRead::getStart).min().getAsInt();
+			List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
+			HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+			for (RefCpG refCpG : refCpGList) {
+				refMap.put(refCpG.getPos(), refCpG);
+			}
+			for (MappedRead mappedRead : group1) {
+				mappedRead.generateCpGsInRead(refMap);
+			}
+			drawCompactFigure(group1, finalSnpPosition, refCpGList, groupedReadFile + ".compact");
+		} else {
+			int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
+					group2.stream().mapToInt(MappedRead::getStart).min().getAsInt());
+			int maxEnd = Math.max(group1.stream().mapToInt(MappedRead::getEnd).max().getAsInt(),
+					group2.stream().mapToInt(MappedRead::getEnd).max().getAsInt());
+			List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
+			HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
+			for (RefCpG refCpG : refCpGList) {
+				refMap.put(refCpG.getPos(), refCpG);
+			}
+			for (MappedRead mappedRead : group1) {
+				mappedRead.generateCpGsInRead(refMap);
+			}
+			for (MappedRead mappedRead : group2) {
+				mappedRead.generateCpGsInRead(refMap);
+			}
+			drawCompactFigure(group1, group2, finalSnpPosition, groupedReadFile + ".compact");
 //						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
-							return null;
-						}
-					}
-				});
+		}
+
 	}
 
 	private static void drawCompactFigure(List<MappedRead> group1, int snpPosition, List<RefCpG> refCpGList,
