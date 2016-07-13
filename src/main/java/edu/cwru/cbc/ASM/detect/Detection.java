@@ -2,7 +2,6 @@ package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
@@ -11,11 +10,13 @@ import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import edu.cwru.cbc.ASM.detect.dataType.*;
+import edu.cwru.cbc.ASM.detect.dataType.ASMGraph;
+import edu.cwru.cbc.ASM.detect.dataType.ClusterRefCpG;
+import edu.cwru.cbc.ASM.detect.dataType.GroupResult;
+import edu.cwru.cbc.ASM.detect.dataType.Vertex;
 import edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -75,44 +76,48 @@ public class Detection implements Callable<String> {
 		ASMGraph partitionedGraph = executePartition(mappedReadList);
 
 		Collection<Vertex> clusters = partitionedGraph.getClusterResult().values();
-		List<RefCpG> twoClusterRefCpGList = getTwoClusterRefCpGs(partitionedGraph);
-		if (clusters.size() > 2) {
-			// more than 2 clusters
-			throw new RuntimeException("more than two clusters!");
-		}
-		if (clusters.size() < 2) {
-			// less than 1 clusters
-			return "";
-		}
-		if (twoClusterRefCpGList.stream().count() < min_interval_cpg) {
-			// interval contain less #cpg than min_interval_cpg
-			return "";
-		}
-
-		// do tests
-		List<Double> pValueList = DetectionUtils.fisherExactTest(twoClusterRefCpGList, clusters);
-		double combSum = DetectionUtils.calcRegionP_FisherCombSum(pValueList);
-		double regionP = 1 - new ChiSquaredDistribution(2 * twoClusterRefCpGList.size()).cumulativeProbability(combSum);
-		double clusterIndex = DetectionUtils.calcClusterIndex(twoClusterRefCpGList, clusters);
-
-		// index of random data has larger score
-		int randIndex = getRandomIndex(combSum, reference);
-
-		if (randIndex >= 0) {
-			return "";
-		}
-
-		List<GroupResult> groupResultList = writePartitionResult(clusters, reference, twoClusterRefCpGList);
-
-		return IntervalDetectionSummaryFormatter.formatSummaryString(chr, startPos, endPos, endPos - startPos + 1,
-				startPos + "-" + endPos,
-				partitionedGraph.getOriginalEdgeCount(), mappedReadList.size(), twoClusterRefCpGList.size(),
-				clusters.size(), partitionedGraph.getCpGSum(), partitionedGraph.getMECSum(),
-				partitionedGraph.getNormMECSum(), regionP, combSum, clusterIndex,
-				Iterables.get(clusters, 0).getMappedReadList().size(),
-				Iterables.get(clusters, 1).getMappedReadList().size(),
-				groupResultList.get(0).getAvgMethylLevel(),
-				groupResultList.get(1).getAvgMethylLevel());
+		alignPartitionedReads(clusters, reference);
+		return "";
+//
+//
+//		List<RefCpG> twoClusterRefCpGList = getTwoClusterRefCpGs(partitionedGraph);
+//		if (clusters.size() > 2) {
+//			// more than 2 clusters
+//			throw new RuntimeException("more than two clusters!");
+//		}
+//		if (clusters.size() < 2) {
+//			// less than 1 clusters
+//			return "";
+//		}
+//		if (twoClusterRefCpGList.stream().count() < min_interval_cpg) {
+//			// interval contain less #cpg than min_interval_cpg
+//			return "";
+//		}
+//
+//		// do tests
+//		List<Double> pValueList = DetectionUtils.fisherExactTest(twoClusterRefCpGList, clusters);
+//		double combSum = DetectionUtils.calcRegionP_FisherCombSum(pValueList);
+//		double regionP = 1 - new ChiSquaredDistribution(2 * twoClusterRefCpGList.size()).cumulativeProbability(combSum);
+//		double clusterIndex = DetectionUtils.calcClusterIndex(twoClusterRefCpGList, clusters);
+//
+//		// index of random data has larger score
+//		int randIndex = getRandomIndex(combSum, reference);
+//
+//		if (randIndex >= 0) {
+//			return "";
+//		}
+//
+//		List<GroupResult> groupResultList = writePartitionResult(clusters, reference, twoClusterRefCpGList);
+//
+//		return IntervalDetectionSummaryFormatter.formatSummaryString(chr, startPos, endPos, endPos - startPos + 1,
+//				startPos + "-" + endPos,
+//				partitionedGraph.getOriginalEdgeCount(), mappedReadList.size(), twoClusterRefCpGList.size(),
+//				clusters.size(), partitionedGraph.getCpGSum(), partitionedGraph.getMECSum(),
+//				partitionedGraph.getNormMECSum(), regionP, combSum, clusterIndex,
+//				Iterables.get(clusters, 0).getMappedReadList().size(),
+//				Iterables.get(clusters, 1).getMappedReadList().size(),
+//				groupResultList.get(0).getAvgMethylLevel(),
+//				groupResultList.get(1).getAvgMethylLevel());
 	}
 
 	private int getRandomIndex(double combSum, String reference) throws IOException {
