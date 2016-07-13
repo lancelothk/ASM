@@ -74,12 +74,13 @@ public class DetectionUtils {
 			}
 			double fisher_P = FisherExactTest.fishersExactTest(matrix[0][0], matrix[0][1], matrix[1][0],
 					matrix[1][1])[0];  // [0] is two tail test.
-			if (fisher_P >= 0 && fisher_P <= 1) {
-				refCpG.setP_value(fisher_P);
-				pValueList.add(fisher_P);
-			} else {
+			if (fisher_P < 0 || fisher_P > 1) {
 				throw new RuntimeException("p value is not in [0,1]!");
+			} else if (fisher_P == 0) {
+				fisher_P = Double.MIN_VALUE;
 			}
+			refCpG.setP_value(fisher_P);
+			pValueList.add(fisher_P);
 		}
 		return pValueList;
 	}

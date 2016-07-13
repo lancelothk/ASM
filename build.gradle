@@ -145,25 +145,25 @@ task updateBin(dependsOn: installDist) {
             from 'build/install/ASM/lib/ASM.jar'
             into '/home/' + "$userName" + '/experiments/ASM/lib'
         }
-        if (userName == "kehu") {
-            [remotes.ngs_lab, remotes.osc_lab].each { item ->
-                ssh.run {
-                    session(item) {
-                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
-                    }
-                }
-            }
-        } else if (userName == "lancelothk") {
-            [remotes.ngs, remotes.lab, remotes.osc].each { item ->
-                ssh.run {
-                    session(item) {
-                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
-                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
-                    }
-                }
-            }
-        }
+//        if (userName == "kehu") {
+//            [remotes.ngs_lab, remotes.osc_lab].each { item ->
+//                ssh.run {
+//                    session(item) {
+//                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+//                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+//                    }
+//                }
+//            }
+//        } else if (userName == "lancelothk") {
+//            [remotes.ngs, remotes.lab, remotes.osc].each { item ->
+//                ssh.run {
+//                    session(item) {
+//                        put from: buildDir.toString() + '/install/ASM/bin', into: 'experiments/ASM'
+//                        put from: buildDir.toString() + '/libs/ASM.jar', into: 'experiments/ASM/lib'
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
