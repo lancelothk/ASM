@@ -168,7 +168,7 @@ public class ASMGraph {
 		if (leftAdjEdgeMap.containsKey(rightEdge.getUniqueId())) {
 			// update left edge weight
 			Edge leftEdge = leftAdjEdgeMap.get(rightEdge.getUniqueId());
-			leftEdge.setWeight(leftEdge.getWeight() + rightEdge.getWeight());
+			leftEdge.setWeight((leftEdge.getWeight() + rightEdge.getWeight()) / 2);
 			rightEdge.removeFromVertex();
 			edgeSet.remove(rightEdge);
 		} else {
