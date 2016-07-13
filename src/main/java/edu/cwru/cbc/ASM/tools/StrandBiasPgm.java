@@ -26,10 +26,13 @@ public class StrandBiasPgm {
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
 
-		Pair<String, Pair<List<MappedRead>, List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
+		Pair<String, List<List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
 				Charsets.UTF_8, new GroupedReadsLineProcessor());
-		List<MappedRead> group1 = result.getRight().getLeft();
-		List<MappedRead> group2 = result.getRight().getRight();
+		if (result.getRight().size() != 2) {
+			throw new RuntimeException("more than 2 groups of reads!");
+		}
+		List<MappedRead> group1 = result.getRight().get(0);
+		List<MappedRead> group2 = result.getRight().get(1);
 		Pair<Double, Double> result1 = getStrandCounts(group1);
 		Pair<Double, Double> result2 = getStrandCounts(group2);
 		double a = result1.getLeft(), c = result1.getRight(), b = result2.getLeft(), d = result2.getRight();

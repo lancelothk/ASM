@@ -48,11 +48,14 @@ public class MethylFigurePgm {
 		}
 
 		final int finalSnpPosition = snpPosition;
-		Pair<String, Pair<List<MappedRead>, List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
+		Pair<String, List<List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
 				Charsets.UTF_8, new GroupedReadsLineProcessor());
 		String ref = result.getLeft();
-		List<MappedRead> group1 = result.getRight().getLeft();
-		List<MappedRead> group2 = result.getRight().getRight();
+		if (result.getRight().size() != 2) {
+			throw new RuntimeException("more than 2 groups of reads!");
+		}
+		List<MappedRead> group1 = result.getRight().get(0);
+		List<MappedRead> group2 = result.getRight().get(1);
 		if (group2.size() == 0) {
 			int minStart = group1.stream().mapToInt(MappedRead::getStart).min().getAsInt();
 			List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);

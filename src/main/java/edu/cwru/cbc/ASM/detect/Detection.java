@@ -249,7 +249,6 @@ public class Detection implements Callable<String> {
 
 	private void writeGroupReadList(BufferedWriter groupResultWriter,
 	                                List<GroupResult> groupResultList) throws IOException {
-		groupResultWriter.write("Group's read list:\n");
 		for (int i = 0; i < groupResultList.size(); i++) {
 			groupResultWriter.write("Group:" + i + "\t" + "size:" + groupResultList.get(i).getMappedReadList().size() +
 					"\tMEC:" + groupResultList.get(i).getMec() + "\tavgMethyl:" + groupResultList.get(i)
