@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
@@ -39,7 +40,11 @@ public class GroupedMethylLevelPgm {
 				.getAsInt();
 
 		int groupIndex = 1;
-		for (List<MappedRead> group : result.getRight()) {
+		for (List<MappedRead> group : result.getRight()
+				.stream()
+				.sorted((l1, l2) -> Integer.compare(l2.size(), l1.size()))
+				.collect(
+						Collectors.toList())) {
 			List<RefCpG> refCpGList = extractCpGSite(result.getLeft(), minStart);
 			HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 			for (RefCpG refCpG : refCpGList) {
