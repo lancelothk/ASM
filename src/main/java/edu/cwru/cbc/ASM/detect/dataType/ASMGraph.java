@@ -53,7 +53,7 @@ public class ASMGraph {
 						if (cpgA.getMethylStatus() != cpgB.getMethylStatus()) {
 							score--;
 						} else {
-							score++;
+//							score++;
 						}
 					}
 				}
