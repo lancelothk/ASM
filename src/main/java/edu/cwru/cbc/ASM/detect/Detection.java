@@ -40,6 +40,7 @@ public class Detection implements Callable<String> {
 	private int min_interval_cpg;
 	private int permTime;
 	private String outputPath;
+	private Random rand;
 
 	/**
 	 * Detection constructor.
@@ -54,6 +55,7 @@ public class Detection implements Callable<String> {
 		this.min_interval_cpg = min_interval_cpg;
 		this.permTime = permTime;
 		this.outputPath = outputPath;
+		this.rand = new Random(0);
 	}
 
 
@@ -166,10 +168,9 @@ public class Detection implements Callable<String> {
 	}
 
 	private List<MappedRead> randomizeMethylStatus(List<MappedRead> mappedReadList) {
-		Random rand = new Random();
 		for (MappedRead mappedRead : mappedReadList) {
 			for (CpG cpG : mappedRead.getCpgList()) {
-				cpG.setMethylStatus(rand.nextBoolean() ? MethylStatus.C : MethylStatus.T);
+				cpG.setMethylStatus(this.rand.nextBoolean() ? MethylStatus.C : MethylStatus.T);
 			}
 		}
 		return mappedReadList;
