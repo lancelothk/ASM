@@ -51,20 +51,20 @@ public class DetectionTest {
 	}
 
 	@Test
-	public void test_detection_TP_small() throws Exception {
-		URL file = getClass().getClassLoader().getResource("chrX-151807265-151807274.mappedreads");
+	public void test_detection_TP_H9_GANS() throws Exception {
+		URL file = getClass().getClassLoader().getResource("chr20-57430213-57430368.mappedreads");
 		assertNotNull(file);
 		Detection detection = new Detection(new File(file.getFile()), ".", 5, 1000);
 		String summary = detection.call();
 		String[] itemList = summary.split("\t");
 		assertEquals("MEC", "4.000000", itemList[10]);
-		assertEquals("normMEC", "0.083333", itemList[11]);
-		assertEquals("regionP", "1.415975e-04", itemList[12]);
-		assertEquals("regionFScore", "34.679588", itemList[13]);
-		assertEquals("clusterIndex", "0.032349", itemList[14]);
-		assertEquals("group1 size", "5", itemList[15]);
-		assertEquals("group2 size", "5", itemList[16]);
-		assertEquals("group1 methyl", "0.130000", itemList[17]);
-		assertEquals("group2 methyl", "0.960000", itemList[18]);
+		assertEquals("normMEC", "0.027586", itemList[11]);
+		assertEquals("regionP", "0.000000e+00", itemList[12]);
+		assertEquals("regionFScore", "145.027582", itemList[13]);
+		assertEquals("clusterIndex", "0.003362", itemList[14]);
+		assertEquals("group1 size", "13", itemList[15]);
+		assertEquals("group2 size", "21", itemList[16]);
+		assertEquals("group1 methyl", "0.988636", itemList[17]);
+		assertEquals("group2 methyl", "0.037338", itemList[18]);
 	}
 }
