@@ -43,8 +43,9 @@ public class Detection implements Callable<String> {
 
 	/**
 	 * Detection constructor.
-	 *  @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
-	 * @param outputPath Path for output files
+	 *
+	 * @param inputFile        A file contains reads in input region or a folder contains all input region files. File name should be in format:chr-start-end
+	 * @param outputPath       Path for output files
 	 * @param min_interval_cpg Minimum number of CpGs in the interval. If under this threshold(too small), won't compute the error probability.
 	 * @param permTime         Time of random permutation
 	 */
@@ -102,7 +103,13 @@ public class Detection implements Callable<String> {
 			return "";
 		}
 
-		List<GroupResult> groupResultList = writePartitionResult(clusters, reference, twoClusterRefCpGList);
+		List<GroupResult> groupResultList = writePartitionResult(clusters, reference,
+				partitionedGraph.getClusterRefCpGMap()
+						.values()
+						.stream()
+						.map(ClusterRefCpG::getRefCpG)
+						.sorted()
+						.collect(Collectors.toList()));
 
 		return IntervalDetectionSummaryFormatter.formatSummaryString(chr, startPos, endPos, endPos - startPos + 1,
 				startPos + "-" + endPos,
