@@ -24,22 +24,34 @@ public class ASMGraph {
 	public ASMGraph(List<MappedRead> mappedReadList) {
 		this.edgeSet = new LinkedHashSet<>();
 		this.vertexMap = new HashMap<>();
-		mappedReadList.forEach(r -> {
-			if (vertexMap.put(r.getId(), new Vertex(r)) != null) {
-				throw new RuntimeException("duplicate mapped read id!" + r.getId());
+		// merge reads with exact same methyl patterns. This helps reducing vertex number in the graph.
+		HashMap<String, Vertex> uniqueMethylPatternVertexMap = new HashMap<>();
+		for (MappedRead mappedRead : mappedReadList) {
+			String patternString = mappedRead.getPatterhString();
+			if (uniqueMethylPatternVertexMap.containsKey(patternString)) {
+				uniqueMethylPatternVertexMap.get(patternString).addMappedRead(mappedRead);
+			} else {
+				uniqueMethylPatternVertexMap.put(patternString, new Vertex(mappedRead));
+			}
+		}
+		uniqueMethylPatternVertexMap.values().forEach(v -> {
+			if (vertexMap.put(v.getId(), v) != null) {
+				throw new RuntimeException("duplicate mapped read id!" + v.getId());
 			}
 		});
 		// visit all possible edges once.
-		for (int i = 0; i < mappedReadList.size(); i++) {
-			for (int j = i + 1; j < mappedReadList.size(); j++) {
-				double score = checkCompatible(mappedReadList.get(i), mappedReadList.get(j));
+		List<Vertex> vertexList = vertexMap.values().stream().collect(Collectors.toList());
+		for (int i = 0; i < vertexList.size(); i++) {
+			for (int j = i + 1; j < vertexList.size(); j++) {
+				Vertex vertexA = vertexList.get(i);
+				Vertex vertexB = vertexList.get(j);
+				double score = checkCompatible(vertexA.getMappedReadList().get(0),
+						vertexB.getMappedReadList().get(0));
 				if (Double.compare(score, Double.MIN_VALUE) != 0) {
-					edgeSet.add(new Edge(vertexMap.get(mappedReadList.get(i).getId()),
-							vertexMap.get(mappedReadList.get(j).getId()), score));
+					edgeSet.add(new Edge(vertexA, vertexB, score));
 				}
 			}
 		}
-
 		this.originalEdgeCount = edgeSet.size();
 	}
 
@@ -143,7 +155,7 @@ public class ASMGraph {
 		Vertex left = edge.getLeft();
 		Vertex right = edge.getRight();
 		// merge right to left vertex
-		left.addMappedRead(right.getMappedReadList());
+		left.addMappedReads(right.getMappedReadList());
 		left.addRefCpG(right.getRefCpGMap().values());
 		//remove this edge and right vertex from graph
 		edge.removeFromVertex();
@@ -261,7 +273,7 @@ public class ASMGraph {
 
 	private void mergeVertex(Vertex a, Vertex b) {
 		// merge b to a
-		a.addMappedRead(b.getMappedReadList());
+		a.addMappedReads(b.getMappedReadList());
 		a.addRefCpG(b.getRefCpGMap().values());
 		vertexMap.remove(b.getId());
 

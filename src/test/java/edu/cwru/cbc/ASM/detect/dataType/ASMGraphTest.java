@@ -43,8 +43,8 @@ public class ASMGraphTest {
 		ASMGraph asmGraph = new ASMGraph(mappedReadList);
 		Set edgeList = (Set) FieldUtils.readDeclaredField(asmGraph, "edgeSet", true);
 		Map vertexMap = (Map) FieldUtils.readDeclaredField(asmGraph, "vertexMap", true);
-		AssertJUnit.assertEquals("incorrect edge number", 43, edgeList.size());
-		AssertJUnit.assertEquals("incorrect edge number", 10, vertexMap.size());
+		AssertJUnit.assertEquals("incorrect edge number", 26, edgeList.size());
+		AssertJUnit.assertEquals("incorrect node number", 8, vertexMap.size());
 
 		for (Object o : edgeList) {
 			Edge e = (Edge) o;

@@ -240,6 +240,17 @@ public class MappedRead implements Comparable<MappedRead> {
 		return sequence;
 	}
 
+	public String getPatterhString() {
+		StringBuilder sb = new StringBuilder();
+		for (CpG cpG : cpgList) {
+			if (!cpG.equals(cpgList.get(0))) {
+				sb.append("_");
+			}
+			sb.append(String.format("%d:%s", cpG.getPos(), cpG.getMethylStatus()));
+		}
+		return sb.toString();
+	}
+
 	@Override
 	public int compareTo(@Nonnull MappedRead other) {
 		int startCompare = Integer.compare(this.getStart(), other.getStart());

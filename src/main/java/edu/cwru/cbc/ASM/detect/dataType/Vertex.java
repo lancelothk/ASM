@@ -26,6 +26,14 @@ public class Vertex {
 		this.addCpG(mappedRead.getCpgList());
 	}
 
+	public void addMappedRead(MappedRead mappedRead) {
+		if (mappedRead.getId().equals(this.id)) {
+			throw new RuntimeException("duplicate mapped read id!" + this.id);
+		}
+		this.mappedReadList.add(mappedRead);
+		this.addCpG(mappedRead.getCpgList());
+	}
+
 	public void addCpG(Collection<CpG> cpgList) {
 		cpgList.stream()
 				.filter(cpg -> !refCpGMap.containsKey(cpg.getPos()))
@@ -59,8 +67,10 @@ public class Vertex {
 		this.adjEdgeList.remove(edge);
 	}
 
-	public void addMappedRead(List<MappedRead> mappedReadList) {
-		this.mappedReadList.addAll(mappedReadList);
+	public void addMappedReads(List<MappedRead> mappedReadList) {
+		for (MappedRead mappedRead : mappedReadList) {
+			this.addMappedRead(mappedRead);
+		}
 	}
 
 	public String getId() {
