@@ -39,6 +39,7 @@ public class MethylFigurePgm {
 		Options options = new Options();
 		options.addOption(Option.builder("i").hasArg().required().desc("input grouped read file").build());
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
+		options.addOption(Option.builder("a").hasArg().desc("allele pair. E.g. A-G").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
@@ -46,16 +47,28 @@ public class MethylFigurePgm {
 		if (cmd.hasOption("p")) {
 			snpPosition = Integer.parseInt(cmd.getOptionValue("p"));
 		}
+		String alleles = "";
+		if (cmd.hasOption("a")) {
+			String input = cmd.getOptionValue("a");
+			if (input.length() != 3 || input.charAt(1) != '-') {
+				System.err.println("incorrect format of allele pair!");
+			} else {
+				alleles = input;
+			}
+		}
 
-		final int finalSnpPosition = snpPosition;
 		Pair<String, List<List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
 				Charsets.UTF_8, new GroupedReadsLineProcessor());
 		String ref = result.getLeft();
 		if (result.getRight().size() != 2) {
 			throw new RuntimeException("more than 2 groups of reads!");
 		}
-		List<MappedRead> group1 = result.getRight().get(0);
-		List<MappedRead> group2 = result.getRight().get(1);
+		// require reads contains only uppercase.
+		draw(groupedReadFile, snpPosition, ref, result.getRight().get(0), result.getRight().get(1), alleles);
+	}
+
+	private static void draw(String groupedReadFile, int snpPosition, String ref, List<MappedRead> group1,
+	                         List<MappedRead> group2, String alleles) {
 		if (group2.size() == 0) {
 			int minStart = group1.stream().mapToInt(MappedRead::getStart).min().getAsInt();
 			List<RefCpG> refCpGList = MethylationUtils.extractCpGSite(ref, minStart);
@@ -66,7 +79,7 @@ public class MethylFigurePgm {
 			for (MappedRead mappedRead : group1) {
 				mappedRead.generateCpGsInRead(refMap);
 			}
-			drawCompactFigure(group1, finalSnpPosition, refCpGList, groupedReadFile + ".compact");
+			drawCompactFigure(group1, snpPosition, refCpGList, groupedReadFile + ".compact", alleles);
 		} else {
 			int minStart = Math.min(group1.stream().mapToInt(MappedRead::getStart).min().getAsInt(),
 					group2.stream().mapToInt(MappedRead::getStart).min().getAsInt());
@@ -83,14 +96,13 @@ public class MethylFigurePgm {
 			for (MappedRead mappedRead : group2) {
 				mappedRead.generateCpGsInRead(refMap);
 			}
-			drawCompactFigure(group1, group2, finalSnpPosition, groupedReadFile + ".compact");
-//						drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
+			drawCompactFigure(group1, group2, snpPosition, groupedReadFile + ".compact", alleles);
+//			drawFigure(group1, group2, minStart, maxEnd, snpPosition, groupedReadFile + ".png");
 		}
-
 	}
 
 	private static void drawCompactFigure(List<MappedRead> group1, int snpPosition, List<RefCpG> refCpGList,
-	                                      String outputFileName) {
+	                                      String outputFileName, String alleles) {
 		int imageHeight = (group1.size() + 1) * HEIGHT_INTERVAL, imageWidth = (refCpGList.size() + 3) * CG_RADIUS;
 
 		try {
@@ -102,7 +114,7 @@ public class MethylFigurePgm {
 			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
 
 			int height = 0;
-			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1, alleles);
 
 			epsWriter.close();
 		} catch (IOException e) {
@@ -111,7 +123,7 @@ public class MethylFigurePgm {
 	}
 
 	private static void drawCompactFigure(List<MappedRead> group1, List<MappedRead> group2, int snpPosition,
-	                                      String outputFileName) {
+	                                      String outputFileName, String alleles) {
 		// always put methyl group first
 		long methylCountGroup1 = group1.stream()
 				.flatMap(r -> r.getCpgList().stream())
@@ -126,11 +138,12 @@ public class MethylFigurePgm {
 			group1 = group2;
 			group2 = tmp;
 		}
-
 		if (snpPosition != -1) {
+			// only reads cover given snp position are shown.
 			group1 = selectValidReads(group1, snpPosition);
 			group2 = selectValidReads(group2, snpPosition);
 		} else {
+			// only reads cover more than 2 refCpGs are shown.
 			group1 = group1.stream().filter(r -> r.getCpgList().size() >= 2).collect(Collectors.toList());
 			group2 = group2.stream().filter(r -> r.getCpgList().size() >= 2).collect(Collectors.toList());
 		}
@@ -148,7 +161,7 @@ public class MethylFigurePgm {
 			if (snpPosition == -1) {
 				height = drawCompactGroup(graphWriter, refCpGList, height, group1);
 			} else {
-				height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1);
+				height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1, alleles);
 			}
 
 			// add line
@@ -166,7 +179,7 @@ public class MethylFigurePgm {
 			if (snpPosition == -1) {
 				height = drawCompactGroup(graphWriter, refCpGList, height, group2);
 			} else {
-				height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2);
+				height = drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group2, alleles);
 			}
 
 			epsWriter.close();
@@ -219,7 +232,11 @@ public class MethylFigurePgm {
 	}
 
 	private static int drawCompactGroup(Graphics2D graphWriter, List<RefCpG> refCpGList, int height, int snpPosition,
-	                                    List<MappedRead> group) {
+	                                    List<MappedRead> group, String alleles) {
+		Set<Integer> refCpGPositions = new HashSet<>();
+		for (RefCpG refCpG : refCpGList) {
+			refCpGPositions.add(refCpG.getPos());
+		}
 		for (MappedRead mappedRead : group) {
 			if (snpPosition >= mappedRead.getStart() && snpPosition <= mappedRead.getEnd()) {
 				String sequence = mappedRead.getStrand() == '+' ? mappedRead.getSequence() : mappedRead.getComplementarySequence();
@@ -241,8 +258,9 @@ public class MethylFigurePgm {
 					}
 
 					FontMetrics fm = graphWriter.getFontMetrics();
-					graphWriter.drawString(String.valueOf(snp),
-							(float) ((refCpGList.size() + 1) * CG_RADIUS - fm.charWidth(snp) / 2.0),
+					char snpToPrint = reverseBisulfite(snp, alleles, mappedRead.getStrand());
+					graphWriter.drawString(String.valueOf(snpToPrint),
+							(float) ((refCpGList.size() + 1) * CG_RADIUS - fm.charWidth(snpToPrint) / 2.0),
 							(float) (height + HEIGHT_INTERVAL * 2 / 3.0));
 					graphWriter.drawString(String.valueOf(mappedRead.getStrand()),
 							(float) ((refCpGList.size() + 2) * CG_RADIUS - fm.charWidth(mappedRead.getStrand()) / 2.0),
@@ -254,6 +272,28 @@ public class MethylFigurePgm {
 		return height;
 	}
 
+	private static char reverseBisulfite(char snp, String alleles, char strand) {
+		// AG: we cannot tell which allele -A come from
+		// CT: we cannot tell which allele +T come from
+		// AT: same to origin
+		// AC: +T -> +C
+		// CG: +T -> +C, -A -> -G
+		// GT: -A -> -G
+		if (alleles.indexOf('A') != -1 && alleles.indexOf('C') != -1 && snp == 'T' && strand == '+') {
+			return 'C';
+		} else if (alleles.indexOf('C') != -1 && alleles.indexOf('G') != -1 && snp == 'T' && strand == '+') {
+			return 'C';
+		} else if (alleles.indexOf('C') != -1 && alleles.indexOf('G') != -1 && snp == 'A' && strand == '-') {
+			return 'G';
+		} else if (alleles.indexOf('T') != -1 && alleles.indexOf('G') != -1 && snp == 'A' && strand == '-') {
+			return 'G';
+		}
+		return snp;
+	}
+
+	/**
+	 * Draw methyl figure with including distance between CpG sites
+	 */
 	private static void drawFigure(List<MappedRead> group1, List<MappedRead> group2, int minStart, int maxEnd,
 	                               int snpPosition, String outputFileName) {
 		int imageHeight = (group1.size() + group2.size() + 1) * HEIGHT_INTERVAL, imageWidth = (maxEnd - minStart + 1) * BPWIDTH;
