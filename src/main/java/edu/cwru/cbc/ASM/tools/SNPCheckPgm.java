@@ -99,6 +99,8 @@ public class SNPCheckPgm {
 								expectedSNPSet.add('A');
 								break;
 							case 'C':
+								// TODO need to include one more bp flanking reference sequence.
+								// Otherwise cannot correctly determine if first or last bp is inside a CpG site.
 								if (snpIndex < ref.length() - 1 && ref.charAt(snpIndex + 1) == 'G') {
 									// is in CpG
 									expectedSNPSet.add('C');
