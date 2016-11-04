@@ -15,7 +15,14 @@
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.5" level="project" />
     <orderEntry type="library" name="Gradle: net.openhft:koloboke-api-jdk8:0.6.7" level="project" />
     <orderEntry type="library" name="Gradle: net.sf.epsgraphics:epsgraphics:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.samtools:htsjdk:2.7.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:2.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.1.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: net.openhft:koloboke-impl-jdk8:0.6.7" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-compress:1.4.1" level="project" />
+    <orderEntry type="library" name="Gradle: gov.nih.nlm.ncbi:ngs-java:1.2.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.tukaani:xz:1.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-jexl:2.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.xerial.snappy:snappy-java:1.0.3-rc3" level="project" />
   </component>
 </module>

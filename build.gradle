@@ -20,6 +20,7 @@ dependencies {
     compile 'org.apache.commons:commons-math3:3.5'
     compile 'net.openhft:koloboke-api-jdk8:0.6.7'
     compile 'net.sf.epsgraphics:epsgraphics:1.2'
+    compile group: 'com.github.samtools', name: 'htsjdk', version: '2.7.0'
     runtime 'net.openhft:koloboke-impl-jdk8:0.6.7'
     testCompile 'org.mockito:mockito-core:2.0.2-beta'
     testCompile 'org.testng:testng:6.9.4'
@@ -85,7 +86,8 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("MethylFigure", "edu.cwru.cbc.ASM.tools.MethylFigurePgm").execute()
     buildStartScript("StrandBias", "edu.cwru.cbc.ASM.tools.StrandBiasPgm").execute()
     buildStartScript("GroupedMethylLevel", "edu.cwru.cbc.ASM.tools.GroupedMethylLevelPgm").execute()
-    buildStartScript("CountCpGOnBedsPgm", "edu.cwru.cbc.ASM.tools.CountCpGOnBedsPgm", ["-Xmx10g"]).execute()
+    buildStartScript("CountCpGOnBeds", "edu.cwru.cbc.ASM.tools.CountCpGOnBedsPgm", ["-Xmx10g"]).execute()
+    buildStartScript("CoverageSummary", "edu.cwru.cbc.ASM.tools.CoverageSummaryPgm", ["-Xmx20g"]).execute()
 }
 
 //noinspection GroovyAssignabilityCheck

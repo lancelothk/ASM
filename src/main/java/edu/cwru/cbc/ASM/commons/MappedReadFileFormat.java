@@ -5,5 +5,5 @@ package edu.cwru.cbc.ASM.commons;
  * Specify input file format
  */
 public enum MappedReadFileFormat {
-	MAPPEDREAD, SAM
+	MAPPEDREAD, SAM, BAM
 }

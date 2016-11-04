@@ -60,6 +60,10 @@ public class InputReadsSummary {
 		chrBitSet.set(mappedRead.getStart(), mappedRead.getEnd(), true);
 	}
 
+	public String getSummaryString() {
+		return this.getSummaryString("");
+	}
+
 	public String getSummaryString(String header) {
 		sb.append(header);
 		sb.append(String.format(

@@ -112,7 +112,7 @@ public class MappedReadLineProcessor implements LineProcessor<List<MappedRead>> 
 				existRead.updateSequence(combinePERead(existRead.getSequence(), newRead.getSequence(),
 						newRead.getEnd() - existRead.getStart() + 1));
 			} else {
-				// mappedRead is first
+				// newRead is first
 				existRead.updateSequence(combinePERead(newRead.getSequence(), existRead.getSequence(),
 						existRead.getEnd() - newRead.getStart() + 1));
 				existRead.setStart(newRead.getStart());
