@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
+import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -11,10 +12,10 @@ import java.util.Collection;
  * Store and construct summary info about mapped reads.
  */
 public class InputReadsSummary {
-	private long totalLength;
-	private long count;
-	private int maxLength = Integer.MIN_VALUE;
-	private int minLength = Integer.MAX_VALUE;
+	private long totalReadLength;
+	private long readCount;
+	private int maxReadLength = Integer.MIN_VALUE;
+	private int minReadLength = Integer.MAX_VALUE;
 	private long totalCpGCount;
 	private int maxCpGCount = Integer.MIN_VALUE;
 	private int minCpGCount = Integer.MAX_VALUE;
@@ -48,31 +49,37 @@ public class InputReadsSummary {
 	 * update summary with give read.
 	 */
 	public void addMappedRead(MappedRead mappedRead) {
-		count++;
+		readCount++;
 		int cpgCount = mappedRead.getCpgList().size();
-		int length = mappedRead.getSequence().length();
-		totalLength += length;
-		maxLength = length > maxLength ? length : maxLength;
-		minLength = length < minLength ? length : minLength;
+		int readLength = mappedRead.getSequence().length();
+		totalReadLength += readLength;
+		maxReadLength = readLength > maxReadLength ? readLength : maxReadLength;
+		minReadLength = readLength < minReadLength ? readLength : minReadLength;
 		totalCpGCount += cpgCount;
 		maxCpGCount = cpgCount > maxCpGCount ? cpgCount : maxCpGCount;
 		minCpGCount = cpgCount < minCpGCount ? cpgCount : minCpGCount;
 		chrBitSet.set(mappedRead.getStart(), mappedRead.getEnd(), true);
 	}
 
-	public String getSummaryString() {
-		return this.getSummaryString("");
-	}
-
 	public String getSummaryString(String header) {
 		sb.append(header);
 		sb.append(String.format(
-				"totalReadCount:%d\ttotalLength:%d\tavgLength:%f\tmaxLength:%d\tminLength:%d\n",
-				count, totalLength, totalLength / (double) count, maxLength, minLength));
-		sb.append(String.format("totalCpGCount:%d\tavgCpgCount:%f\tmaxCpgCount:%d\tminCpgCount:%d\n", totalCpGCount,
-				totalCpGCount / (double) count, maxCpGCount, minCpGCount));
-		sb.append(String.format("coveredLength:%d\toverallCoverage:%f\tactualCoverage:%f\n", chrBitSet.cardinality(),
-				totalLength / (double) refLength, totalLength / (double) chrBitSet.cardinality()));
+				"totalReadCount:%d\ttotalReadLength:%d\tavgLength:%f\tmaxReadLength:%d\tminReadLength:%d\n",
+				readCount, totalReadLength, totalReadLength / (double) readCount, maxReadLength, minReadLength));
+		sb.append(String.format("referenceLength:%d\tcoveredLength:%d\toverallCoverage:%f\tactualCoverage:%f\n",
+				refLength, chrBitSet.cardinality(), totalReadLength / (double) refLength,
+				totalReadLength / (double) chrBitSet.cardinality()));
+		sb.append(
+				String.format("totalCpGCount:%d\tavgCpgCountPerRead:%f\tmaxCpgCountPerRead:%d\tminCpgCountPerRead:%d\n",
+						totalCpGCount, totalCpGCount / (double) readCount, maxCpGCount, minCpGCount));
 		return sb.toString();
+	}
+
+	public String getSummaryString(String header, HashIntObjMap<RefCpG> refMap) {
+		long coveredCpGSites = refMap.values().stream().filter(cpg -> cpg.getCoveredCount() > 0).count();
+		return getSummaryString(header) + (String.format(
+				"ReferenceCpGSitesCount:%d\tCoveredCpGSites:%d\tCpGSiteCoverage:%f\tActualCpGSiteCoverage:%f\n",
+				refMap.size(), coveredCpGSites, totalCpGCount / (double) refMap.size(),
+				totalCpGCount / (double) coveredCpGSites));
 	}
 }

@@ -87,7 +87,7 @@ task addAllStartSctipts(dependsOn: jar) {
     buildStartScript("StrandBias", "edu.cwru.cbc.ASM.tools.StrandBiasPgm").execute()
     buildStartScript("GroupedMethylLevel", "edu.cwru.cbc.ASM.tools.GroupedMethylLevelPgm").execute()
     buildStartScript("CountCpGOnBeds", "edu.cwru.cbc.ASM.tools.CountCpGOnBedsPgm", ["-Xmx10g"]).execute()
-    buildStartScript("CoverageSummary", "edu.cwru.cbc.ASM.tools.CoverageSummaryPgm", ["-Xmx20g"]).execute()
+    buildStartScript("CoverageSummary", "edu.cwru.cbc.ASM.tools.CoverageSummaryPgm", ["-Xmx10g"]).execute()
 }
 
 //noinspection GroovyAssignabilityCheck

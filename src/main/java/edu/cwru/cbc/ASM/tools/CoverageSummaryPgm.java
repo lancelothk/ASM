@@ -6,7 +6,6 @@ import edu.cwru.cbc.ASM.commons.io.MappedReadReader;
 import edu.cwru.cbc.ASM.commons.methylation.MethylationUtils;
 import edu.cwru.cbc.ASM.commons.methylation.RefChr;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
-import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
 import org.apache.commons.cli.*;
@@ -56,32 +55,41 @@ public class CoverageSummaryPgm {
 		} else if (items.length != 1) {
 			System.err.println("invalid position!");
 			System.exit(1);
-
 		}
 
 		long startTime = System.currentTimeMillis();
-		RefChr refChr = IOUtils.readReferenceChromosome(referenceFilePath);
+		RefChr refChr = IOUtils.readReferenceChromosome(referenceFilePath + "/" + chr + ".fa");
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
-		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
-
+		System.out.println("load refMap completed\t" + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
 
 		startTime = System.currentTimeMillis();
 		HashIntObjMap<RefCpG> refMap = HashIntObjMaps.newMutableMap();
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
-		List<MappedRead> mappedReads;
+		InputReadsSummary cpgReadsSummary, qualifiedCpGgReadsSummary;
 		if (!hasPos) {
-			mappedReads = MappedReadReader.readMappedReads(new File(inputFilePath), chr);
+			cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+			qualifiedCpGgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+			MappedReadReader.readMappedReads(new File(inputFilePath), refMap, (m -> {
+				cpgReadsSummary.addMappedRead(m);
+				if (m.getCpgList().size() > 0) {
+					qualifiedCpGgReadsSummary.addMappedRead(m);
+				}
+			}), chr);
 		} else {
-			mappedReads = MappedReadReader.readMappedReads(new File(inputFilePath), chr, start, end);
+			cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+			qualifiedCpGgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+			MappedReadReader.readMappedReads(new File(inputFilePath), refMap, (m -> {
+				cpgReadsSummary.addMappedRead(m);
+				if (m.getCpgList().size() > 0) {
+					qualifiedCpGgReadsSummary.addMappedRead(m);
+				}
+			}), chr, start, end);
 		}
-
+		System.out.println(cpgReadsSummary.getSummaryString("All reads\n", refMap));
+		System.out.println(qualifiedCpGgReadsSummary.getSummaryString("Reads with at least one CpG\n", refMap));
 		System.out.println(
-				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
-
-		InputReadsSummary cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-		mappedReads.forEach(cpgReadsSummary::addMappedRead);
-		System.out.println(cpgReadsSummary.getSummaryString());
+				"coverage summary calculation completed\t" + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
 	}
 }

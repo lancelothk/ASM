@@ -46,10 +46,10 @@ public class MappedRead implements Comparable<MappedRead> {
 		int start = strand == '+' ? startPos : startPos - 1;
 		int end = strand == '+' ? startPos + sequence.length() - 1 : startPos + sequence.length() - 2;
 		for (int i = start; i <= end; i++) {
-			if (refMap.containsKey(i)) {
+			RefCpG refCpG = refMap.get(i);
+			if (refCpG != null) {
 				MethylStatus methylStatus = getMethylStatus(i, strand, sequence, startPos);
-				RefCpG refCpG = refMap.get(i);
-				if (refCpG != null && methylStatus != MethylStatus.N) {
+				if (methylStatus != MethylStatus.N) {
 					action.accept(refCpG, methylStatus);
 					i++;
 				}
