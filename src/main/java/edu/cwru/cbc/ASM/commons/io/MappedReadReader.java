@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Created by kehu on 11/4/16.
@@ -22,28 +21,28 @@ import java.util.function.Consumer;
  */
 public class MappedReadReader {
 	public static void readMappedReads(File inputSamOrBamFile, HashIntObjMap<RefCpG> refMap,
-	                                   Consumer<MappedRead> action, String chr) throws IOException {
-		readMappedReads(inputSamOrBamFile, refMap, action, chr, 0, 0);
+	                                   MappedReadHandler handler, String chr) throws IOException {
+		readMappedReads(inputSamOrBamFile, refMap, handler, chr, 0, 0);
 	}
 
 	public static void readMappedReads(File inputSamOrBamFile, HashIntObjMap<RefCpG> refMap,
-	                                   Consumer<MappedRead> action, String chr, int start, int end) throws IOException {
+	                                   MappedReadHandler handler, String chr, int start, int end) throws IOException {
 		final SamReader reader = SamReaderFactory.makeDefault().open(inputSamOrBamFile);
 		SAMRecordIterator iterator = reader.query(chr, start, end, false);
-		readMappedReads(iterator, refMap, action);
+		readMappedReads(iterator, refMap, handler);
 		iterator.close();
 		reader.close();
 	}
 
 	private static void readMappedReads(SAMRecordIterator iterator, HashIntObjMap<RefCpG> refMap,
-	                                    Consumer<MappedRead> action) {
+	                                    MappedReadHandler handler) {
 		while (iterator.hasNext()) {
 			SAMRecord samRecord = iterator.next();
 			MappedRead mappedRead = new MappedRead(samRecord.getReferenceName(),
 					samRecord.getReadNegativeStrandFlag() ? '-' : '+', samRecord.getStart(),
 					samRecord.getReadString(), samRecord.getReadName());
 			mappedRead.generateCpGsInRead(refMap);
-			action.accept(mappedRead);
+			handler.processMappedRead(mappedRead);
 		}
 	}
 
