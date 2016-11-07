@@ -125,6 +125,7 @@ public class CPMR_Pgm {
 				new FileWriter(String.format("%s/%s-%d-%d%s", intervalFolderName, immutableGenomicInterval.getChr(),
 						immutableGenomicInterval.getStart(), immutableGenomicInterval.getEnd(),
 						Constant.MAPPEDREADS_EXTENSION)));
+		// TODO mark CpG site on reference string, e.g. GaattcCGaattaC
 		mappedReadWriter.write(String.format("ref:\t%s\n",
 				immutableGenomicInterval.getRefString()
 						.substring(immutableGenomicInterval.getStart() - MethylationUtils.REFERENCE_INIT_POS,
