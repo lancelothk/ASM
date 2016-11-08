@@ -67,29 +67,32 @@ public class CoverageSummaryPgm {
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
-		InputReadsSummary cpgReadsSummary, qualifiedCpGgReadsSummary;
+
 		if (!hasPos) {
-			cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-			qualifiedCpGgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-			MappedReadReader.readMappedReads(new File(inputFilePath), refMap, (m -> {
-				cpgReadsSummary.addMappedRead(m);
-				if (m.getCpgList().size() > 0) {
-					qualifiedCpGgReadsSummary.addMappedRead(m);
-				}
-			}), chr);
+			calculateCoverageSummary(inputFilePath, chr, refChr, refMap);
 		} else {
-			cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-			qualifiedCpGgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-			MappedReadReader.readMappedReads(new File(inputFilePath), refMap, (m -> {
-				cpgReadsSummary.addMappedRead(m);
-				if (m.getCpgList().size() > 0) {
-					qualifiedCpGgReadsSummary.addMappedRead(m);
-				}
-			}), chr, start, end);
+			calculateCoverageSummary(inputFilePath, chr, start, end, refChr, refMap);
 		}
-		System.out.println(cpgReadsSummary.getSummaryString("All reads\n", refMap));
-		System.out.println(qualifiedCpGgReadsSummary.getSummaryString("Reads with at least one CpG\n", refMap));
+
 		System.out.println(
 				"coverage summary calculation completed\t" + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
+	}
+
+	private static void calculateCoverageSummary(String inputFilePath, String chr, int start, int end, RefChr refChr, HashIntObjMap<RefCpG> refMap) throws
+			IOException {
+		InputReadsSummary cpgReadsSummary, qualifiedCpGgReadsSummary;
+		cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+		qualifiedCpGgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+		MappedReadReader.readMappedReads(new File(inputFilePath), refMap, (m -> {
+			cpgReadsSummary.addMappedRead(m);
+			if (m.getCpgList().size() > 0) {
+				qualifiedCpGgReadsSummary.addMappedRead(m);
+			}
+		}), chr, start, end);
+	}
+
+	private static void calculateCoverageSummary(String inputFilePath, String chr, RefChr refChr, HashIntObjMap<RefCpG> refMap) throws
+			IOException {
+		calculateCoverageSummary(inputFilePath, chr, 0, 0, refChr, refMap);
 	}
 }

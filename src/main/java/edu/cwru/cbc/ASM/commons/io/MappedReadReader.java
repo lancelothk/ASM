@@ -21,11 +21,6 @@ import java.util.List;
  */
 public class MappedReadReader {
 	public static void readMappedReads(File inputSamOrBamFile, HashIntObjMap<RefCpG> refMap,
-	                                   MappedReadHandler handler, String chr) throws IOException {
-		readMappedReads(inputSamOrBamFile, refMap, handler, chr, 0, 0);
-	}
-
-	public static void readMappedReads(File inputSamOrBamFile, HashIntObjMap<RefCpG> refMap,
 	                                   MappedReadHandler handler, String chr, int start, int end) throws IOException {
 		final SamReader reader = SamReaderFactory.makeDefault().open(inputSamOrBamFile);
 		SAMRecordIterator iterator = reader.query(chr, start, end, false);
@@ -35,7 +30,7 @@ public class MappedReadReader {
 	}
 
 	private static void readMappedReads(SAMRecordIterator iterator, HashIntObjMap<RefCpG> refMap,
-	                                    MappedReadHandler handler) {
+	                                    MappedReadHandler handler) throws IOException {
 		while (iterator.hasNext()) {
 			SAMRecord samRecord = iterator.next();
 			MappedRead mappedRead = new MappedRead(samRecord.getReferenceName(),
