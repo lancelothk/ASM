@@ -1,7 +1,6 @@
 package edu.cwru.cbc.ASM.CPMR;
 
 import edu.cwru.cbc.ASM.commons.Constant;
-import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadHandler;
@@ -20,7 +19,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSite;
 
@@ -29,7 +27,6 @@ import static edu.cwru.cbc.ASM.commons.methylation.MethylationUtils.extractCpGSi
  * main entry of CPMR program.
  */
 public class CPMR_new {
-
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
 		options.addOption(Option.builder("r").hasArg().desc("Reference Path").required().build());
@@ -77,17 +74,6 @@ public class CPMR_new {
 			System.err.println("invalid Minimum interval read number. Should be larger than zero");
 			System.exit(1);
 		}
-		MappedReadFileFormat mappedReadFileFormat;
-		switch (cmd.getOptionValue("format")) {
-			case "mappedread":
-				mappedReadFileFormat = MappedReadFileFormat.MAPPEDREAD;
-				break;
-			case "sam":
-				mappedReadFileFormat = MappedReadFileFormat.SAM;
-				break;
-			default:
-				throw new RuntimeException("unknown input format:\t" + cmd.getOptionValue("format"));
-		}
 
 		// load reference
 		long start = System.currentTimeMillis();
@@ -113,6 +99,10 @@ public class CPMR_new {
 			System.err.println("reference contains less than three CpG sites!");
 			System.exit(1);
 		}
+		Counter counter = new Counter();
+		InputReadsSummary cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+		InputReadsSummary intervalReadsSummary = new InputReadsSummary(refChr.getRefString().length());
+		List<RefCpG> refCpGCollection = new ArrayList<>();
 		BufferedWriter intervalSummaryWriter = new BufferedWriter(new FileWriter(summaryFileName));
 		intervalSummaryWriter.write("chr\tstart\tend\treadCount\tCpGCount\n");
 		// require input file is sorted.
@@ -123,42 +113,39 @@ public class CPMR_new {
 
 			@Override
 			public void processMappedRead(MappedRead mappedRead) throws IOException {
+				cpgReadsSummary.addMappedRead(mappedRead);
 				// stop at last RefCpG
 				if (refCpGIndex == refCpGList.size() - 1) {
 					writeQualifiedInterval();
 					return;
 				}
-				RefCpG curr = refCpGList.get(refCpGIndex);
-				RefCpG next = refCpGList.get(refCpGIndex + 1);
-				// added all read covers curr RefCpG
-				if (mappedRead.getStart() > curr.getPos()) {
-					// move to next refCpG pair
-					if (curr.hasCommonRead(next, min_cpg_coverage) && curr.hasPartialMethyl(
-							partial_methyl_threshold) && next.hasPartialMethyl(partial_methyl_threshold)) {
-						refCpGIndex++;
-						if (mappedRead.getStart() <= curr.getPos()) {
-							mappedReads.add(mappedRead);
-						}
-					} else {
-						// new interval
-						writeQualifiedInterval();
-						refCpGIndex++;
-						// find first RefCpG overlap with mappedRead
-						while (mappedRead.getStart() > refCpGList.get(refCpGIndex).getPos()) {
-							refCpGIndex++;
-						}
-						mappedReads = new ArrayList<>();
-						mappedReads.add(mappedRead);
-						intervalRefCpGs = new ArrayList<>();
-						intervalRefCpGs.add(refCpGList.get(refCpGIndex));
-					}
-				} else {
+				// if read doesn't cover curr or next RefCpG
+				while (mappedRead.getStart() > refCpGList.get(refCpGIndex).getPos()
+						&& mappedRead.getStart() > refCpGList.get(refCpGIndex + 1).getPos()) {
+					refCpGIndex++;
+				}
+				// read cover curr and next AND Consecutively Partially methylated(CPM)
+				if (mappedRead.getStart() < refCpGList.get(refCpGIndex).getPos()
+						&& mappedRead.getStart() < refCpGList.get(refCpGIndex + 1).getPos()
+						&& refCpGList.get(refCpGIndex).hasCommonRead(refCpGList.get(refCpGIndex + 1), min_cpg_coverage)
+						&& refCpGList.get(refCpGIndex).hasPartialMethyl(partial_methyl_threshold)
+						&& refCpGList.get(refCpGIndex + 1).hasPartialMethyl(partial_methyl_threshold)) {
 					mappedReads.add(mappedRead);
+				} else {
+					// cover (curr or next) OR not qualified Consecutively Partially methylated
+					writeQualifiedInterval();
+					refCpGIndex++;
+					mappedReads = new ArrayList<>();
+					mappedReads.add(mappedRead);
+					intervalRefCpGs = new ArrayList<>();
+					intervalRefCpGs.add(refCpGList.get(refCpGIndex + 1));
 				}
 			}
 
 			private void writeQualifiedInterval() throws IOException {
+				counter.rawIntervalCount++;
 				if (intervalRefCpGs.size() >= min_interval_cpg && mappedReads.size() >= min_interval_reads) {
+					counter.intervalCount++;
 					// bed file is 0-based start and end.
 					ImmutableGenomicInterval interval = new ImmutableGenomicInterval(refChr.getChr(),
 							refChr.getRefString(),
@@ -170,21 +157,19 @@ public class CPMR_new {
 									interval.getEnd(), interval.getMappedReadList().size(),
 									interval.getRefCpGList().size()));
 					writeMappedReadInInterval(outputPath, interval);
+					mappedReads.forEach(intervalReadsSummary::addMappedRead);
+					refCpGCollection.addAll(intervalRefCpGs);
 				}
 			}
 		}, chr);
 		intervalSummaryWriter.close();
 
-
-		InputReadsSummary intervalReadsSummary = new InputReadsSummary(refChr.getRefString().length());
-		immutableGenomicIntervals.forEach(i -> i.getMappedReadList().forEach(intervalReadsSummary::addMappedRead));
-		List<RefCpG> refCpGCollection = immutableGenomicIntervals.stream().flatMap(
-				i -> i.getRefCpGList().stream()).collect(Collectors.toList());
 		writeReport(reportFileName, cpgReadsSummary.getSummaryString(
 				"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
 				"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
 				refCpGCollection),
-				refCpGList.size(), cpmr.getRawIntervalCount(), immutableGenomicIntervals.size());
+				refCpGList.size(), counter.rawIntervalCount, counter.intervalCount);
+		System.out.println("CPMR complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
 	}
 
 	/**
@@ -210,7 +195,6 @@ public class CPMR_new {
 		mappedReadWriter.close();
 	}
 
-
 	private static void writeReport(String reportFileName, String reportString, int cpgCount, int rawIntervalCount,
 	                                int outputIntervalCount) throws
 			IOException {
@@ -220,6 +204,11 @@ public class CPMR_new {
 		writer.write("Raw Interval count:\t" + rawIntervalCount + "\n");
 		writer.write("Output Interval count:\t" + outputIntervalCount + "\n");
 		writer.close();
+	}
+
+	static class Counter {
+		int rawIntervalCount;
+		int intervalCount;
 	}
 
 }
