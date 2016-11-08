@@ -89,6 +89,8 @@ public class CoverageSummaryPgm {
 				qualifiedCpGgReadsSummary.addMappedRead(m);
 			}
 		}), chr, start, end);
+		System.out.println(cpgReadsSummary.getSummaryString("All reads\n", refMap));
+		System.out.println(qualifiedCpGgReadsSummary.getSummaryString("Reads with at least one CpG\n", refMap));
 	}
 
 	private static void calculateCoverageSummary(String inputFilePath, String chr, RefChr refChr, HashIntObjMap<RefCpG> refMap) throws
