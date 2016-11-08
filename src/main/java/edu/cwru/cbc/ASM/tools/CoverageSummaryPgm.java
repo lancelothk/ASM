@@ -67,7 +67,11 @@ public class CoverageSummaryPgm {
 		for (RefCpG refCpG : refCpGList) {
 			refMap.put(refCpG.getPos(), refCpG);
 		}
-
+		/*TODO support SAM format input
+		 require bam/sam with header for region query.
+		 if sam without header, can only read through whole file
+		 may require only indexed bam for region query regarding performance concern
+		*/
 		if (!hasPos) {
 			calculateCoverageSummary(inputFilePath, chr, refChr, refMap);
 		} else {
