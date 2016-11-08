@@ -38,13 +38,6 @@ public class CPMR_new {
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("mir").hasArg().desc("Minimum interval read number").required().build());
 		options.addOption(Option.builder("pe").desc("pair end mode").build());
-		options.addOption(
-				Option.builder()
-						.longOpt("format")
-						.hasArg()
-						.desc("specify format of input: mappedread, sam")
-						.required()
-						.build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
@@ -114,15 +107,16 @@ public class CPMR_new {
 			@Override
 			public void processMappedRead(MappedRead mappedRead) throws IOException {
 				cpgReadsSummary.addMappedRead(mappedRead);
+				// if read doesn't cover curr or next RefCpG
+				while (refCpGIndex != refCpGList.size() - 1 && mappedRead.getStart() > refCpGList.get(refCpGIndex)
+						.getPos()
+						&& mappedRead.getStart() > refCpGList.get(refCpGIndex + 1).getPos()) {
+					refCpGIndex++;
+				}
 				// stop at last RefCpG
 				if (refCpGIndex == refCpGList.size() - 1) {
 					writeQualifiedInterval();
 					return;
-				}
-				// if read doesn't cover curr or next RefCpG
-				while (mappedRead.getStart() > refCpGList.get(refCpGIndex).getPos()
-						&& mappedRead.getStart() > refCpGList.get(refCpGIndex + 1).getPos()) {
-					refCpGIndex++;
 				}
 				// read cover curr and next AND Consecutively Partially methylated(CPM)
 				if (mappedRead.getStart() < refCpGList.get(refCpGIndex).getPos()
@@ -138,7 +132,10 @@ public class CPMR_new {
 					mappedReads = new ArrayList<>();
 					mappedReads.add(mappedRead);
 					intervalRefCpGs = new ArrayList<>();
-					intervalRefCpGs.add(refCpGList.get(refCpGIndex + 1));
+					// stop at last RefCpG
+					if (refCpGIndex != refCpGList.size() - 1) {
+						intervalRefCpGs.add(refCpGList.get(refCpGIndex + 1));
+					}
 				}
 			}
 
@@ -165,7 +162,7 @@ public class CPMR_new {
 		intervalSummaryWriter.close();
 
 		writeReport(reportFileName, cpgReadsSummary.getSummaryString(
-				"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
+				"\nSummary of all reads:\n") + intervalReadsSummary.getSummaryString(
 				"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
 				refCpGCollection),
 				refCpGList.size(), counter.rawIntervalCount, counter.intervalCount);
