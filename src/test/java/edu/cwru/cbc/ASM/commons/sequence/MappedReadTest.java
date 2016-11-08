@@ -46,10 +46,14 @@ public class MappedReadTest {
 		assertEquals(2, plusStrandRead_partialCpG.getCpgList().size());
 		assertEquals(MethylStatus.C, plusStrandRead_partialCpG.getCpgList().get(0).getMethylStatus());
 		assertEquals(MethylStatus.T, plusStrandRead_partialCpG.getCpgList().get(1).getMethylStatus());
+		assertEquals(4, plusStrandRead_partialCpG.getCpgList().get(0).getPos());
+		assertEquals(10, plusStrandRead_partialCpG.getCpgList().get(1).getPos());
 
 		assertEquals(2, minusStrandRead_partialCpG.getCpgList().size());
 		assertEquals(MethylStatus.C, minusStrandRead_partialCpG.getCpgList().get(0).getMethylStatus());
 		assertEquals(MethylStatus.T, minusStrandRead_partialCpG.getCpgList().get(1).getMethylStatus());
+		assertEquals(0, minusStrandRead_partialCpG.getCpgList().get(0).getPos());
+		assertEquals(4, minusStrandRead_partialCpG.getCpgList().get(1).getPos());
 	}
 
 	@Test
