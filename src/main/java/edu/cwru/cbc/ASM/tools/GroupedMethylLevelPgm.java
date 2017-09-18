@@ -3,6 +3,7 @@ package edu.cwru.cbc.ASM.tools;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.io.GroupedReadsLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
@@ -30,6 +31,9 @@ public class GroupedMethylLevelPgm {
 		options.addOption(Option.builder("i").hasArg().required().desc("input grouped read file").build());
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		options.addOption(Option.builder("a").hasArg().desc("allele pair, e.g. A-G").build());
+
+		new CMDHelper(args, "asmgm [options]", options).check();
+
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");

@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
@@ -39,7 +40,7 @@ public class CPMR_Pgm {
 		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("mir").hasArg().desc("Minimum interval read number").required().build());
-		options.addOption(Option.builder("pe").desc("pair end mode").build());
+		options.addOption(Option.builder("pe").desc("Pair end mode").build());
 		options.addOption(
 				Option.builder()
 						.longOpt("format")
@@ -47,6 +48,8 @@ public class CPMR_Pgm {
 						.desc("specify format of input: mappedread, sam")
 						.required()
 						.build());
+
+		new CMDHelper(args, "cpmr [options]", options).check();
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);

@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.io.GroupedReadsLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
@@ -41,6 +42,9 @@ public class MethylFigurePgm {
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		options.addOption(Option.builder("a").hasArg().desc("allele pair. E.g. A-G").build());
 		options.addOption(Option.builder("s").hasArg().desc("font size").build());
+
+		new CMDHelper(args, "mfig [options]", options).check();
+
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");

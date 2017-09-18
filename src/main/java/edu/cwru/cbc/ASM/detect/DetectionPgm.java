@@ -1,6 +1,7 @@
 package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.collect.ImmutableList;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.detect.dataType.IntervalDetectionSummaryFormatter;
 import org.apache.commons.cli.*;
@@ -37,6 +38,8 @@ public class DetectionPgm {
 		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
 		options.addOption(Option.builder("p").hasArg().desc("Time of random permutation").required().build());
 		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
+
+		new CMDHelper(args, "asmd [options]", options).check();
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);

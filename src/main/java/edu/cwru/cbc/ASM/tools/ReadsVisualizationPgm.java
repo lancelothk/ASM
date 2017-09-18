@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
@@ -23,6 +24,8 @@ public class ReadsVisualizationPgm {
 	public static void main(String[] args) throws IOException, ParseException {
 		Options options = new Options();
 		options.addOption("i", true, "input file");
+
+		new CMDHelper(args, "asmv [options]", options).check();
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
