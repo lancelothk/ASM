@@ -30,16 +30,17 @@ import java.util.stream.Collectors;
  * Visualize methylation pattern and SNP
  */
 public class MethylFigurePgm {
-	private static final int COMMON_FONT_SIZE = 16;
 	private static final int CG_RADIUS = 20;
 	private static final int HEIGHT_INTERVAL = 24;
 	private static final int BPWIDTH = 10;
+	private static int commonFontSize = 16;
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
 		options.addOption(Option.builder("i").hasArg().required().desc("input grouped read file").build());
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		options.addOption(Option.builder("a").hasArg().desc("allele pair. E.g. A-G").build());
+		options.addOption(Option.builder("s").hasArg().desc("font size").build());
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
@@ -55,6 +56,9 @@ public class MethylFigurePgm {
 			} else {
 				alleles = input;
 			}
+		}
+		if (cmd.hasOption("s")) {
+			commonFontSize = Integer.parseInt(cmd.getOptionValue("s"));
 		}
 
 		Pair<String, List<List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
@@ -111,7 +115,7 @@ public class MethylFigurePgm {
 			graphWriter.setBackground(Color.WHITE);
 			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 			graphWriter.setPaint(Color.BLACK);
-			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
+			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, commonFontSize));
 
 			int height = 0;
 			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1, alleles);
@@ -155,7 +159,7 @@ public class MethylFigurePgm {
 			graphWriter.setBackground(Color.WHITE);
 			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 			graphWriter.setPaint(Color.BLACK);
-			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
+			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, commonFontSize));
 
 			int height = 0;
 			if (snpPosition == -1) {
@@ -302,7 +306,7 @@ public class MethylFigurePgm {
 		graphWriter.setBackground(Color.WHITE);
 		graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 		graphWriter.setPaint(Color.BLACK);
-		graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+		graphWriter.setFont(new Font("Arial", Font.PLAIN, commonFontSize));
 
 		int height = 0;
 		height = drawGroup(graphWriter, minStart, height, snpPosition, group1);
