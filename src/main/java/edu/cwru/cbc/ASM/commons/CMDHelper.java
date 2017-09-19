@@ -16,17 +16,30 @@ public class CMDHelper {
 		this.optionsToPrint = optionsToPrint;
 	}
 
-	public void check() throws ParseException {
+	public CommandLine build() throws ParseException {
 		Options helpOption = new Options();
 		helpOption.addOption(Option.builder("h").desc("Help").build());
-		CommandLine helpCmd = new DefaultParser().parse(helpOption, args, true);
-
-		if (helpCmd.getOptions().length != 0) {
-			// print the help or the version there.
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp(cmd_interface, optionsToPrint);
-			System.exit(Constant.EXIT_ON_SUCCESS);
+		CommandLineParser parser = new DefaultParser();
+		CommandLine helpCmd = parser.parse(helpOption, args, true);
+		if (helpCmd.hasOption("h")) {
+			printHelpInfo();
 		}
+
+		CommandLine cmd = null;
+		try {
+			cmd = parser.parse(optionsToPrint, args);
+		} catch (ParseException e) {
+			System.err.println(e.getMessage());
+			printHelpInfo();
+		}
+		return cmd;
+	}
+
+	private void printHelpInfo() {
+		// print the help or the version there.
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp(cmd_interface, optionsToPrint);
+		System.exit(Constant.EXIT_ON_SUCCESS);
 	}
 
 }

@@ -11,7 +11,10 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.imageio.ImageIO;
@@ -43,10 +46,8 @@ public class MethylFigurePgm {
 		options.addOption(Option.builder("a").hasArg().desc("allele pair. E.g. A-G").build());
 		options.addOption(Option.builder("s").hasArg().desc("font size").build());
 
-		new CMDHelper(args, "mfig [options]", options).check();
+		CommandLine cmd = new CMDHelper(args, "mfig [options]", options).build();
 
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
 		int snpPosition = -1;
 		if (cmd.hasOption("p")) {

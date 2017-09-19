@@ -5,7 +5,10 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import edu.cwru.cbc.ASM.commons.CMDHelper;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -25,10 +28,8 @@ public class SNPCheckPgm {
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		options.addOption(Option.builder("a").hasArg().desc("allele pair, e.g. A-G").build());
 
-		new CMDHelper(args, "asmsnp [options]", options).check();
+		CommandLine cmd = new CMDHelper(args, "asmsnp [options]", options).build();
 
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
 		String groupedReadFile = cmd.getOptionValue("i");
 		int snpPosition = Integer.parseInt(cmd.getOptionValue("p"));
 		String allelePair = cmd.getOptionValue("a");
