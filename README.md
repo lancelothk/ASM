@@ -119,10 +119,11 @@ Contains p-value, average methylation information and covered read count(in brac
 ### .groups.aligned file
 Similar to CPMR region file. However reads in this file are aligned by coordinates and separated into groups for visulization purpose.
 
-======
+---
 # Citation
 Hu, K., & Li, J. Allele-specific DNA methylation is ubiquitous in human genome and is highly associated with transcriptional regulation (Under Review)
-======
+
+---
 # License
 
 Copyright 2017 © Computational Biology lab @ Case Western Reserve University.
