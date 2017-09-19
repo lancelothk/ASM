@@ -74,17 +74,17 @@ task addAllStartSctipts(dependsOn: jar) {
 //    buildStartScript("convert", "edu.cwru.cbc.ASM.tools.conversion.FormatConversionPgm").execute()
 //    buildStartScript("intersect", "edu.cwru.cbc.ASM.tools.IntersectRegionsPgm").execute()
 //    buildStartScript("simulate", "edu.cwru.cbc.ASM.tools.simulation.SimulationPgm").execute()
-    buildStartScript("asmv", "edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm").execute()
+//    buildStartScript("asmv", "edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm").execute()
 //    buildStartScript("bedMerge", "edu.cwru.cbc.ASM.tools.MergeBedRegion").execute()
 //    buildStartScript("parseResult", "edu.cwru.cbc.ASM.tools.ParseResult").execute()
 //    buildStartScript("mstat", "edu.cwru.cbc.ASM.tools.MethylStatPgm").execute()
 //    buildStartScript("RegionQuery", "edu.cwru.cbc.ASM.tools.RegionQueryPgm").execute()
-    buildStartScript("asmsnp", "edu.cwru.cbc.ASM.tools.SNPCheckPgm").execute()
+//    buildStartScript("asmsnp", "edu.cwru.cbc.ASM.tools.SNPCheckPgm").execute()
 //    buildStartScript("FDRControl", "edu.cwru.cbc.ASM.tools.FDRControlPgm").execute()
 //    buildStartScript("MergeDiffStrandCpG", "edu.cwru.cbc.ASM.tools.MergeDiffStrandCpGPgm").execute()
     buildStartScript("mfig", "edu.cwru.cbc.ASM.tools.MethylFigurePgm").execute()
 //    buildStartScript("StrandBias", "edu.cwru.cbc.ASM.tools.StrandBiasPgm").execute()
-    buildStartScript("asmgm", "edu.cwru.cbc.ASM.tools.GroupedMethylLevelPgm").execute()
+//    buildStartScript("asmgm", "edu.cwru.cbc.ASM.tools.GroupedMethylLevelPgm").execute()
 //    buildStartScript("CountCpGOnBedsPgm", "edu.cwru.cbc.ASM.tools.CountCpGOnBedsPgm", ["-Xmx10g"]).execute()
 }
 
@@ -101,7 +101,7 @@ distributions {
                 from configurations.runtime
             }
 
-            exclude "**/*.bat"
+//            exclude "**/*.bat"
         }
     }
 }
