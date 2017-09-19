@@ -8,7 +8,7 @@ ASM-Detector implements a novel computational method to better detect ASMs from 
 # 2.Prerequisite
 * Java 1.8 or higher
 
-##2.1 install
+## 2.1 install
 Unzip ASM-detector.zip file. Executable files are under bin folder.
 
 To add ASM-detector to $PATH, [check here](http://askubuntu.com/questions/109381/how-to-add-path-of-a-program-to-path-environment-variable)
