@@ -1,9 +1,13 @@
 package edu.cwru.cbc.ASM.detect;
 
 import com.google.common.collect.ImmutableList;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.detect.dataType.IntervalDetectionSummaryFormatter;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -30,16 +34,24 @@ public class DetectionPgm {
 		long start = System.currentTimeMillis();
 
 		Options options = new Options();
+		options.addOption(Option.builder("i")
+				.hasArg()
+				.desc("Input intervals folder or interval file name (Required)")
+				.required()
+				.build());
+		options.addOption(Option.builder("o")
+				.hasArg()
+				.desc("output folder. Will be create if not exist (Required)")
+				.required()
+				.build());
 		options.addOption(
-				Option.builder("i").hasArg().desc("Input intervals folder or interval file name").required().build());
+				Option.builder("mic").hasArg().desc("Minimum interval CpG number (Required)").required().build());
 		options.addOption(
-				Option.builder("o").hasArg().desc("output folder. Will be create if not exist").required().build());
-		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
-		options.addOption(Option.builder("p").hasArg().desc("Time of random permutation").required().build());
-		options.addOption(Option.builder("t").hasArg().desc("Thread number to call the program").required().build());
+				Option.builder("p").hasArg().desc("Time of random permutation (Required)").required().build());
+		options.addOption(
+				Option.builder("t").hasArg().desc("Thread number to call the program (Required)").required().build());
 
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+		CommandLine cmd = new CMDHelper(args, "asmd [options]", options).build();
 
 		String inputPath = cmd.getOptionValue("i");
 		String outputPath = cmd.getOptionValue("o");

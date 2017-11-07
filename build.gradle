@@ -51,7 +51,7 @@ wrapper.gradleVersion = '2.12'
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 CreateStartScripts buildStartScript(String appName, String mainClass) {
-    return buildStartScript(appName, mainClass, []);
+    return buildStartScript(appName, mainClass, [])
 }
 
 @SuppressWarnings("GroovyAssignabilityCheck")
@@ -60,7 +60,7 @@ CreateStartScripts buildStartScript(String appName, String mainClass, Iterable<S
         mainClassName = mainClass
         applicationName = appName
         defaultJvmOpts = jvmOpts
-        outputDir = new File(project.buildDir, 'scripts');
+        outputDir = new File(project.buildDir, 'scripts')
         classpath = jar.outputs.files + project.configurations.runtime
         group = "scripts"
     }
@@ -71,22 +71,22 @@ task addAllStartSctipts(dependsOn: jar) {
     def cpmrJVM = []
     def detectJVM = []
     buildStartScript("cpmr", "edu.cwru.cbc.ASM.CPMR.CPMR_Pgm", cpmrJVM).execute()
-    buildStartScript("detect", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
-    buildStartScript("convert", "edu.cwru.cbc.ASM.tools.conversion.FormatConversionPgm").execute()
-    buildStartScript("intersect", "edu.cwru.cbc.ASM.tools.IntersectRegionsPgm").execute()
-    buildStartScript("simulate", "edu.cwru.cbc.ASM.tools.simulation.SimulationPgm").execute()
-    buildStartScript("visualize", "edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm").execute()
-    buildStartScript("bedMerge", "edu.cwru.cbc.ASM.tools.MergeBedRegion").execute()
-    buildStartScript("parseResult", "edu.cwru.cbc.ASM.tools.ParseResult").execute()
-    buildStartScript("MethylStat", "edu.cwru.cbc.ASM.tools.MethylStatPgm").execute()
-    buildStartScript("RegionQuery", "edu.cwru.cbc.ASM.tools.RegionQueryPgm").execute()
-    buildStartScript("SNPCheck", "edu.cwru.cbc.ASM.tools.SNPCheckPgm").execute()
-    buildStartScript("FDRControl", "edu.cwru.cbc.ASM.tools.FDRControlPgm").execute()
-    buildStartScript("MergeDiffStrandCpG", "edu.cwru.cbc.ASM.tools.MergeDiffStrandCpGPgm").execute()
-    buildStartScript("MethylFigure", "edu.cwru.cbc.ASM.tools.MethylFigurePgm").execute()
-    buildStartScript("StrandBias", "edu.cwru.cbc.ASM.tools.StrandBiasPgm").execute()
-    buildStartScript("GroupedMethylLevel", "edu.cwru.cbc.ASM.tools.GroupedMethylLevelPgm").execute()
-    buildStartScript("CountCpGOnBeds", "edu.cwru.cbc.ASM.tools.CountCpGOnBedsPgm", ["-Xmx10g"]).execute()
+    buildStartScript("asmd", "edu.cwru.cbc.ASM.detect.DetectionPgm", detectJVM).execute()
+//    buildStartScript("convert", "edu.cwru.cbc.ASM.tools.conversion.FormatConversionPgm").execute()
+//    buildStartScript("intersect", "edu.cwru.cbc.ASM.tools.IntersectRegionsPgm").execute()
+//    buildStartScript("simulate", "edu.cwru.cbc.ASM.tools.simulation.SimulationPgm").execute()
+//    buildStartScript("asmv", "edu.cwru.cbc.ASM.tools.ReadsVisualizationPgm").execute()
+//    buildStartScript("bedMerge", "edu.cwru.cbc.ASM.tools.MergeBedRegion").execute()
+//    buildStartScript("parseResult", "edu.cwru.cbc.ASM.tools.ParseResult").execute()
+//    buildStartScript("mstat", "edu.cwru.cbc.ASM.tools.MethylStatPgm").execute()
+//    buildStartScript("RegionQuery", "edu.cwru.cbc.ASM.tools.RegionQueryPgm").execute()
+//    buildStartScript("asmsnp", "edu.cwru.cbc.ASM.tools.SNPCheckPgm").execute()
+//    buildStartScript("FDRControl", "edu.cwru.cbc.ASM.tools.FDRControlPgm").execute()
+//    buildStartScript("MergeDiffStrandCpG", "edu.cwru.cbc.ASM.tools.MergeDiffStrandCpGPgm").execute()
+    buildStartScript("mfig", "edu.cwru.cbc.ASM.tools.MethylFigurePgm").execute()
+//    buildStartScript("StrandBias", "edu.cwru.cbc.ASM.tools.StrandBiasPgm").execute()
+//    buildStartScript("asmgm", "edu.cwru.cbc.ASM.tools.GroupedMethylLevelPgm").execute()
+//    buildStartScript("CountCpGOnBedsPgm", "edu.cwru.cbc.ASM.tools.CountCpGOnBedsPgm", ["-Xmx10g"]).execute()
     buildStartScript("CoverageSummary", "edu.cwru.cbc.ASM.tools.CoverageSummaryPgm", ["-Xmx10g"]).execute()
     buildStartScript("CPMR_new", "edu.cwru.cbc.ASM.CPMR.CPMR_new", ["-Xmx10g"]).execute()
 }
@@ -143,11 +143,11 @@ task updateBin(dependsOn: installDist) {
     doLast {
         def userName = System.getProperty('user.name')
         copy {
-            from 'build/install/ASM/bin'
+            from 'build/install/ASM-Detector/bin'
             into '/home/' + "$userName" + '/experiments/new_ASM/bin'
         }
         copy {
-            from 'build/install/ASM/lib/ASM.jar'
+            from 'build/install/ASM-Detector/lib/ASM-Detector.jar'
             into '/home/' + "$userName" + '/experiments/new_ASM/lib'
         }
 //        if (userName == "kehu") {
@@ -178,11 +178,11 @@ task updateAll(dependsOn: installDist) {
     doLast {
         def userName = System.getProperty('user.name')
         copy {
-            from 'build/install/ASM/bin'
+            from 'build/install/ASM-Detector/bin'
             into '/home/' + "$userName" + '/experiments/new_ASM/bin'
         }
         copy {
-            from 'build/install/ASM/lib'
+            from 'build/install/ASM-Detector/lib'
             into '/home/' + "$userName" + '/experiments/new_ASM/lib'
         }
 //        if (userName == "kehu") {

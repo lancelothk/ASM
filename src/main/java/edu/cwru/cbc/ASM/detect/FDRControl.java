@@ -8,7 +8,6 @@ import java.util.List;
  * Common utils for Detection
  */
 public class FDRControl {
-
 	/**
 	 * Given fdr and p value list, return FDR cutoff
 	 * Using Benjamini–Hochberg–Yekutieli procedure
@@ -19,7 +18,7 @@ public class FDRControl {
 	 */
 	public static double getBHYFDRCutoff(List<Double> pValueList, double fdr) {
 		if (pValueList.size() == 0) {
-			System.out.println("empty p value list!");
+			System.err.println("empty p value list!");
 			return -1;
 		}
 		pValueList.sort(Double::compare);
@@ -28,7 +27,7 @@ public class FDRControl {
 			cm += 1 / i;
 		}
 		if (pValueList.get(0) > fdr * (1) / (double) pValueList.size() / cm) {
-			System.out.printf("first P values(%d) > a*k/(m*cm). reject all p values.\n", pValueList.size());
+			System.err.printf("first P values(%d) > a*k/(m*cm). reject all p values.\n", pValueList.size());
 			return -1;
 		}
 		for (int i = 1; i < pValueList.size(); i++) {
@@ -54,7 +53,7 @@ public class FDRControl {
 	public static double getBHFDRCutoff(List<Double> pvalueList, double fdr) {
 		pvalueList.sort(Double::compare);
 		if (pvalueList.get(0) > fdr * (1) / (double) pvalueList.size()) {
-			System.out.printf("first P values(%d) > a*k/m. reject all p values.\n", pvalueList.size());
+			System.err.printf("first P values(%d) > a*k/m. reject all p values.\n", pvalueList.size());
 			return -1;
 		}
 		for (int i = 1; i < pvalueList.size(); i++) {

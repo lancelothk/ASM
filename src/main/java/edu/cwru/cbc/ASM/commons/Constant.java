@@ -6,4 +6,6 @@ package edu.cwru.cbc.ASM.commons;
  */
 public class Constant {
 	public static final String MAPPEDREADS_EXTENSION = ".mappedreads";
+	public static final int EXIT_ON_ERROR = 1;
+	public static final int EXIT_ON_SUCCESS = 0;
 }

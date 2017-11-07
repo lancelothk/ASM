@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.CPMR;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.Constant;
 import edu.cwru.cbc.ASM.commons.MappedReadFileFormat;
 import edu.cwru.cbc.ASM.commons.genomicInterval.ImmutableGenomicInterval;
@@ -13,7 +14,10 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,14 +36,18 @@ public class CPMR_Pgm {
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
-		options.addOption(Option.builder("r").hasArg().desc("Reference File").required().build());
-		options.addOption(Option.builder("m").hasArg().desc("MappedRead File").required().build());
-		options.addOption(Option.builder("o").hasArg().desc("Output Path").required().build());
-		options.addOption(Option.builder("p").hasArg().desc("Partial methylation threshold").required().build());
-		options.addOption(Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage").required().build());
-		options.addOption(Option.builder("mic").hasArg().desc("Minimum interval CpG number").required().build());
-		options.addOption(Option.builder("mir").hasArg().desc("Minimum interval read number").required().build());
-		options.addOption(Option.builder("pe").desc("pair end mode").build());
+		options.addOption(Option.builder("r").hasArg().desc("Reference File (Required)").required().build());
+		options.addOption(Option.builder("m").hasArg().desc("MappedRead File (Required)").required().build());
+		options.addOption(Option.builder("o").hasArg().desc("Output Path (Required)").required().build());
+		options.addOption(
+				Option.builder("p").hasArg().desc("Partial methylation threshold (Required)").required().build());
+		options.addOption(
+				Option.builder("mcc").hasArg().desc("Minimum adjacent CpG coverage (Required)").required().build());
+		options.addOption(
+				Option.builder("mic").hasArg().desc("Minimum interval CpG number (Required)").required().build());
+		options.addOption(
+				Option.builder("mir").hasArg().desc("Minimum interval read number (Required)").required().build());
+		options.addOption(Option.builder("pe").desc("Pair end mode (Optional)").build());
 		options.addOption(
 				Option.builder()
 						.longOpt("format")
@@ -48,8 +56,7 @@ public class CPMR_Pgm {
 						.required()
 						.build());
 
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+		CommandLine cmd = new CMDHelper(args, "cpmr [options]", options).build();
 
 		String referenceChromosomeFileName = cmd.getOptionValue("r");
 		String mappedReadFileName = cmd.getOptionValue("m");
@@ -75,7 +82,9 @@ public class CPMR_Pgm {
 		long start = System.currentTimeMillis();
 		RefChr refChr = IOUtils.readReferenceChromosome(referenceChromosomeFileName);
 		List<RefCpG> refCpGList = extractCpGSite(refChr.getRefString(), MethylationUtils.REFERENCE_INIT_POS);
-		System.out.println("load refMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+		System.out.printf("Load refChr %s-%d-%d with %d RefCpGs. Complete in %f s\n", refChr.getChr(),
+				refChr.getStart(), refChr.getEnd(),
+				refCpGList.size(), (System.currentTimeMillis() - start) / 1000.0);
 
 		// load mapped reads
 		start = System.currentTimeMillis();
@@ -85,8 +94,14 @@ public class CPMR_Pgm {
 		}
 		List<MappedRead> mappedReadList = Files.readLines(new File(mappedReadFileName), Charsets.UTF_8,
 				new MappedReadLineProcessor(isPairEnd, mr -> mr.generateCpGsInRead(refMap) > 0, mappedReadFileFormat));
-		System.out.println(
-				"load mappedReadLinkedHashMap complete\t" + (System.currentTimeMillis() - start) / 1000.0 + "s");
+		System.out.printf("Load %d Mapped Reads. Complete in %f s\n", mappedReadList.size(),
+				(System.currentTimeMillis() - start) / 1000.0);
+
+		if (mappedReadList.size() == 0) {
+			System.err.println(
+					"0 Mapped Reads loaded! Please double check your reference and reads file. Make sure they use same reference chromosome name");
+			System.exit(Constant.EXIT_ON_ERROR);
+		}
 
 		InputReadsSummary cpgReadsSummary = new InputReadsSummary(refChr.getRefString().length());
 		mappedReadList.forEach(cpgReadsSummary::addMappedRead);
@@ -109,9 +124,9 @@ public class CPMR_Pgm {
 		List<RefCpG> refCpGCollection = immutableGenomicIntervals.stream().flatMap(
 				i -> i.getRefCpGList().stream()).collect(Collectors.toList());
 		writeReport(reportFileName, cpgReadsSummary.getSummaryString(
-						"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
-						"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
-						refCpGCollection),
+				"\nSummary of reads with at least 1 CpG:\n") + intervalReadsSummary.getSummaryString(
+				"\nSummary of reads in interval:\n") + InputReadsSummary.getCpGCoverageSummary(
+				refCpGCollection),
 				refCpGList.size(), cpmr.getRawIntervalCount(), immutableGenomicIntervals.size());
 	}
 

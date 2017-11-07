@@ -3,12 +3,16 @@ package edu.cwru.cbc.ASM.tools;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.io.GroupedReadsLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
@@ -30,8 +34,9 @@ public class GroupedMethylLevelPgm {
 		options.addOption(Option.builder("i").hasArg().required().desc("input grouped read file").build());
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		options.addOption(Option.builder("a").hasArg().desc("allele pair, e.g. A-G").build());
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+
+		CommandLine cmd = new CMDHelper(args, "asmgm [options]", options).build();
+
 		String groupedReadFile = cmd.getOptionValue("i");
 		int snpPosition = -1;
 		char allele1 = ' ';

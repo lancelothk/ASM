@@ -2,6 +2,7 @@ package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.io.GroupedReadsLineProcessor;
 import edu.cwru.cbc.ASM.commons.methylation.CpG;
 import edu.cwru.cbc.ASM.commons.methylation.MethylStatus;
@@ -10,7 +11,10 @@ import edu.cwru.cbc.ASM.commons.methylation.RefCpG;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMap;
 import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.imageio.ImageIO;
@@ -30,18 +34,20 @@ import java.util.stream.Collectors;
  * Visualize methylation pattern and SNP
  */
 public class MethylFigurePgm {
-	private static final int COMMON_FONT_SIZE = 16;
 	private static final int CG_RADIUS = 20;
 	private static final int HEIGHT_INTERVAL = 24;
 	private static final int BPWIDTH = 10;
+	private static int commonFontSize = 16;
 
 	public static void main(String[] args) throws ParseException, IOException {
 		Options options = new Options();
 		options.addOption(Option.builder("i").hasArg().required().desc("input grouped read file").build());
 		options.addOption(Option.builder("p").hasArg().desc("SNP position").build());
 		options.addOption(Option.builder("a").hasArg().desc("allele pair. E.g. A-G").build());
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+		options.addOption(Option.builder("s").hasArg().desc("font size").build());
+
+		CommandLine cmd = new CMDHelper(args, "mfig [options]", options).build();
+
 		String groupedReadFile = cmd.getOptionValue("i");
 		int snpPosition = -1;
 		if (cmd.hasOption("p")) {
@@ -55,6 +61,9 @@ public class MethylFigurePgm {
 			} else {
 				alleles = input;
 			}
+		}
+		if (cmd.hasOption("s")) {
+			commonFontSize = Integer.parseInt(cmd.getOptionValue("s"));
 		}
 
 		Pair<String, List<List<MappedRead>>> result = Files.readLines(new File(groupedReadFile),
@@ -111,7 +120,7 @@ public class MethylFigurePgm {
 			graphWriter.setBackground(Color.WHITE);
 			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 			graphWriter.setPaint(Color.BLACK);
-			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
+			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, commonFontSize));
 
 			int height = 0;
 			drawCompactGroup(graphWriter, refCpGList, height, snpPosition, group1, alleles);
@@ -155,7 +164,7 @@ public class MethylFigurePgm {
 			graphWriter.setBackground(Color.WHITE);
 			graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 			graphWriter.setPaint(Color.BLACK);
-			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, COMMON_FONT_SIZE));
+			graphWriter.setFont(new Font("Helvetica", Font.PLAIN, commonFontSize));
 
 			int height = 0;
 			if (snpPosition == -1) {
@@ -302,7 +311,7 @@ public class MethylFigurePgm {
 		graphWriter.setBackground(Color.WHITE);
 		graphWriter.clearRect(0, 0, imageWidth, imageHeight);
 		graphWriter.setPaint(Color.BLACK);
-		graphWriter.setFont(new Font("Arial", Font.PLAIN, COMMON_FONT_SIZE));
+		graphWriter.setFont(new Font("Arial", Font.PLAIN, commonFontSize));
 
 		int height = 0;
 		height = drawGroup(graphWriter, minStart, height, snpPosition, group1);

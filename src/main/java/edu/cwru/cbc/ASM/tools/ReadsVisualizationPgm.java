@@ -2,10 +2,13 @@ package edu.cwru.cbc.ASM.tools;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.cwru.cbc.ASM.commons.CMDHelper;
 import edu.cwru.cbc.ASM.commons.io.IOUtils;
 import edu.cwru.cbc.ASM.commons.io.MappedReadLineProcessor;
 import edu.cwru.cbc.ASM.commons.sequence.MappedRead;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,8 +27,7 @@ public class ReadsVisualizationPgm {
 		Options options = new Options();
 		options.addOption("i", true, "input file");
 
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+		CommandLine cmd = new CMDHelper(args, "asmv [options]", options).build();
 
 		String inputFileName = cmd.getOptionValue("i");
 		ReadsVisualizationPgm.align(inputFileName);
